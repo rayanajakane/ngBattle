@@ -63,7 +63,7 @@
 .team-name {
     margin-top: 0.25em;
     margin-bottom: 0.25em;
-    color: green;
+    color: #333333;
 }
 
 .header-item {
@@ -76,15 +76,19 @@
 }
 
 .footer-item p :nth-child(even) {
-    color: orange;
+    color: #333333;
 }
 
 .footer-item p :nth-child(odd) {
-    color: blue;
+    color: #333333;
 }
 
 .server-message {
     justify-content: center;
     width: 20%;
     min-width: min-content;
+}
+
+.gray {
+    color: #333333;
 }
