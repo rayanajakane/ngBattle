@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { AdminItemListComponent } from '@app/components/admin-components/admin-item-list/admin-item-list.component';
 import { Item } from './admin-types';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'app-admin-page',
     standalone: true,
-    imports: [AdminItemListComponent],
+    imports: [AdminItemListComponent, RouterLink, RouterOutlet],
     templateUrl: './admin-page.component.html',
     styleUrl: './admin-page.component.scss',
 })
