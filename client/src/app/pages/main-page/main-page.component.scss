@@ -10,9 +10,40 @@
     align-items: center;
 }
 
-.button {
-    margin-top: 10px;
-    text-align: center;
+.button-style {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: 5px;
+}
+
+.button-join {
+    background-color: #007bff;
+    color: white;
+}
+
+.button-create {
+    background-color: #28a745;
+    color: white;
+}
+
+.button-admin {
+    background-color: #dc3545;
+    color: white;
+}
+
+.button-demo {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.button-play {
+    background-color: #ffc107;
+    color: white;
 }
 
 .team-name {
@@ -33,6 +64,7 @@
 .footer-item p :nth-child(even) {
     color: orange;
 }
+
 .footer-item p :nth-child(odd) {
     color: blue;
 }

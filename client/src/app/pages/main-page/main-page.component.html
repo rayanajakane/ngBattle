@@ -1,22 +1,32 @@
 <div class="container justified">
-    <h1 class="header-item">Bienvenue au cours {{ title }}</h1>
-    <img src="https://bit.ly/3QofL1J" alt="Logo Projet" />
+    <h1 class="header-item">
+        Bienvenue à {{ title }} 
+        <img src="../../../assets/swords.png" style="width: 30px; height: auto;" alt="Logo sword" />
+    </h1>
+
+    <div class="logos-line-container">
+        <img src="https://bit.ly/3QofL1J" alt="Logo Projet" class="logo-polymtl" style="width: 40%; margin-left: 30%; max-height: 30%"/>
+        <div class="separator"></div>
+        <img src="../../../assets/NG-BATTLE.jpeg" alt="NG-BATTLE LOGO" class="logo-ng-battle" style="width: 40%; margin-left: 30%; max-height: 10%;" />
+    </div>
+
     <section id="server-message" class="justified">
         <p>Petit message du serveur : {{ message.getValue() }}</p>
         <div class="justified">
-            <button class="button" (click)="getMessagesFromServer()">Récupérer un message du serveur</button>
-            <button class="button" (click)="sendTimeToServer()">Envoyer un message au serveur</button>
-            <button class="button" routerLink="/material">Voir la page démo Angular Material</button>
+            <button class="button-style button-join" routerLink="">Joindre une partie !</button>
+            <button class="button-style button-create" routerLink="">Créer une Partie !</button>
+            <button class="button-style button-admin" routerLink="">Administrer les jeux</button>
+            <button class="button-style button-demo" routerLink="">Voir la page démo Angular Material</button>
         </div>
     </section>
 
-    <button class="button" routerLink="/game">Jouer!</button>
+    <button class="button-style button-play" routerLink="/game">Jouer!</button>
 
     <footer class="footer-item">
-        <h4 class="team-name">Équipe Poly</h4>
+        <h4 class="team-name">Équipe 208</h4>
         <p>
-            <span>Coéquipier #1</span>, <span>Coéquipier #2</span>, <span>Coéquipier #3</span>, 
-            <span>Coéquipier #4</span>, <span>Coéquipier #5</span>, <span>Coéquipier #6</span>
+            <span>Zakari Kerouani</span>, <span>Anis Dib</span>, <span>Yanis Lourdjane</span>, 
+            <span>Rayan Ajakan</span>, <span>Samyar Janatian</span>, <span>Ali Gabr</span>
         </p>
     </footer>
 </div>
