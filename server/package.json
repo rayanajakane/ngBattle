@@ -10,7 +10,8 @@
         "lint": "eslint -c .eslintrc.json \"./app/**/*.ts\" --format stylish",
         "lint:fix": "npm run lint -- --fix",
         "test": "cross-env TS_NODE_PROJECT='./tsconfig.spec.json' mocha --config=.mocharc.json --node-env=test",
-        "coverage": "cross-env TS_NODE_PROJECT='./tsconfig.spec.json' nyc mocha --config=.mocharc.json --node-env=test --exit"
+        "coverage": "cross-env TS_NODE_PROJECT='./tsconfig.spec.json' nyc mocha --config=.mocharc.json --node-env=test --exit",
+        "check": "npm run lint && npm run test"
     },
     "nyc": {
         "check-coverage": true,
