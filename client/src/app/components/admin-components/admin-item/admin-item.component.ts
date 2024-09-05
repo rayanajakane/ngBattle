@@ -10,5 +10,10 @@ import { Item } from '@app/pages/admin-page/admin-types';
 })
 export class AdminItemComponent {
     @Input() item: Item;
-    @Input() lastModified: string = '';
+    @Input() lastModified: string = '12/09/24';
+
+    options = [
+        { value: 'private', label: 'Privee' },
+        { value: 'public', label: 'Publique' },
+    ];
 }

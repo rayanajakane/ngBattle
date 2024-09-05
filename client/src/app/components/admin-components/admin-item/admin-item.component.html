@@ -1,4 +1,23 @@
-<!-- <p>admin-item works!</p> -->
-<div> 
-    {{item?.name}}, {{item?.size}}, {{item?.mode}}, {{lastModified}}
+<div class="box">
+    <div class="image-container">
+        <img src="" />
+    </div>
+
+    <div class="info-container">
+        <p>Nom: {{ item.name }}</p>
+        <p>Taille: {{ item.size }}</p>
+        <p>Mode: {{ item.mode }}</p>
+        <p>Derniere Modif: {{ lastModified }}</p>
+    </div>
+
+    <div class="button-container">
+        <button>Editer</button>
+        <button>Supprimer</button>
+        <select name="Visbilite" id="visibility">
+            @for(option of options; track option.value){
+            <!-- TODO: Set the preselected option based on the current visibility option -->
+            <option value="option.value">{{ option.label }}</option>
+            }
+        </select>
+    </div>
 </div>
