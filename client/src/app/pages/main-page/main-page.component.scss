@@ -1,6 +1,20 @@
+/* Classe pour l'image d'arrière-plan couvrant toute la page */
+.background-full {
+    background-image: url('../../../assets/Background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height:auto; /* Assure que l'image couvre toute la hauteur de la page */
+}
+
+/* Le reste du CSS */
 .container {
-    min-height: 100vh;
-    height: auto;
+    min-height: 100vh; /* Assure que le conteneur couvre la hauteur de la fenêtre */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .justified {
