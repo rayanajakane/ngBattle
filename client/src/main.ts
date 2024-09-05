@@ -5,9 +5,11 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { Routes, provideRouter } from '@angular/router';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { MainPageComponent } from '@app/pages/main-page/main-page.component';
+//import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { environment } from './environments/environment';
+
+import { AdminPageComponent } from 'src/app/pages/admin-page/admin-page.component';
 
 if (environment.production) {
     enableProdMode();
@@ -16,10 +18,10 @@ if (environment.production) {
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'home', component: MainPageComponent },
+    { path: 'home', component: AdminPageComponent },
     { path: 'game', component: GamePageComponent },
     { path: 'material', component: MaterialPageComponent },
-    { path: '**', redirectTo: '/home' },
+    { path: '**', redirectTo: '/home' }
 ];
 
 bootstrapApplication(AppComponent, {
