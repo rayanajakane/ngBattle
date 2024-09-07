@@ -1,9 +1,8 @@
 <section>
-<p>admin-page works!</p>
-    <app-admin-item-list [items] = "items"></app-admin-item-list>
-    <div><a [routerLink]= "['/createView']">Create</a></div>
-
-    <div><a [routerLink]= "['/importView']">Import</a></div>
+    <p>admin-page works!</p>
+    <app-admin-item-list [items]="items"></app-admin-item-list>
+    <div>
+        <a class="create-button" [routerLink]="['/createView']">Create</a>
+        <a class="import-button" [routerLink]="['/importView']">Import</a>
+    </div>
 </section>
-
-<router-outlet></router-outlet>

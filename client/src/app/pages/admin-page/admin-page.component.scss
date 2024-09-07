@@ -1,0 +1,46 @@
+.create-button {
+    border-radius: 4px;
+    background-color: green;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid black;
+}
+
+.import-button {
+    border-radius: 4px;
+    background-color: blue;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid black;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+@keyframes color-transition {
+    0% {
+        background: rgb(0, 76, 197);
+    }
+    25% {
+        background: midnightblue;
+    }
+    50% {
+        background: rgb(0, 76, 197);
+    }
+    75% {
+        background: midnightblue;
+    }
+    100% {
+        background: rgb(0, 76, 197);
+    }
+}
+
+section {
+    background: linear-gradient(to top left, rgb(0, 76, 197), midnightblue);
+    transition: background 0.5s;
+    animation: color-transition 10s infinite;
+}
