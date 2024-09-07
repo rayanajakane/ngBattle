@@ -14,7 +14,7 @@ import { map } from 'rxjs/operators';
     imports: [RouterLink],
 })
 export class MainPageComponent {
-    readonly title: string = 'NG-BATTLE';
+    readonly title: string = 'LOG2990';
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
     constructor(private readonly communicationService: CommunicationService) {}
