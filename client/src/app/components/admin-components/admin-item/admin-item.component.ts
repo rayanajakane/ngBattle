@@ -17,4 +17,12 @@ export class AdminItemComponent {
         { value: 'private', label: 'Privee' },
         { value: 'public', label: 'Publique' },
     ];
+
+    invertVisibility() {
+        this.item.visibility = !this.item.visibility;
+    }
+
+    deleteGame() {
+        // TODO: Write the function
+    }
 }

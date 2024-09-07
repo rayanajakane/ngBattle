@@ -1,20 +1,28 @@
-<div class="box">
-    <app-map-preview [item]="item"></app-map-preview>
-    <div class="info-container">
-        <p>Nom: {{ item.name }}</p>
-        <p>Taille: {{ item.size }}</p>
-        <p>Mode: {{ item.mode }}</p>
-        <p>Derniere Modif: {{ lastModified }}</p>
-    </div>
+<body>
+    <div class="box">
+        <div id="preview-container">
+            <app-map-preview [item]="item"></app-map-preview>
+        </div>
 
-    <div class="button-container">
-        <button>Editer</button>
-        <button>Supprimer</button>
-        <select name="Visbilite" class="visibility-btn">
-            @for(option of options; track option.value){
-            <!-- TODO: Set the preselected option based on the current chosen visibility -->
-            <option value="option.value">{{ option.label }}</option>
+        <div class="info-container">
+            <p>Nom: {{ item.name }}</p>
+            <p>Taille: {{ item.size }}</p>
+            <p>Mode: {{ item.mode }}</p>
+            <p>Derniere Modif: {{ lastModified }}</p>
+        </div>
+
+        <div class="btn-container">
+            <button>Editer</button>
+            <button onclick="deleteGame()">Supprimer</button>
+        </div>
+
+        <div class="vis-btn-container">
+            <button onclick="invertVisibility()">Inverser</button>
+            @if (item.visibility){
+            <p>Publique</p>
+            } @else {
+            <p>Privée</p>
             }
-        </select>
+        </div>
     </div>
-</div>
+</body>

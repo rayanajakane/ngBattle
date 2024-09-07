@@ -13,9 +13,9 @@ import { Item } from './admin-types';
 export class AdminPageComponent {
     items: Item[] = [
         { id: 1, name: 'item1', size: 'small', mode: 'CTF', visibility: true, description: 'Sample Text 1' },
-        { id: 2, name: 'item2', size: 'medium', mode: 'TDM', visibility: true, description: 'Sample Text 2' },
-        { id: 3, name: 'item3', size: 'large', mode: 'FFA', visibility: true, description: 'Sample Text 3' },
-        { id: 4, name: 'item4', size: 'small', mode: 'CTF', visibility: true, description: 'Sample Text 4' },
+        { id: 2, name: 'item2', size: 'medium', mode: 'TDM', visibility: false, description: 'Sample Text 2' },
+        { id: 3, name: 'item3', size: 'large', mode: 'FFA', visibility: false, description: 'Sample Text 3' },
+        { id: 4, name: 'item4', size: 'small', mode: 'CTF', visibility: false, description: 'Sample Text 4' },
         { id: 5, name: 'item5', size: 'medium', mode: 'TDM', visibility: true, description: 'Sample Text 5' },
     ];
 }
