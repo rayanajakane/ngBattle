@@ -32,6 +32,7 @@ describe('IDgenerationService', () => {
     });
     it('should be the right length', () => {
         const id = service.generateID();
-        expect(id.length).toEqual(36);
+        const idLength = 36;
+        expect(id.length).toEqual(idLength);
     });
 });
