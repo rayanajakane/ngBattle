@@ -4,4 +4,5 @@ export type Item = {
     size?: string;
     mode?: string;
     visibility?: boolean;
+    description?: string;
 };

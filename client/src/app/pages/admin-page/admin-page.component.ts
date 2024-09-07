@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemListComponent } from '@app/components/admin-components/admin-item-list/admin-item-list.component';
 import { Item } from './admin-types';
-import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'app-admin-page',
@@ -12,10 +12,10 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 })
 export class AdminPageComponent {
     items: Item[] = [
-        { id: 1, name: 'item1', size: 'small', mode: 'CTF', visibility: true },
-        { id: 2, name: 'item2', size: 'medium', mode: 'TDM', visibility: true },
-        { id: 3, name: 'item3', size: 'large', mode: 'FFA', visibility: true },
-        { id: 4, name: 'item4', size: 'small', mode: 'CTF', visibility: true },
-        { id: 5, name: 'item5', size: 'medium', mode: 'TDM', visibility: true },
+        { id: 1, name: 'item1', size: 'small', mode: 'CTF', visibility: true, description: 'Sample Text 1' },
+        { id: 2, name: 'item2', size: 'medium', mode: 'TDM', visibility: true, description: 'Sample Text 2' },
+        { id: 3, name: 'item3', size: 'large', mode: 'FFA', visibility: true, description: 'Sample Text 3' },
+        { id: 4, name: 'item4', size: 'small', mode: 'CTF', visibility: true, description: 'Sample Text 4' },
+        { id: 5, name: 'item5', size: 'medium', mode: 'TDM', visibility: true, description: 'Sample Text 5' },
     ];
 }
