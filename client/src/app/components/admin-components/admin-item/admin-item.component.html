@@ -13,11 +13,11 @@
 
         <div class="btn-container">
             <button>Editer</button>
-            <button onclick="deleteGame()">Supprimer</button>
+            <button (click)="deleteGame()">Supprimer</button>
         </div>
 
         <div class="vis-btn-container">
-            <button onclick="invertVisibility()">Inverser</button>
+            <button (click)="invertVisibility()">Inverser</button>
             @if (item.visibility){
             <p>Publique</p>
             } @else {

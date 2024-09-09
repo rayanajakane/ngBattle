@@ -13,11 +13,6 @@ export class AdminItemComponent {
     @Input() item: Item;
     @Input() lastModified: string = '12/09/24';
 
-    options = [
-        { value: 'private', label: 'Privee' },
-        { value: 'public', label: 'Publique' },
-    ];
-
     invertVisibility() {
         this.item.visibility = !this.item.visibility;
     }
