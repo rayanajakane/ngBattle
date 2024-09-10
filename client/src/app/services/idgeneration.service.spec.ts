@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { IDgenerationService } from './idgeneration.service';
+import { IDGenerationService } from './idgeneration.service';
 
 describe('IDgenerationService', () => {
-    let service: IDgenerationService;
+    let service: IDGenerationService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(IDgenerationService);
+        service = TestBed.inject(IDGenerationService);
     });
 
     it('should be created', () => {
