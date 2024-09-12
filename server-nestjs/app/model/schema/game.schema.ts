@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Tile, TileSchema } from './tile.schema';
+import { Tile, tileSchema } from './tile.schema';
 
 @Schema()
 export class Game extends Document {
@@ -16,11 +16,11 @@ export class Game extends Document {
     @Prop({ required: true })
     mapSize: string;
 
-    @Prop({ type: [[TileSchema]], required: true }) // TODO look into making this a raw schema definition, check nestJS docs
+    @Prop({ type: [[tileSchema]], required: true }) // TODO look into making this a raw schema definition, check nestJS docs
     map: Tile[][];
 
     @Prop({ required: true })
     gameType: string;
 }
 
-export const GameSchema = SchemaFactory.createForClass(Game);
+export const gameSchema = SchemaFactory.createForClass(Game);

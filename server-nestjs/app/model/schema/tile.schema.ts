@@ -19,4 +19,4 @@ export class Tile extends Document {
     hasPlayer: boolean;
 }
 
-export const TileSchema = SchemaFactory.createForClass(Tile);
+export const tileSchema = SchemaFactory.createForClass(Tile);
