@@ -1,0 +1,8 @@
+mat-grid-tile {
+    background: lightblue;
+  }
+  mat-grid-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ajuste l'image pour qu'elle remplisse la cellule sans déformation */
+  }
