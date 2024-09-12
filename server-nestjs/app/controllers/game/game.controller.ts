@@ -7,9 +7,7 @@ export class GameController {
     constructor(private readonly gameService: GameService) {}
 
     @Post('upload')
-    uploadGame(@Body() gameData: GameDto) {
+    async uploadGame(@Body() gameData: GameDto) {
         return this.gameService.create(gameData);
     }
-
-
 }
