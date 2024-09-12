@@ -1,23 +1,38 @@
 <div>
     <h1>Créer un jeu</h1>
 </div>
-<div>
-    <label>
-        <input type="radio" name="gameChoice" [(ngModel)]="gameMode"  value="classic">Classique
-    </label>
-    <label>
-        <input type="radio" name="gameChoice" [(ngModel)]="gameMode"  value="captureTheFlag">Capturer le drapeau
-    </label>
-</div>
-<div>
-    <label>
-        <input type="radio" name="sizeChoice" [(ngModel)]="sizeMap"  value="small">Petit
-    </label>
-    <label>
-        <input type="radio" name="sizeChoice" [(ngModel)]="sizeMap"  value="normal">Moyen
-    </label>
-    <label>
-        <input type="radio" name="sizeChoice" [(ngModel)]="sizeMap"  value="large">Grand
-    </label>
-</div>
-<!-- <a [routerLink]="['/edit']"> <button <--(click)="submitChoice()"--!>>Submit</button></a> -->
+<form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
+    <div>
+        <div>
+            Enter the name of the game:
+            <input type="text" name="nameGame" required placeholder="Enter game name" [(ngModel)]="nameGame">
+        </div>
+        <div>
+            Enter the description of the game:
+            <input type="text" name="descriptionGame" required placeholder="Enter game description" [(ngModel)]="descriptionGame">
+        </div>
+    </div>
+    
+    <div>
+        <label>
+            <input type="radio" name="gameMode" [(ngModel)]="gameMode" value="classic" required> Classique
+        </label>
+        <label>
+            <input type="radio" name="gameMode" [(ngModel)]="gameMode" value="captureTheFlag" required> Capturer le drapeau
+        </label>
+    </div>
+    
+    <div>
+        <label>
+            <input type="radio" name="sizeMap" [(ngModel)]="sizeMap" value="small" required> Petit
+        </label>
+        <label>
+            <input type="radio" name="sizeMap" [(ngModel)]="sizeMap" value="normal" required> Moyen
+        </label>
+        <label>
+            <input type="radio" name="sizeMap" [(ngModel)]="sizeMap" value="large" required> Grand
+        </label>
+    </div>
+    
+    <button type="submit" [disabled]="gameForm.invalid">Submit</button>
+</form>
