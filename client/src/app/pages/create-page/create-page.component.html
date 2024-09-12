@@ -1,1 +1,23 @@
-<p>create-page works!</p>
+<div>
+    <h1>Créer une partie</h1>
+</div>
+<div>
+    <label>
+        <input type="radio" name="gameChoice" [(ngModel)]="gameMode"  value="classic">Classique
+    </label>
+    <label>
+        <input type="radio" name="gameChoice" [(ngModel)]="gameMode"  value="captureTheFlag">Capturer le drapeau
+    </label>
+</div>
+<div>
+    <label>
+        <input type="radio" name="sizeChoice" [(ngModel)]="sizeMap"  value="small">Petit
+    </label>
+    <label>
+        <input type="radio" name="sizeChoice" [(ngModel)]="sizeMap"  value="normal">Moyen
+    </label>
+    <label>
+        <input type="radio" name="sizeChoice" [(ngModel)]="sizeMap"  value="large">Grand
+    </label>
+</div>
+<!-- <a [routerLink]="['/edit']"> <button <--(click)="submitChoice()"--!>>Submit</button></a> -->

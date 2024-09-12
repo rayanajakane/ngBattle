@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { AdminItemComponent } from './admin-item.component';
 
 describe('AdminItemComponent', () => {
@@ -14,9 +13,18 @@ describe('AdminItemComponent', () => {
         fixture = TestBed.createComponent(AdminItemComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+
+        component.item = {
+            visibility: true,
+        };
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should toggle visibility', () => {
+        component.invertVisibility();
+        expect(component.item.visibility).toBeFalse();
     });
 });

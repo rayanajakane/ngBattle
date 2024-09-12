@@ -1,8 +1,14 @@
 <section>
     <p>admin-page works!</p>
-    <app-admin-item-list [items]="items"></app-admin-item-list>
     <div>
-        <a class="create-button" [routerLink]="['/createView']">Create</a>
-        <a class="import-button" [routerLink]="['/importView']">Import</a>
+        <section>
+            @for(item of items; track item.id){
+                <app-admin-item [item]="item"></app-admin-item>
+            }
+        </section>
+    </div>
+    <div>
+        <a class="create-button" [routerLink]="['/create']">Create</a>
+        <a class="import-button" [routerLink]="['/import']">Import</a>
     </div>
 </section>
