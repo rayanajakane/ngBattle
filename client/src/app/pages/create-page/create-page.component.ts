@@ -17,15 +17,8 @@ export class CreatePageComponent {
     sizeMap: SizeMap = SizeMap.Small;
     nameGame: string = '';
     descriptionGame: string = '';
-
     constructor(private router: Router) {}
-
     submitChoice() {
-        console.log('Game Name:', this.nameGame);
-        console.log('Description:', this.descriptionGame);
-        console.log('Game Mode:', this.gameMode);
-        console.log('Map Size:', this.sizeMap);
-        // Navigate to another page if needed
         this.router.navigate(['/edit']);
     }
 }
