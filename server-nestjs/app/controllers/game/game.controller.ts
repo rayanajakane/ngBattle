@@ -1,16 +1,15 @@
+import { GameDto } from '@app/model/dto/game/game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Post } from '@nestjs/common';
 
 @Controller('game')
 export class GameController {
-    constructor(private readonly gameService: GameService) {
-        console.log('GameController created');
+    constructor(private readonly gameService: GameService) {}
+
+    @Post('upload')
+    uploadGame(@Body() gameData: GameDto) {
+        return this.gameService.create(gameData);
     }
 
-    // TODO add swagger documentation
 
-    @Post('/upload')
-    uploadGame(@Body() gameData: any) { // FIXME add type
-        this.gameService.uploadGame(gameData);
-    }
 }
