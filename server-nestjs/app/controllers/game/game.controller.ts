@@ -1,6 +1,6 @@
 import { GameDto } from '@app/model/dto/game/game.dto';
 import { GameService } from '@app/services/game/game.service';
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 
 @Controller('game')
 export class GameController {
@@ -8,11 +8,21 @@ export class GameController {
 
     @Post('upload')
     async uploadGame(@Body() gameData: GameDto) {
-        return this.gameService.create(gameData);
+        return await this.gameService.create(gameData);
     }
 
-    @Put('update')
-    updateGame(@Body() gameData: GameDto) {
-        return this.gameService.update(gameData);
+    @Patch('update')
+    async updateGame(@Body() gameData: GameDto) {
+        return await this.gameService.update(gameData);
+    }
+
+    @Delete('delete')
+    async deleteGame(@Body() gameData: GameDto) {
+        await this.gameService.delete(gameData);
+    }
+
+    @Get('get')
+    async getGame(@Body() gameData: GameDto) {
+        return await this.gameService.get(gameData);
     }
 }

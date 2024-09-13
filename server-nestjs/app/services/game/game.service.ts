@@ -20,11 +20,18 @@ export class GameService {
         }
     }
 
-    async update(createGameDto: GameDto): Promise<Game> {
-        const filteredGamesById: Game = await this.gameModel.findOne({ id: createGameDto.id }).exec();
-        const existingGame = filteredGamesById[0];
-        await this.gameModel.updateOne({ _id: existingGame._id }, createGameDto).exec();
-        return await this.gameModel.findById(existingGame._id).exec();
+    async update(updateGameDto: GameDto): Promise<Game> {
+        const filteredGameById: Game = await this.gameModel.findOne({ id: updateGameDto.id }).exec();
+        await this.gameModel.updateOne({ _id: filteredGameById._id }, updateGameDto).exec();
+        return await this.gameModel.findById(filteredGameById._id).exec();
+    }
+
+    async delete(deleteGameDto: GameDto) {
+        await this.gameModel.deleteOne({ id: deleteGameDto.id });
+    }
+
+    async get(getGameDto: GameDto): Promise<Game> {
+        return await this.gameModel.findOne({ id: getGameDto.id }).exec();
     }
 
     async findById(id: string): Promise<Game[]> {
