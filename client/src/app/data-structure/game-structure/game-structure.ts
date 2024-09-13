@@ -3,12 +3,11 @@ import { SizeMap } from '@app/data-structure/enum/size-map-enum';
 import { Block } from '@app/data-structure/game-structure/block-structure';
 
 export type Game = {
-    visible: boolean;
     id: number;
     name: string;
     description: string;
-    gameSize: SizeMap;
-    gameMode: GameMode;
-    maxPlayers: number;
+    size: SizeMap;
+    mode: GameMode;
+    isVisible: boolean;
     map: Block[][];
 };

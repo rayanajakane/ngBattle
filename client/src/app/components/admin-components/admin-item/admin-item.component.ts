@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Item } from '@app/pages/admin-page/admin-types';
-
+import { Game } from '@app/data-structure/game-structure/game-structure';
 @Component({
     selector: 'app-admin-item',
     standalone: true,
@@ -9,11 +8,11 @@ import { Item } from '@app/pages/admin-page/admin-types';
     styleUrl: './admin-item.component.scss',
 })
 export class AdminItemComponent {
-    @Input() item: Item = {};
+    @Input() game: Game;
     @Input() lastModified: string = '12/09/24';
 
     invertVisibility() {
-        this.item.visibility = !this.item.visibility;
+        this.game.isVisible = !this.game.isVisible;
     }
 
     // deleteGame() {
