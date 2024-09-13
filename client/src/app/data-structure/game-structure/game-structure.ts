@@ -1,6 +1,6 @@
 import { GameMode } from '@app/data-structure/enum/game-mode-enum';
 import { SizeMap } from '@app/data-structure/enum/size-map-enum';
-import { Block } from '@app/data-structure/game-structure/block-structure';
+import { Tile } from '@app/data-structure/game-structure/tile-structure';
 
 export type Game = {
     id?: number;
@@ -10,5 +10,5 @@ export type Game = {
     mode?: GameMode;
     lastModified?: string;
     isVisible?: boolean;
-    map?: Block[][];
+    map?: Tile[][];
 };
