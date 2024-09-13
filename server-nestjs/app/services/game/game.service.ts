@@ -26,12 +26,12 @@ export class GameService {
         return await this.gameModel.findById(filteredGameById._id).exec();
     }
 
-    async delete(deleteGameDto: GameDto) {
-        await this.gameModel.deleteOne({ id: deleteGameDto.id });
+    async delete(deleteGameID: string) {
+        await this.gameModel.deleteOne({ id: deleteGameID });
     }
 
-    async get(getGameDto: GameDto): Promise<Game> {
-        return await this.gameModel.findOne({ id: getGameDto.id }).exec();
+    async get(getGameID: string): Promise<Game> {
+        return await this.gameModel.findOne({ id: getGameID }).exec();
     }
 
     async findById(id: string): Promise<Game[]> {
