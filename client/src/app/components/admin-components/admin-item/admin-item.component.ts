@@ -8,8 +8,7 @@ import { Game } from '@app/data-structure/game-structure/game-structure';
     styleUrl: './admin-item.component.scss',
 })
 export class AdminItemComponent {
-    @Input() game: Game;
-    @Input() lastModified: string = '12/09/24';
+    @Input() game: Game = {};
 
     invertVisibility() {
         this.game.isVisible = !this.game.isVisible;
@@ -17,5 +16,5 @@ export class AdminItemComponent {
 
     // deleteGame() {
     //     // TODO: Write the function
-    // }
+    // /}
 }
