@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import { TileDto } from './tile.dto';
 
 export class GameDto {
@@ -26,6 +26,10 @@ export class GameDto {
     @IsString()
     @IsNotEmpty()
     readonly gameType: string;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    readonly isVisible: boolean;
 
     // TODO keep up to date with game json structure
 }

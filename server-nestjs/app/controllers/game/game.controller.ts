@@ -16,6 +16,11 @@ export class GameController {
         return await this.gameService.update(gameData);
     }
 
+    @Patch('changeVisibility/:id')
+    async changeVisibility(@Param('id') id: string) {
+        await this.gameService.changeVisibility(id);
+    }
+
     @Delete('delete/:id')
     async deleteGame(@Param('id') id: string) {
         await this.gameService.delete(id);

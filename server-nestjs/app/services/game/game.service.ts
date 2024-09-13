@@ -1,6 +1,6 @@
 import { GameDto } from '@app/model/dto/game/game.dto';
 import { Game } from '@app/model/schema/game.schema';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -11,9 +11,7 @@ export class GameService {
     async create(createGameDto: GameDto): Promise<Game> {
         const filteredGamesById: Game[] = await this.gameModel.find({ id: createGameDto.id }).exec();
         if (filteredGamesById.length === 1) {
-            const existingGame = filteredGamesById[0];
-            await this.gameModel.updateOne({ _id: existingGame._id }, createGameDto).exec();
-            return await this.gameModel.findById(existingGame._id).exec();
+            throw new HttpException('Game already exists', HttpStatus.CONFLICT);
         } else {
             const createdGame = new this.gameModel(createGameDto);
             return await createdGame.save();
@@ -24,6 +22,11 @@ export class GameService {
         const filteredGameById: Game = await this.gameModel.findOne({ id: updateGameDto.id }).exec();
         await this.gameModel.updateOne({ _id: filteredGameById._id }, updateGameDto).exec();
         return await this.gameModel.findById(filteredGameById._id).exec();
+    }
+
+    async changeVisibility(GameId: string) {
+        const filteredGameById: Game = await this.gameModel.findOne({ id: GameId }).exec();
+        await this.gameModel.updateOne({ _id: filteredGameById._id }, { isVisible: !filteredGameById.isVisible }).exec();
     }
 
     async delete(deleteGameID: string) {

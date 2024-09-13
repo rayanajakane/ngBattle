@@ -21,6 +21,9 @@ export class Game extends Document {
 
     @Prop({ required: true })
     gameType: string;
+
+    @Prop({ required: true })
+    isVisible: boolean;
 }
 
 export const gameSchema = SchemaFactory.createForClass(Game);
