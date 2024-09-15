@@ -13,6 +13,7 @@ import { EditPageComponent } from '@app/pages/edit-page/edit-page.component';
 import { environment } from './environments/environment';
 
 import { AdminPageComponent } from 'src/app/pages/admin-page/admin-page.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 if (environment.production) {
     enableProdMode();
@@ -31,5 +32,5 @@ const routes: Routes = [
 ];
 
 bootstrapApplication(AppComponent, {
-    providers: [provideHttpClient(), provideRouter(routes), provideAnimations()],
+    providers: [provideHttpClient(), provideRouter(routes), provideAnimations(), provideAnimationsAsync()],
 });

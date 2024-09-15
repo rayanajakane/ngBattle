@@ -1,0 +1,49 @@
+/* puts game title in the middle */
+.game-title-edit-page {
+    text-align: center;
+}
+
+/*  puts toolbar to the middle bottom */
+.edit-page-toolbar {
+    width: 25%;
+    margin: 0 auto;
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 1rem;
+}
+
+/*  puts toolbar to the right */
+.edit-page-sidebar {
+    width: 10%;
+    margin: 4rem 2rem auto;
+    position: absolute;
+    right: 0;
+}
+
+/* puts map to the middle */
+.edit-page-map {
+    margin: auto;
+    width: 70%;
+    border: 3px solid green;
+    position: absolute;
+    top: 5rem;
+    bottom: 10rem;
+    right: 0;
+    left: 0;
+}
+
+/* ajusts & puts save button to the bottom right */
+.edit-page-save-game-btn {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    margin: 1rem;
+    padding: 1.5rem;
+    font-size: 2rem;
+}
+
+/* makes sure page cannot be scrolled */
+.edit-page-div {
+    overflow: hidden;
+}
