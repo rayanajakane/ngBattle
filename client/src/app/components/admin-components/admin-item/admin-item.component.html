@@ -1,0 +1,25 @@
+<section>
+    <div class="box">
+
+        <div class="info-container">
+            <p>Nom: {{ item.name }}</p>
+            <p>Taille: {{ item.size }}</p>
+            <p>Mode: {{ item.mode }}</p>
+            <p>Derniere Modif: {{ lastModified }}</p>
+        </div>
+
+        <div class="btn-container">
+            <button>Editer</button>
+            <!-- <button (click)="deleteGame()">Supprimer</button> -->
+        </div>
+
+        <div class="vis-btn-container">
+            <button (click)="invertVisibility()">Inverser</button>
+            @if (item.visibility){
+            <p>Publique</p>
+            } @else {
+            <p>Privée</p>
+            }
+        </div>
+    </div>
+</section>
