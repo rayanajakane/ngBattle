@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MapComponent } from './map.component';
+import { TileWaterComponent } from './tile-water.component';
 
-describe('MapComponent', () => {
-    let component: MapComponent;
-    let fixture: ComponentFixture<MapComponent>;
+describe('TileWaterComponent', () => {
+    let component: TileWaterComponent;
+    let fixture: ComponentFixture<TileWaterComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [MapComponent],
+            imports: [TileWaterComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(MapComponent);
+        fixture = TestBed.createComponent(TileWaterComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

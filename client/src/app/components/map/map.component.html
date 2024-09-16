@@ -1,17 +1,24 @@
-<section height="25rem">
-
-
-    <mat-grid-list cols="{{mapSize}}" >
-        @for (item of tiles; track $index) {
-            <mat-grid-tile><img src="../../../assets/NG-BATTLE.jpeg" > </mat-grid-tile>
+<section>
+    <div class="test">
+      <mat-grid-list [cols]="mapSize" >
+        @for ( tile of tiles; track tile) {
+          <mat-grid-tile>
+            <!-- Print the right tile depending on our array -->
+            @if (tile === 'wall') {
+              <app-tile-wall></app-tile-wall>
+            }
+            @if (tile === 'door') {
+              <app-tile-door></app-tile-door>
+            }
+            @if (tile === 'water') {
+              <app-tile-water></app-tile-water>
+            }
+            @if (tile === 'ice') {
+              <app-tile-ice></app-tile-ice>
+            }
+          </mat-grid-tile>
         }
-
       </mat-grid-list>
-
-
-
-
-</section>
-
-
-
+    </div>
+  </section>
+  
