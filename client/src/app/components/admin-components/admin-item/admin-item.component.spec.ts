@@ -14,8 +14,8 @@ describe('AdminItemComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
 
-        component.item = {
-            visibility: true,
+        component.game = {
+            isVisible: true,
         };
     });
 
@@ -25,6 +25,6 @@ describe('AdminItemComponent', () => {
 
     it('should toggle visibility', () => {
         component.invertVisibility();
-        expect(component.item.visibility).toBeFalse();
+        expect(component.game.isVisible).toBeFalse();
     });
 });
