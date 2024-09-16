@@ -43,6 +43,12 @@
     font-size: 2rem;
 }
 
+/* puts save btn in the middle of form */
+.save-header-btn {
+    display: block;
+    margin: 0 auto;
+}
+
 /* makes sure page cannot be scrolled */
 .edit-page-div {
     overflow: hidden;
