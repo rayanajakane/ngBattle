@@ -1,9 +1,15 @@
-<section>
+<section (contextmenu) = "$event.preventDefault()" (mousedown) = "$event.preventDefault()">
     <div class="test">
-      <mat-grid-list [cols]="mapSize" >
+      <mat-grid-list [cols]="mapSize" gutterSize="0">
         @for ( tile of tiles; track tile.index) {
           <mat-grid-tile>
-            <app-tile-basic tileType="{{tile.type}}" (click) = "setTileType(tile.index, selectedTileType)" (contextmenu)= "setTileType(tile.index, ''); $event.preventDefault()"></app-tile-basic>
+            <app-tile-basic
+            tileType="{{tile.type}}"
+            (contextmenu) = "$event.preventDefault()"
+            (mousedown) = "onMouseDown($event, tile.index); $event.preventDefault()"
+            (mouseup) = "onMouseUp()"
+            (mouseenter) = "onMouseEnter(tile.index)">
+            </app-tile-basic>
           </mat-grid-tile>
         }
       </mat-grid-list>

@@ -19,6 +19,8 @@ export class MapComponent implements OnInit {
     @Input() selectedTileType: string;
 
     tiles: Tile[];
+    isMouseDown = false;
+    isRightClick = false;
 
     ngOnInit() {
         this.tiles = this.createGrid(this.mapSize);
@@ -62,6 +64,30 @@ export class MapComponent implements OnInit {
             }
         }
         this.tiles[index].type = tileType;
+    }
+
+    // Triggered when the mouse button is pressed
+    onMouseDown(event: MouseEvent, index: number) {
+        this.isMouseDown = true;
+        if (event.button === 2) {
+            this.isRightClick = true;
+            this.setTileType(index, '');
+          } else {
+            this.setTileType(index, this.selectedTileType);
+          }
+    }
+
+  // Triggered when the mouse button is released
+    onMouseUp() {
+        this.isMouseDown = false;
+        this.isRightClick = false;
+    }
+
+  // Triggered when the mouse enters a tile while pressed
+    onMouseEnter(index: number) {
+        if (this.isMouseDown) {
+            this.setTileType(index, !this.isRightClick? this.selectedTileType: '');
+        }
     }
 
     // ngOnChanges() {
