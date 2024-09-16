@@ -31,7 +31,7 @@ export class MapComponent implements OnInit {
                 // Assign a unique id based on the index
                 return {
                     index: idx,  // Unique ID for each tile
-                    type: 'basic',  // Tile type
+                    type: '',  // Tile type
                 };
             });
     }
@@ -40,7 +40,7 @@ export class MapComponent implements OnInit {
     // Temporary function meanwhile service ( mouseUp mouse Down) is developed
     createRandomGrid(mapSize: number) {
         // TODO: We can create an enum with all the tileTypes
-        const tileTypes = ['basic', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
+        const tileTypes = ['', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
         return Array(mapSize * mapSize)
             .fill(0)
             .map((_, idx) => {
@@ -54,6 +54,13 @@ export class MapComponent implements OnInit {
 
     // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
+        if (tileType == "door") {
+            if (this.tiles[index].type == 'doorClosed') {
+                tileType = "doorOpen"
+            } else {
+                tileType = "doorClosed";
+            }
+        }
         this.tiles[index].type = tileType;
     }
 
