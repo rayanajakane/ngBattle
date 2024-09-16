@@ -1,9 +1,11 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
-import { TileDoorComponent } from '../tile-door/tile-door.component';
-import { TileIceComponent } from '../tile-ice/tile-ice.component';
-import { TileWallComponent } from '../tile-wall/tile-wall.component';
-import { TileWaterComponent } from '../tile-water/tile-water.component';
+import { TileDoorComponent } from '@app/components/map/tile-door/tile-door.component';
+import { TileIceComponent } from '@app/components/map/tile-ice/tile-ice.component';
+import { TileWallComponent } from '@app/components/map/tile-wall/tile-wall.component';
+import { TileWaterComponent } from '@app/components/map/tile-water/tile-water.component';
+import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
+
 @Component({
     selector: 'app-map',
     standalone: true,
@@ -12,8 +14,9 @@ import { TileWaterComponent } from '../tile-water/tile-water.component';
     styleUrl: './map.component.scss',
 })
 export class MapComponent implements OnChanges {
-    @Input() mapSize: number = 15;
-    //
+    // eslint-disable-next-line no-magic-numbers
+    @Input() mapSize: number = DEFAULT_MAP_SIZE;
+
     tiles: string[];
 
     constructor() {
