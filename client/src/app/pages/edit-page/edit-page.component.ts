@@ -19,6 +19,8 @@ import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 export class EditPageComponent {
     gameTitle: string;
     gameDescription: string;
+    selectedTileType: string = "";
+
     constructor() {
         this.gameTitle = '[ Game Title ]';
         this.gameDescription = '[ Game Description ]';
@@ -26,5 +28,10 @@ export class EditPageComponent {
     changeHeader(title: string, description: string) {
         this.gameTitle = title;
         this.gameDescription = description;
+    }
+
+    tempLog(tileType: string) {
+        this.selectedTileType = tileType;
+        console.log(this.selectedTileType);
     }
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 
 @Component({
@@ -11,4 +11,10 @@ import { MatGridListModule } from '@angular/material/grid-list';
 export class ToolbarComponent {
     items: object = [];
     selectedItem: object = {};
+
+    @Output() selectTileTypeEvent = new EventEmitter<string>();
+
+    selectTileType(tileType: string) {
+        this.selectTileTypeEvent.emit(tileType);
+    }
 }

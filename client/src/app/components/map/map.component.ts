@@ -1,6 +1,5 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
-import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 
 type Tile = {
@@ -15,15 +14,15 @@ type Tile = {
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
 })
-export class MapComponent implements OnChanges {
-    @Input() mapSize: number = DEFAULT_MAP_SIZE;
+export class MapComponent implements OnInit {
+    @Input() mapSize: number;
+    @Input() selectedTileType: string;
 
     tiles: Tile[];
 
-    constructor() {
+    ngOnInit() {
         this.tiles = this.createGrid(this.mapSize);
     }
-
 
     createGrid(mapSize: number) {
         return Array(mapSize * mapSize)
@@ -32,7 +31,7 @@ export class MapComponent implements OnChanges {
                 // Assign a unique id based on the index
                 return {
                     index: idx,  // Unique ID for each tile
-                    type: 'basic'  // Tile type
+                    type: 'basic',  // Tile type
                 };
             });
     }
@@ -58,8 +57,8 @@ export class MapComponent implements OnChanges {
         this.tiles[index].type = tileType;
     }
 
-    ngOnChanges() {
-        // Re create the grid list if mapSize changes when our user go back
-        this.tiles = this.createRandomGrid(this.mapSize);
-    }
+    // ngOnChanges() {
+    //     // Re create the grid list if mapSize changes when our user go back
+    //     this.tiles = this.createRandomGrid(this.mapSize);
+    // }
 }

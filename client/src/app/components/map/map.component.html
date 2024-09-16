@@ -3,7 +3,7 @@
       <mat-grid-list [cols]="mapSize" >
         @for ( tile of tiles; track tile.index) {
           <mat-grid-tile>
-            <app-tile-basic tileType="{{tile.type}}" (click) = "setTileType(tile.index, 'ice')"></app-tile-basic>
+            <app-tile-basic tileType="{{tile.type}}" (click) = "setTileType(tile.index, selectedTileType)"></app-tile-basic>
           </mat-grid-tile>
         }
       </mat-grid-list>

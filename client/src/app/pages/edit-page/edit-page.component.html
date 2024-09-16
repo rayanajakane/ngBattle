@@ -25,10 +25,10 @@
     </mat-menu>
 
     <div class="edit-page-map">
-        <app-map></app-map>
+        <app-map [mapSize]="15" [selectedTileType]="selectedTileType"></app-map>
     </div>
     <app-sidebar class="edit-page-sidebar"></app-sidebar>
-    <app-toolbar class="edit-page-toolbar"></app-toolbar>
+    <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="tempLog($event)"></app-toolbar>
 
     <button mat-raised-button color="primary" class="edit-page-save-game-btn">Save Game</button>
 </div>
