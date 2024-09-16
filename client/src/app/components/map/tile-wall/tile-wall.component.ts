@@ -9,7 +9,4 @@ import { Component } from '@angular/core';
 })
 export class TileWallComponent {
     imageUrl = './../../../assets/WALL.jpg';
-
-    
-
 }
