@@ -14,7 +14,6 @@ import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
     styleUrl: './map.component.scss',
 })
 export class MapComponent implements OnChanges {
-    // eslint-disable-next-line no-magic-numbers
     @Input() mapSize: number = DEFAULT_MAP_SIZE;
 
     tiles: string[];
