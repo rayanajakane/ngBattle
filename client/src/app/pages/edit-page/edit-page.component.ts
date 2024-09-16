@@ -5,13 +5,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 
 @Component({
     selector: 'app-edit-page',
     standalone: true,
-    imports: [ToolbarComponent, SidebarComponent, MatButtonModule, MatIcon, MatMenuModule, FormsModule, MatFormFieldModule, MatInputModule],
+    imports: [MapComponent, ToolbarComponent, SidebarComponent, MatButtonModule, MatIcon, MatMenuModule, FormsModule, MatFormFieldModule, MatInputModule],
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })

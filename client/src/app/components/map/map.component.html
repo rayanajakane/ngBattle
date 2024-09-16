@@ -4,21 +4,23 @@
         @for ( tile of tiles; track tile) {
           <mat-grid-tile>
             <!-- Print the right tile depending on our array -->
-            @if (tile === 'wall') {
+            @if (tile.type === 'wall') {
               <app-tile-wall></app-tile-wall>
             }
-            @if (tile === 'door') {
+            @if (tile.type === 'door') {
               <app-tile-door></app-tile-door>
             }
-            @if (tile === 'water') {
+            @if (tile.type === 'water') {
               <app-tile-water></app-tile-water>
             }
-            @if (tile === 'ice') {
+            @if (tile.type === 'ice') {
               <app-tile-ice></app-tile-ice>
+            }
+            @if (tile.type === 'basic') {
+              <app-tile-basic (click) = "tempFunction()"></app-tile-basic>
             }
           </mat-grid-tile>
         }
       </mat-grid-list>
     </div>
   </section>
-  
