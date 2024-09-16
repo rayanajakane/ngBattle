@@ -1,25 +1,9 @@
 <section>
     <div class="test">
       <mat-grid-list [cols]="mapSize" >
-        @for ( tile of tiles; track tile) {
+        @for ( tile of tiles; track tile.index) {
           <mat-grid-tile>
-            <app-tile-basic tileType="{{tile.type}}" (click) = "tempFunction()"></app-tile-basic>
-            <!-- Print the right tile depending on our array -->
-             <!--@if (tile.type === 'wall') {
-              <app-tile-wall></app-tile-wall>
-            }
-            @if (tile.type === 'door') {
-              <app-tile-door></app-tile-door>
-            }
-            @if (tile.type === 'water') {
-              <app-tile-water></app-tile-water>
-            }
-            @if (tile.type === 'ice') {
-              <app-tile-ice></app-tile-ice>
-            }
-            @if (tile.type === 'basic') {
-              <app-tile-basic (click) = "tempFunction()"></app-tile-basic>
-            }-->
+            <app-tile-basic tileType="{{tile.type}}" (click) = "setTileType(tile.index, 'ice')"></app-tile-basic>
           </mat-grid-tile>
         }
       </mat-grid-list>

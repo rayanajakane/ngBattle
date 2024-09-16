@@ -2,10 +2,6 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
-import { TileDoorComponent } from '@app/components/map/tile-door/tile-door.component';
-import { TileIceComponent } from '@app/components/map/tile-ice/tile-ice.component';
-import { TileWallComponent } from '@app/components/map/tile-wall/tile-wall.component';
-import { TileWaterComponent } from '@app/components/map/tile-water/tile-water.component';
 
 type Tile = {
     index: number;
@@ -15,7 +11,7 @@ type Tile = {
 @Component({
     selector: 'app-map',
     standalone: true,
-    imports: [MatGridListModule, MatGridTile, TileDoorComponent, TileIceComponent, TileWallComponent, TileWaterComponent, TileBasicComponent],
+    imports: [MatGridListModule, MatGridTile, TileBasicComponent],
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
 })
@@ -44,6 +40,7 @@ export class MapComponent implements OnChanges {
     // TODO: No need to recreate the whole object again, we can simply change the type
     // Temporary function meanwhile service ( mouseUp mouse Down) is developed
     createRandomGrid(mapSize: number) {
+        // TODO: We can create an enum with all the tileTypes
         const tileTypes = ['basic', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
         return Array(mapSize * mapSize)
             .fill(0)
@@ -56,20 +53,9 @@ export class MapComponent implements OnChanges {
             });
     }
 
-    getElementIndex(element: HTMLElement): number {
-        let index = 0; // Start from 1 for the nth child
-        while (element = element.previousElementSibling as HTMLElement) {
-          index++;
-        }
-        return index;
-      }
-
+    // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
         this.tiles[index].type = tileType;
-    }
-
-    tempFunction() {
-        console.log("hi");
     }
 
     ngOnChanges() {
