@@ -38,6 +38,10 @@ export class MapComponent implements OnInit {
             });
     }
 
+    resetGridToBasic() {
+        this.tiles.forEach((tile) => tile.type = '');
+    }
+
     // TODO: No need to recreate the whole object again, we can simply change the type
     // Temporary function meanwhile service ( mouseUp mouse Down) is developed
     createRandomGrid(mapSize: number) {

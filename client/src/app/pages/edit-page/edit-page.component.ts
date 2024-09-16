@@ -32,6 +32,5 @@ export class EditPageComponent {
 
     tempLog(tileType: string) {
         this.selectedTileType = tileType;
-        console.log(this.selectedTileType);
     }
 }
