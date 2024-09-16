@@ -5,8 +5,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { ToolbarComponent } from '../../components/toolbar/toolbar.component';
+import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
+import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 
 @Component({
     selector: 'app-edit-page',
