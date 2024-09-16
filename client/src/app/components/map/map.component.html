@@ -3,8 +3,9 @@
       <mat-grid-list [cols]="mapSize" >
         @for ( tile of tiles; track tile) {
           <mat-grid-tile>
+            <app-tile-basic tileType="{{tile.type}}" (click) = "tempFunction()"></app-tile-basic>
             <!-- Print the right tile depending on our array -->
-            @if (tile.type === 'wall') {
+             <!--@if (tile.type === 'wall') {
               <app-tile-wall></app-tile-wall>
             }
             @if (tile.type === 'door') {
@@ -18,7 +19,7 @@
             }
             @if (tile.type === 'basic') {
               <app-tile-basic (click) = "tempFunction()"></app-tile-basic>
-            }
+            }-->
           </mat-grid-tile>
         }
       </mat-grid-list>

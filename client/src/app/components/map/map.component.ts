@@ -44,7 +44,7 @@ export class MapComponent implements OnChanges {
     // TODO: No need to recreate the whole object again, we can simply change the type
     // Temporary function meanwhile service ( mouseUp mouse Down) is developed
     createRandomGrid(mapSize: number) {
-        const tileTypes = ['basic', 'wall', 'door', 'water', 'ice'];
+        const tileTypes = ['basic', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
         return Array(mapSize * mapSize)
             .fill(0)
             .map((_, idx) => {
