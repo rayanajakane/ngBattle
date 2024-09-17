@@ -1,11 +1,23 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+interface TileJson {
+    i: number;
+    j: number;
+    tileType: string;
+    item: string;
+    hasPlayer: boolean;
+}
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-type Game = {};
+export interface GameJson {
+    id: string;
+    gameName: string;
+    gameDescription: string;
+    mapSize: string;
+    map: TileJson[];
+    gameType: string;
+    isVisible: boolean;
+}
 
 // TODO: add the opeartions on the instance of data in the client side
 
@@ -15,27 +27,26 @@ type Game = {};
 export class HttpclientService {
     constructor(private httpService: HttpClient) {}
 
-    readonly baseUrl = 'http://localhost:3000/api';
+    private readonly BASE_URL = 'http://localhost:3000/api';
     http = this.httpService;
 
-    sendGame(game: Game) {
-        // TODO: check if this is the right way to define the type of the parameter
-        return this.http.post(`${this.baseUrl}/game`, JSON.stringify(game), { headers: { 'Content-Type': 'application/json' } });
+    sendGame(gameJson: GameJson) {
+        return this.http.post(`${this.BASE_URL}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } })
     }
 
-    getGame(id: string): Observable<Game> {
-        return this.http.get(`${this.baseUrl}/game/` + id).pipe(map((response) => response as Game));
+    getGame(id: string) {
+        return this.http.get(`${this.BASE_URL}/game/get/` + id);
     }
 
-    getGames(): Observable<Game[]> {
-        return this.http.get(`${this.baseUrl}/games`).pipe(map((response) => response as Game[]));
+    getAllGames() {
+        return this.http.get(`${this.BASE_URL}/game/getAll/`);
     }
 
     deleteGame(id: string) {
-        return this.http.delete(`${this.baseUrl}game/` + id);
+        return this.http.delete(`${this.BASE_URL}game/delete/` + id);
     }
 
-    updateGame(game: Game) {
-        return this.http.put(`${this.baseUrl}/game`, JSON.stringify(game), { headers: { 'Content-Type': 'application/json' } });
+    updateGame(gameJson: GameJson) {
+        return this.http.patch(`${this.BASE_URL}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 }
