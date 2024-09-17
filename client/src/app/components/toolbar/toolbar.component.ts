@@ -9,10 +9,10 @@ import { MatGridListModule } from '@angular/material/grid-list';
     styleUrl: './toolbar.component.scss',
 })
 export class ToolbarComponent {
+    @Output() selectTileTypeEvent = new EventEmitter<string>();
+
     items: object = [];
     selectedItem: object = {};
-
-    @Output() selectTileTypeEvent = new EventEmitter<string>();
 
     selectTileType(tileType: string) {
         this.selectTileTypeEvent.emit(tileType);

@@ -32,14 +32,14 @@ export class MapComponent implements OnInit {
             .map((_, idx) => {
                 // Assign a unique id based on the index
                 return {
-                    index: idx,  // Unique ID for each tile
-                    type: '',  // Tile type
+                    index: idx, // Unique ID for each tile
+                    type: '', // Tile type
                 };
             });
     }
 
     resetGridToBasic() {
-        this.tiles.forEach((tile) => tile.type = '');
+        this.tiles.forEach((tile) => (tile.type = ''));
     }
 
     // TODO: No need to recreate the whole object again, we can simply change the type
@@ -52,19 +52,19 @@ export class MapComponent implements OnInit {
             .map((_, idx) => {
                 // Full the array with random tile types
                 return {
-                    index: idx,  // Unique ID for each tile
-                    type: tileTypes[Math.floor(Math.random() * tileTypes.length)]  // Tile type
+                    index: idx, // Unique ID for each tile
+                    type: tileTypes[Math.floor(Math.random() * tileTypes.length)], // Tile type
                 };
             });
     }
 
     // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
-        if (tileType == "door") {
-            if (this.tiles[index].type == 'doorClosed') {
-                tileType = "doorOpen"
+        if (tileType === 'door') {
+            if (this.tiles[index].type === 'doorClosed') {
+                tileType = 'doorOpen';
             } else {
-                tileType = "doorClosed";
+                tileType = 'doorClosed';
             }
         }
         this.tiles[index].type = tileType;
@@ -76,21 +76,21 @@ export class MapComponent implements OnInit {
         if (event.button === 2) {
             this.isRightClick = true;
             this.setTileType(index, '');
-          } else {
+        } else {
             this.setTileType(index, this.selectedTileType);
-          }
+        }
     }
 
-  // Triggered when the mouse button is released
+    // Triggered when the mouse button is released
     onMouseUp() {
         this.isMouseDown = false;
         this.isRightClick = false;
     }
 
-  // Triggered when the mouse enters a tile while pressed
+    // Triggered when the mouse enters a tile while pressed
     onMouseEnter(index: number) {
         if (this.isMouseDown) {
-            this.setTileType(index, !this.isRightClick? this.selectedTileType: '');
+            this.setTileType(index, !this.isRightClick ? this.selectedTileType : '');
         }
     }
 

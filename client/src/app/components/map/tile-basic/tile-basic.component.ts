@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges } from '@angular/core';
 
 @Component({
-  selector: 'app-tile-basic',
-  standalone: true,
-  imports: [],
-  templateUrl: './tile-basic.component.html',
-  styleUrl: './tile-basic.component.scss'
+    selector: 'app-tile-basic',
+    standalone: true,
+    imports: [],
+    templateUrl: './tile-basic.component.html',
+    styleUrl: './tile-basic.component.scss',
 })
 export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = '';
@@ -23,23 +23,23 @@ export class TileBasicComponent implements OnChanges {
 
     setTileImage() {
         switch (this.tileType) {
-            case "wall":
+            case 'wall':
                 this.imageUrl = './../../../assets/WALL.jpg';
                 break;
 
-            case "water":
+            case 'water':
                 this.imageUrl = './../../../assets/WATER.jpg';
                 break;
 
-            case "ice":
+            case 'ice':
                 this.imageUrl = './../../../assets/ICE.jpg';
                 break;
 
-            case "doorOpen":
+            case 'doorOpen':
                 this.imageUrl = './../../../assets/DOOR_OPEN.jpg';
                 break;
 
-            case "doorClosed":
+            case 'doorClosed':
                 this.imageUrl = './../../../assets/DOOR_CLOSED.jpg';
                 break;
 
@@ -48,5 +48,4 @@ export class TileBasicComponent implements OnChanges {
                 break;
         }
     }
-
 }

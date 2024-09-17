@@ -12,14 +12,24 @@ import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 @Component({
     selector: 'app-edit-page',
     standalone: true,
-    imports: [MapComponent, ToolbarComponent, SidebarComponent, MatButtonModule, MatIcon, MatMenuModule, FormsModule, MatFormFieldModule, MatInputModule],
+    imports: [
+        MapComponent,
+        ToolbarComponent,
+        SidebarComponent,
+        MatButtonModule,
+        MatIcon,
+        MatMenuModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })
 export class EditPageComponent {
     gameTitle: string;
     gameDescription: string;
-    selectedTileType: string = "";
+    selectedTileType: string = '';
 
     constructor() {
         this.gameTitle = '[ Game Title ]';

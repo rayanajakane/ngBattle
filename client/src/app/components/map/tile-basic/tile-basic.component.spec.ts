@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TileBasicComponent } from './tile-basic.component';
 
 describe('TileBasicComponent', () => {
-  let component: TileBasicComponent;
-  let fixture: ComponentFixture<TileBasicComponent>;
+    let component: TileBasicComponent;
+    let fixture: ComponentFixture<TileBasicComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TileBasicComponent]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [TileBasicComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(TileBasicComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(TileBasicComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
