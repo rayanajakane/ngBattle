@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsString } from 'class-validator';
 
 export class TileDto {
     @IsInt()
@@ -10,9 +10,8 @@ export class TileDto {
     @IsString()
     readonly tileType: string;
 
-    @IsArray()
-    @IsString({ each: true })
-    readonly items: string[];
+    @IsString()
+    readonly item: string;
 
     @IsBoolean()
     readonly hasPlayer: boolean;

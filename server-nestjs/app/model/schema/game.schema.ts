@@ -16,8 +16,8 @@ export class Game extends Document {
     @Prop({ required: true })
     mapSize: string;
 
-    @Prop({ type: [[tileSchema]], required: true }) // TODO look into making this a raw schema definition, check nestJS docs
-    map: Tile[][];
+    @Prop({ type: [tileSchema], required: true })
+    map: Tile[];
 
     @Prop({ required: true })
     gameType: string;

@@ -12,8 +12,8 @@ export class Tile extends Document {
     @Prop({ required: true })
     tileType: string;
 
-    @Prop({ type: [String], required: true })
-    items: string[];
+    @Prop({ required: false })
+    item: string;
 
     @Prop({ required: true })
     hasPlayer: boolean;

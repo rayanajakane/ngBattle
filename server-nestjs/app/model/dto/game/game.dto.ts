@@ -22,7 +22,7 @@ export class GameDto {
 
     @IsArray()
     @Type(() => TileDto)
-    readonly map: TileDto[][];
+    readonly map: TileDto[];
 
     @IsString()
     @IsNotEmpty()
