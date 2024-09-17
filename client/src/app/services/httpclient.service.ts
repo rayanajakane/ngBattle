@@ -31,6 +31,8 @@ export class HttpclientService {
     constructor(private httpService: HttpClient) {}
 
     sendGame(gameJson: GameJson) {
+        // TODO: Fix 'Content-Type' linting error'
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.http.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -47,6 +49,8 @@ export class HttpclientService {
     }
 
     updateGame(gameJson: GameJson) {
+        // TODO: Fix 'Content-Type' linting error'
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.http.patch(`${this.baseUrl}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 }

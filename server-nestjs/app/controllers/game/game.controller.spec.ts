@@ -28,6 +28,7 @@ describe('GameController', () => {
             changeVisibility: jest.fn(),
             delete: jest.fn(),
             get: jest.fn(),
+            getAll: jest.fn(),
         } as any;
         gameController = new GameController(gameService);
     });
@@ -69,6 +70,15 @@ describe('GameController', () => {
             const result = await gameController.getGame(id);
             expect(gameService.get).toHaveBeenCalledWith(id);
             expect(result).toBe(gameData);
+        });
+    });
+
+    describe('getAllGames', () => {
+        it('should call gameService.getAllGames with no parameters and return the result', async () => {
+            (gameService.getAll as jest.Mock).mockResolvedValue([gameData]);
+            const result = await gameController.getAllGames();
+            expect(gameService.getAll).toHaveBeenCalledWith();
+            expect(result).toStrictEqual([gameData]);
         });
     });
 });

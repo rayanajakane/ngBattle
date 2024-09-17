@@ -8,6 +8,7 @@ const bootstrap = async () => {
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
+    const port: number = 3000;
 
     const config = new DocumentBuilder()
         .setTitle('Cadriciel Serveur')
@@ -18,7 +19,7 @@ const bootstrap = async () => {
     SwaggerModule.setup('api/docs', app, document);
     SwaggerModule.setup('', app, document);
 
-    await app.listen(process.env.PORT || 3000); // TODO figure out how to put get the port from the .env file
+    await app.listen(process.env.PORT || port); // TODO figure out how to put get the port from the .env file
 };
 
 bootstrap();
