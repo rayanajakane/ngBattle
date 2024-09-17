@@ -19,9 +19,8 @@ export class GameService {
     }
 
     async update(updateGameDto: GameDto): Promise<Game> {
-        const filteredGameById: Game = await this.gameModel.findOne({ id: updateGameDto.id }).exec();
-        await this.gameModel.updateOne({ _id: filteredGameById._id }, updateGameDto).exec();
-        return await this.gameModel.findById(filteredGameById._id).exec();
+        await this.gameModel.updateOne({ id: updateGameDto.id }, updateGameDto).exec();
+        return await this.gameModel.findOne({ id: updateGameDto.id }).exec();
     }
 
     async changeVisibility(GameId: string) {
