@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 interface TileJson {
     i: number;
@@ -34,19 +35,23 @@ export class HttpclientService {
         return this.http.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
-    getGame(id: string) {
-        return this.http.get(`${this.baseUrl}/game/get/` + id);
+    getGame(id: string): Observable<GameJson> {
+        return this.http.get<GameJson>(`${this.baseUrl}/game/get/` + id);
     }
 
-    getAllGames() {
-        return this.http.get(`${this.baseUrl}/game/getAll/`);
+    getAllGames(): Observable<GameJson[]> {
+        return this.http.get<GameJson[]>(`${this.baseUrl}/game/getAll/`);
     }
 
     deleteGame(id: string) {
-        return this.http.delete(`${this.baseUrl}game/delete/` + id);
+        return this.http.delete(`${this.baseUrl}/game/delete/` + id, { headers: { 'Content-Type': 'application/json' } });
     }
 
     updateGame(gameJson: GameJson) {
         return this.http.patch(`${this.baseUrl}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
+    }
+
+    changeVisibility(id: string) {
+        return this.http.patch(`${this.baseUrl}/game/changeVisibility/` + id, { headers: { 'Content-Type': 'application/json' } });
     }
 }

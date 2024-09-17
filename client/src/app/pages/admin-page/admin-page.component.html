@@ -1,14 +1,11 @@
 <section>
-    <p>admin-page works!</p>
-    <div>
-        <section>
-            @for(game of games; track game.id){
-            <app-admin-item [game]="game"></app-admin-item>
-            }
-        </section>
+    <div id="btn-container">
+        <a class="create-button" [routerLink]="['/Creer']">Create</a>
+        <a class="import-button" [routerLink]="['/Importer']">Import</a>
     </div>
-    <div>
-        <a class="create-button" [routerLink]="['/create']">Create</a>
-        <a class="import-button" [routerLink]="['/import']">Import</a>
-    </div>
+    <section id="games-list">
+        @for(game of games; track game.id){
+        <app-admin-item [game]="game"></app-admin-item>
+        }
+    </section>
 </section>

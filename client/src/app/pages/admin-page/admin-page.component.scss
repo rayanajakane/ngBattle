@@ -1,3 +1,16 @@
+#games-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
 .create-button {
     border-radius: 4px;
     background-color: green;
