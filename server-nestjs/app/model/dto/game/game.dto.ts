@@ -3,7 +3,6 @@ import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import { TileDto } from './tile.dto';
 
 export class GameDto {
-
     @IsString()
     @IsNotEmpty()
     readonly id: string;

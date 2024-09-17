@@ -23,8 +23,8 @@ export class GameService {
         return await this.gameModel.findOne({ id: updateGameDto.id }).exec();
     }
 
-    async changeVisibility(GameId: string) {
-        const filteredGameById: Game = await this.gameModel.findOne({ id: GameId }).exec();
+    async changeVisibility(gameId: string) {
+        const filteredGameById: Game = await this.gameModel.findOne({ id: gameId }).exec();
         await this.gameModel.updateOne({ _id: filteredGameById._id }, { isVisible: !filteredGameById.isVisible }).exec();
     }
 
@@ -43,5 +43,4 @@ export class GameService {
     async getAll(): Promise<Game[]> {
         return await this.gameModel.find().exec();
     }
-
 }

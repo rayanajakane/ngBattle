@@ -25,28 +25,28 @@ export interface GameJson {
     providedIn: 'root',
 })
 export class HttpclientService {
+    http = this.httpService;
+    private readonly baseUrl = 'http://localhost:3000/api';
+
     constructor(private httpService: HttpClient) {}
 
-    private readonly BASE_URL = 'http://localhost:3000/api';
-    http = this.httpService;
-
     sendGame(gameJson: GameJson) {
-        return this.http.post(`${this.BASE_URL}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } })
+        return this.http.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
     getGame(id: string) {
-        return this.http.get(`${this.BASE_URL}/game/get/` + id);
+        return this.http.get(`${this.baseUrl}/game/get/` + id);
     }
 
     getAllGames() {
-        return this.http.get(`${this.BASE_URL}/game/getAll/`);
+        return this.http.get(`${this.baseUrl}/game/getAll/`);
     }
 
     deleteGame(id: string) {
-        return this.http.delete(`${this.BASE_URL}game/delete/` + id);
+        return this.http.delete(`${this.baseUrl}game/delete/` + id);
     }
 
     updateGame(gameJson: GameJson) {
-        return this.http.patch(`${this.BASE_URL}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
+        return this.http.patch(`${this.baseUrl}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 }
