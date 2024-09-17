@@ -1,4 +1,9 @@
 mat-grid-tile {
     background: lightcoral;
-    border: 7px solid gray;
+    border: 3px solid gray;
+
+
+    &:hover {
+        border: 3px solid rgb(72, 243, 42);
+    }
 }
