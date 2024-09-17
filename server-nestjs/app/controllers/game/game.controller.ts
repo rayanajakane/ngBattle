@@ -30,4 +30,9 @@ export class GameController {
     async getGame(@Param('id') id: string) {
         return await this.gameService.get(id);
     }
+
+    @Get('getAll')
+    async getAllGames() {
+        return await this.gameService.getAll();
+    }
 }
