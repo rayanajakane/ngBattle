@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Game } from '@app/data-structure/game-structure/game-structure';
+import { GameJson, HttpclientService } from '@app/services/httpclient.service';
+
 @Component({
     selector: 'app-admin-item',
     standalone: true,
@@ -8,13 +9,24 @@ import { Game } from '@app/data-structure/game-structure/game-structure';
     styleUrl: './admin-item.component.scss',
 })
 export class AdminItemComponent {
-    @Input() game: Game = {};
+    constructor(private http: HttpclientService) {}
+
+    @Input() game: GameJson;
 
     invertVisibility() {
-        this.game.isVisible = !this.game.isVisible;
+        this.http.changeVisibility(this.game.id).subscribe(() => {
+            window.location.reload();
+        });
     }
 
-    // deleteGame() {
-    //     // TODO: Write the function
-    // /}
+    deleteGame() {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce jeu?')) {
+            this.http.deleteGame(this.game.id).subscribe(() => {
+                const componentElement = document.querySelector('app-admin-item');
+                if (componentElement) {
+                    componentElement.remove();
+                }
+            });
+        }
+    }
 }

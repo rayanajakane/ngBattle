@@ -1,16 +1,19 @@
 <section>
     <div class="box">
+        <p id="title">{{ game.gameName }}</p>
+        <div class="image-container">
+            <img src="" matTooltip="test" />
+        </div>
 
         <div class="info-container">
-            <p>Nom: {{ game.name }}</p>
-            <p>Taille: {{ game.size }}</p>
-            <p>Mode: {{ game.mode }}</p>
-            <p>Derniere Modif: {{ game.lastModified }}</p>
+            <p>Taille: {{ game.mapSize }}</p>
+            <p>Mode: {{ game.gameType }}</p>
+            <p>Derniere Modif: {{ 'pas encore implementee' }}</p>
         </div>
 
         <div class="btn-container">
             <button>Editer</button>
-            <!-- <button (click)="deleteGame()">Supprimer</button> -->
+            <button (click)="deleteGame()">Supprimer</button>
         </div>
 
         <div class="vis-btn-container">
