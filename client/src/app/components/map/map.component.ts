@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
+import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 
 type Tile = {
@@ -15,7 +16,7 @@ type Tile = {
     styleUrl: './map.component.scss',
 })
 export class MapComponent implements OnInit {
-    @Input() mapSize: number;
+    @Input() mapSize: number = DEFAULT_MAP_SIZE;
     @Input() selectedTileType: string;
 
     tiles: Tile[];

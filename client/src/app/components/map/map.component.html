@@ -1,7 +1,7 @@
 <section (contextmenu) = "$event.preventDefault()" (mousedown) = "$event.preventDefault()">
     <div class="test">
       <mat-grid-list [cols]="mapSize">
-        @for ( tile of tiles; track tile.index) {
+        @for ( tile of tiles; track $index) {
           <mat-grid-tile>
             <app-tile-basic
             tileType="{{tile.type}}"
