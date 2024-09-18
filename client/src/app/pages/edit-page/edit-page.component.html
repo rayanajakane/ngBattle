@@ -1,1 +1,11 @@
-<p>edit-page works!</p>
+<div class="edit-page-div">
+    <h1 class="game-title-edit-page">
+        {{ this.gameTitle }}
+    </h1>
+    <div class="edit-page-map">
+        <app-map [mapSize]="5" [selectedTileType]="selectedTileType"></app-map>
+    </div>
+    <app-sidebar class="edit-page-sidebar"></app-sidebar>
+    <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="tempLog($event)"></app-toolbar>
+    <button mat-raised-button color="primary" class="edit-page-save-game-btn">Save Game</button>
+</div>
