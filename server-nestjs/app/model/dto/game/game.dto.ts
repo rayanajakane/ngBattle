@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import 'reflect-metadata';
 import { TileDto } from './tile.dto';
 
 export class GameDto {
@@ -30,6 +31,10 @@ export class GameDto {
     @IsBoolean()
     @IsNotEmpty()
     readonly isVisible: boolean;
+
+    @IsString()
+    @IsNotEmpty()
+    readonly creationDate: string;
 
     // TODO keep up to date with game json structure
 }

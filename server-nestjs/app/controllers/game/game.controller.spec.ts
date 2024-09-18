@@ -19,6 +19,7 @@ describe('GameController', () => {
         ],
         gameType: 'ctf',
         isVisible: true,
+        creationDate: '2021-01-01',
     };
 
     beforeEach(() => {

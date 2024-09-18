@@ -23,6 +23,7 @@ describe('GameService', () => {
         ],
         gameType: 'ctf',
         isVisible: true,
+        creationDate: '2021-01-01',
     };
 
     beforeEach(async () => {

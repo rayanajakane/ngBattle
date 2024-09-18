@@ -24,6 +24,9 @@ export class Game extends Document {
 
     @Prop({ required: true })
     isVisible: boolean;
+
+    @Prop({ required: true })
+    creationDate: string;
 }
 
 export const gameSchema = SchemaFactory.createForClass(Game);

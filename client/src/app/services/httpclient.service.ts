@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GameJson } from '@app/data-structure/game-structure';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -14,6 +15,7 @@ export class HttpClientService {
     sendGame(gameJson: GameJson) {
         // TODO: Fix 'Content-Type' linting error'
         // eslint-disable-next-line @typescript-eslint/naming-convention
+        gameJson.creationDate = new Date().toISOString();
         return this.httpService.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -21,8 +23,10 @@ export class HttpClientService {
         return this.httpService.get<GameJson>(`${this.baseUrl}/game/get/` + id);
     }
 
-    getAllGames(): Observable<GameJson[]> {
-        return this.httpService.get<GameJson[]>(`${this.baseUrl}/game/getAll/`);
+    getAllGames() {
+        return this.httpService
+            .get<GameJson[]>(`${this.baseUrl}/game/getAll/`)
+            .pipe(map((games: GameJson[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime())));
     }
 
     deleteGame(id: string) {

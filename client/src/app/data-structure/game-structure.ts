@@ -14,4 +14,5 @@ export interface GameJson {
     map: TileJson[];
     gameType: string;
     isVisible: boolean;
+    creationDate: string;
 }
