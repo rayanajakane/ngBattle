@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { GameJson } from '@app/data-structure/game-structure';
-import { HttpclientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-admin-item',
@@ -13,7 +13,7 @@ import { HttpclientService } from '@app/services/httpclient.service';
 })
 export class AdminItemComponent {
     @Input() game: GameJson;
-    constructor(private http: HttpclientService) {}
+    constructor(private http: HttpClientService) {}
 
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {

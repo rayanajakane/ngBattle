@@ -5,7 +5,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-components/admin-item/admin-item.component';
 import { GameJson } from '@app/data-structure/game-structure';
-import { HttpclientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-admin-page',
@@ -17,7 +17,7 @@ import { HttpclientService } from '@app/services/httpclient.service';
 export class AdminPageComponent implements OnInit {
     games: GameJson[];
 
-    constructor(private http: HttpclientService) {}
+    constructor(private http: HttpClientService) {}
 
     ngOnInit() {
         this.loadGames();
