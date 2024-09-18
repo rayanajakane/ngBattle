@@ -8,7 +8,7 @@ import { SizeMap } from '@app/data-structure/enum/size-map-enum';
 @Component({
     selector: 'app-create-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, CommonModule],
+    imports: [FormsModule, RouterLink, CommonModule], // TODO: check if common module is needed
     templateUrl: './create-page.component.html',
     styleUrl: './create-page.component.scss',
 })
@@ -17,11 +17,8 @@ export class CreatePageComponent {
     sizeMap: SizeMap = SizeMap.Small;
     nameGame: string = '';
     descriptionGame: string = '';
-
     constructor(private router: Router) {}
-
     submitChoice() {
-        // Navigate to another page if needed
         this.router.navigate(['/edit']);
     }
 }

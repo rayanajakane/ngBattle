@@ -5,7 +5,7 @@
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    height:auto; /* Assure que l'image couvre toute la hauteur de la page */
+    height: auto; /* Assure que l'image couvre toute la hauteur de la page */
 }
 
 /* Le reste du CSS */
@@ -30,7 +30,9 @@
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    transition:
+        background-color 0.3s,
+        box-shadow 0.3s;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     margin: 5px;
 }
