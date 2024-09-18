@@ -23,12 +23,18 @@ export class AdminItemComponent {
 
     deleteGame() {
         if (confirm('Êtes-vous sûr de vouloir supprimer ce jeu?')) {
-            this.http.deleteGame(this.game.id).subscribe(() => {
-                const componentElement = document.querySelector('app-admin-item');
-                if (componentElement) {
-                    componentElement.remove();
+            this.http.getGame(this.game.id).subscribe((game) => {
+                if (!game) {
+                    alert('Le jeu a déjà été supprimé par un autre administrateur');
+                    return;
+                } else {
+                    this.http.deleteGame(this.game.id).subscribe(() => {});
                 }
             });
+            const componentElement = document.querySelector('app-admin-item');
+            if (componentElement) {
+                componentElement.remove();
+            }
         }
     }
 }
