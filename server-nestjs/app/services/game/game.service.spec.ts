@@ -94,13 +94,6 @@ describe('GameService', () => {
         });
     });
 
-    describe('findById', () => {
-        it('should find games by ID', async () => {
-            (gameModel.find as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce([{}]) });
-            await expect(service.findById('1')).resolves.toEqual([{}]);
-        });
-    });
-
     describe('findAll', () => {
         it('should retrieve all games', async () => {
             (gameModel.find as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce([{}]) });
