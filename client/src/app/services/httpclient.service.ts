@@ -14,8 +14,8 @@ export class HttpClientService {
 
     sendGame(gameJson: GameJson) {
         // TODO: Fix 'Content-Type' linting error'
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         gameJson.creationDate = new Date().toISOString();
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
