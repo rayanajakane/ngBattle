@@ -10,8 +10,12 @@ export class GameService {
 
     async create(createGameDto: GameDto): Promise<Game> {
         const filteredGamesById: Game[] = await this.gameModel.find({ id: createGameDto.id }).exec();
-        if (filteredGamesById.length === 1) {
-            throw new HttpException('Game already exists', HttpStatus.CONFLICT);
+        const filteredGamesByName: Game[] = await this.gameModel.find({ gameName: createGameDto.gameName }).exec();
+
+        if (filteredGamesById.length > 0) {
+            throw new HttpException('Game with this ID already exists', HttpStatus.CONFLICT);
+        } else if (filteredGamesByName.length > 0) {
+            throw new HttpException('Game with this name already exists', HttpStatus.CONFLICT);
         } else {
             const createdGame = new this.gameModel(createGameDto);
             return await createdGame.save();
