@@ -8,7 +8,7 @@ const bootstrap = async () => {
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
-    const port: number = 3000;
+    const port = 3000;
 
     const config = new DocumentBuilder()
         .setTitle('Cadriciel Serveur')

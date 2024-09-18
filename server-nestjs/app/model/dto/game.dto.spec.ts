@@ -1,7 +1,7 @@
+import { GameDto } from '@app/model/dto/game/game.dto';
+import { TileDto } from '@app/model/dto/game/tile.dto';
 import { plainToClass } from 'class-transformer';
 import 'reflect-metadata';
-import { GameDto } from '../dto/game/game.dto';
-import { TileDto } from '../dto/game/tile.dto';
 
 describe('GameDto', () => {
     it('should transform plain objects to TileDto instances', () => {

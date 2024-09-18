@@ -26,6 +26,7 @@ export class HttpclientService {
     }
 
     deleteGame(id: string) {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.delete(`${this.baseUrl}/game/delete/` + id, { headers: { 'Content-Type': 'application/json' } });
     }
 
@@ -36,6 +37,7 @@ export class HttpclientService {
     }
 
     changeVisibility(id: string) {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.patch(`${this.baseUrl}/game/changeVisibility/` + id, { headers: { 'Content-Type': 'application/json' } });
     }
 }

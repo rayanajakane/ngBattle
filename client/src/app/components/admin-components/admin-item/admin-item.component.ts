@@ -12,9 +12,8 @@ import { HttpclientService } from '@app/services/httpclient.service';
     styleUrl: './admin-item.component.scss',
 })
 export class AdminItemComponent {
-    constructor(private http: HttpclientService) {}
-
     @Input() game: GameJson;
+    constructor(private http: HttpclientService) {}
 
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {
