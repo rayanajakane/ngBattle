@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -35,31 +35,25 @@ import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
     styleUrl: './edit-page.component.scss',
 })
 export class EditPageComponent {
-    gameTitle: string;
-    gameDescription: string;
     selectedTileType: string = '';
-    readonly animal = signal('');
-    readonly name = model('');
-    readonly dialog = inject(MatDialog);
-    constructor() {
-        this.gameTitle = '[ Game Title ]';
-        this.gameDescription = '[ Game Description ]';
-    }
-    // TODO: adapt this to the right dialog
+
+    // default values for game title and description
+    gameTitle: string = 'Untitled';
+    gameDescription: string = 'Once upon a time...';
+
+    constructor(public dialog: MatDialog) {}
+
     openDialog(): void {
         const dialogRef = this.dialog.open(EditHeaderDialogComponent, {
-            data: { name: this.name(), animal: this.animal() },
+            data: { gameNameInput: this.gameTitle, gameDescriptionInput: this.gameDescription },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result !== undefined) {
-                this.animal.set(result);
+            if (result) {
+                this.gameTitle = result.gameNameInput;
+                this.gameDescription = result.gameDescriptionInput;
             }
         });
-    }
-    changeHeader(title: string, description: string) {
-        this.gameTitle = title;
-        this.gameDescription = description;
     }
 
     tempLog(tileType: string) {
