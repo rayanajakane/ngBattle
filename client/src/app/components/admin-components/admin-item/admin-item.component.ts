@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { GameJson, HttpclientService } from '@app/services/httpclient.service';
+import { GameJson } from '@app/data-structure/game-structure';
+import { HttpclientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-admin-item',
@@ -17,7 +18,7 @@ export class AdminItemComponent {
 
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {
-            window.location.reload();
+            this.game.isVisible = !this.game.isVisible;
         });
     }
 

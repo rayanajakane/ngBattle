@@ -7,8 +7,8 @@ import { AdminItemComponent } from '@app/components/admin-components/admin-item/
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
-
-import { GameJson, HttpclientService } from '@app/services/httpclient.service';
+import { GameJson } from '@app/data-structure/game-structure';
+import { HttpclientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-admin-page',

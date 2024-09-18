@@ -1,4 +1,5 @@
 import { plainToClass } from 'class-transformer';
+import 'reflect-metadata';
 import { GameDto } from '../dto/game/game.dto';
 import { TileDto } from '../dto/game/tile.dto';
 
