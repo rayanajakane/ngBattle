@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { GameJson, HttpclientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [],
+    imports: [MatCardModule, MatButtonModule],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
