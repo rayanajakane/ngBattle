@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Modifier le jeu</h2>
+<mat-dialog-content>
+    <mat-form-field>
+        <mat-label>Nom du jeu</mat-label>
+        <input matInput [(ngModel)]="data.gameNameInput" />
+    </mat-form-field>
+    <br />
+    <mat-form-field>
+        <mat-label>Description du jeu</mat-label>
+        <textarea matInput [(ngModel)]="data.gameDescriptionInput"></textarea>
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" color="primary">Close</button>
+    <button mat-button (click)="onYesClick()" cdkFocusInitial color="primary">Ok</button>
+</mat-dialog-actions>

@@ -1,6 +1,9 @@
 /* puts game title in the middle */
 .game-title-edit-page {
+    margin-top: 1rem;
     text-align: center;
+    color: white;
+    font-weight: bold;
 }
 
 /*  puts toolbar to the middle bottom */
@@ -15,7 +18,7 @@
 
 /*  puts toolbar to the right */
 .edit-page-sidebar {
-    width: 10%;
+    width: 15%;
     margin: 4rem 2rem auto;
     position: absolute;
     right: 0;
@@ -24,32 +27,38 @@
 /* puts map to the middle */
 .edit-page-map {
     margin: auto;
-    width: 70%;
-    border: 3px solid green;
     position: absolute;
+    width: 50%;
+    height: 50%;
     top: 5rem;
     bottom: 10rem;
     right: 0;
     left: 0;
 }
 
-/* ajusts & puts save button to the bottom right */
+/* adjusts & puts save button to the bottom right */
 .edit-page-save-game-btn {
     position: absolute;
-    right: 1rem;
     bottom: 1rem;
     margin: 1rem;
     padding: 1.5rem;
     font-size: 2rem;
 }
-
-/* puts save btn in the middle of form */
-.save-header-btn {
-    display: block;
-    margin: 0 auto;
+.edit-page-reset-game-btn {
+    position: absolute;
+    bottom: 5rem;
+    margin: 1rem;
+    padding: 1.5rem;
+    font-size: 2rem;
 }
 
 /* makes sure page cannot be scrolled */
 .edit-page-div {
+    background-image: url('./../../../assets/edit-view-background.jpg');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100vw;
     overflow: hidden;
 }
