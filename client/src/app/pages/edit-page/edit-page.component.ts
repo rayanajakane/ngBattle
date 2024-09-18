@@ -47,8 +47,10 @@ export class EditPageComponent {
         private mapService: MapService,
     ) {}
 
-    resetGridToBasic(): void {
+    resetGame(): void {
         this.mapService.resetGridToBasic();
+        this.gameTitle = 'Untitled';
+        this.gameDescription = 'Once upon a time...';
     }
     openDialog(): void {
         const dialogRef = this.dialog.open(EditHeaderDialogComponent, {
