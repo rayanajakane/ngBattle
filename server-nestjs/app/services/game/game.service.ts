@@ -40,10 +40,6 @@ export class GameService {
         return await this.gameModel.findOne({ id: getGameID }).exec();
     }
 
-    async findById(id: string): Promise<Game[]> {
-        return this.gameModel.find({ id }).exec();
-    }
-
     async getAll(): Promise<Game[]> {
         return await this.gameModel.find().exec();
     }
