@@ -29,7 +29,9 @@ export class AdminItemComponent {
                     alert('Le jeu a déjà été supprimé par un autre administrateur');
                     return;
                 } else {
-                    this.http.deleteGame(this.game.id).subscribe(() => {});
+                    this.http.deleteGame(this.game.id).subscribe(() => {
+                        alert('Le jeu a été supprimé avec succès');
+                    });
                 }
             });
             const componentElement = document.querySelector('app-admin-item');
