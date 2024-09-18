@@ -10,6 +10,7 @@ import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/ed
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
+import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-edit-page',
@@ -41,8 +42,14 @@ export class EditPageComponent {
     gameTitle: string = 'Untitled';
     gameDescription: string = 'Once upon a time...';
 
-    constructor(public dialog: MatDialog) {}
+    constructor(
+        public dialog: MatDialog,
+        private mapService: MapService,
+    ) {}
 
+    resetGridToBasic(): void {
+        this.mapService.resetGridToBasic();
+    }
     openDialog(): void {
         const dialogRef = this.dialog.open(EditHeaderDialogComponent, {
             data: { gameNameInput: this.gameTitle, gameDescriptionInput: this.gameDescription },
