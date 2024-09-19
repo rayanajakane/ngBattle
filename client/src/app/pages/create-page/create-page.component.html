@@ -1,28 +1,29 @@
 <div class="create-game-page">
     <h1>Créer un jeu</h1>
-    <br>
+    <br />
 
-<form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
-    <div>
-        <h3>Choisir le mode de jeu</h3>
-        <mat-radio-group aria-label="Sélectionner le mode de jeu" [(ngModel)]="gameMode" name="gameMode" required>
-            <span><mat-radio-button value="classic">Classique</mat-radio-button>
-            <mat-radio-button value="captureTheFlag">Capturer le drapeau</mat-radio-button></span>
-        </mat-radio-group>
-    </div>
+    <form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
+        <div>
+            <h3>Choisir le mode de jeu</h3>
+            <mat-radio-group aria-label="Sélectionner le mode de jeu" [(ngModel)]="gameType" name="gameMode" required>
+                <span
+                    ><mat-radio-button value="classic">Classique</mat-radio-button>
+                    <mat-radio-button value="captureTheFlag">Capturer le drapeau</mat-radio-button></span
+                >
+            </mat-radio-group>
+        </div>
 
-    <div>
-        <h3>Choisir la taille de la carte</h3>
-        <mat-radio-group aria-label="Sélectionner la taille de la carte" [(ngModel)]="sizeMap" name="sizeMap" required>
-            <span><mat-radio-button value="small">Petit</mat-radio-button>
-            <mat-radio-button value="normal">Moyen</mat-radio-button>
-            <mat-radio-button value="large">Grand</mat-radio-button></span>
-        </mat-radio-group>
-    </div>
+        <div>
+            <h3>Choisir la taille de la carte</h3>
+            <mat-radio-group aria-label="Sélectionner la taille de la carte" [(ngModel)]="mapSize" name="sizeMap" required>
+                <span
+                    ><mat-radio-button value="small">Petit</mat-radio-button>
+                    <mat-radio-button value="normal">Moyen</mat-radio-button>
+                    <mat-radio-button value="large">Grand</mat-radio-button></span
+                >
+            </mat-radio-group>
+        </div>
 
-
-    <button mat-fab extended color="primary" type="submit" [disabled]="gameForm.invalid">
-Continuer  </button>
-
-</form>
+        <button mat-fab extended color="primary" type="submit" [disabled]="gameForm.invalid">Continuer</button>
+    </form>
 </div>
