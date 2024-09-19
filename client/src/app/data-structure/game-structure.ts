@@ -5,7 +5,7 @@ interface TileJson {
     item: string;
     hasPlayer: boolean;
 }
-
+// TODO: remove the game name attribute from the structure
 export interface GameJson {
     id: string;
     gameName: string;
