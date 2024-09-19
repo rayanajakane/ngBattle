@@ -92,7 +92,6 @@ export class EditPageComponent {
     }
 
     saveGame() {
-        console.log(this.createGameJSON());
         this.httpService.sendGame(this.createGameJSON()).subscribe(() => {
             this.router.navigate(['/admin']);
         });

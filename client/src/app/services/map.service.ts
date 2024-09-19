@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TileJson } from '@app/data-structure/game-structure';
+import { TileTypes } from '@app/data-structure/tileType';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +21,7 @@ export class MapService {
                       // Assign a unique id based on the index
                       return {
                           idx: index, // Unique ID for each tile
-                          tileType: '', // Tile type
+                          tileType: TileTypes.BASIC, // Tile type
                           item: '',
                           hasPlayer: false,
                       };
@@ -34,11 +35,11 @@ export class MapService {
 
     // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
-        if (tileType === 'door') {
-            if (this.tiles[index].tileType === 'doorClosed') {
-                tileType = 'doorOpen';
+        if (tileType === TileTypes.DOOR) {
+            if (this.tiles[index].tileType === TileTypes.DOORCLOSED) {
+                tileType = TileTypes.DOOROPEN;
             } else {
-                tileType = 'doorClosed';
+                tileType = TileTypes.DOORCLOSED;
             }
         }
         this.tiles[index].tileType = tileType;
@@ -49,7 +50,7 @@ export class MapService {
         this.isMouseDown = true;
         if (event.button === 2) {
             this.isRightClick = true;
-            this.setTileType(index, '');
+            this.setTileType(index, TileTypes.BASIC);
         } else {
             this.setTileType(index, selectedTileType);
         }
@@ -64,7 +65,7 @@ export class MapService {
     // Triggered when the mouse enters a tile while pressed
     onMouseEnter(index: number, selectedTileType: string) {
         if (this.isMouseDown) {
-            this.setTileType(index, !this.isRightClick ? selectedTileType : '');
+            this.setTileType(index, !this.isRightClick ? selectedTileType : TileTypes.BASIC);
         }
     }
 }
