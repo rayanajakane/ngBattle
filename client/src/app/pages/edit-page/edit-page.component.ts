@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
+import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
@@ -61,7 +62,7 @@ export class EditPageComponent implements OnInit {
     ngOnInit() {
         // verify if the game is imported or not
         this.gameType = this.gameSettingsService.gameType;
-        this.mapSize = this.gameSettingsService.mapSize;
+        this.mapSize = this.gameSettingsService.mapSize || DEFAULT_MAP_SIZE;
     }
 
     resetGame(): void {
