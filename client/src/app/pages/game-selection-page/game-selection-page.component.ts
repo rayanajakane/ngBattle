@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { GameSelectionComponent } from '@app/components/game-selection/game-selection.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
@@ -18,5 +18,15 @@ export class GameSelectionPageComponent {
 
     async ngOnInit() {
         this.games = await firstValueFrom(this.http.getAllGames());
+    }
+
+    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
+
+    scrollLeft() {
+        this.widgetsContent.nativeElement.scrollLeft -= 300;
+    }
+
+    scrollRight() {
+        this.widgetsContent.nativeElement.scrollLeft += 300;
     }
 }
