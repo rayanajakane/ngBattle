@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { GameMode } from '@app/data-structure/enum/game-mode-enum';
 import { SizeMap } from '@app/data-structure/enum/size-map-enum';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-create-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, CommonModule], // TODO: check if common module is needed
+    imports: [FormsModule, RouterLink, CommonModule, MatRadioModule, MatIconModule],
     templateUrl: './create-page.component.html',
     styleUrl: './create-page.component.scss',
 })
