@@ -28,4 +28,5 @@ export class AdminPageComponent implements OnInit {
             this.games = data;
         });
     }
+    // TODO: Add a ngOndestruct to unsuscribe from the stream
 }
