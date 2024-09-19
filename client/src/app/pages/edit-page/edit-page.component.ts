@@ -6,10 +6,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { Router, RouterLink } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
+import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
+import { GameJson } from '@app/data-structure/game-structure';
+import { HttpClientService } from '@app/services/httpclient.service';
+import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
 
 @Component({
@@ -30,12 +35,14 @@ import { MapService } from '@app/services/map.service';
         MatInputModule,
         FormsModule,
         MatButtonModule,
+        RouterLink,
     ],
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })
 export class EditPageComponent {
     selectedTileType: string = '';
+    mapSize: number = DEFAULT_MAP_SIZE;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
@@ -44,6 +51,9 @@ export class EditPageComponent {
     constructor(
         public dialog: MatDialog,
         private mapService: MapService,
+        private httpService: HttpClientService,
+        private idService: IDGenerationService,
+        private router: Router,
     ) {}
 
     resetGame(): void {
@@ -66,5 +76,24 @@ export class EditPageComponent {
 
     tempLog(tileType: string) {
         this.selectedTileType = tileType;
+    }
+
+    createGameJSON() {
+        return {
+            id: this.idService.generateID(),
+            gameName: this.gameTitle,
+            gameDescription: this.gameDescription,
+            mapSize: this.mapSize.toString(),
+            map: [],
+            gameType: 'CTF',
+            isVisible: true,
+            creationDate: '',
+        } as GameJson;
+    }
+
+    saveGame() {
+        this.httpService.sendGame(this.createGameJSON()).subscribe(() => {
+            this.router.navigate(['/admin']);
+        });
     }
 }

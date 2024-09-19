@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-type Tile = {
+export type Tile = {
     index: number;
     type: string;
 };

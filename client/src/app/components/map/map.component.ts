@@ -1,8 +1,8 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
-import { MapService } from '@app/services/map.service';
+import { MapService, Tile } from '@app/services/map.service';
 
 @Component({
     selector: 'app-map',
@@ -14,6 +14,7 @@ import { MapService } from '@app/services/map.service';
 export class MapComponent implements OnInit {
     @Input() mapSize: number = DEFAULT_MAP_SIZE;
     @Input() selectedTileType: string;
+    @Output() sendMapEvent = new EventEmitter<Tile[]>();
 
     mapService = inject(MapService);
 
