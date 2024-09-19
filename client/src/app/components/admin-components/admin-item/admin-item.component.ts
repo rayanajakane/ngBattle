@@ -40,4 +40,6 @@ export class AdminItemComponent {
             }
         }
     }
+
+    // TODO: Add a function to unsuscribe from the streams of the component (use ngOnDestruct)
 }
