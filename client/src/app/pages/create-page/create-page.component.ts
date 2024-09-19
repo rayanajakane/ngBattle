@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { GameMode } from '@app/data-structure/enum/game-mode-enum';
-import { SizeMap } from '@app/data-structure/enum/size-map-enum';
 
 @Component({
     selector: 'app-create-page',
@@ -13,10 +11,10 @@ import { SizeMap } from '@app/data-structure/enum/size-map-enum';
     styleUrl: './create-page.component.scss',
 })
 export class CreatePageComponent {
-    gameMode: GameMode = GameMode.Classic;
-    sizeMap: SizeMap = SizeMap.Small;
-    nameGame: string = '';
-    descriptionGame: string = '';
+    gameType: string;
+    gameName: string;
+    gameDescription: string;
+    mapSize: string;
     constructor(private router: Router) {}
     submitChoice() {
         this.router.navigate(['/edit']);
