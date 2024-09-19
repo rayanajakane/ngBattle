@@ -58,6 +58,7 @@ describe('GameService', () => {
             await expect(service.create(gameData)).rejects.toThrow(HttpException);
         });
 
+        // FIXME
         // it('should create a new game', async () => {
         //     (gameModel.find as jest.Mock).mockReturnValue({ exec: jest.fn().mockResolvedValueOnce([]) });
         //     await expect(service.create(gameData)).resolves.toEqual({});
