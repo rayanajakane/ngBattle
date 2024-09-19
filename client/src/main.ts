@@ -11,7 +11,6 @@ import { ImportPageComponent } from '@app/pages/import-page/import-page.componen
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { environment } from './environments/environment';
-
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AdminPageComponent } from 'src/app/pages/admin-page/admin-page.component';
 
