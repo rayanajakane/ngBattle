@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,11 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
-import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { GameJson } from '@app/data-structure/game-structure';
+import { GameSettingsService } from '@app/services/game-settings.service';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
@@ -40,9 +40,10 @@ import { MapService } from '@app/services/map.service';
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })
-export class EditPageComponent {
+export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
-    mapSize: number = DEFAULT_MAP_SIZE;
+    mapSize: number;
+    gameType: string;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
@@ -54,7 +55,14 @@ export class EditPageComponent {
         private httpService: HttpClientService,
         private idService: IDGenerationService,
         private router: Router,
+        private gameSettingsService: GameSettingsService,
     ) {}
+
+    ngOnInit() {
+        // verify if the game is imported or not
+        this.gameType = this.gameSettingsService.gameType;
+        this.mapSize = this.gameSettingsService.mapSize;
+    }
 
     resetGame(): void {
         this.mapService.resetGridToBasic();
