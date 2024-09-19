@@ -1,25 +1,27 @@
-<section>
-    <div class="box">
+<mat-card>
+    <mat-card-header>
+        <p id="title">{{ game.gameName }}</p>
+    </mat-card-header>
 
-        <div class="info-container">
-            <p>Nom: {{ game.name }}</p>
-            <p>Taille: {{ game.size }}</p>
-            <p>Mode: {{ game.mode }}</p>
-            <p>Derniere Modif: {{ game.lastModified }}</p>
-        </div>
+    <mat-card-content id="img-container">
+        <img mat-card-image src="" matTooltip="test" />
+    </mat-card-content>
 
-        <div class="btn-container">
-            <button>Editer</button>
-            <!-- <button (click)="deleteGame()">Supprimer</button> -->
-        </div>
+    <mat-card-content id="main-container">
+        <p>Taille: {{ game.mapSize }}</p>
+        <p>Mode: {{ game.gameType }}</p>
+        <p>creation date: {{ game.creationDate }}</p>
+        <p>Derniere Modif: {{ 'pas encore implementee' }}</p>
+        @if (game.isVisible){
+        <p>Publique</p>
+        } @else {
+        <p>Privée</p>
+        }
+    </mat-card-content>
 
-        <div class="vis-btn-container">
-            <button (click)="invertVisibility()">Inverser</button>
-            @if (game.isVisible){
-            <p>Publique</p>
-            } @else {
-            <p>Privée</p>
-            }
-        </div>
-    </div>
-</section>
+    <mat-card-actions class="btn-container">
+        <button mat-raised-button>Editer</button>
+        <button mat-raised-button (click)="deleteGame()">Supprimer</button>
+        <button mat-raised-button (click)="invertVisibility()">Inverser</button>
+    </mat-card-actions>
+</mat-card>

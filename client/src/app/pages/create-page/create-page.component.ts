@@ -15,10 +15,10 @@ import { MatIconModule } from '@angular/material/icon';
     styleUrl: './create-page.component.scss',
 })
 export class CreatePageComponent {
-    gameMode: GameMode = GameMode.Classic;
-    sizeMap: SizeMap = SizeMap.Small;
-    nameGame: string = '';
-    descriptionGame: string = '';
+    gameType: string;
+    gameName: string;
+    gameDescription: string;
+    mapSize: string;
     constructor(private router: Router) {}
     submitChoice() {
         this.router.navigate(['/edit']);
