@@ -2,10 +2,7 @@ import { IsBoolean, IsInt, IsString } from 'class-validator';
 
 export class TileDto {
     @IsInt()
-    readonly i: number;
-
-    @IsInt()
-    readonly j: number;
+    readonly idx: number;
 
     @IsString()
     readonly tileType: string;

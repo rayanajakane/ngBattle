@@ -84,7 +84,7 @@ export class EditPageComponent {
             gameName: this.gameTitle,
             gameDescription: this.gameDescription,
             mapSize: this.mapSize.toString(),
-            map: [],
+            map: this.mapService.tiles,
             gameType: 'CTF',
             isVisible: true,
             creationDate: '',
@@ -92,6 +92,7 @@ export class EditPageComponent {
     }
 
     saveGame() {
+        console.log(this.createGameJSON());
         this.httpService.sendGame(this.createGameJSON()).subscribe(() => {
             this.router.navigate(['/admin']);
         });
