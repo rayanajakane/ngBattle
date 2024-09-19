@@ -2,6 +2,8 @@ import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import 'reflect-metadata';
 import { TileDto } from './tile.dto';
+import { IsCorrectStartingPointAmount } from './validators/startingPointAmount/startingPointAmount.decorator';
+import { IsCorrectTileAmount } from './validators/tileAmount/tileAmount.decorator';
 import { IsUniqueId } from './validators/uniqueId/uniqueId.decorator';
 import { IsUniqueName } from './validators/uniqueName/uniqueName.decorator';
 
@@ -13,11 +15,11 @@ export class GameDto {
 
     @IsString({ message: 'Name must be a string' })
     @IsUniqueName()
-    @IsNotEmpty({ message: 'Name cannot be empty' })
+    @IsNotEmpty({ message: 'Le nom ne peut pas être vide' })
     readonly gameName: string;
 
     @IsString({ message: 'Description must be a string' })
-    @IsNotEmpty({ message: 'Description cannot be empty' })
+    @IsNotEmpty({ message: 'La description ne peut pas être vide' })
     readonly gameDescription: string;
 
     @IsString({ message: 'Size must be a string' })
@@ -26,6 +28,8 @@ export class GameDto {
 
     @IsArray({ message: 'Map must be an array of TileJson' })
     @Type(() => TileDto)
+    @IsCorrectTileAmount()
+    @IsCorrectStartingPointAmount()
     readonly map: TileDto[];
 
     @IsString({ message: 'gameType must be a string' })

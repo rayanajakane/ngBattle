@@ -15,6 +15,6 @@ export class UniqueNameValidator implements ValidatorConstraintInterface {
     }
 
     defaultMessage(args: ValidationArguments) {
-        return 'A game with the name $value already exists';
+        return 'Un jeu avec le nom $value existe déjà';
     }
 }
