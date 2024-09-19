@@ -1,6 +1,5 @@
 <div class="create-game-page">
     <h1>Créer un jeu</h1>
-    <br />
 
     <form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
         <div>
@@ -8,8 +7,8 @@
             <mat-radio-group aria-label="Sélectionner le mode de jeu" [(ngModel)]="gameType" name="gameMode" required>
                 <span
                     ><mat-radio-button value="classic">Classique</mat-radio-button>
-                    <mat-radio-button value="captureTheFlag">Capturer le drapeau</mat-radio-button></span
-                >
+                    <mat-radio-button value="captureTheFlag">Capturer le drapeau</mat-radio-button>
+                </span>
             </mat-radio-group>
         </div>
 
