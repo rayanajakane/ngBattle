@@ -1,22 +1,24 @@
-.create-button {
-    border-radius: 4px;
-    background-color: green;
-    color: white;
-    padding: 8px 16px;
-    cursor: pointer;
-    border: 1px solid black;
+#games-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
 }
 
-.import-button {
-    border-radius: 4px;
-    background-color: blue;
-    color: white;
-    padding: 8px 16px;
-    cursor: pointer;
-    border: 1px solid black;
+#btn-container {
+    display: flex;
+    justify-content: center;
+    margin: 16px;
 }
 
 a {
-    text-decoration: none;
-    color: white;
+    margin: 0 8px;
+    border-radius: 30px;
+}
+
+app-admin-item {
+    transition: transform 0.2s ease-in-out;
+    &:hover {
+        transform: scale(1.04);
+    }
 }
