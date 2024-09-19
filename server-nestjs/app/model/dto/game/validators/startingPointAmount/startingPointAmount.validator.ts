@@ -11,15 +11,12 @@ export class StartingPointAmountValidator implements ValidatorConstraintInterfac
         const mapSize = object.mapSize;
 
         if (mapSize === '10') {
-            console.log(10);
             const startingPoints = map.filter((tile) => tile.item === 'startingPoint').length;
             return startingPoints >= 2;
         } else if (mapSize === '15') {
-            console.log(15);
             const startingPoints = map.filter((tile) => tile.item === 'startingPoint').length;
             return startingPoints >= 4;
         } else if (mapSize === '20') {
-            console.log(20);
             const startingPoints = map.filter((tile) => tile.item === 'startingPoint').length;
             return startingPoints >= 6;
         }
