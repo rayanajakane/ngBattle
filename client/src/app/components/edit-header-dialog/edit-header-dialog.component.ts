@@ -15,7 +15,7 @@ export interface DialogData {
     standalone: true,
     imports: [MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
     templateUrl: './edit-header-dialog.component.html',
-    styleUrls: ['./edit-header-dialog.component.scss'],
+    styleUrl: './edit-header-dialog.component.scss',
 })
 export class EditHeaderDialogComponent {
     constructor(
