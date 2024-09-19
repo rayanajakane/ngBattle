@@ -1,1 +1,8 @@
-<p>game-selection-page works!</p>
+<h1>Choose a game to play</h1>
+<div>
+    <section id="games-list">
+        @for(game of games; track game.id){
+        <app-game-selection [game]="game"></app-game-selection>
+        }
+    </section>
+</div>

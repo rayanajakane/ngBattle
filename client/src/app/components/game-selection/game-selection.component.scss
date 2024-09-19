@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'pixelfont';
+    src: url('../../../assets/fonts/DungeonFont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.game-info {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+
+    width: 15%;
+    height: 15%;
+    font-size: 55%;
+
+    padding: 3%;
+    text-align: center;
+    background-image: url('../../../assets/game-selection-page/Border\ All\ 10.png');
+
+    color: white;
+}
+
+.game-description {
+    font-size: 1.5em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
