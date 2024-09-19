@@ -91,6 +91,7 @@ export class EditPageComponent {
         } as GameJson;
     }
 
+    // TODO: Add feature to save game conditionnally if game exists
     saveGame() {
         this.httpService.sendGame(this.createGameJSON()).subscribe(() => {
             this.router.navigate(['/admin']);
