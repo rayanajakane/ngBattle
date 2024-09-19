@@ -1,28 +1,29 @@
-<div>
+<div class="create-game-page">
     <h1>Créer un jeu</h1>
+    <br />
+
+    <form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
+        <div>
+            <h3>Choisir le mode de jeu</h3>
+            <mat-radio-group aria-label="Sélectionner le mode de jeu" [(ngModel)]="gameType" name="gameMode" required>
+                <span
+                    ><mat-radio-button value="classic">Classique</mat-radio-button>
+                    <mat-radio-button value="captureTheFlag">Capturer le drapeau</mat-radio-button></span
+                >
+            </mat-radio-group>
+        </div>
+
+        <div>
+            <h3>Choisir la taille de la carte</h3>
+            <mat-radio-group aria-label="Sélectionner la taille de la carte" [(ngModel)]="mapSize" name="sizeMap" required>
+                <span
+                    ><mat-radio-button value="small">Petit</mat-radio-button>
+                    <mat-radio-button value="normal">Moyen</mat-radio-button>
+                    <mat-radio-button value="large">Grand</mat-radio-button></span
+                >
+            </mat-radio-group>
+        </div>
+
+        <button mat-fab extended color="primary" type="submit" [disabled]="gameForm.invalid">Continuer</button>
+    </form>
 </div>
-<form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
-    <div>
-        <div>
-            Enter the name of the game:
-            <input type="text" name="nameGame" required placeholder="Enter game name" [(ngModel)]="gameName" />
-        </div>
-        <div>
-            Enter the description of the game:
-            <input type="text" name="descriptionGame" required placeholder="Enter game description" [(ngModel)]="gameDescription" />
-        </div>
-    </div>
-
-    <div>
-        <label> <input type="radio" name="gameMode" [(ngModel)]="gameType" value="classic" required /> Classique </label>
-        <label> <input type="radio" name="gameMode" [(ngModel)]="gameType" value="captureTheFlag" required /> Capturer le drapeau </label>
-    </div>
-
-    <div>
-        <label> <input type="radio" name="sizeMap" [(ngModel)]="mapSize" value="small" required /> Petit </label>
-        <label> <input type="radio" name="sizeMap" [(ngModel)]="mapSize" value="normal" required /> Moyen </label>
-        <label> <input type="radio" name="sizeMap" [(ngModel)]="mapSize" value="large" required /> Grand </label>
-    </div>
-
-    <button type="submit" [disabled]="gameForm.invalid">Submit</button>
-</form>

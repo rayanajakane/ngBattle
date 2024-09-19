@@ -9,9 +9,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 })
 export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = '';
-
-    imageUrl = '';
-
+    imageUrl: string = '';
     constructor() {
         this.setTileImage();
     }
