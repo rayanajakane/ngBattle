@@ -47,4 +47,15 @@ img{
 
 h1{
     text-align: center;
+    color: white;
 }
+
+body {
+    background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg'); /* Replace with your image path */
+    background-size: cover; /* Cover the entire page */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent repeating */
+    margin: 0; /* Remove default margin */
+    height: 100vh; /* Full viewport height */
+  }
+  
