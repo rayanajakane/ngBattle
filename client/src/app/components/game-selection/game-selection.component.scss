@@ -1,9 +1,4 @@
-@font-face {
-    font-family: 'pixelfont';
-    src: url('../../../assets/fonts/DungeonFont.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
+@import url('../../css-files/global.css');
 
 .game-info {
     background-repeat: no-repeat;
@@ -26,3 +21,4 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+  
