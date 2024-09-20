@@ -1,24 +1,36 @@
 @import url('../../css-files/global.css');
 
 .game-info {
-    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 200px; /* Adjust to fit more content */
+    height: auto; /* Allow the height to expand based on content */
+    padding: 25px;
+
+    background-image: url('../../../assets/game-selection-page/Border All 10.png');
     background-size: contain;
     background-position: center;
-
-    width: 15%;
-    height: 15%;
-    font-size: 55%;
-
-    padding: 3%;
-    text-align: center;
-    background-image: url('../../../assets/game-selection-page/Border\ All\ 10.png');
+    background-repeat: no-repeat;
 
     color: white;
+    overflow: hidden; /* Prevent content from overflowing */
+}
+
+.game-info:hover {
+    transform: scale(1.05); /* Scales the div by 10% */
+}
+
+p {
+    margin: 5px 0; /* Reduce spacing between paragraphs */
 }
 
 .game-description {
-    font-size: 1.5em;
+    font-size: 0.9em; /* Adjust description size */
     margin-top: 10px;
-    margin-bottom: 10px;
 }
-  
+
+.game-name {
+    font-weight: bold; /* Optional: make it bold */
+}

@@ -3,11 +3,12 @@ import { GameSelectionComponent } from '@app/components/game-selection/game-sele
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { firstValueFrom } from 'rxjs';
+import { NgFor } from '@angular/common';
 
 @Component({
     selector: 'app-game-selection-page',
     standalone: true,
-    imports: [GameSelectionComponent],
+    imports: [GameSelectionComponent, NgFor],
     templateUrl: './game-selection-page.component.html',
     styleUrls: ['./game-selection-page.component.scss'], // Fixed plural
 })

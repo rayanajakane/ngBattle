@@ -1,15 +1,20 @@
 <h1 class="medievalsharp-regular">Choose a game to play</h1>
 
-<div class="custom-slider-arrow mt-sm">
-    <img src="assets/img/chevron-left.svg" alt="" (click)="scrollLeft()" />
-</div>
-<div>
-    <section id="games-list">
-        @for(game of games; track game.id){
-        <app-game-selection [game]="game"></app-game-selection>
-        }
-    </section>
-</div>
-<div class="custom-slider-arrow mt-sm">
-    <img src="assets/img/chevron-right.svg" alt="" (click)="scrollRight()" />
+<div class="game-selection-container">
+    <div class="custom-slider-arrow mt-sm">
+        <img class="arrowImg" src="../../../assets/game-selection-page/left-arrow.png" alt="Left" (click)="scrollLeft()" />
+    </div>
+    
+    <div class="game-list-wrapper">
+        <section id="games-list" #widgetsContent>
+            <app-game-selection 
+                *ngFor="let game of games;"
+                [game]="game">
+            </app-game-selection>
+        </section>
+    </div>
+    
+    <div class="custom-slider-arrow mt-sm">
+        <img class="arrowImg" src="../../../assets/game-selection-page/right-arrow.png" alt="Right" (click)="scrollRight()" />
+    </div>
 </div>
