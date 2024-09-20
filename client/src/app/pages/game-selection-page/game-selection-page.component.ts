@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GameSelectionComponent } from '@app/components/game-selection/game-selection.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
@@ -9,9 +9,11 @@ import { firstValueFrom } from 'rxjs';
     standalone: true,
     imports: [GameSelectionComponent],
     templateUrl: './game-selection-page.component.html',
-    styleUrl: './game-selection-page.component.scss',
+    styleUrls: ['./game-selection-page.component.scss'], // Fixed plural
 })
-export class GameSelectionPageComponent {
+export class GameSelectionPageComponent implements OnInit {
+    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef; // Moved inside the class
+
     games: GameJson[];
 
     constructor(private http: HttpClientService) {}
@@ -19,8 +21,6 @@ export class GameSelectionPageComponent {
     async ngOnInit() {
         this.games = await firstValueFrom(this.http.getAllGames());
     }
-
-    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
 
     scrollLeft() {
         this.widgetsContent.nativeElement.scrollLeft -= 300;
