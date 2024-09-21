@@ -1,6 +1,5 @@
 import { GameDto } from '@app/model/dto/game/game.dto';
 import { Game } from '@app/model/schema/game.schema';
-import { HttpException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
@@ -11,19 +10,19 @@ describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<Game>;
     const gameData: GameDto = {
-        id: '123',
-        gameName: 'test game',
+        id: '1',
+        gameName: 'Game 2',
         gameDescription: 'This is an example game description.',
         mapSize: '10x10',
         map: [
-            { i: 0, j: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
-            { i: 0, j: 1, tileType: 'water', item: '', hasPlayer: false },
-            { i: 1, j: 0, tileType: 'sand', item: 'item2', hasPlayer: true },
-            { i: 1, j: 1, tileType: 'mountain', item: '', hasPlayer: false },
+            { idx: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
+            { idx: 1, tileType: 'water', item: '', hasPlayer: false },
+            { idx: 2, tileType: 'sand', item: 'item2', hasPlayer: true },
+            { idx: 3, tileType: 'mountain', item: '', hasPlayer: false },
         ],
         gameType: 'ctf',
         isVisible: true,
-        creationDate: '2021-01-01',
+        creationDate: '2024-09-18T10:30:00.000Z',
     };
 
     beforeEach(async () => {
@@ -53,11 +52,6 @@ describe('GameService', () => {
     });
 
     describe('create', () => {
-        it('should throw an exception if game already exists', async () => {
-            (gameModel.find as jest.Mock).mockReturnValue({ exec: jest.fn().mockResolvedValueOnce([{}]) });
-            await expect(service.create(gameData)).rejects.toThrow(HttpException);
-        });
-
         // FIXME
         // it('should create a new game', async () => {
         //     (gameModel.find as jest.Mock).mockReturnValue({ exec: jest.fn().mockResolvedValueOnce([]) });

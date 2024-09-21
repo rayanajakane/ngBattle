@@ -1,8 +1,9 @@
 import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game/game.controller';
+import { AllTilesAccessibleValidator } from './model/dto/game/validators/allTilesAccessible/allTilesAccessible.validator';
+import { GroundAmountValidator } from './model/dto/game/validators/groundAmount/groundAmount.validator';
 import { StartingPointAmountValidator } from './model/dto/game/validators/startingPointAmount/startingPointAmount.validator';
-import { TileAmountValidator } from './model/dto/game/validators/tileAmount/tileAmount.validator';
 import { UniqueIdValidator } from './model/dto/game/validators/uniqueId/uniqueId.validator';
 import { UniqueNameValidator } from './model/dto/game/validators/uniqueName/uniqueName.validator';
 import { Game, gameSchema } from './model/schema/game.schema';
@@ -17,6 +18,14 @@ import { GameService } from './services/game/game.service';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [GameService, Logger, UniqueNameValidator, UniqueIdValidator, TileAmountValidator, StartingPointAmountValidator],
+    providers: [
+        GameService,
+        Logger,
+        UniqueNameValidator,
+        UniqueIdValidator,
+        GroundAmountValidator,
+        StartingPointAmountValidator,
+        AllTilesAccessibleValidator,
+    ],
 })
 export class AppModule {}

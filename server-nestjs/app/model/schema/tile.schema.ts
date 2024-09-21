@@ -4,10 +4,7 @@ import { Document } from 'mongoose';
 @Schema()
 export class Tile extends Document {
     @Prop({ required: true })
-    i: number;
-
-    @Prop({ required: true })
-    j: number;
+    idx: number;
 
     @Prop({ required: false })
     tileType: string;

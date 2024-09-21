@@ -7,19 +7,19 @@ describe('GameController', () => {
     let gameController: GameController;
     let gameService: GameService;
     const gameData: GameDto = {
-        id: '123',
-        gameName: 'test game',
+        id: '1',
+        gameName: 'Game 2',
         gameDescription: 'This is an example game description.',
         mapSize: '10x10',
         map: [
-            { i: 0, j: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
-            { i: 0, j: 1, tileType: 'water', item: '', hasPlayer: false },
-            { i: 1, j: 0, tileType: 'sand', item: 'item2', hasPlayer: true },
-            { i: 1, j: 1, tileType: 'mountain', item: '', hasPlayer: false },
+            { idx: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
+            { idx: 1, tileType: 'water', item: '', hasPlayer: false },
+            { idx: 2, tileType: 'sand', item: 'item2', hasPlayer: true },
+            { idx: 3, tileType: 'mountain', item: '', hasPlayer: false },
         ],
         gameType: 'ctf',
         isVisible: true,
-        creationDate: '2021-01-01',
+        creationDate: '2024-09-18T10:30:00.000Z',
     };
 
     beforeEach(() => {

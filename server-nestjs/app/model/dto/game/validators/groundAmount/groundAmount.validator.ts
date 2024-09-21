@@ -4,7 +4,7 @@ import { TileDto } from '../../tile.dto';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class TileAmountValidator implements ValidatorConstraintInterface {
+export class GroundAmountValidator implements ValidatorConstraintInterface {
     async validate(map: TileDto[], args: ValidationArguments): Promise<boolean> {
         const totalTiles = map.length;
         const emptyTiles = map.filter((tile) => tile.tileType === '').length;

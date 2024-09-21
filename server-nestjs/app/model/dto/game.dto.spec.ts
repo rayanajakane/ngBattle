@@ -29,7 +29,6 @@ describe('GameDto', () => {
         // ... check other map items as needed
 
         // Optionally, check if the transformation is accurate
-        expect(gameDto.map[0].i).toBe(0);
         expect(gameDto.map[0].tileType).toBe('grass');
         expect(gameDto.map[0].hasPlayer).toBe(false);
     });
