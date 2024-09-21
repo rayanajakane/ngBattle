@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { Router, RouterLink } from '@angular/router';
-import { GameSettingsService } from '@app/services/game-settings.service';
+import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-create-page',
@@ -19,11 +19,11 @@ export class CreatePageComponent {
     mapSize: string;
     constructor(
         private router: Router,
-        private gameSettingsService: GameSettingsService,
+        private mapService: MapService,
     ) {}
     submitChoice() {
         this.router.navigate(['/edit']);
-        this.gameSettingsService.setGameType(this.gameType);
-        this.gameSettingsService.setMapSize(Number(this.mapSize));
+        this.mapService.setGameType(this.gameType);
+        this.mapService.setMapSize(Number(this.mapSize));
     }
 }

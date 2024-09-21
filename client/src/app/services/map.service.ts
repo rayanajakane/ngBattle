@@ -9,9 +9,19 @@ export type Tile = {
     providedIn: 'root',
 })
 export class MapService {
+    gameType: string;
+    mapSize: number;
     tiles: Tile[];
     isMouseDown = false;
     isRightClick = false;
+
+    setGameType(type: string) {
+        this.gameType = type;
+    }
+
+    setMapSize(size: number) {
+        this.mapSize = size;
+    }
 
     createGrid(mapSize: number) {
         this.tiles = Array(mapSize * mapSize)

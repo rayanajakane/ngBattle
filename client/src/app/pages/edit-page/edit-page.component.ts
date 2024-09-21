@@ -13,7 +13,6 @@ import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { GameJson } from '@app/data-structure/game-structure';
-import { GameSettingsService } from '@app/services/game-settings.service';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
@@ -56,13 +55,12 @@ export class EditPageComponent implements OnInit {
         private httpService: HttpClientService,
         private idService: IDGenerationService,
         private router: Router,
-        private gameSettingsService: GameSettingsService,
     ) {}
 
     ngOnInit() {
         // verify if the game is imported or not
-        this.gameType = this.gameSettingsService.gameType;
-        this.mapSize = this.gameSettingsService.mapSize || DEFAULT_MAP_SIZE;
+        this.gameType = this.mapService.gameType;
+        this.mapSize = this.mapService.mapSize || DEFAULT_MAP_SIZE;
     }
 
     resetGame(): void {
