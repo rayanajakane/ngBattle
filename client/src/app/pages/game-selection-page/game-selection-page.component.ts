@@ -10,10 +10,10 @@ import { NgFor } from '@angular/common';
     standalone: true,
     imports: [GameSelectionComponent, NgFor],
     templateUrl: './game-selection-page.component.html',
-    styleUrls: ['./game-selection-page.component.scss'], // Fixed plural
+    styleUrls: ['./game-selection-page.component.scss'],
 })
 export class GameSelectionPageComponent implements OnInit {
-    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef; // Moved inside the class
+    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
 
     games: GameJson[];
 

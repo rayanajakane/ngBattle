@@ -5,8 +5,8 @@
     flex-direction: column;
     justify-content: space-between;
 
-    width: 200px; /* Adjust to fit more content */
-    height: 200px; /* Allow the height to expand based on content */
+    width: 200px;
+    height: 200px;
     padding: 25px;
 
     background-image: url('../../../assets/game-selection-page/Border All 10.png');
@@ -15,22 +15,22 @@
     background-repeat: no-repeat;
 
     color: white;
-    overflow: hidden; /* Prevent content from overflowing */
+    overflow: hidden;
 }
 
 .game-info:hover {
-    transform: scale(1.05); /* Scales the div by 10% */
+    transform: scale(1.05);
 }
 
 p {
-    margin: 5px 0; /* Reduce spacing between paragraphs */
+    margin: 5px 0;
 }
 
 .game-description {
-    font-size: 0.9em; /* Adjust description size */
+    font-size: 0.9em;
     margin-top: 10px;
 }
 
 .game-name {
-    font-weight: bold; /* Optional: make it bold */
+    font-weight: bold;
 }
