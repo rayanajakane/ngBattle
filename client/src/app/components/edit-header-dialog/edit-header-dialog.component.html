@@ -2,8 +2,20 @@
 <mat-dialog-content>
     <mat-form-field>
         <mat-label>Nom du jeu</mat-label>
-        <input matInput [(ngModel)]="data.gameNameInput" />
-    </mat-form-field>
+        <input
+            matInput
+            [(ngModel)]="data.gameNameInput"
+            name="gameNameInput"
+            pattern="^([a-zA-Z]{1,15})( [a-zA-Z]{1,15})*$"
+            #gameNameInput="ngModel"
+            required />
+        <mat-error *ngIf="gameNameInput.errors?.required"> Le nom du jeu est requis. </mat-error>
+        <mat-error *ngIf="gameNameInput.errors?.pattern">
+            Le nom du jeu doit être composé de mots de 1 à 15 lettres sans caractères spéciaux.
+        </mat-error>
+        <p></p
+    ></mat-form-field>
+
     <br />
     <mat-form-field>
         <mat-label>Description du jeu</mat-label>
@@ -12,5 +24,7 @@
 </mat-dialog-content>
 <mat-dialog-actions>
     <button mat-button (click)="onNoClick()" color="primary">Close</button>
-    <button mat-button (click)="onYesClick()" cdkFocusInitial color="primary">Ok</button>
+    <button mat-button (click)="onYesClick()" cdkFocusInitial color="primary" [disabled]="gameNameInput.invalid || gameNameInput.pristine">
+        Apply Changes
+    </button>
 </mat-dialog-actions>
