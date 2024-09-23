@@ -20,7 +20,9 @@ export class GameSelectionPageComponent implements OnInit {
     constructor(private http: HttpClientService) {}
 
     async ngOnInit() {
-        this.games = await firstValueFrom(this.http.getAllGames());
+        this.games = (await firstValueFrom(this.http.getAllGames())).filter((game) => {
+            return game.isVisible === true;
+        });
     }
 
     scrollLeft() {

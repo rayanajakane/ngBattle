@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -7,4 +7,14 @@ import { Component } from '@angular/core';
     templateUrl: './character-selection-page.component.html',
     styleUrl: './character-selection-page.component.scss',
 })
-export class CharacterSelectionPageComponent {}
+export class CharacterSelectionPageComponent {
+    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
+
+    scrollLeft() {
+        this.widgetsContent.nativeElement.scrollLeft -= 300;
+    }
+
+    scrollRight() {
+        this.widgetsContent.nativeElement.scrollLeft += 300;
+    }
+}
