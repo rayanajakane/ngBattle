@@ -1,6 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game/game.controller';
+import { AllDoorsValidValidator } from './model/dto/game/validators/allDoorsValid/allDoorsValid.validator';
 import { AllTilesAccessibleValidator } from './model/dto/game/validators/allTilesAccessible/allTilesAccessible.validator';
 import { GroundAmountValidator } from './model/dto/game/validators/groundAmount/groundAmount.validator';
 import { StartingPointAmountValidator } from './model/dto/game/validators/startingPointAmount/startingPointAmount.validator';
@@ -26,6 +27,7 @@ import { GameService } from './services/game/game.service';
         GroundAmountValidator,
         StartingPointAmountValidator,
         AllTilesAccessibleValidator,
+        AllDoorsValidValidator,
     ],
 })
 export class AppModule {}

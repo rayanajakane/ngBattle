@@ -1,11 +1,11 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { GroundAmountValidator } from './groundAmount.validator';
 
-export function HasCorrectGroundAmount(validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
+export function hasCorrectGroundAmount(validationOptions?: ValidationOptions) {
+    return function (object: object, propertyName: string) {
         registerDecorator({
             target: object.constructor,
-            propertyName: propertyName,
+            propertyName,
             options: validationOptions,
             constraints: [],
             validator: GroundAmountValidator,

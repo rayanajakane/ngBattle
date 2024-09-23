@@ -1,11 +1,11 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { UniqueNameValidator } from './uniqueName.validator';
 
-export function IsUniqueName(validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
+export function isUniqueName(validationOptions?: ValidationOptions) {
+    return function (object: object, propertyName: string) {
         registerDecorator({
             target: object.constructor,
-            propertyName: propertyName,
+            propertyName,
             options: validationOptions,
             constraints: [],
             validator: UniqueNameValidator,

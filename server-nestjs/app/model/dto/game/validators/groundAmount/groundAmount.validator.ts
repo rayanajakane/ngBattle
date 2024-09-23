@@ -1,17 +1,18 @@
+import { TileDto } from '@app/model/dto/game/tile.dto';
 import { Injectable } from '@nestjs/common';
-import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-import { TileDto } from '../../tile.dto';
+import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class GroundAmountValidator implements ValidatorConstraintInterface {
-    async validate(map: TileDto[], args: ValidationArguments): Promise<boolean> {
+    async validate(map: TileDto[]): Promise<boolean> {
         const totalTiles = map.length;
         const emptyTiles = map.filter((tile) => tile.tileType === '').length;
-        return emptyTiles / totalTiles > 0.5;
+        const threshold = 0.5;
+        return emptyTiles / totalTiles > threshold;
     }
 
-    defaultMessage(args: ValidationArguments) {
+    defaultMessage() {
         return 'Plus de 50% de la surface totale de la carte doit être occupée par des tuiles de terrain';
     }
 }
