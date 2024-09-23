@@ -1,4 +1,4 @@
-@import url('../../css-files/global.css');
+@import url('../../global-files/global.css');
 
 .game-info {
     display: flex;
@@ -9,7 +9,7 @@
     height: 200px;
     padding: 25px;
 
-    background-image: url('../../../assets/game-selection-page/Border All 10.png');
+    background-image: url('../../../assets/game-selection-page/Border_All_10.png');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -34,3 +34,5 @@ p {
 .game-name {
     font-weight: bold;
 }
+
+
