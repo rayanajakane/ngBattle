@@ -1,5 +1,5 @@
 <body>
-    <div>
+    <div class="main-container">
     <h1 class="medievalsharp-regular">Créez votre personnage</h1>
     <div class="input-container">
         <input type="text" class="custom-input" placeholder="Entrez votre nom...">
@@ -24,36 +24,46 @@
     </div>
     
     <h4 class="medievalsharp-regular">Attributs du personnage</h4>
+    <div>
+        *Rajoutez +2 points à attaque ou vie (un seul des deux choix est permis)
+    </div>
     <form>
     <div class="attributes-container">
       <div class="attribute">
         <img class="attribute-image" src="../../../assets/game-selection-page/heart8bit.png">
         <label for="life">{{ life }} pts </label>
-        <input type="radio" name="lifeSpeed" (click)="addBonus('life')" checked>
+        <p><input type="radio" name="lifeSpeed" (click)="addBonus('life')" checked> +2 pts</p>
       </div>
     
       <div class="attribute">
         <img class="attribute-image" src="../../../assets/game-selection-page/thunder-icon.png">
         <label for="speed">{{ speed }} pts</label>
-        <input type="radio" name="lifeSpeed" (click)="addBonus('speed')">
+        <p><input type="radio" name="lifeSpeed" (click)="addBonus('speed')"> +2 pts</p>
       </div>
     
       <div class="attribute">
         <img class="attribute-image" src="../../../assets/game-selection-page/sword-icon.png">
-        <label for="attack">{{ attack }} pts + D{{ selectedDice.attack }}</label>
+        <label for="attack">{{ attack }} pts</label>
+        <p> Dé à {{ selectedDice.attack }} faces</p>
       </div>
     
       <div class="attribute">
         <img class="attribute-image" src="../../../assets/game-selection-page/shield-icon.png">
-        <label for="defense">{{ defense }} pts + D{{ selectedDice.defense }}</label>
+        <label for="defense">{{ defense }} pts</label>
+        <p> Dé à {{ selectedDice.defense }} faces</p>
       </div>
 
-      <select (change)="assignDice($event)">
-        <option value="4">D4</option>
-        <option value="6">D6</option>
-      </select>
+      
     </div>
     </form>
+
+    <div>
+        Attribuer le dé à 6 faces à:
+    </div>
+    <div>
+        <input class="medievalsharp-regular" type="radio" name="attack-defense" value="attack"  (change)="assignDice($event)" checked> Attaque
+        <input class="medievalsharp-regular" type="radio" name="attack-defense" value="defense" (change)="assignDice($event)"> Défense
+    </div>
 </div>
 </body>
 

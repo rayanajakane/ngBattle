@@ -37,7 +37,7 @@ export class CharacterSelectionPageComponent {
         this.speed = this.defaultAttributeValue;
         this.attack = this.defaultAttributeValue;
         this.defense = this.defaultAttributeValue;
-        this.selectedDice = { attack: this.dice4, defense: this.dice6 }; // Par défaut
+        this.selectedDice = { attack: this.dice6, defense: this.dice4 }; // Par défaut
     }
 
     // Méthodes publiques
@@ -65,9 +65,14 @@ export class CharacterSelectionPageComponent {
 
     assignDice(event: Event): void {
         const target = event.target as HTMLSelectElement;
-        const selectedValue = parseInt(target.value, 10);
+        const selectedValue = target.value;
 
-        this.selectedDice.attack = selectedValue;
-        this.selectedDice.defense = selectedValue === this.dice4 ? this.dice6 : this.dice4;
+        if (selectedValue === 'attack') {
+            this.selectedDice.attack = this.dice6;
+            this.selectedDice.defense = this.dice4;
+        } else if (selectedValue === 'defense') {
+            this.selectedDice.attack = this.dice4;
+            this.selectedDice.defense = this.dice6;
+        }
     }
 }

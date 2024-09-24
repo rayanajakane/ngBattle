@@ -1,11 +1,14 @@
 @import url('../../global-files/global.css');
 
+
+
 .game-selection-container {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     width: 100%;
+    margin-top: 50px;
 }
 
 
@@ -48,6 +51,7 @@ img{
 h1{
     text-align: center;
     color: white;
+    padding-top: 50px;
 }
 
 body {
@@ -56,6 +60,7 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     margin: 0;
-    height: 100vh;
+    align-items: center;
+    justify-content: center;
 }
   

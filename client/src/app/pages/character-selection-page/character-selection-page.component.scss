@@ -1,18 +1,27 @@
 @import url('../../global-files/global.css');
 
-body {
-  background-image: url('../../../assets/game-selection-page/DefenderOfTheCrown2_CastleNormanHall.gif');
+
+
+.main-container {
+  background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
+
   margin: 0;
-  height: 100%;
+  padding: 0;
+  min-height: 100vh;
   width: 100%;
+
+  text-align: center;
+
+  font-family: 'MedievalSharp', sans-serif;
 }
 
 .attribute-image {
   height: 50px;
-  width: auto;
+  width:auto;
   display: block;
 }
 
@@ -39,15 +48,15 @@ div {
   font-family: 'MedievalSharp', sans-serif;
   
   background-color: #2d2d2d;
-  border: 2px solid #29373f;
+  border: 2px solid #719eb8;
   border-radius: 25px;
   
   padding: 10px 15px;
   margin: 10px 0;
 
   width: 100%;
-  max-width: 400px;
-  height: 40px;
+  max-width: 200px;
+  height: 20px;
   
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   
@@ -70,6 +79,7 @@ div {
   justify-content: center;
   position: relative;
   width: 100%;
+  margin-bottom: 40px;
 }
 
 .character-list-wrapper {
@@ -109,14 +119,22 @@ img{
 }
 
 .attributes-container {
-  display: flex;              /* Use flexbox layout */
-  justify-content: space-around; /* Distributes space evenly between items */
-  align-items: center;       /* Aligns items vertically in the center */
-  margin-bottom: 20px;      /* Space between the attribute list and the dropdown */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;   
+  margin-bottom: 50px;   
+  margin-top: 50px;
 }
 
 .attribute {
-  text-align: center;        /* Center text for each attribute */
+  text-align: center;
+}
+.dice-container {
+  margin-bottom: 20px;
+}
+
+.dice-container::placeholder {
+  font-family: 'MedievalSharp', sans-serif;
 }
 
   
