@@ -12,14 +12,14 @@ const REQUIRED_STARTING_POINTS_20 = 6;
 export class StartingPointAmountValidator implements ValidatorConstraintInterface {
     async validate(map: TileDto[], args: ValidationArguments): Promise<boolean> {
         const object = args.object as GameDto;
-        const mapSize = object.mapSize;
+        const mapSize = parseInt(object.mapSize);
         const startingPoints = map.filter((tile) => tile.item === 'startingPoint').length;
 
-        if (mapSize === '10') {
+        if (mapSize <= 10) {
             return startingPoints >= REQUIRED_STARTING_POINTS_10;
-        } else if (mapSize === '15') {
+        } else if (mapSize <= 15) {
             return startingPoints >= REQUIRED_STARTING_POINTS_15;
-        } else if (mapSize === '20') {
+        } else if (mapSize <= 20) {
             return startingPoints >= REQUIRED_STARTING_POINTS_20;
         }
 
