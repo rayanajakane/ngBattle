@@ -27,11 +27,12 @@ export class MapComponent implements OnInit {
     ngOnInit(): void {
         this.mapService.createGrid(this.mapSize);
     }
-    /* onDrop(event: any) {
-        window.alert('Object dropped');
-         if (this.objectDropped) {
+    onDrop(event: Event) {
+        window.alert('Object dropped the event is' + event);
+        /*  window.alert('Object dropped');
+         if(this.objectDropped) {
         // // Logic to place the object in the map
         //    this.dragAndDropServiceMap.resetDraggedObject(); // Reset the dragged object ( ALSO CALL METHOD TO REDUCE NUMBER OF POINT DEPART )
-        // } 
-      }      */
+        // } */
+    }
 }

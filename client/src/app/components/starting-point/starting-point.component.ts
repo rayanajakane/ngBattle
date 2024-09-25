@@ -8,11 +8,10 @@ import { DEFAULT_STARTING_POINT_NUMBER } from './startingPointNumber';
     styleUrl: './starting-point.component.scss',
 })
 export class StartingPointComponent {
-    startingPointNumber: number = DEFAULT_STARTING_POINT_NUMBER; 
-
+    startingPointNumber: number = DEFAULT_STARTING_POINT_NUMBER;
     reduceNumber() {
         if (this.startingPointNumber > 0) {
-          this.startingPointNumber--;
+            this.startingPointNumber--;
         }
     }
 

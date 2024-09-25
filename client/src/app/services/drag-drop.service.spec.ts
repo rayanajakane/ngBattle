@@ -6,11 +6,11 @@ describe('DragDropService', () => {
     let service: DragDropService;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({});
-      service = TestBed.inject(DragDropService);
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(DragDropService);
     });
 
     it('should be created', () => {
-      expect(service).toBeTruthy();
+        expect(service).toBeTruthy();
     });
 });

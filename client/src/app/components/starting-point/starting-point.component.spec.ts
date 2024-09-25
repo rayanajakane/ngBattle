@@ -7,7 +7,7 @@ describe('StartingPointComponent', () => {
     let fixture: ComponentFixture<StartingPointComponent>;
 
     beforeEach(async () => {
-        await TestBed.configureTestingModule({imports: [StartingPointComponent]}).compileComponents();
+        await TestBed.configureTestingModule({ imports: [StartingPointComponent] }).compileComponents();
         fixture = TestBed.createComponent(StartingPointComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
