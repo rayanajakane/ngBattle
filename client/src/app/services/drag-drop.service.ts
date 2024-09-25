@@ -5,8 +5,8 @@ import { BehaviorSubject } from 'rxjs';
     providedIn: 'root',
 })
 export class DragDropService {
-    // Following the tile that is dragged
-    draggedTileSource = new BehaviorSubject<string | null>(null);
+    // Following the object that is dragged
+    draggedTileSource = new BehaviorSubject<string>('');
     // Create the observable for the map to subscribe to
     draggedTile$ = this.draggedTileSource.asObservable();
     // Method to update the dragged tile
@@ -15,6 +15,6 @@ export class DragDropService {
     }
     // Method to reset the dragged tile ( we can call this method when the tile is dropped in the map ! )
     resetDraggedObject() {
-        this.draggedTileSource.next(null);
+        this.draggedTileSource.next('');
     }
 }

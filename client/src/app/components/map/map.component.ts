@@ -4,7 +4,7 @@ import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { MapService, Tile } from '@app/services/map.service';
 import { DragDropService } from '@app/services/drag-drop.service';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 @Component({
     selector: 'app-map',
     standalone: true,
@@ -18,7 +18,7 @@ export class MapComponent implements OnInit {
     @Output() sendMapEvent = new EventEmitter<Tile[]>();
 
     mapService = inject(MapService);
-    objectDropped: string | null = null;
+    objectDropped: string = '';
     constructor(private dragAndDropServiceMap: DragDropService) {
         this.dragAndDropServiceMap.draggedTile$.subscribe((objectType) => {
             this.objectDropped = objectType;
@@ -27,12 +27,8 @@ export class MapComponent implements OnInit {
     ngOnInit(): void {
         this.mapService.createGrid(this.mapSize);
     }
-    onDrop(event: Event) {
-        window.alert('Object dropped the event is' + event);
-        /*  window.alert('Object dropped');
-         if(this.objectDropped) {
-        // // Logic to place the object in the map
-        //    this.dragAndDropServiceMap.resetDraggedObject(); // Reset the dragged object ( ALSO CALL METHOD TO REDUCE NUMBER OF POINT DEPART )
-        // } */
+    onDrop(event: CdkDragDrop<string>, index: number) {
+        window.alert('Dropped');
+        this.mapService.setTileType(index, this.objectDropped);
     }
 }

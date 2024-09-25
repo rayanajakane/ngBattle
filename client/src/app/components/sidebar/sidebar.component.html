@@ -1,15 +1,16 @@
 <section>
+    <div id="sidebar" cdkDropList>
     <mat-grid-list cols="2" rowHeight="10:1">
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AA1')"> [ AA ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AA2')"> [ AA ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AC1')"> [ AC ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AC2')"> [ AC ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AF1')"> [ AF ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AF2')"> [ AF ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AA1')"> [ AA1 ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AA2')"> [ AA2 ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AC1')"> [ AC1 ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AC2')"> [ AC2 ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AF1')"> [ AF1 ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AF2')"> [ AF2 ] </mat-grid-tile>
         <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('item-aleatoire')"> [ Item Aléatoire ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('point-depart')">
-            <app-starting-point></app-starting-point> </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('point-depart')"> <app-starting-point></app-starting-point> </mat-grid-tile>
         <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('drapeau-A')"> [ Drapeau A ] </mat-grid-tile>
         <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('drapeau-B')"> [ Drapeau B ] </mat-grid-tile>
     </mat-grid-list>
+    </div>
 </section>
