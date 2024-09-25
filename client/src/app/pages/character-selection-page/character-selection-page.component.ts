@@ -12,11 +12,7 @@ export class CharacterSelectionPageComponent {
     // Champs publics
     @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
 
-    avatars = [
-        { name: 'Avatar 1', img: '../../../assets/avatars/avatar1.png' },
-        { name: 'Avatar 2', img: '../../../assets/avatars/avatar2.png' },
-        // Ajoute les autres avatars ici
-    ];
+    avatars: { name: string; img: string }[];
 
     life: number;
     speed: number;
@@ -30,6 +26,7 @@ export class CharacterSelectionPageComponent {
     private readonly defaultAttributeValueSelected = 6;
     private readonly dice4 = 4;
     private readonly dice6 = 6;
+    private readonly nAvatars: number = 12;
 
     // Initialisation dans le constructeur
     constructor() {
@@ -38,6 +35,7 @@ export class CharacterSelectionPageComponent {
         this.attack = this.defaultAttributeValue;
         this.defense = this.defaultAttributeValue;
         this.selectedDice = { attack: this.dice6, defense: this.dice4 }; // Par défaut
+        this.setAvatars();
     }
 
     // Méthodes publiques
@@ -73,6 +71,16 @@ export class CharacterSelectionPageComponent {
         } else if (selectedValue === 'defense') {
             this.selectedDice.attack = this.dice4;
             this.selectedDice.defense = this.dice6;
+        }
+    }
+
+    setAvatars(): void {
+        this.avatars = [];
+        for (let i = 1; i <= this.nAvatars; i++) {
+            this.avatars.push({
+                name: `Avatar ${i}`,
+                img: `../../../assets/characters/${i}.png`, // Chemin générique pour les images
+            });
         }
     }
 }

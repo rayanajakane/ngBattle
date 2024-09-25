@@ -25,6 +25,16 @@
   display: block;
 }
 
+.avatar {
+  height: 150px;
+  width:auto;
+}
+
+.avatar:hover {
+  transform: scale(1.08);
+
+}
+
 .medievalsharp-regular{
   text-align: center;
 }
