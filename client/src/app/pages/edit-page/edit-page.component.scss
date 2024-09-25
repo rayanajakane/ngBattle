@@ -33,28 +33,30 @@
     max-height: 10px; 
     height: auto;
     margin-left: 35%;
-    margin-bottom: 5%;
 }
 
 /* toolbar styling */
 .edit-page-toolbar {
-margin-top: 15%;
+    max-width: 80%;
+    margin-left: 10%;
+    margin-bottom: 10%;    
+    margin-top: 15%;
+    height: 5%;
 }
 
 /* sidebar styling */
 .edit-page-sidebar {
-    max-height: 5px; 
-    margin-top: 10%;
+    max-height: 5%; 
+    max-width: 80%;
+    margin-top: 5%;
+    margin-left: 10%;
 }
 
 /* save button */
 .edit-page-save-game-btn {
-    margin-top: 15%;
+    margin-top: 22%;
 }
 
 /* reset button */
 .edit-page-reset-game-btn {
-    margin-top: 5%;
-
-
 }

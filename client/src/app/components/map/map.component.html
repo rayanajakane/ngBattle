@@ -1,9 +1,9 @@
 <section (contextmenu) = "$event.preventDefault()" (mousedown) = "$event.preventDefault()">
     <div class="app-map">
-      <mat-grid-list [cols]="mapSize">
+      <mat-grid-list [cols]="mapSize" cdkDropList (cdkDropListDropped)="onDrop($event)">
         @for ( tile of mapService.tiles; track $index) {
           <mat-grid-tile>
-            <app-tile-basic
+            <app-tile-basic 
             tileType="{{tile.type}}"
             (contextmenu) = "$event.preventDefault()"
             (mousedown) = "mapService.onMouseDown($event, tile.index, selectedTileType); $event.preventDefault()"
