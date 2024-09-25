@@ -1,35 +1,62 @@
 import { GameDto } from '@app/model/dto/game/game.dto';
-import { TileDto } from '@app/model/dto/game/tile.dto';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import 'reflect-metadata';
 
 describe('GameDto', () => {
-    it('should transform plain objects to TileDto instances', () => {
-        const plainGame = {
+    it('should validate a correct DTO', async () => {
+        const gameData = {
             id: '123',
-            gameName: 'test game',
+            gameName: 'Game e34wdwd23',
             gameDescription: 'This is an example game description.',
-            mapSize: '10x10',
+            mapSize: '3',
             map: [
-                { i: 0, j: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
-                { i: 0, j: 1, tileType: 'water', item: '', hasPlayer: false },
-                { i: 1, j: 0, tileType: 'sand', item: 'item2', hasPlayer: true },
-                { i: 1, j: 1, tileType: 'mountain', item: '', hasPlayer: false },
+                { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
+                { idx: 1, tileType: '', item: 'startingPoint', hasPlayer: false },
+                { idx: 2, tileType: '', item: '', hasPlayer: false },
+                { idx: 3, tileType: 'wall', item: '', hasPlayer: false },
+                { idx: 4, tileType: 'door', item: '', hasPlayer: false },
+                { idx: 5, tileType: 'wall', item: '', hasPlayer: false },
+                { idx: 6, tileType: '', item: '', hasPlayer: false },
+                { idx: 7, tileType: '', item: '', hasPlayer: false },
+                { idx: 8, tileType: '', item: '', hasPlayer: false },
             ],
             gameType: 'ctf',
             isVisible: true,
+            creationDate: '2024-09-18T10:30:00.000Z',
         };
 
-        const gameDto = plainToClass(GameDto, plainGame);
+        const gameDto = plainToInstance(GameDto, gameData);
+        const errors = await validate(gameDto);
+        console.log(errors);
+        expect(errors.length).toBe(0);
+    });
 
-        // Check that map is an array of TileDto instances
-        expect(gameDto.map).toBeInstanceOf(Array);
-        expect(gameDto.map[0]).toBeInstanceOf(TileDto);
-        expect(gameDto.map[1]).toBeInstanceOf(TileDto);
-        // ... check other map items as needed
+    it('should fail validation for an empty ID', async () => {
+        const gameData = {
+            id: '',
+            gameName: 'Game 1',
+            gameDescription: 'This is an example game description.',
+            mapSize: '3',
+            map: [
+                { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
+                { idx: 1, tileType: '', item: 'startingPoint', hasPlayer: false },
+                { idx: 2, tileType: '', item: '', hasPlayer: false },
+                { idx: 3, tileType: 'wall', item: '', hasPlayer: false },
+                { idx: 4, tileType: 'door', item: '', hasPlayer: false },
+                { idx: 5, tileType: 'wall', item: '', hasPlayer: false },
+                { idx: 6, tileType: '', item: '', hasPlayer: false },
+                { idx: 7, tileType: '', item: '', hasPlayer: false },
+                { idx: 8, tileType: '', item: '', hasPlayer: false },
+            ],
+            gameType: 'ctf',
+            isVisible: true,
+            creationDate: '2024-09-18T10:30:00.000Z',
+        };
 
-        // Optionally, check if the transformation is accurate
-        expect(gameDto.map[0].tileType).toBe('grass');
-        expect(gameDto.map[0].hasPlayer).toBe(false);
+        const gameDto = plainToInstance(GameDto, gameData);
+        const errors = await validate(gameDto);
+        expect(errors.length).not.toBe(0);
+        expect(errors).toContain('ID cannot be empty');
     });
 });

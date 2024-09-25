@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import 'reflect-metadata';
 import { TileDto } from './tile.dto';
 import { areAllDoorsValid } from './validators/allDoorsValid/allDoorsValid.decorator';
@@ -30,6 +30,7 @@ export class GameDto {
 
     @IsArray({ message: 'Map must be an array of TileJson' })
     @Type(() => TileDto)
+    @ValidateNested({ each: true })
     @hasCorrectGroundAmount()
     @isCorrectStartingPointAmount()
     @areAllTilesAccessible()
