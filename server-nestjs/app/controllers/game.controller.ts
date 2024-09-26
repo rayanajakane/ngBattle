@@ -1,18 +1,44 @@
-import { GameDto } from '@app/model/dto/game.dto';
+import { GameJson } from '@app/model/gameStructure';
 import { GameService } from '@app/services/game.service';
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { ValidationService } from '@app/services/validation.service';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 
 @Controller('game')
 export class GameController {
-    constructor(private readonly gameService: GameService) {}
+    constructor(
+        private readonly gameService: GameService,
+        private readonly validationService: ValidationService,
+    ) {}
 
     @Post('upload')
-    async uploadGame(@Body() gameData: GameDto) {
+    async uploadGame(@Body() gameData: GameJson) {
+        let errors = await this.validationService.validateGame(gameData);
+        if (errors.length > 0) {
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: 'Validation failed',
+                    errors: errors,
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
         return await this.gameService.create(gameData);
     }
 
     @Patch('update')
-    async updateGame(@Body() gameData: GameDto) {
+    async updateGame(@Body() gameData: GameJson) {
+        let errors = await this.validationService.validateGame(gameData);
+        if (errors.length > 0) {
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: 'Validation failed',
+                    errors: errors,
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
         return await this.gameService.update(gameData);
     }
 

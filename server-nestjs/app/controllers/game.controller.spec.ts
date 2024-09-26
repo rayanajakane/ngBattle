@@ -1,13 +1,15 @@
-import { GameDto } from '@app/model/dto/game.dto';
+import { GameJson } from '@app/model/gameStructure';
 import { GameService } from '@app/services/game.service';
+import { ValidationService } from '@app/services/validation.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';
 
 describe('GameController', () => {
     let gameController: GameController;
     let gameService: GameService;
+    let validationService: ValidationService;
 
-    const gameData: GameDto = {
+    const gameData: GameJson = {
         id: '123',
         gameName: 'Game e34wdwd23',
         gameDescription: 'This is an example game description.',
@@ -33,6 +35,12 @@ describe('GameController', () => {
             controllers: [GameController],
             providers: [
                 {
+                    provide: ValidationService,
+                    useValue: {
+                        validateGame: jest.fn(),
+                    },
+                },
+                {
                     provide: GameService,
                     useValue: {
                         create: jest.fn(),
@@ -48,18 +56,25 @@ describe('GameController', () => {
 
         gameController = module.get<GameController>(GameController);
         gameService = module.get<GameService>(GameService);
+        validationService = module.get<ValidationService>(ValidationService);
     });
 
     it('should be defined', () => {
         expect(gameController).toBeDefined();
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     it('should call create method of gameService', async () => {
+        jest.spyOn(validationService, 'validateGame').mockResolvedValue([]);
         await gameController.uploadGame(gameData);
         expect(gameService.create).toHaveBeenCalledWith(gameData);
     });
 
     it('should call update method of gameService', async () => {
+        jest.spyOn(validationService, 'validateGame').mockResolvedValue([]);
         await gameController.updateGame(gameData);
         expect(gameService.update).toHaveBeenCalledWith(gameData);
     });

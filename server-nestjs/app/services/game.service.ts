@@ -1,4 +1,4 @@
-import { GameDto } from '@app/model/dto/game.dto';
+import { GameJson } from '@app/model/gameStructure';
 import { Game } from '@app/model/schema/game.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,12 +8,11 @@ import { Model } from 'mongoose';
 export class GameService {
     constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
 
-    async create(game: GameDto): Promise<Game> {
-        const newGame = await this.gameModel.create(game);
-        return newGame;
+    async create(game: GameJson): Promise<Game> {
+        return await this.gameModel.create(game);
     }
 
-    async update(game: GameDto): Promise<Game> {
+    async update(game: GameJson): Promise<Game> {
         return await this.gameModel.findOneAndUpdate({ id: game.id }, game).exec();
     }
 
