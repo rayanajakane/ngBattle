@@ -8,27 +8,26 @@ import { Model } from 'mongoose';
 export class GameService {
     constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
 
-    async create(createGameDto: GameDto): Promise<Game> {
-        const createdGame = new this.gameModel(createGameDto);
-        return await createdGame.save();
+    async create(game: GameDto): Promise<Game> {
+        const newGame = await this.gameModel.create(game);
+        return newGame;
     }
 
-    async update(updateGameDto: GameDto): Promise<Game> {
-        await this.gameModel.updateOne({ id: updateGameDto.id }, updateGameDto).exec();
-        return await this.gameModel.findOne({ id: updateGameDto.id }).exec();
+    async update(game: GameDto): Promise<Game> {
+        return await this.gameModel.findOneAndUpdate({ id: game.id }, game).exec();
     }
 
-    async changeVisibility(gameId: string) {
+    async changeVisibility(gameId: string): Promise<Game> {
         const filteredGameById: Game = await this.gameModel.findOne({ id: gameId }).exec();
-        await this.gameModel.updateOne({ _id: filteredGameById._id }, { isVisible: !filteredGameById.isVisible }).exec();
+        return await this.gameModel.findOneAndUpdate({ id: gameId }, { isVisible: !filteredGameById.isVisible }).exec();
     }
 
-    async delete(deleteGameID: string) {
-        await this.gameModel.deleteOne({ id: deleteGameID });
+    async delete(gameId: string) {
+        await this.gameModel.deleteOne({ id: gameId });
     }
 
-    async get(getGameID: string): Promise<Game> {
-        return await this.gameModel.findOne({ id: getGameID }).exec();
+    async get(gameId: string): Promise<Game> {
+        return await this.gameModel.findOne({ id: gameId }).exec();
     }
 
     async getAll(): Promise<Game[]> {
