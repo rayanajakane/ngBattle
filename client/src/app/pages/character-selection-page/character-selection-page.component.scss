@@ -35,6 +35,11 @@
 
 }
 
+.selected {
+  transform: scale(1.08);
+  border: 2px solid whitesmoke;
+}
+
 .medievalsharp-regular{
   text-align: center;
 }
