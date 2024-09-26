@@ -1,42 +1,40 @@
-import { GameDto } from '@app/model/dto/game/game.dto';
 import { Game } from '@app/model/schema/game.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
-import 'reflect-metadata';
+import { Model, Query } from 'mongoose';
 import { GameService } from './game.service';
+
+const gameData = {
+    id: '123',
+    gameName: 'Game e34wdwd23',
+    gameDescription: 'This is an example game description.',
+    mapSize: '2',
+    map: [
+        { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
+        { idx: 1, tileType: '', item: 'startingPoint', hasPlayer: false },
+        { idx: 2, tileType: '', item: '', hasPlayer: false },
+        { idx: 3, tileType: 'wall', item: '', hasPlayer: false },
+    ],
+    gameType: 'ctf',
+    isVisible: true,
+    creationDate: '2024-09-18T10:30:00.000Z',
+};
 
 describe('GameService', () => {
     let service: GameService;
-    let gameModel: Model<Game>;
-    const gameData: GameDto = {
-        id: '1',
-        gameName: 'Game 2',
-        gameDescription: 'This is an example game description.',
-        mapSize: '10x10',
-        map: [
-            { idx: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
-            { idx: 1, tileType: 'water', item: '', hasPlayer: false },
-            { idx: 2, tileType: 'sand', item: 'item2', hasPlayer: true },
-            { idx: 3, tileType: 'mountain', item: '', hasPlayer: false },
-        ],
-        gameType: 'ctf',
-        isVisible: true,
-        creationDate: '2024-09-18T10:30:00.000Z',
-    };
-
+    let model: Model<Game>;
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameService,
                 {
-                    provide: getModelToken(Game.name),
+                    provide: getModelToken('Game'),
                     useValue: {
-                        find: jest.fn(),
+                        create: jest.fn(),
+                        findOneAndUpdate: jest.fn(),
                         findOne: jest.fn(),
-                        updateOne: jest.fn(),
+                        find: jest.fn(),
                         deleteOne: jest.fn(),
-                        save: jest.fn(),
                         exec: jest.fn(),
                     },
                 },
@@ -44,55 +42,67 @@ describe('GameService', () => {
         }).compile();
 
         service = module.get<GameService>(GameService);
-        gameModel = module.get(getModelToken(Game.name));
+        model = module.get<Model<Game>>(getModelToken('Game'));
     });
 
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
 
-    describe('create', () => {
-        // FIXME
-        // it('should create a new game', async () => {
-        //     (gameModel.find as jest.Mock).mockReturnValue({ exec: jest.fn().mockResolvedValueOnce([]) });
-        //     await expect(service.create(gameData)).resolves.toEqual({});
-        // });
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    describe('update', () => {
-        it('should update an existing game', async () => {
-            (gameModel.findOne as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce({ id: '123' }) });
-            (gameModel.updateOne as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce({}) });
-            await expect(service.update(gameData)).resolves.toEqual({ id: '123' });
-        });
+    it('should create a game', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        jest.spyOn(model, 'create').mockImplementationOnce(async () => Promise.resolve(gameData as any));
+        const result = await service.create(gameData);
+        expect(result).toEqual(gameData);
     });
 
-    describe('changeVisibility', () => {
-        it('should toggle the visibility of a game', async () => {
-            (gameModel.findOne as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce({ _id: '1', isVisible: true }) });
-            (gameModel.updateOne as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce({}) });
-            await expect(service.changeVisibility('1')).resolves.toBeUndefined();
-        });
+    it('should update a game', async () => {
+        jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({
+            exec: jest.fn().mockResolvedValueOnce(gameData),
+        } as unknown as Query<Game, Game>);
+        const result = await service.update(gameData);
+        expect(result).toEqual(gameData);
     });
 
-    describe('delete', () => {
-        it('should delete a game by ID', async () => {
-            (gameModel.deleteOne as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce({}) });
-            await expect(service.delete('1')).resolves.toBeUndefined();
-        });
+    it('should change visibility of a game', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValue({
+            exec: jest.fn().mockResolvedValueOnce(gameData),
+        } as unknown as Query<Game, Game>);
+
+        let updatedGameData = { ...gameData, isVisible: !gameData.isVisible };
+
+        jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({
+            exec: jest.fn().mockResolvedValueOnce(updatedGameData),
+        } as unknown as Query<Game, Game>);
+
+        const result = await service.changeVisibility('123');
+        expect(model.findOne).toBeCalled();
+        expect(result).toEqual(updatedGameData);
     });
 
-    describe('get', () => {
-        it('should retrieve a game by ID', async () => {
-            (gameModel.findOne as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce({}) });
-            await expect(service.get('1')).resolves.toEqual({});
-        });
+    it('should delete a game', async () => {
+        await service.delete('123');
+        expect(model.deleteOne).toBeCalled();
     });
 
-    describe('findAll', () => {
-        it('should retrieve all games', async () => {
-            (gameModel.find as jest.Mock).mockReturnValueOnce({ exec: jest.fn().mockResolvedValueOnce([{}]) });
-            await expect(service.getAll()).resolves.toEqual([{}]);
-        });
+    it('should return a game by id', async () => {
+        jest.spyOn(model, 'findOne').mockReturnValue({
+            exec: jest.fn().mockResolvedValueOnce(gameData),
+        } as unknown as Query<Game, Game>);
+        const result = await service.get('123');
+        expect(result).toEqual(gameData);
+    });
+
+    it('should return all games', async () => {
+        const mockGames = [gameData, gameData, gameData];
+        jest.spyOn(model, 'find').mockReturnValue({
+            exec: jest.fn().mockResolvedValueOnce(mockGames),
+        } as unknown as Query<Game[], Game>);
+        const result = await service.getAll();
+        expect(result).toEqual(mockGames);
     });
 });
