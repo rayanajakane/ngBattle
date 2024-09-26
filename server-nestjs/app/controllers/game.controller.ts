@@ -1,6 +1,6 @@
 import { GameJson } from '@app/model/gameStructure';
 import { GameService } from '@app/services/game.service';
-import { GameValidationService } from '@app/services/validation.service';
+import { GameValidationService } from '@app/services/gameValidation.service';
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 
 @Controller('game')

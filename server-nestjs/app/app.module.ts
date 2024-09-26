@@ -3,8 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game.controller';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { GameService } from './services/game.service';
+import { GameValidationService } from './services/gameValidation.service';
 import { MapValidationService } from './services/mapValidation.service';
-import { GameValidationService } from './services/validation.service';
 
 @Module({
     imports: [
