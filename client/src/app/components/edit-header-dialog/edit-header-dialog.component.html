@@ -6,13 +6,12 @@
             matInput
             [(ngModel)]="data.gameNameInput"
             name="gameNameInput"
+            maxlength="15"
             pattern="^([a-zA-Z]{1,15})( [a-zA-Z]{1,15})*$"
             #gameNameInput="ngModel"
             required />
         <mat-error *ngIf="gameNameInput.errors?.required"> Le nom du jeu est requis. </mat-error>
-        <mat-error *ngIf="gameNameInput.errors?.pattern">
-            Le nom du jeu doit être composé de mots de 1 à 15 lettres sans caractères spéciaux.
-        </mat-error>
+        <mat-error *ngIf="gameNameInput.errors?.pattern"> Le nom du jeu est invalide. </mat-error>
         <p></p
     ></mat-form-field>
 
