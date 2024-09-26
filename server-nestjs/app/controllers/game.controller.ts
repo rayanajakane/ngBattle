@@ -1,24 +1,24 @@
 import { GameJson } from '@app/model/gameStructure';
 import { GameService } from '@app/services/game.service';
-import { ValidationService } from '@app/services/validation.service';
+import { GameValidationService } from '@app/services/validation.service';
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 
 @Controller('game')
 export class GameController {
     constructor(
         private readonly gameService: GameService,
-        private readonly validationService: ValidationService,
+        private readonly validationService: GameValidationService,
     ) {}
 
     @Post('upload')
     async uploadGame(@Body() gameData: GameJson) {
-        let errors = await this.validationService.validateGame(gameData);
+        const errors = await this.validationService.validateGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
                 {
                     statusCode: HttpStatus.BAD_REQUEST,
                     message: 'Validation failed',
-                    errors: errors,
+                    errors,
                 },
                 HttpStatus.BAD_REQUEST,
             );
@@ -28,13 +28,13 @@ export class GameController {
 
     @Patch('update')
     async updateGame(@Body() gameData: GameJson) {
-        let errors = await this.validationService.validateGame(gameData);
+        const errors = await this.validationService.validateGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
                 {
                     statusCode: HttpStatus.BAD_REQUEST,
                     message: 'Validation failed',
-                    errors: errors,
+                    errors,
                 },
                 HttpStatus.BAD_REQUEST,
             );

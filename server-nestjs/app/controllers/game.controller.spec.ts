@@ -1,13 +1,13 @@
 import { GameJson } from '@app/model/gameStructure';
 import { GameService } from '@app/services/game.service';
-import { ValidationService } from '@app/services/validation.service';
+import { GameValidationService } from '@app/services/validation.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';
 
 describe('GameController', () => {
     let gameController: GameController;
     let gameService: GameService;
-    let validationService: ValidationService;
+    let validationService: GameValidationService;
 
     const gameData: GameJson = {
         id: '123',
@@ -35,7 +35,7 @@ describe('GameController', () => {
             controllers: [GameController],
             providers: [
                 {
-                    provide: ValidationService,
+                    provide: GameValidationService,
                     useValue: {
                         validateGame: jest.fn(),
                     },
@@ -56,7 +56,7 @@ describe('GameController', () => {
 
         gameController = module.get<GameController>(GameController);
         gameService = module.get<GameService>(GameService);
-        validationService = module.get<ValidationService>(ValidationService);
+        validationService = module.get<GameValidationService>(GameValidationService);
     });
 
     it('should be defined', () => {

@@ -3,7 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game.controller';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { GameService } from './services/game.service';
-import { ValidationService } from './services/validation.service';
+import { MapValidationService } from './services/mapValidation.service';
+import { GameValidationService } from './services/validation.service';
 
 @Module({
     imports: [
@@ -14,6 +15,6 @@ import { ValidationService } from './services/validation.service';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [GameService, ValidationService, Logger],
+    providers: [GameService, GameValidationService, MapValidationService, Logger],
 })
 export class AppModule {}

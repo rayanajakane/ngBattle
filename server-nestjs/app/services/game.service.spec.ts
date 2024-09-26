@@ -73,7 +73,7 @@ describe('GameService', () => {
             exec: jest.fn().mockResolvedValueOnce(gameData),
         } as unknown as Query<Game, Game>);
 
-        let updatedGameData = { ...gameData, isVisible: !gameData.isVisible };
+        const updatedGameData = { ...gameData, isVisible: !gameData.isVisible };
 
         jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({
             exec: jest.fn().mockResolvedValueOnce(updatedGameData),
