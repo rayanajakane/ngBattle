@@ -1,4 +1,4 @@
-import { TileDto } from '@app/model/dto/game/tile.dto';
+import { TileDto } from '@app/model/dto/tile.dto';
 import { Game } from '@app/model/schema/game.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -41,20 +41,19 @@ export class ValidationService {
 
     areAllTilesAccessible(map: TileDto[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
-        const groundDoorTiles = this.extractTiles(grid, mapSize, ['', 'door']);
+        const terrainDoorTiles = this.extractTiles(grid, mapSize, ['', 'water', 'ice', 'doorOpen', 'doorClosed']);
 
         // redundant check to see if we have no ground tiles (shouldn't happen anyway since we need more than 50% of ground tiles)
-        if (groundDoorTiles.length === 0) {
+        if (terrainDoorTiles.length === 0) {
             return true;
         }
 
-        return this.allGroundTilesAccessible(grid, groundDoorTiles, mapSize);
+        return this.allGroundTilesAccessible(grid, terrainDoorTiles, mapSize);
     }
 
     areAllDoorsValid(map: TileDto[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
-        const doorTiles = this.extractTiles(grid, mapSize, ['door']);
-
+        const doorTiles = this.extractTiles(grid, mapSize, ['doorClosed', 'doorOpen']);
         return this.allDoorsValid(grid, doorTiles, mapSize);
     }
 
@@ -119,16 +118,17 @@ export class ValidationService {
         return true;
     }
 
-    allGroundTilesAccessible(grid: TileDto[][], groundDoorTiles: [number, number][], mapSize: number): boolean {
+    allGroundTilesAccessible(grid: TileDto[][], terrainDoorTiles: [number, number][], mapSize: number): boolean {
         const directions = [
             [0, 1],
             [1, 0],
             [0, -1],
             [-1, 0],
         ];
+        const tileTypes = ['', 'water', 'ice', 'doorOpen', 'doorClosed'];
         const visited = new Set<string>();
-        const queue: [number, number][] = [groundDoorTiles[0]];
-        visited.add(groundDoorTiles[0].toString());
+        const queue: [number, number][] = [terrainDoorTiles[0]];
+        visited.add(terrainDoorTiles[0].toString());
 
         while (queue.length > 0) {
             const [x, y] = queue.shift();
@@ -141,7 +141,7 @@ export class ValidationService {
                     nx < mapSize &&
                     ny < mapSize && // check n is inside the grid
                     !visited.has([nx, ny].toString()) && // check n is not visited
-                    (grid[nx][ny].tileType === '' || grid[nx][ny].tileType === 'door') // check n is a ground or door tile
+                    tileTypes.includes(grid[nx][ny].tileType) // check n is a terrain or door tile
                 ) {
                     queue.push([nx, ny]);
                     visited.add([nx, ny].toString());
@@ -149,7 +149,7 @@ export class ValidationService {
             }
         }
 
-        for (const [x, y] of groundDoorTiles) {
+        for (const [x, y] of terrainDoorTiles) {
             if (!visited.has([x, y].toString())) {
                 return false;
             }

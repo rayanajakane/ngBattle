@@ -1,4 +1,4 @@
-import { GameDto } from '@app/model/dto/game/game.dto';
+import { GameDto } from '@app/model/dto/game.dto';
 import { Game } from '@app/model/schema/game.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
