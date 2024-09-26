@@ -1,5 +1,5 @@
 import { GameDto } from '@app/model/dto/game.dto';
-import { GameService } from '@app/services/game/game.service';
+import { GameService } from '@app/services/game.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';
 
