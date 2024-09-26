@@ -1,5 +1,5 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NgFor } from '@angular/common';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -35,7 +35,16 @@ export class CharacterSelectionPageComponent {
         this.attack = this.defaultAttributeValue;
         this.defense = this.defaultAttributeValue;
         this.selectedDice = { attack: this.dice6, defense: this.dice4 }; // Par défaut
-        this.setAvatars();
+        // this.setAvatars();
+
+        // Initialisation des avatars
+        this.avatars = [];
+        for (let i = 1; i <= this.nAvatars; i++) {
+            this.avatars.push({
+                name: `Avatar ${i}`,
+                img: `../../../assets/characters/${i}.png`, // Chemin générique pour les images
+            });
+        }
     }
 
     // Méthodes publiques
@@ -73,14 +82,14 @@ export class CharacterSelectionPageComponent {
             this.selectedDice.defense = this.dice6;
         }
     }
-
-    setAvatars(): void {
-        this.avatars = [];
-        for (let i = 1; i <= this.nAvatars; i++) {
-            this.avatars.push({
-                name: `Avatar ${i}`,
-                img: `../../../assets/characters/${i}.png`, // Chemin générique pour les images
-            });
-        }
-    }
+    // TODO: discuter Supprimer cette méthode
+    // setAvatars(): void {
+    //     this.avatars = [];
+    //     for (let i = 1; i <= this.nAvatars; i++) {
+    //         this.avatars.push({
+    //             name: `Avatar ${i}`,
+    //             img: `../../../assets/characters/${i}.png`, // Chemin générique pour les images
+    //         });
+    //     }
+    // }
 }
