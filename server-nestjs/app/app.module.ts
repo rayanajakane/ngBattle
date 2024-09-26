@@ -2,7 +2,7 @@ import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game/game.controller';
 import { Game, gameSchema } from './model/schema/game.schema';
-import { GameService } from './services/game/game.service';
+import { GameService } from './services/game.service';
 
 @Module({
     imports: [
