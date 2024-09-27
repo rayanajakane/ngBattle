@@ -1,13 +1,14 @@
 import { GameJson } from '@app/model/gameStructure';
 import { GameService } from '@app/services/game.service';
 import { GameValidationService } from '@app/services/gameValidation.service';
+import { HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';
 
 describe('GameController', () => {
     let gameController: GameController;
     let gameService: GameService;
-    let validationService: GameValidationService;
+    let gameValidationService: GameValidationService;
 
     const gameData: GameJson = {
         id: '123',
@@ -56,7 +57,7 @@ describe('GameController', () => {
 
         gameController = module.get<GameController>(GameController);
         gameService = module.get<GameService>(GameService);
-        validationService = module.get<GameValidationService>(GameValidationService);
+        gameValidationService = module.get<GameValidationService>(GameValidationService);
     });
 
     it('should be defined', () => {
@@ -67,14 +68,22 @@ describe('GameController', () => {
         jest.clearAllMocks();
     });
 
+    it('should call validateGame method of validationService and return HTTP exception', async () => {
+        const errors = ['error1', 'error2'];
+        jest.spyOn(gameValidationService, 'validateGame').mockResolvedValue(errors);
+        await expect(gameController.uploadGame(gameData)).rejects.toThrow(HttpException);
+        await expect(gameController.updateGame(gameData)).rejects.toThrow(HttpException);
+        expect(gameValidationService.validateGame).toHaveBeenCalledWith(gameData);
+    });
+
     it('should call create method of gameService', async () => {
-        jest.spyOn(validationService, 'validateGame').mockResolvedValue([]);
+        jest.spyOn(gameValidationService, 'validateGame').mockResolvedValue([]);
         await gameController.uploadGame(gameData);
         expect(gameService.create).toHaveBeenCalledWith(gameData);
     });
 
     it('should call update method of gameService', async () => {
-        jest.spyOn(validationService, 'validateGame').mockResolvedValue([]);
+        jest.spyOn(gameValidationService, 'validateGame').mockResolvedValue([]);
         await gameController.updateGame(gameData);
         expect(gameService.update).toHaveBeenCalledWith(gameData);
     });
