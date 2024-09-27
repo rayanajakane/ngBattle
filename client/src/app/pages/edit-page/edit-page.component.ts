@@ -74,7 +74,7 @@ export class EditPageComponent {
         });
     }
 
-    tempLog(tileType: string) {
+    changeSelectedTile(tileType: string) {
         this.selectedTileType = tileType;
     }
 

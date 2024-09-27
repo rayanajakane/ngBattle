@@ -68,4 +68,9 @@ export class MapService {
             this.setTileType(index, !this.isRightClick ? selectedTileType : TileTypes.BASIC);
         }
     }
+
+    onExit() {
+        this.isMouseDown = false;
+        this.isRightClick = false;
+    }
 }
