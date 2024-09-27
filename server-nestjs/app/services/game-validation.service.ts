@@ -1,6 +1,6 @@
 import { GameJson, TileJson } from '@app/model/gameStructure';
 import { Game } from '@app/model/schema/game.schema';
-import { MapValidationService } from '@app/services/mapValidation.service';
+import { MapValidationService } from '@app/services/map-validation.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

@@ -1,6 +1,6 @@
 import { GameJson } from '@app/model/gameStructure';
+import { GameValidationService } from '@app/services/game-validation.service';
 import { GameService } from '@app/services/game.service';
-import { GameValidationService } from '@app/services/gameValidation.service';
 import { HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';

@@ -2,8 +2,8 @@ import { Game } from '@app/model/schema/game.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Query } from 'mongoose';
-import { GameValidationService } from './gameValidation.service';
-import { MapValidationService } from './mapValidation.service';
+import { GameValidationService } from './game-validation.service';
+import { MapValidationService } from './map-validation.service';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */

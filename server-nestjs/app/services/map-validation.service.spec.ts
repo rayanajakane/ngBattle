@@ -1,4 +1,4 @@
-import { MapValidationService } from './mapValidation.service';
+import { MapValidationService } from './map-validation.service';
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
