@@ -1,6 +1,5 @@
 <div class="create-game-page">
     <h1>Créer un jeu</h1>
-    <br />
 
     <form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
         <div>
@@ -8,8 +7,8 @@
             <mat-radio-group aria-label="Sélectionner le mode de jeu" [(ngModel)]="gameType" name="gameMode" required>
                 <span
                     ><mat-radio-button value="classic">Classique</mat-radio-button>
-                    <mat-radio-button value="captureTheFlag">Capturer le drapeau</mat-radio-button></span
-                >
+                    <mat-radio-button value="ctf">Capturer le drapeau</mat-radio-button>
+                </span>
             </mat-radio-group>
         </div>
 
@@ -17,9 +16,9 @@
             <h3>Choisir la taille de la carte</h3>
             <mat-radio-group aria-label="Sélectionner la taille de la carte" [(ngModel)]="mapSize" name="sizeMap" required>
                 <span
-                    ><mat-radio-button value="small">Petit</mat-radio-button>
-                    <mat-radio-button value="normal">Moyen</mat-radio-button>
-                    <mat-radio-button value="large">Grand</mat-radio-button></span
+                    ><mat-radio-button value="10">Petit</mat-radio-button>
+                    <mat-radio-button value="15">Moyen</mat-radio-button>
+                    <mat-radio-button value="20">Grand</mat-radio-button></span
                 >
             </mat-radio-group>
         </div>

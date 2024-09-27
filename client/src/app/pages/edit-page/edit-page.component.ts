@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -40,9 +40,10 @@ import { MapService } from '@app/services/map.service';
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })
-export class EditPageComponent {
+export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
-    mapSize: number = DEFAULT_MAP_SIZE;
+    mapSize: number;
+    gameType: string;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
@@ -55,6 +56,12 @@ export class EditPageComponent {
         private idService: IDGenerationService,
         private router: Router,
     ) {}
+
+    ngOnInit() {
+        // verify if the game is imported or not
+        this.gameType = this.mapService.gameType;
+        this.mapSize = this.mapService.mapSize || DEFAULT_MAP_SIZE;
+    }
 
     resetGame(): void {
         this.mapService.resetGridToBasic();
