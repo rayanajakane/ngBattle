@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ export class AdminItemComponent {
         private http: HttpClientService,
         private dialog: MatDialog,
         private snackbar: ConfirmationSnackbarService,
+        private el: ElementRef,
     ) {}
 
     invertVisibility() {
@@ -36,22 +37,15 @@ export class AdminItemComponent {
                 this.http.getGame(this.game.id).subscribe((game) => {
                     if (!game) {
                         this.snackbar.openSnackBar("Le jeu n'existe pas", 'Fermer');
-                        // add a delay
-                        setTimeout(function () {
-                            window.location.reload();
-                        }, 1000); // 3000 milliseconds = 3 seconds
+                        this.el.nativeElement.remove();
                     } else {
                         this.http.deleteGame(this.game.id).subscribe(() => {
                             this.snackbar.openSnackBar('Le jeu a été supprimé', 'Fermer');
-                            setTimeout(function () {
-                                window.location.reload();
-                            }, 1000); // 3000 milliseconds = 3 seconds
                         });
+                        this.el.nativeElement.remove();
                     }
                 });
             }
         });
     }
-
-    // TODO: Add a function to unsuscribe from the streams of the component (use ngOnDestruct)
 }

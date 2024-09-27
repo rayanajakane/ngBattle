@@ -9,8 +9,8 @@
             pattern="^([a-zA-Z0-9À-ÖØ-öø-ÿ]{1,15})( [a-zA-Z0-9À-ÖØ-öø-ÿ]{1,15})*$"
             #gameNameInput="ngModel"
             required />
-        <mat-error *ngIf="gameNameInput.errors?.required"> Le nom du jeu est requis. </mat-error>
-        <mat-error *ngIf="gameNameInput.errors?.pattern"> Pas de caractères spéciaux! </mat-error>
+        <mat-error *ngIf="gameNameInput.errors?.required"> Le nom du jeu est requis </mat-error>
+        <mat-error *ngIf="gameNameInput.errors?.pattern"> Nom de jeu invalide </mat-error>
         <p></p
     ></mat-form-field>
 

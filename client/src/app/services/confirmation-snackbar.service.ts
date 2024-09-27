@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACKBAR_DURATION } from './constants';
 
 @Injectable({
     providedIn: 'root',
@@ -7,18 +8,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class ConfirmationSnackbarService {
     constructor(private snackBar: MatSnackBar) {}
 
-    openSnackBar(message: string, action: string = 'Close', duration: number = 5000) {
+    openSnackBar(message: string, action: string = 'Close') {
         this.snackBar.open(message, action, {
-            duration, // Set custom duration
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-        });
-    }
-
-    openPersistentSnackBar(message: string, action: string = 'Close') {
-        this.snackBar.open(message, action, {
-            duration: 0, // Persistent, stays open until user clicks the action button
-            horizontalPosition: 'center',
+            duration: SNACKBAR_DURATION,
+            horizontalPosition: 'right',
             verticalPosition: 'top',
         });
     }
