@@ -1,6 +1,15 @@
 import { TileJson } from '@app/model/game-structure';
 import { Injectable } from '@nestjs/common';
-import { LARGE_MAP_SIZE, LARGE_STARTING_POINTS, MEDIUM_MAP_SIZE, MEDIUM_STARTING_POINTS, SMALL_MAP_SIZE, SMALL_STARTING_POINTS } from './constants';
+import {
+    DOOR_TILES,
+    LARGE_MAP_SIZE,
+    LARGE_STARTING_POINTS,
+    MEDIUM_MAP_SIZE,
+    MEDIUM_STARTING_POINTS,
+    SMALL_MAP_SIZE,
+    SMALL_STARTING_POINTS,
+    TERRAIN_DOOR_TILES,
+} from './validation-constants';
 
 @Injectable()
 export class MapValidationService {
@@ -25,14 +34,14 @@ export class MapValidationService {
 
     areAllTilesAccessible(map: TileJson[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
-        const terrainDoorTiles = this.extractTiles(grid, mapSize, ['', 'water', 'ice', 'doorOpen', 'doorClosed']);
+        const terrainDoorTiles = this.extractTiles(grid, mapSize, TERRAIN_DOOR_TILES);
 
         return this.allGroundTilesAccessible(grid, terrainDoorTiles, mapSize);
     }
 
     areAllDoorsValid(map: TileJson[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
-        const doorTiles = this.extractTiles(grid, mapSize, ['doorClosed', 'doorOpen']);
+        const doorTiles = this.extractTiles(grid, mapSize, DOOR_TILES);
         return this.allDoorsValid(grid, doorTiles, mapSize);
     }
 
@@ -68,7 +77,12 @@ export class MapValidationService {
     isInvalidHorizontalDoor(grid: TileJson[][], i: number, j: number, mapSize: number): boolean {
         return (
             this.isHorizontalDoor(grid, i, j, mapSize) &&
-            !(j > 0 && j < mapSize - 1 && grid[i][j - 1].tileType === '' && grid[i][j + 1].tileType === '')
+            !(
+                j > 0 &&
+                j < mapSize - 1 &&
+                TERRAIN_DOOR_TILES.includes(grid[i][j - 1].tileType) &&
+                TERRAIN_DOOR_TILES.includes(grid[i][j + 1].tileType)
+            )
         );
     }
 
@@ -79,7 +93,12 @@ export class MapValidationService {
     isInvalidVerticalDoor(grid: TileJson[][], i: number, j: number, mapSize: number): boolean {
         return (
             this.isVerticalDoor(grid, i, j, mapSize) &&
-            !(i > 0 && i < mapSize - 1 && grid[i - 1][j].tileType === '' && grid[i + 1][j].tileType === '')
+            !(
+                i > 0 &&
+                i < mapSize - 1 &&
+                TERRAIN_DOOR_TILES.includes(grid[i - 1][j].tileType) &&
+                TERRAIN_DOOR_TILES.includes(grid[i + 1][j].tileType)
+            )
         );
     }
 
@@ -104,7 +123,6 @@ export class MapValidationService {
             [0, -1],
             [-1, 0],
         ];
-        const tileTypes = ['', 'water', 'ice', 'doorOpen', 'doorClosed'];
         const visited = new Set<string>();
         const queue: [number, number][] = [terrainDoorTiles[0]];
         visited.add(terrainDoorTiles[0].toString());
@@ -120,7 +138,7 @@ export class MapValidationService {
                     nx < mapSize &&
                     ny < mapSize && // check n is inside the grid
                     !visited.has([nx, ny].toString()) && // check n is not visited
-                    tileTypes.includes(grid[nx][ny].tileType) // check n is a terrain or door tile
+                    TERRAIN_DOOR_TILES.includes(grid[nx][ny].tileType) // check n is a terrain or door tile
                 ) {
                     queue.push([nx, ny]);
                     visited.add([nx, ny].toString());

@@ -80,7 +80,7 @@ describe('MapValidationService', () => {
             { idx: 5, tileType: 'wall', item: '', hasPlayer: false },
             { idx: 6, tileType: '', item: '', hasPlayer: false },
             { idx: 7, tileType: '', item: '', hasPlayer: false },
-            { idx: 8, tileType: '', item: 'startingPoint', hasPlayer: false },
+            { idx: 8, tileType: 'ice', item: 'startingPoint', hasPlayer: false },
         ];
         expect(service.areAllTilesAccessible(map, 3)).toBe(false);
     });
@@ -88,7 +88,7 @@ describe('MapValidationService', () => {
     it('should return true if vertical door is valid', () => {
         const map = [
             { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
-            { idx: 1, tileType: '', item: '', hasPlayer: false },
+            { idx: 1, tileType: 'water', item: '', hasPlayer: false },
             { idx: 2, tileType: '', item: '', hasPlayer: false },
             { idx: 3, tileType: 'wall', item: '', hasPlayer: false },
             { idx: 4, tileType: 'doorClosed', item: '', hasPlayer: false },
@@ -105,7 +105,7 @@ describe('MapValidationService', () => {
             { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
             { idx: 1, tileType: 'wall', item: '', hasPlayer: false },
             { idx: 2, tileType: '', item: '', hasPlayer: false },
-            { idx: 3, tileType: '', item: '', hasPlayer: false },
+            { idx: 3, tileType: 'ice', item: '', hasPlayer: false },
             { idx: 4, tileType: 'doorClosed', item: '', hasPlayer: false },
             { idx: 5, tileType: '', item: '', hasPlayer: false },
             { idx: 6, tileType: '', item: '', hasPlayer: false },
