@@ -24,6 +24,12 @@ export class GameValidationService {
             type: 'string',
             typeMsg: 'La date de création doit être une chaîne de caractères',
         },
+        {
+            prop: 'lastModified',
+            emptyMsg: 'La date de modification ne peut pas être vide',
+            type: 'string',
+            typeMsg: 'La date de modification doit être une chaîne de caractères',
+        },
     ];
 
     errors: string[] = [];

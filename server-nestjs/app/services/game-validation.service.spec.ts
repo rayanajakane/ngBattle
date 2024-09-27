@@ -15,23 +15,24 @@ describe('GameValidationService', () => {
 
     const validGame = {
         id: '123',
-        gameName: 'Game',
-        gameDescription: 'This is a game description',
+        gameName: 'Game e34wdwd23',
+        gameDescription: 'This is an example game description.',
         mapSize: '3',
         map: [
-            { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
+            { idx: 0, tileType: '', item: '', hasPlayer: false },
             { idx: 1, tileType: '', item: '', hasPlayer: false },
             { idx: 2, tileType: '', item: '', hasPlayer: false },
-            { idx: 3, tileType: '', item: '', hasPlayer: false },
-            { idx: 4, tileType: '', item: '', hasPlayer: false },
-            { idx: 5, tileType: '', item: '', hasPlayer: false },
+            { idx: 3, tileType: 'wall', item: '', hasPlayer: false },
+            { idx: 4, tileType: 'door', item: '', hasPlayer: false },
+            { idx: 5, tileType: 'wall', item: '', hasPlayer: false },
             { idx: 6, tileType: '', item: '', hasPlayer: false },
             { idx: 7, tileType: '', item: '', hasPlayer: false },
-            { idx: 8, tileType: '', item: 'startingPoint', hasPlayer: false },
+            { idx: 8, tileType: '', item: '', hasPlayer: false },
         ],
         gameType: 'ctf',
-        isVisible: false,
+        isVisible: true,
         creationDate: '2024-09-18T10:30:00.000Z',
+        lastModified: '18/09/2024 10:30:00',
     };
 
     beforeEach(async () => {
@@ -112,6 +113,7 @@ describe('GameValidationService', () => {
             creationDate: '2023-01-01',
             map: [],
             isVisible: true,
+            lastModified: '2023-01-01',
         };
         service.validateProperties(game);
         expect(service.errors.length).toBe(0);
@@ -133,6 +135,7 @@ describe('GameValidationService', () => {
             creationDate: 123,
             map: [],
             isVisible: 123,
+            lastModified: 123,
         };
         service.validateProperties(game as any);
         expect(service.errors.length).toBe(service.propertiesToCheck.length);

@@ -29,6 +29,7 @@ describe('GameController', () => {
         gameType: 'ctf',
         isVisible: true,
         creationDate: '2024-09-18T10:30:00.000Z',
+        lastModified: '18/09/2024 10:30:00',
     };
 
     beforeEach(async () => {

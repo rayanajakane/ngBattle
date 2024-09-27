@@ -15,4 +15,5 @@ export interface GameJson {
     gameType: string;
     isVisible: boolean;
     creationDate: string;
+    lastModified: string;
 }
