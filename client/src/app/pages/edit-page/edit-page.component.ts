@@ -16,7 +16,7 @@ import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
-
+// import { filter } from 'rxjs/operators';
 @Component({
     selector: 'app-edit-page',
     standalone: true,
@@ -96,4 +96,10 @@ export class EditPageComponent {
             this.router.navigate(['/admin']);
         });
     }
+    // ngOnInit(): void {
+    //     // TODO : update the redirection to create page with new method
+    //     if (performance.navigation.type === 1) {
+    //         this.router.navigate(['/create']);
+    //       }
+    // }
 }

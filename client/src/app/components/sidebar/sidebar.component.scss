@@ -2,13 +2,34 @@ mat-grid-tile {
     background: lightcoral;
     border: 3px solid gray;
     transition: transform 0.3s ease, border-color 0.3s ease;
- 
     &:hover {
         border: 3px solid rgb(72, 243, 42);
-        transform: scale(1.15); /* Augmente légèrement la taille de la tuile */
-        z-index: 1; /* Place la tuile au-dessus des autres */
+        transform: scale(1.15); 
+        z-index: 1; 
     }
+    height: 10px;
+
+}
+.cdk-drag-preview {
+    height: 10px;
+    transform: scale(1.1); /* Zoomer légèrement l'élément pendant le drag */
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgb(72, 243, 42); /* Bordure verte comme pendant hover */
 }
 
+.cdk-drag-placeholder {
+    opacity: 0.5;
+    border: 2px lightgray;
+}
 
+.tile-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* S'assure que tout le contenu prend la hauteur de la tuile */
+}
 
+.badge-container {
+    display: flex;
+}

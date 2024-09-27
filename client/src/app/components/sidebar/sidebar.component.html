@@ -1,16 +1,22 @@
 <section>
     <div id="sidebar" cdkDropList>
-    <mat-grid-list cols="2" rowHeight="10:1">
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AA1')"> [ AA1 ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AA2')"> [ AA2 ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AC1')"> [ AC1 ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AC2')"> [ AC2 ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AF1')"> [ AF1 ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('AF2')"> [ AF2 ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('item-aleatoire')"> [ Item Aléatoire ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('point-depart')"> <app-starting-point></app-starting-point> </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('drapeau-A')"> [ Drapeau A ] </mat-grid-tile>
-        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('drapeau-B')"> [ Drapeau B ] </mat-grid-tile>
+    <mat-grid-list cols="2" rowHeight="1:1">
+        <mat-grid-tile  matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="above"> [ AA1 ] </mat-grid-tile>
+        <mat-grid-tile  (mouseDown)="startDragging('AA2', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="above"> [ AA2 ] </mat-grid-tile>
+        <mat-grid-tile  (mouseDown)="startDragging('AC1', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="left"> [ AC1 ] </mat-grid-tile>
+        <mat-grid-tile  (mouseDown)="startDragging('AC2', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="right"> [ AC2 ] </mat-grid-tile>
+        <mat-grid-tile (mouseDown)="startDragging('AF1', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="left"> 
+        <span class="no-pointer">[ AF1 ]</span>
+        </mat-grid-tile>
+        <mat-grid-tile (mouseDown)="startDragging('AF2', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="right"> [ AF2 ] </mat-grid-tile>
+        <mat-grid-tile (mouseDown)="startDragging('item-aleatoire', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="left"> [ Item Aléatoire ] </mat-grid-tile>
+        <mat-grid-tile (mouseDown)="startDragging('point-depart', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="right"> 
+            <p class="badge-container">
+                Départ<span [matBadge]="startingPointNumber" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="below"></span>
+            </p>
+        </mat-grid-tile>
+        <mat-grid-tile (mouseDown)="startDraggingd('drapeau-A', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="below"> [ Drapeau A ] </mat-grid-tile>
+        <mat-grid-tile cdkDrag (cdkDragStarted)="onDragStarted('drapeau-B', $event)" matTooltip="ESSAYER LA DESCRIPTION" matTooltipPosition="below"> [ Drapeau B ] </mat-grid-tile>
     </mat-grid-list>
     </div>
 </section>

@@ -4,7 +4,7 @@ import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { MapService, Tile } from '@app/services/map.service';
 import { DragDropService } from '@app/services/drag-drop.service';
-import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 @Component({
     selector: 'app-map',
     standalone: true,
@@ -27,8 +27,10 @@ export class MapComponent implements OnInit {
     ngOnInit(): void {
         this.mapService.createGrid(this.mapSize);
     }
-    onDrop(event: CdkDragDrop<string>, index: number) {
-        window.alert('Dropped');
-        this.mapService.setTileType(index, this.objectDropped);
-    }
+    // onDrop(event: CdkDragDrop<string>, index: number) {
+    //     if (this.objectDropped === 'item-aleatoire') {
+    //     }
+    //     window.alert('Dropped');
+    //     this.mapService.setTileType(index, this.objectDropped);
+    // }
 }
