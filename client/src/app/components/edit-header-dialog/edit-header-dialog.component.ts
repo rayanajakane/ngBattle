@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { DEFAULT_CHAR_COUNT } from '@app/components/edit-header-dialog/constant';
 
 export interface DialogData {
     gameNameInput: string;
@@ -29,10 +30,14 @@ export interface DialogData {
     styleUrl: './edit-header-dialog.component.scss',
 })
 export class EditHeaderDialogComponent {
+    charCount: number;
+
     constructor(
         public dialogRef: MatDialogRef<EditHeaderDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    ) {}
+    ) {
+        this.charCount = this.updateCharCount();
+    }
 
     onNoClick(): void {
         this.dialogRef.close();
@@ -40,5 +45,9 @@ export class EditHeaderDialogComponent {
 
     onYesClick(): void {
         this.dialogRef.close(this.data);
+    }
+
+    updateCharCount() {
+        return (this.charCount = this.data.gameDescriptionInput?.length || DEFAULT_CHAR_COUNT);
     }
 }
