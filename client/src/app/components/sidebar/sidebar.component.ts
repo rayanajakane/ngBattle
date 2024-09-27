@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatBadgeModule } from '@angular/material/badge';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { DragDropService } from '@app/services/drag-drop.service';
+import { Component, OnInit } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DragDropService } from '@app/services/drag-drop.service';
 @Component({
     selector: 'app-sidebar',
     standalone: true,
@@ -16,9 +16,10 @@ export class SidebarComponent implements OnInit {
     constructor(private dragDropService: DragDropService) {}
     // Tell the service the right tile type that is dragged
 
-    startDragging(object: string, event: MouseEvent) {
+    startDragging(object: string, event: Event) {
+        const mouseEvent = event as MouseEvent;
         this.dragDropService.setDraggedObject(object);
-        this.dragDropService.updateMousePosition(event.clientX, event.clientY);
+        this.dragDropService.updateMousePosition(mouseEvent.clientX, mouseEvent.clientY);
     }
 
     ngOnInit(): void {
