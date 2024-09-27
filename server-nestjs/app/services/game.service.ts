@@ -1,4 +1,4 @@
-import { GameJson } from '@app/model/gameStructure';
+import { GameJson } from '@app/model/game-structure';
 import { Game } from '@app/model/schema/game.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

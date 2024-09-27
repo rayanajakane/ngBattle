@@ -1,4 +1,4 @@
-import { GameJson, TileJson } from '@app/model/gameStructure';
+import { GameJson, TileJson } from '@app/model/game-structure';
 import { Game } from '@app/model/schema/game.schema';
 import { MapValidationService } from '@app/services/map-validation.service';
 import { Injectable } from '@nestjs/common';

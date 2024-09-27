@@ -1,4 +1,4 @@
-import { TileJson } from '@app/model/gameStructure';
+import { TileJson } from '@app/model/game-structure';
 import { Injectable } from '@nestjs/common';
 import { LARGE_MAP_SIZE, LARGE_STARTING_POINTS, MEDIUM_MAP_SIZE, MEDIUM_STARTING_POINTS, SMALL_MAP_SIZE, SMALL_STARTING_POINTS } from './constants';
 

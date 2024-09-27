@@ -1,4 +1,4 @@
-import { GameJson } from '@app/model/gameStructure';
+import { GameJson } from '@app/model/game-structure';
 import { GameValidationService } from '@app/services/game-validation.service';
 import { GameService } from '@app/services/game.service';
 import { HttpException } from '@nestjs/common';
