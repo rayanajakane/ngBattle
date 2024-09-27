@@ -21,7 +21,6 @@ export class MapValidationService {
         } else if (mapSize <= LARGE_MAP_SIZE) {
             return startingPoints >= LARGE_STARTING_POINTS;
         }
-        return false;
     }
 
     hasCorrectGroundAmount(map: TileJson[]) {
@@ -35,11 +34,6 @@ export class MapValidationService {
     areAllTilesAccessible(map: TileJson[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
         const terrainDoorTiles = this.extractTiles(grid, mapSize, ['', 'water', 'ice', 'doorOpen', 'doorClosed']);
-
-        // redundant check to see if we have no ground tiles (shouldn't happen anyway since we need more than 50% of terrain tiles)
-        if (terrainDoorTiles.length === 0) {
-            return true;
-        }
 
         return this.allGroundTilesAccessible(grid, terrainDoorTiles, mapSize);
     }
