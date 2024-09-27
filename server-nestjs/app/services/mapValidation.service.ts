@@ -1,18 +1,25 @@
 import { TileJson } from '@app/model/gameStructure';
 import { HttpException, Injectable } from '@nestjs/common';
-
-const HTTP_BAD_REQUEST = 400;
+import {
+    HTTP_BAD_REQUEST,
+    LARGE_MAP_SIZE,
+    LARGE_STARTING_POINTS,
+    MEDIUM_MAP_SIZE,
+    MEDIUM_STARTING_POINTS,
+    SMALL_MAP_SIZE,
+    SMALL_STARTING_POINTS,
+} from './constants';
 
 @Injectable()
 export class MapValidationService {
     hasStartingPoints(map: TileJson[], mapSize: number) {
         const startingPoints = map.filter((tile) => tile.item === 'startingPoint').length;
-        if (mapSize <= 10) {
-            return startingPoints >= 2;
-        } else if (mapSize <= 15) {
-            return startingPoints >= 4;
-        } else if (mapSize <= 20) {
-            return startingPoints >= 6;
+        if (mapSize <= SMALL_MAP_SIZE) {
+            return startingPoints >= SMALL_STARTING_POINTS;
+        } else if (mapSize <= MEDIUM_MAP_SIZE) {
+            return startingPoints >= MEDIUM_STARTING_POINTS;
+        } else if (mapSize <= LARGE_MAP_SIZE) {
+            return startingPoints >= LARGE_STARTING_POINTS;
         }
         return false;
     }

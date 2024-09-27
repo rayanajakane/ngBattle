@@ -5,6 +5,9 @@ import { Model, Query } from 'mongoose';
 import { GameValidationService } from './gameValidation.service';
 import { MapValidationService } from './mapValidation.service';
 
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 describe('GameValidationService', () => {
     let service: GameValidationService;
     let mapValidationService: MapValidationService;
@@ -172,8 +175,6 @@ describe('GameValidationService', () => {
         service.validateGameName(game as any);
         expect(service.errors.length).toBe(1);
     });
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     it('should not add errors for unique game name and id', async () => {
         jest.spyOn(model, 'find').mockReturnValue({

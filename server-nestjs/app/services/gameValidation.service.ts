@@ -34,14 +34,14 @@ export class GameValidationService {
     ) {}
 
     async validateGame(game: GameJson): Promise<string[]> {
+        this.errors = [];
+
         this.validateProperties(game);
         this.validateMap(game);
         this.validateGameName(game);
         await this.validateUniqueChecks(game);
 
-        const errorsToReturn = [...this.errors];
-        this.errors = [];
-        return errorsToReturn;
+        return this.errors;
     }
 
     async isUniqueName(name: string): Promise<boolean> {
