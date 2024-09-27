@@ -17,6 +17,8 @@ export class GameSelectionPageComponent implements OnInit {
 
     games: GameJson[];
 
+    private readonly scrollValue: number = 300;
+
     constructor(private http: HttpClientService) {}
 
     async ngOnInit() {
@@ -26,10 +28,10 @@ export class GameSelectionPageComponent implements OnInit {
     }
 
     scrollLeft() {
-        this.widgetsContent.nativeElement.scrollLeft -= 300;
+        this.widgetsContent.nativeElement.scrollLeft -= this.scrollValue;
     }
 
     scrollRight() {
-        this.widgetsContent.nativeElement.scrollLeft += 300;
+        this.widgetsContent.nativeElement.scrollLeft += this.scrollValue;
     }
 }

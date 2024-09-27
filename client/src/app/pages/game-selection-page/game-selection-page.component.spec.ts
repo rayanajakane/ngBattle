@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameSelectionPageComponent } from './game-selection-page.component';
 
 import { ElementRef } from '@angular/core';
+import { HttpClientService } from '@app/services/httpclient.service';
 
 describe('GameSelectionPageComponent', () => {
     let component: GameSelectionPageComponent;
@@ -17,7 +18,7 @@ describe('GameSelectionPageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [GameSelectionPageComponent],
+            imports: [GameSelectionPageComponent, HttpClientService],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameSelectionPageComponent);
@@ -36,11 +37,13 @@ describe('GameSelectionPageComponent', () => {
 
     it('should scroll left', () => {
         component.scrollLeft();
+        // eslint-disable-next-line
         expect(component.widgetsContent.nativeElement.scrollLeft).toBe(-300);
     });
 
     it('should scroll right', () => {
         component.scrollRight();
+        // eslint-disable-next-line
         expect(component.widgetsContent.nativeElement.scrollRight).toBe(300);
     });
 });

@@ -9,6 +9,7 @@ import { CreatePageComponent } from '@app/pages/create-page/create-page.componen
 import { EditPageComponent } from '@app/pages/edit-page/edit-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ImportPageComponent } from '@app/pages/import-page/import-page.component';
+import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { environment } from './environments/environment';
@@ -35,6 +36,7 @@ const routes: Routes = [
     { path: 'create', component: CreatePageComponent },
     { path: 'import', component: ImportPageComponent },
     { path: 'edit', component: EditPageComponent },
+    { path: 'waitingRoom', component: WaitingPageComponent },
 ];
 
 bootstrapApplication(AppComponent, {

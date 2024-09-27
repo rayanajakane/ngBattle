@@ -54,11 +54,13 @@ h1{
     padding-top: 50px;
 }
 
-body {
+.main-container {
     background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
     margin: 0;
     align-items: center;
     justify-content: center;

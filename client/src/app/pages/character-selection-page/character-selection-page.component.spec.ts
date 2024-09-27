@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CharacterSelectionPageComponent } from './character-selection-page.component';
 
 import { ElementRef } from '@angular/core';
+import { HttpClientService } from '@app/services/httpclient.service';
 describe('CharacterSelectionPageComponent', () => {
     let component: CharacterSelectionPageComponent;
     let fixture: ComponentFixture<CharacterSelectionPageComponent>;
@@ -16,7 +17,7 @@ describe('CharacterSelectionPageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [CharacterSelectionPageComponent],
+            imports: [CharacterSelectionPageComponent, HttpClientService],
         }).compileComponents();
 
         fixture = TestBed.createComponent(CharacterSelectionPageComponent);
@@ -35,11 +36,13 @@ describe('CharacterSelectionPageComponent', () => {
 
     it('should scroll left', () => {
         component.scrollLeft();
+        // eslint-disable-next-line
         expect(component.widgetsContent.nativeElement.scrollLeft).toBe(-150);
     });
 
     it('should scroll right', () => {
         component.scrollRight();
+        // eslint-disable-next-line
         expect(component.widgetsContent.nativeElement.scrollRight).toBe(150);
     });
 
@@ -50,13 +53,13 @@ describe('CharacterSelectionPageComponent', () => {
     });
 
     it('should add bonus speed', () => {
-        let speed = component.speed;
+        const speed = component.speed;
         component.addBonus('speed');
         expect(component.speed).toBe(speed + 2);
     });
 
     it('should add bonus life', () => {
-        let life = component.life;
+        const life = component.life;
         component.addBonus('life');
         expect(component.life).toBe(life + 2);
     });
@@ -68,7 +71,9 @@ describe('CharacterSelectionPageComponent', () => {
             },
         } as unknown as Event;
         component.assignDice(event);
+        // eslint-disable-next-line
         expect(component.selectedDice.attack).toBe(6);
+        // eslint-disable-next-line
         expect(component.selectedDice.defense).toBe(4);
     });
 
@@ -79,7 +84,9 @@ describe('CharacterSelectionPageComponent', () => {
             },
         } as unknown as Event;
         component.assignDice(event);
+        // eslint-disable-next-line
         expect(component.selectedDice.attack).toBe(4);
+        // eslint-disable-next-line
         expect(component.selectedDice.defense).toBe(6);
     });
 });
