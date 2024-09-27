@@ -30,6 +30,7 @@ describe('AdminItemComponent', () => {
             gameType: 'ctf',
             isVisible: true,
             creationDate: '2021-09-01T00:00:00.000Z',
+            lastModified: '2021-09-01T00:00:00.000Z',
         };
 
         fixture.detectChanges();
