@@ -195,7 +195,7 @@ describe('GameValidationService', () => {
     });
 
     it('should not add errors for valid map services', () => {
-        const game = { map: [], mapSize: '10' };
+        const game = { map: [{}, {}, {}, {}], mapSize: '2' };
         jest.spyOn(mapValidationService, 'hasStartingPoints').mockReturnValue(true);
         jest.spyOn(mapValidationService, 'hasCorrectGroundAmount').mockReturnValue(true);
         jest.spyOn(mapValidationService, 'areAllTilesAccessible').mockReturnValue(true);
@@ -204,12 +204,18 @@ describe('GameValidationService', () => {
         expect(service.errors.length).toBe(0);
     });
 
-    it('should add errors for invalid map services', () => {
-        const game = { map: [], mapSize: '10' };
+    it('should add errors for invalid map services but with valid map size', () => {
+        const game = { map: [{}, {}, {}, {}], mapSize: '2' };
         jest.spyOn(mapValidationService, 'hasStartingPoints').mockReturnValue(false);
-        jest.spyOn(mapValidationService, 'hasCorrectGroundAmount').mockReturnValue(true);
-        jest.spyOn(mapValidationService, 'areAllTilesAccessible').mockReturnValue(true);
-        jest.spyOn(mapValidationService, 'areAllDoorsValid').mockReturnValue(true);
+        jest.spyOn(mapValidationService, 'hasCorrectGroundAmount').mockReturnValue(false);
+        jest.spyOn(mapValidationService, 'areAllTilesAccessible').mockReturnValue(false);
+        jest.spyOn(mapValidationService, 'areAllDoorsValid').mockReturnValue(false);
+        service.validateMapServices(game as any);
+        expect(service.errors.length).toBe(4);
+    });
+
+    it('should add errors for invalid mapSize', () => {
+        const game = { map: [{}, {}], mapSize: '3' };
         service.validateMapServices(game as any);
         expect(service.errors.length).toBe(1);
     });

@@ -144,9 +144,4 @@ describe('MapValidationService', () => {
         ];
         expect(service.areAllDoorsValid(map, 3)).toBe(false);
     });
-
-    it('should throw HttpException if map size does not match the map length', () => {
-        const map = new Array(99).fill({ idx: 0, tileType: '', item: '', hasPlayer: false });
-        expect(() => service.createGrid(map, 10)).toThrow();
-    });
 });

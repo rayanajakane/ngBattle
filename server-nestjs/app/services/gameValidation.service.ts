@@ -113,6 +113,10 @@ export class GameValidationService {
     }
 
     validateMapServices(game: GameJson): void {
+        if (game.map.length !== parseInt(game.mapSize, 10) ** 2) {
+            this.errors.push('La taille de la carte ne correspond pas à la taille de la carte');
+            return; // return early to avoid further errors in MapValidationService
+        }
         if (!this.mapValidationService.hasStartingPoints(game.map, parseInt(game.mapSize, 10))) {
             this.errors.push("Il n'y a pas assez de points de départ");
         }

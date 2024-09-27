@@ -1,14 +1,6 @@
 import { TileJson } from '@app/model/gameStructure';
-import { HttpException, Injectable } from '@nestjs/common';
-import {
-    HTTP_BAD_REQUEST,
-    LARGE_MAP_SIZE,
-    LARGE_STARTING_POINTS,
-    MEDIUM_MAP_SIZE,
-    MEDIUM_STARTING_POINTS,
-    SMALL_MAP_SIZE,
-    SMALL_STARTING_POINTS,
-} from './constants';
+import { Injectable } from '@nestjs/common';
+import { LARGE_MAP_SIZE, LARGE_STARTING_POINTS, MEDIUM_MAP_SIZE, MEDIUM_STARTING_POINTS, SMALL_MAP_SIZE, SMALL_STARTING_POINTS } from './constants';
 
 @Injectable()
 export class MapValidationService {
@@ -45,9 +37,6 @@ export class MapValidationService {
     }
 
     createGrid(map: TileJson[], mapSize: number): TileJson[][] {
-        if (map.length !== mapSize ** 2) {
-            throw new HttpException('La taille de la carte ne correspond pas à la taille spécifiée', HTTP_BAD_REQUEST);
-        }
         const grid: TileJson[][] = [];
         for (let i = 0; i < map.length; i++) {
             const row = Math.floor(i / mapSize);
