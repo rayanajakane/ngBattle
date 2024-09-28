@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { GameSelectionPageComponent } from './game-selection-page.component';
-
+import { HttpClientModule } from '@angular/common/http';
 import { ElementRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
+import { GameSelectionPageComponent } from './game-selection-page.component';
 
 describe('GameSelectionPageComponent', () => {
     let component: GameSelectionPageComponent;
@@ -16,9 +16,47 @@ describe('GameSelectionPageComponent', () => {
         },
     } as ElementRef;
 
+    const mockGames: GameJson[] = [
+        {
+            id: '1',
+            gameName: 'Game 1',
+            gameDescription: 'Description 1',
+            gameType: 'Type 1',
+            mapSize: '10x10',
+            map: [],
+            isVisible: true,
+            creationDate: new Date().toISOString(),
+        },
+        {
+            id: '2',
+            gameName: 'Game 2',
+            gameDescription: 'Description 2',
+            gameType: 'Type 2',
+            mapSize: '20x20',
+            map: [],
+            isVisible: false,
+            creationDate: new Date().toISOString(),
+        },
+        {
+            id: '3',
+            gameName: 'Game 3',
+            gameDescription: 'Description 3',
+            gameType: 'Type 3',
+            mapSize: '30x30',
+            map: [],
+            isVisible: true,
+            creationDate: new Date().toISOString(),
+        },
+    ];
+
+    const mockHttpClientService = {
+        getAllGames: jasmine.createSpy('getAllGames').and.returnValue(Promise.resolve(mockGames)),
+    };
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [GameSelectionPageComponent, HttpClientService],
+            imports: [GameSelectionPageComponent, HttpClientModule],
+            providers: [{ provide: HttpClientService, useValue: mockHttpClientService }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameSelectionPageComponent);

@@ -22,21 +22,32 @@ export class AdminItemComponent {
         });
     }
 
-    deleteGame() {
+    async deleteGame() {
         if (confirm('Êtes-vous sûr de vouloir supprimer ce jeu?')) {
-            this.http.getGame(this.game.id).subscribe((game) => {
-                if (!game) {
-                    alert('Le jeu a déjà été supprimé par un autre administrateur');
-                    return;
-                } else {
-                    this.http.deleteGame(this.game.id).subscribe(() => {
-                        alert('Le jeu a été supprimé avec succès');
-                    });
+            // this.http.getGame(this.game.id).subscribe((game) => {
+            //     if (!game) {
+            //         alert('Le jeu a déjà été supprimé par un autre administrateur');
+            //         return;
+            //     } else {
+            //         this.http.deleteGame(this.game.id).subscribe(() => {
+            //             alert('Le jeu a été supprimé avec succès');
+            //         });
+            //     }
+            // });
+
+            const game: GameJson = await this.http.getGame(this.game.id);
+            if (!game) {
+                alert('Le jeu a déjà été supprimé par un autre administrateur');
+                return;
+            } else {
+                this.http.deleteGame(this.game.id).subscribe(() => {
+                    alert('Le jeu a été supprimé avec succès');
+                });
+
+                const componentElement = document.querySelector('app-admin-item');
+                if (componentElement) {
+                    componentElement.remove();
                 }
-            });
-            const componentElement = document.querySelector('app-admin-item');
-            if (componentElement) {
-                componentElement.remove();
             }
         }
     }

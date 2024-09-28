@@ -1,15 +1,16 @@
 import { NgFor } from '@angular/common';
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog, MAT_DIALOG_DATA, MatDialogTitle, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpClientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-character-selection-page',
     standalone: true,
-    imports: [NgFor, FormsModule, MatButtonModule, MatTooltipModule],
+    imports: [NgFor, FormsModule, MatButtonModule, MatTooltipModule, RouterLink],
     templateUrl: './character-selection-page.component.html',
     styleUrl: './character-selection-page.component.scss',
 })
@@ -45,7 +46,11 @@ export class CharacterSelectionPageComponent {
     private readonly scrollValue: number = 150;
 
     // Initialisation dans le constructeur
-    constructor(private router: Router) {
+    constructor(
+        private router: Router,
+        private http: HttpClientService,
+        private route: ActivatedRoute,
+    ) {
         this.life = this.defaultAttributeValueSelected;
         this.speed = this.defaultAttributeValue;
         this.attack = this.defaultAttributeValue;
@@ -76,7 +81,7 @@ export class CharacterSelectionPageComponent {
     }
 
     scrollRight(): void {
-        this.widgetsContent.nativeElement.scrollLeft += this.scrollValue;
+        this.widgetsContent.nativeElement.scrollRight += this.scrollValue;
     }
 
     addBonus(attribute: 'life' | 'speed'): void {
@@ -102,30 +107,43 @@ export class CharacterSelectionPageComponent {
         }
     }
 
-    formChecking(): boolean {
-        const errors: string[] = [];
-        let isFormValid = true;
-
+    async formChecking(): Promise<string[]> {
+        let errors: string[] = [];
+        // Vérification des erreurs
         if (!this.selectedAvatar) errors.push('- Veuillez sélectionner un avatar avant de continuer');
-        if (!this.nameChecking()) errors.push('- Veuillez mettre un nom pour le personne entre 3 et 15 charactères');
+        if (!this.isNameValid()) errors.push('- Veuillez mettre un nom pour le personne entre 3 et 15 charactères');
 
-        if (errors.length > 0) {
-            this.dialog.open(DialogDataComponent, {
-                data: { foundErrors: errors },
-            });
-            isFormValid = false;
-        }
-        return isFormValid;
+        return errors;
     }
 
-    nameChecking(): boolean {
+    async isGameValidToCreate(): Promise<boolean> {
+        return (await this.http.getGame(this.route.snapshot.params.id)) !== null;
+    }
+
+    isNameValid(): boolean {
         return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength;
     }
 
-    onSubmit(event: Event) {
+    async onSubmit(event: Event) {
         event.preventDefault();
-        const isFormValid: boolean = this.formChecking();
-        if (isFormValid) {
+
+        const errors = await this.formChecking();
+
+        if (!(await this.isGameValidToCreate())) {
+            this.dialog.open(DialogDataComponent, {
+                data: {
+                    foundErrors: ["La partie n'existe pas -> VOUS ÊTES RAMMENÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
+                    navigateGameSelection: true,
+                },
+            });
+        } else if (errors.length > 0) {
+            this.dialog.open(DialogDataComponent, {
+                data: {
+                    foundErrors: errors,
+                    navigateGameSelection: false,
+                },
+            });
+        } else {
             // TODO: Envoi des données
             this.router.navigate(['/waitingRoom']);
         }
@@ -140,11 +158,15 @@ export class CharacterSelectionPageComponent {
         <p>{{ error }}</p>
         }
         <mat-dialog-actions>
+            @if (data.navigateGameSelection) {
+            <button mat-button mat-dialog-close [routerLink]="['/gameSelection']">Close</button>
+            } @else {
             <button mat-button mat-dialog-close>Close</button>
+            }
         </mat-dialog-actions>
     </mat-dialog-content>`,
     standalone: true,
-    imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, RouterLink],
 })
 export class DialogDataComponent {
     data = inject(MAT_DIALOG_DATA);
