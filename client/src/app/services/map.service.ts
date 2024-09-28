@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/tileType';
 
+export const DEFAULT_MAP_SIZE = 10;
+
 @Injectable({
     providedIn: 'root',
 })
@@ -12,10 +14,14 @@ export class MapService {
     isRightClick = false;
 
     // Optionally put a map if we import a map
-    createGrid(mapSize: number, tiles?: TileJson[]) {
+    createGrid(mapSize?: number, tiles?: TileJson[]) {
+        if (mapSize != undefined && mapSize < 0) {
+            throw new Error('MapSize must be a positive number.');
+        }
+        const arraySize = mapSize ? mapSize : DEFAULT_MAP_SIZE;
         this.tiles = tiles
             ? tiles
-            : Array(mapSize * mapSize)
+            : Array(arraySize * arraySize)
                   .fill(0)
                   .map((_, index) => {
                       // Assign a unique id based on the index
