@@ -1,3 +1,6 @@
 <div class="tile">
-    <img [src]="imageUrl" alt="{{ this.tileType }}">
+    <img [src]="imageUrl" alt="{{ this.tileType }}" (mouseup)="dropObject()" />
+    @if (this.isDropped ) {
+    <img [src]="this.transparentImage" alt="OBJET DE MAP" style="position: absolute; top: 0; left: 0; opacity: 0.5" />
+    }
 </div>

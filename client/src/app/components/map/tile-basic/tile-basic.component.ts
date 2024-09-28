@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges } from '@angular/core';
-
+import { Component, Input, OnChanges, inject } from '@angular/core';
+import { DragDropService } from '@app/services/drag-drop.service';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,
@@ -9,14 +9,37 @@ import { Component, Input, OnChanges } from '@angular/core';
 })
 export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = '';
+    transparentImage: string = '';
     imageUrl: string = '';
+    dragDropService = inject(DragDropService);
+    isDropped: boolean = false;
+
     constructor() {
         this.setTileImage();
     }
 
     ngOnChanges() {
-        // Regenerate the image if the type change
         this.setTileImage();
+    }
+
+    dropObject() {
+        if (this.dragDropService.draggedTile === 'point-depart' && this.dragDropService.startingPointNumber === 0) {
+            this.isDropped = false;
+            return;
+        }
+
+        this.transparentImage = this.dragDropService.getTransparentImage();
+        if (this.transparentImage !== '') {
+            this.isDropped = true;
+        }
+
+        if (this.dragDropService.draggedTile === 'point-depart') {
+            this.dragDropService.reduceNumberRandomItem();
+        }
+
+        if (this.dragDropService.draggedTile) {
+            this.dragDropService.resetDraggedObject();
+        }
     }
 
     setTileImage() {

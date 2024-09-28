@@ -1,17 +1,18 @@
-<section (contextmenu) = "$event.preventDefault()" (mousedown) = "$event.preventDefault()">
-    <div class="app-map" >
-      <mat-grid-list [cols]="mapSize">
-        @for ( tile of mapService.tiles; track $index) {
-          <mat-grid-tile id="tileDrop" >
-            <app-tile-basic 
-            tileType="{{tile.type}}"
-            (contextmenu) = "$event.preventDefault()"
-            (mousedown) = "mapService.onMouseDown($event, tile.index, selectedTileType); $event.preventDefault()"
-            (mouseup) = "mapService.onMouseUp()"
-            (mouseenter) = "mapService.onMouseEnter(tile.index, selectedTileType)">
-            </app-tile-basic>
-          </mat-grid-tile>
-        }
-      </mat-grid-list>
+<section (contextmenu)="$event.preventDefault()" (mousedown)="$event.preventDefault()">
+    <div class="app-map">
+        <mat-grid-list [cols]="mapSize">
+            @for (tile of mapService.tiles; track $index) {
+            <mat-grid-tile id="tileDrop">
+                <app-tile-basic
+                    tileType="{{ tile.type }}"
+                    (contextmenu)="$event.preventDefault()"
+                    (mousedown)="mapService.onMouseDown($event, tile.index, selectedTileType); $event.preventDefault()"
+                    (mouseup)="mapService.onMouseUp()"
+                    (mouseenter)="mapService.onMouseEnter(tile.index, selectedTileType)"
+                >
+                </app-tile-basic>
+            </mat-grid-tile>
+            }
+        </mat-grid-list>
     </div>
-  </section> 
+</section>

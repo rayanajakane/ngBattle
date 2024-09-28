@@ -18,26 +18,8 @@ export class MapComponent implements OnInit {
     @Output() sendMapEvent = new EventEmitter<Tile[]>();
 
     mapService = inject(MapService);
-
-    constructor(private dragDropService: DragDropService) {}
-
+    dragDropService = inject(DragDropService);
     ngOnInit(): void {
         this.mapService.createGrid(this.mapSize);
-    }
-
-    dropObject(event: MouseEvent) {
-        // Update the mouse position
-        this.dragDropService.updateMousePosition(event.clientX, event.clientY);
-
-        // Get the dragged object directly from the service
-        const draggedObject = this.dragDropService.draggedTile;
-        if (draggedObject) {
-            this.placeObjectOnMap(event.clientX, event.clientY, draggedObject);
-            this.dragDropService.resetDraggedObject(); // Reset the drag state
-        }
-    }
-
-    placeObjectOnMap(x: number, y: number, object: string) {
-        window.alert(`Placing ${object} on map at coordinates X: ${x}, Y: ${y}`);
     }
 }

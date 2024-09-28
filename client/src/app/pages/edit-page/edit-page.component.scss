@@ -1,3 +1,9 @@
+*{
+    user-select: none;
+    -webkit-user-select: none; /* Pour Safari et Chrome */
+    -moz-user-select: none; /* Pour Firefox */
+    -ms-user-select: none; /* Pour Internet Explorer/Edge */
+}
 /* main container */
 .edit-page-div {
     display: flex; 
@@ -63,3 +69,5 @@
     margin-top: 5%;
     align-self: center; 
 }
+
+
