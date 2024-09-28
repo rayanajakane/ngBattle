@@ -12,9 +12,9 @@ mat-grid-tile {
 }
 .cdk-drag-preview {
     height: 10px;
-    transform: scale(1.1); /* Zoomer légèrement l'élément pendant le drag */
+    transform: scale(1.1); 
     background-color: rgba(255, 255, 255, 0.8);
-    border: 2px solid rgb(72, 243, 42); /* Bordure verte comme pendant hover */
+    border: 2px solid rgb(72, 243, 42); 
 }
 
 .cdk-drag-placeholder {
@@ -27,9 +27,15 @@ mat-grid-tile {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100%; /* S'assure que tout le contenu prend la hauteur de la tuile */
+    height: 100%;
 }
-
 .badge-container {
     display: flex;
+}
+
+.drag-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    cursor: pointer; 
 }
