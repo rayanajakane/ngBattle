@@ -1,36 +1,41 @@
 <section>
     <div id="sidebar" cdkDropList>
         <mat-grid-list cols="2" rowHeight="1:1">
-            <mat-grid-tile (mousedown)="startDragging('AA1')" matTooltip="LA DESCRIPTION" matTooltipPosition="above"> 
-                <img src="./assets/AA1_image.png" alt="AA1" class="drag-image" draggable="false"/>
+            <mat-grid-tile (mousedown)="startDragging('AA1')" matTooltip="LA DESCRIPTION" matTooltipPosition="above">
+                <img src="./assets/AA1_image.png" alt="AA1" class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AA2')" matTooltip="LA DESCRIPTION" matTooltipPosition="above">
-                <img src="./assets/AA2_image.png" alt="AA2" class="drag-image" draggable="false"/>
+                <img src="./assets/AA2_image.png" alt="AA2" class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AC1')" matTooltip="LA DESCRIPTION" matTooltipPosition="left">
-                <img src="./assets/AC1_image.png" alt="AC1" class="drag-image" draggable="false"/>
+                <img src="./assets/AC1_image.png" alt="AC1" class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AC2')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
-                    <img  src="./../../../assets/A_METTRE.png" alt="TESTER ICI" class="drag-image" />
+                <img src="./../../../assets/AC2_transparent.png" alt="TESTER ICI" class="drag-image" draggable="true" />
             </mat-grid-tile>
-            <mat-grid-tile (mousedown)="startDragging('AF1')" matTooltip="LA DESCRIPTION" matTooltipPosition="left"> 
-                <img src="./assets/AF1_image.png" alt="AF1" class="drag-image" draggable="false"/>
+            <mat-grid-tile (mousedown)="startDragging('AF1')" matTooltip="LA DESCRIPTION" matTooltipPosition="left">
+                <img src="./assets/AF1_image.png" alt="AF1" class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AF2')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
-                <img src="./assets/AF2_image.png" alt="AF2" class="drag-image" draggable="false"/>
+                <img src="./assets/AF2_image.png" alt="AF2" class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('item-aleatoire')" matTooltip="LA DESCRIPTION" matTooltipPosition="left">
-                <img src="./assets/item_aleatoire_image.png" alt="Item Aléatoire" class="drag-image" draggable="false"/>
+                <img src="./assets/item_aleatoire_image.png" alt="Item Aléatoire" class="drag-image" draggable="false" />
             </mat-grid-tile>
-            <mat-grid-tile (mousedown)="startDragging('point-depart')" matTooltip="LA DESCRIPTION" matTooltipPosition="right"> 
-                    <span [matBadge]="this.dragDropService.startingPointNumber" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
-                    <img src="./assets/point_depart_image.png" alt="COMPTEUR " class="drag-image" draggable="false"/>
+            <mat-grid-tile (mousedown)="startDragging('point-depart')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
+                <span
+                    [matBadge]="this.dragDropService.startingPointNumber"
+                    matBadgeSize="medium"
+                    matBadgeOverlap="false"
+                    matBadgePosition="above"
+                ></span>
+                <img src="./assets/point_depart_image.png" alt="COMPTEUR " class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('drapeau-A')" matTooltip="LA DESCRIPTION" matTooltipPosition="below">
-                <img src="./assets/drapeau_A_image.png" alt="Drapeau A" class="drag-image" draggable="false"/>
+                <img src="./assets/drapeau_A_image.png" alt="Drapeau A" class="drag-image" draggable="false" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('drapeau-B')" matTooltip="LA DESCRIPTION" matTooltipPosition="below">
-                <img src="./assets/drapeau_B_image.png" alt="Drapeau B" class="drag-image" draggable="false"/>
+                <img src="./assets/drapeau_B_image.png" alt="Drapeau B" class="drag-image" draggable="false" />
             </mat-grid-tile>
         </mat-grid-list>
     </div>

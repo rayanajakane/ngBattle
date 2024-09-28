@@ -11,6 +11,7 @@ export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = '';
     transparentImage: string = '';
     imageUrl: string = '';
+    objectName: string = '';
     dragDropService = inject(DragDropService);
     isDropped: boolean = false;
 
@@ -32,6 +33,9 @@ export class TileBasicComponent implements OnChanges {
         if (this.transparentImage !== '') {
             this.isDropped = true;
         }
+
+        this.objectName = this.dragDropService.draggedTile;
+        console.log('debug: ', this.dragDropService.draggedTile);
 
         if (this.dragDropService.draggedTile === 'point-depart') {
             this.dragDropService.reduceNumberRandomItem();
@@ -68,5 +72,27 @@ export class TileBasicComponent implements OnChanges {
                 this.imageUrl = './../../../assets/GROUND.jpg';
                 break;
         }
+    }
+
+    drop = (event: DragEvent) => {
+        event.preventDefault();
+        this.dropObject();
+    };
+
+    allowDrop(event: DragEvent) {
+        if (this.dragDropService.draggedTile !== '') {
+            event.preventDefault();
+        } else {
+        }
+    }
+
+    dragStart(event: DragEvent) {
+        // Handle drag start logic here
+        event.dataTransfer?.setData('text/plain', 'dragging');
+    }
+
+    dragEnd(event: DragEvent) {
+        // Handle drag end logic here
+        this.isDropped = false;
     }
 }
