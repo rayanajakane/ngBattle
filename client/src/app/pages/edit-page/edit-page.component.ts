@@ -43,6 +43,7 @@ import { MapService } from '@app/services/map.service';
 export class EditPageComponent {
     selectedTileType: string = '';
     mapSize: number = DEFAULT_MAP_SIZE;
+    gameId: number;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
@@ -80,7 +81,7 @@ export class EditPageComponent {
 
     createGameJSON() {
         return {
-            id: this.idService.generateID(),
+            id: this.gameId ? this.gameId : this.idService.generateID(),
             gameName: this.gameTitle,
             gameDescription: this.gameDescription,
             mapSize: this.mapSize.toString(),
@@ -93,7 +94,13 @@ export class EditPageComponent {
 
     // TODO: Add feature to save game conditionnally if game exists
     saveGame() {
-        this.httpService.sendGame(this.createGameJSON()).subscribe(() => {
+        const game = this.createGameJSON();
+        if (this.httpService.gameExists(game.id)) {
+            this.httpService.updateGame(game).subscribe(() => {
+                this.router.navigate(['/admin']);
+            });
+        }
+        this.httpService.sendGame(game).subscribe(() => {
             this.router.navigate(['/admin']);
         });
     }
