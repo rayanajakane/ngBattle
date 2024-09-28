@@ -1,21 +1,37 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MapComponent } from '@app/components/map/map.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
+import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MatCardModule, MatButtonModule, MatTooltipModule],
+    imports: [MatCardModule, MatButtonModule, MatTooltipModule, MapComponent],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
-export class AdminItemComponent {
+export class AdminItemComponent implements AfterViewInit {
     @Input() game: GameJson;
-    constructor(private http: HttpClientService) {}
-
+    selectedTileType: string = '';
+    mapSize: number;
+    constructor(
+        private http: HttpClientService,
+        private mapService: MapService,
+        private cdr: ChangeDetectorRef,
+    ) {}
+    ngAfterViewInit() {
+        // timeout prevents ExpressionChangedAfterItHasBeenCheckedError
+        // https://stackoverflow.com/questions/71978152/how-can-i-fix-this-specific-ng0100-expressionchangedafterithasbeencheckederror
+        setTimeout(() => {
+            this.mapSize = parseInt(this.game.mapSize, 10);
+        });
+        this.cdr.detectChanges(); //? Manually trigger change detection after updating mapSize
+        this.mapService.createGrid(this.mapSize, this.game.map);
+    }
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {
             this.game.isVisible = !this.game.isVisible;
@@ -40,6 +56,4 @@ export class AdminItemComponent {
             }
         }
     }
-
-    // TODO: Add a function to unsuscribe from the streams of the component (use ngOnDestruct)
 }

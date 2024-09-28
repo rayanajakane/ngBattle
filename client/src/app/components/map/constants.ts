@@ -1,1 +1,1 @@
-export const DEFAULT_MAP_SIZE = 5;
+export const DEFAULT_MAP_SIZE = 10;
