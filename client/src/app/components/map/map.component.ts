@@ -36,22 +36,18 @@ export class MapComponent implements OnInit {
         this.dragDropService.setMultipleItemCounter(this.mapSize);
     }
 
-    // onMouseDown(event: MouseEvent, index: number) {
-    //     if (this.selectedTileType != TileTypes.BASIC) {
-    //         this.mapService.onMouseDown(event, index, this.selectedTileType);
-    //     } else if (this.selectedItem != '') {
-    //         console.log('nice');
-    //         //TODO: change behavior depending on selected Item/TileType
-    //     }
-    // }
-
     resetGridToBasic() {
         this.tiles = JSON.parse(JSON.stringify(this.oldTiles)); // Deep copy
     }
 
     // Function to automatically change the tile's type
+
+    // TODO: erase Item if it is not allowed on the new tileType
     setTileType(index: number, tileType: string) {
         const currentTileType = this.tiles[index].tileType;
+        if (tileType == TileTypes.WALL || tileType == TileTypes.DOOR) {
+            this.eraseItem(index);
+        }
         tileType = this.mapService.chooseTileType(currentTileType, tileType);
         this.tiles[index].tileType = tileType;
     }
@@ -85,15 +81,35 @@ export class MapComponent implements OnInit {
         console.log('item at index:', index, this.tiles[index].item);
     }
 
-    // Triggered when the mouse button is pressed
+    // TODO: reincrement counters when starting points or random items are deleted
+    eraseItem(index: number) {
+        this.tiles[index].item = '';
+    }
+
     onMouseDown(event: MouseEvent, index: number) {
-        if (event.button === 2 && this.tiles[index].item != '') {
-            this.tiles[index].item = '';
-            console.log('ici');
-        } else if (this.selectedMode == currentMode.TILETOOL) {
-            this.isMouseDown = true;
-            if (event.button === 2) {
+        if (event.button === 2) {
+            // erase item only and no drag
+            if (this.tiles[index].item != '') {
                 this.isRightClick = true;
+            } else {
+                // erase tile and drag
+                this.isRightClick = true;
+                this.isMouseDown = true;
+                this.setTileType(index, TileTypes.BASIC);
+            }
+        } else {
+            if (this.selectedTileType != '') {
+                this.isMouseDown = true;
+                this.setTileType(index, this.selectedTileType);
+            } else {
+                this.setItemType(index, this.selectedItem);
+            }
+        }
+    }
+
+    onMouseEnter(index: number) {
+        if (this.isMouseDown) {
+            if (this.isRightClick) {
                 this.setTileType(index, TileTypes.BASIC);
             } else {
                 this.setTileType(index, this.selectedTileType);
@@ -101,26 +117,16 @@ export class MapComponent implements OnInit {
         }
     }
 
-    newOnMouseDown(event: MouseEvent, index: number) {
-        if (event.button === 2) {
-        } else {
-            this.isMouseDown = true;
-        }
-    }
-
-    // Triggered when the mouse button is released
     onMouseUp(index: number) {
-        if (this.selectedMode == currentMode.ITEMTOOL) {
-            this.setItemType(index, this.selectedItem);
-        }
-        this.isMouseDown = false;
-        this.isRightClick = false;
-    }
-
-    // Triggered when the mouse enters a tile while pressed
-    onMouseEnter(index: number) {
         if (this.isMouseDown) {
-            this.setTileType(index, !this.isRightClick ? this.selectedTileType : TileTypes.BASIC);
+            this.isMouseDown = false;
+            this.isRightClick = false;
+        } else {
+            // right clicked on without isMouseDown
+            if (this.isRightClick) {
+                this.isRightClick = false;
+                this.eraseItem(index);
+            }
         }
     }
 
