@@ -1,36 +1,60 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
+import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
+import { GameJson } from '@app/data-structure/game-structure';
+import { HttpClientService } from '@app/services/httpclient.service';
+import { of } from 'rxjs';
 import { AdminItemComponent } from './admin-item.component';
 
 describe('AdminItemComponent', () => {
     let component: AdminItemComponent;
     let fixture: ComponentFixture<AdminItemComponent>;
+    let httpClientService: jasmine.SpyObj<HttpClientService>;
+    let dialog: jasmine.SpyObj<MatDialog>;
+    let snackbar: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
+        const httpClientSpy = jasmine.createSpyObj('HttpClientService', ['changeVisibility', 'getGame', 'deleteGame']);
+        const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        const snackbarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
-            imports: [AdminItemComponent],
-            providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+            imports: [AdminItemComponent, MatDialogModule, MatSnackBarModule],
+            providers: [
+                provideRouter([]),
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                { provide: HttpClientService, useValue: httpClientSpy },
+                { provide: MatDialog, useValue: dialogSpy },
+                { provide: MatSnackBar, useValue: snackbarSpy },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(AdminItemComponent);
         component = fixture.componentInstance;
+        httpClientService = TestBed.inject(HttpClientService) as jasmine.SpyObj<HttpClientService>;
+        dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
+        snackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+
         component.game = {
             id: '1',
-            gameName: 'Game 1',
+            gameName: 'Game 2',
             gameDescription: 'This is an example game description.',
-            mapSize: '10',
+            mapSize: '2',
             map: [
-                { idx: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
-                { idx: 1, tileType: 'water', item: '', hasPlayer: false },
-                { idx: 2, tileType: 'sand', item: 'item2', hasPlayer: true },
-                { idx: 3, tileType: 'mountain', item: '', hasPlayer: false },
+                { idx: 0, tileType: '', item: 'startingPoint', hasPlayer: false },
+                { idx: 1, tileType: 'water', item: 'startingPoint', hasPlayer: false },
+                { idx: 2, tileType: '', item: '', hasPlayer: true },
+                { idx: 3, tileType: '', item: '', hasPlayer: false },
             ],
             gameType: 'ctf',
             isVisible: true,
-            creationDate: '2021-09-01T00:00:00.000Z',
-            lastModified: '2021-09-01T00:00:00.000Z',
+            creationDate: '2024-09-18T10:30:00.000Z',
+            lastModified: '2024-09-18T10:30:00.000Z',
         };
 
         fixture.detectChanges();
@@ -38,5 +62,47 @@ describe('AdminItemComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should toggle visibility', () => {
+        httpClientService.changeVisibility.and.returnValue(of({}));
+        component.invertVisibility();
+        expect(httpClientService.changeVisibility).toHaveBeenCalledWith('1');
+        expect(component.game.isVisible).toBeFalse();
+    });
+
+    it('should delete game and show snackbar when game does not exist', () => {
+        const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
+        dialog.open.and.returnValue(dialogRefSpy);
+        httpClientService.getGame.and.returnValue(of(null as unknown as GameJson));
+        httpClientService.deleteGame.and.returnValue(of({}));
+
+        component.deleteGame();
+
+        expect(dialog.open).toHaveBeenCalledWith(ConfirmDeletionDialogComponent);
+        expect(httpClientService.getGame).toHaveBeenCalledWith('1');
+        expect(snackbar.open).toHaveBeenCalledWith("Le jeu n'existe pas", 'Fermer', {
+            duration: 2000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+        });
+    });
+
+    it('should delete game and show snackbar when game exists', () => {
+        const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
+        dialog.open.and.returnValue(dialogRefSpy);
+        httpClientService.getGame.and.returnValue(of(component.game));
+        httpClientService.deleteGame.and.returnValue(of({}));
+
+        component.deleteGame();
+
+        expect(dialog.open).toHaveBeenCalledWith(ConfirmDeletionDialogComponent);
+        expect(httpClientService.getGame).toHaveBeenCalledWith('1');
+        expect(httpClientService.deleteGame).toHaveBeenCalledWith('1');
+        expect(snackbar.open).toHaveBeenCalledWith('Le jeu a été supprimé', 'Fermer', {
+            duration: 2000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+        });
     });
 });
