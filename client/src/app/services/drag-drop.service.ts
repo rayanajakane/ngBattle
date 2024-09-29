@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DEFAULT_STARTING_POINT_NUMBER } from '@app/services/constants-service';
+import { DEFAULT_STARTING_POINT_NUMBER } from '@app/services/constants';
 
 @Injectable({
     providedIn: 'root',

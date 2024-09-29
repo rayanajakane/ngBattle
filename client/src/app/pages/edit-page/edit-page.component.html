@@ -2,13 +2,14 @@
     <div class="left-panel">
         <h1 class="game-title-edit-page">
             <div class="border-div">
-            {{ this.gameTitle }}
-            <button mat-mini-fab color="primary" class="edit-game-name-btn" (click)="openDialog()">
-                <mat-icon>edit</mat-icon>
-            </button>   </div>
+                {{ this.gameTitle }}
+                <button mat-mini-fab color="primary" class="edit-game-name-btn" (click)="openDialog()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </div>
         </h1>
         <app-sidebar class="edit-page-sidebar"></app-sidebar>
-        <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="tempLog($event)"></app-toolbar>
+        <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="changeSelectedTile($event)"></app-toolbar>
         <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="saveGame()">Sauvegarder le Jeu !</button>
         <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="resetGame()">Rénitialiser le Jeu !</button>
     </div>

@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
-import { DragDropService } from '@app/services/drag-drop.service';
 import { TileTypes } from '@app/data-structure/tileType';
+import { DragDropService } from '@app/services/drag-drop.service';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,

@@ -3,7 +3,7 @@ import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { DragDropService } from '@app/services/drag-drop.service';
-import { MapService, Tile } from '@app/services/map.service';
+import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-map',
