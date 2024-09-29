@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
-import { TileTypes } from '@app/data-structure/tileType';
+import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
 @Component({
     selector: 'app-tile-basic',
@@ -11,9 +11,11 @@ import { DragDropService } from '@app/services/drag-drop.service';
 export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = TileTypes.BASIC;
     @Input() isToolbarTile: boolean = false; // Differentiate between toolbar tiles and map tiles
+    @Input() itemType: string = '';
+
     transparentImage: string = '';
     imageUrl: string = '';
-    objectName: string = '';
+
     dragDropService = inject(DragDropService);
     isDropped: boolean = false;
 
@@ -23,10 +25,11 @@ export class TileBasicComponent implements OnChanges {
 
     ngOnChanges() {
         this.setTileImage();
+        this.setItemImage();
     }
 
     dropObject() {
-        if (this.dragDropService.draggedTile === 'point-depart' && this.dragDropService.startingPointNumber === 0) {
+        if (this.dragDropService.draggedTile === 'point-depart' && this.dragDropService.startingPointNumberCounter === 0) {
             this.isDropped = false;
             return;
         }
@@ -47,7 +50,7 @@ export class TileBasicComponent implements OnChanges {
         }
 
         if (this.dragDropService.draggedTile === 'point-depart') {
-            this.dragDropService.reduceNumberRandomItem();
+            this.dragDropService.reduceNumberStartingPoints();
         }
 
         if (this.dragDropService.draggedTile) {
@@ -58,7 +61,15 @@ export class TileBasicComponent implements OnChanges {
     removeObject() {
         if (this.isDropped) {
             this.isDropped = false;
-            this.objectName = '';
+            this.itemType = '';
+            this.transparentImage = '';
+        }
+    }
+
+    setItemImage() {
+        if (this.itemType) {
+            this.transparentImage = `./../../../assets/${this.itemType}_transparent.png`; // Définir l'image transparente
+        } else {
             this.transparentImage = '';
         }
     }
@@ -98,7 +109,7 @@ export class TileBasicComponent implements OnChanges {
 
     dragStart(event: DragEvent) {
         // Handle drag start logic here
-        event.dataTransfer?.setData('text/plain', this.objectName);
+        event.dataTransfer?.setData('text/plain', this.itemType);
     }
 
     dragEnd() {

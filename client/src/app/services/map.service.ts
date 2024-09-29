@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TileJson } from '@app/data-structure/game-structure';
-import { TileTypes } from '@app/data-structure/tileType';
+import { TileTypes } from '@app/data-structure/toolType';
 
 export const DEFAULT_MAP_SIZE = 10;
 
@@ -27,5 +27,16 @@ export class MapService {
                           hasPlayer: false,
                       };
                   });
+    }
+
+    chooseTileType(currentTileType: string, newTileType: string): string {
+        if (newTileType === TileTypes.DOOR) {
+            if (currentTileType === TileTypes.DOORCLOSED) {
+                newTileType = TileTypes.DOOROPEN;
+            } else {
+                newTileType = TileTypes.DOORCLOSED;
+            }
+        }
+        return newTileType;
     }
 }

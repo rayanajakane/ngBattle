@@ -2,8 +2,9 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
+import { currentMode } from '@app/data-structure/editViewSelectedMode';
 import { TileJson } from '@app/data-structure/game-structure';
-import { TileTypes } from '@app/data-structure/tileType';
+import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { MapService } from '@app/services/map.service';
 
@@ -18,6 +19,7 @@ export class MapComponent implements OnInit {
     @Input() mapSize: number = DEFAULT_MAP_SIZE;
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
+    @Input() selectedMode: currentMode;
 
     tiles: TileJson[];
     oldTiles: TileJson[];
@@ -31,6 +33,7 @@ export class MapComponent implements OnInit {
     ngOnInit(): void {
         this.tiles = this.mapService.createGrid(this.mapSize);
         this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
+        this.dragDropService.setMultipleItemCounter(this.mapSize);
     }
 
     // onMouseDown(event: MouseEvent, index: number) {
@@ -48,29 +51,68 @@ export class MapComponent implements OnInit {
 
     // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
-        if (tileType === TileTypes.DOOR) {
-            if (this.tiles[index].tileType === TileTypes.DOORCLOSED) {
-                tileType = TileTypes.DOOROPEN;
+        const currentTileType = this.tiles[index].tileType;
+        tileType = this.mapService.chooseTileType(currentTileType, tileType);
+        this.tiles[index].tileType = tileType;
+    }
+
+    setItemType(index: number, itemType: string) {
+        if (itemType === 'point-depart') {
+            if (this.dragDropService.startingPointNumberCounter === 0 || this.tiles[index].item === 'point-depart') {
+                return;
             } else {
-                tileType = TileTypes.DOORCLOSED;
+                this.dragDropService.reduceNumberStartingPoints();
             }
         }
-        this.tiles[index].tileType = tileType;
+        if (itemType === 'item-aleatoire') {
+            if (this.dragDropService.randomItemCounter === 0 || this.tiles[index].item === 'item-aleatoire') {
+                return;
+            } else {
+                this.dragDropService.reduceNumberRandomItem();
+            }
+        }
+        if (
+            this.tiles[index].tileType === TileTypes.WALL ||
+            this.tiles[index].tileType === TileTypes.DOORCLOSED ||
+            this.tiles[index].tileType === TileTypes.DOOROPEN
+        ) {
+            return;
+        }
+        if (this.dragDropService.draggedTile) {
+            this.dragDropService.resetDraggedObject();
+        }
+        this.tiles[index].item = itemType;
+        console.log('item at index:', index, this.tiles[index].item);
     }
 
     // Triggered when the mouse button is pressed
     onMouseDown(event: MouseEvent, index: number) {
-        this.isMouseDown = true;
+        if (event.button === 2 && this.tiles[index].item != '') {
+            this.tiles[index].item = '';
+            console.log('ici');
+        } else if (this.selectedMode == currentMode.TILETOOL) {
+            this.isMouseDown = true;
+            if (event.button === 2) {
+                this.isRightClick = true;
+                this.setTileType(index, TileTypes.BASIC);
+            } else {
+                this.setTileType(index, this.selectedTileType);
+            }
+        }
+    }
+
+    newOnMouseDown(event: MouseEvent, index: number) {
         if (event.button === 2) {
-            this.isRightClick = true;
-            this.setTileType(index, TileTypes.BASIC);
         } else {
-            this.setTileType(index, this.selectedTileType);
+            this.isMouseDown = true;
         }
     }
 
     // Triggered when the mouse button is released
-    onMouseUp() {
+    onMouseUp(index: number) {
+        if (this.selectedMode == currentMode.ITEMTOOL) {
+            this.setItemType(index, this.selectedItem);
+        }
         this.isMouseDown = false;
         this.isRightClick = false;
     }
@@ -85,5 +127,9 @@ export class MapComponent implements OnInit {
     onExit() {
         this.isMouseDown = false;
         this.isRightClick = false;
+    }
+
+    returnMapSize(): number {
+        return this.mapSize;
     }
 }

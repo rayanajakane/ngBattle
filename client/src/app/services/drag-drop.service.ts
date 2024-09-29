@@ -5,7 +5,8 @@ import { DEFAULT_STARTING_POINT_NUMBER } from '@app/services/constants';
     providedIn: 'root',
 })
 export class DragDropService {
-    startingPointNumber: number = DEFAULT_STARTING_POINT_NUMBER;
+    startingPointNumberCounter: number = DEFAULT_STARTING_POINT_NUMBER;
+    randomItemCounter: number = DEFAULT_STARTING_POINT_NUMBER;
     draggedTile: string = '';
     isDragging: boolean = false;
     transparentImage: string = '';
@@ -13,7 +14,7 @@ export class DragDropService {
     setDraggedObject(objectType: string) {
         this.draggedTile = objectType;
         this.isDragging = true;
-        this.transparentImage = `./../../../assets/${objectType}_transparent.png`; // Définir l'image transparente
+        //this.transparentImage = `./../../../assets/${objectType}_transparent.png`; // Définir l'image transparente
     }
 
     resetDraggedObject() {
@@ -22,13 +23,30 @@ export class DragDropService {
         this.transparentImage = '';
     }
 
-    reduceNumberRandomItem() {
-        if (this.startingPointNumber > 0) this.startingPointNumber--;
+    setMultipleItemCounter(mapSize: number) {
+        let startingCounter: number;
+        if (mapSize == 10) {
+            startingCounter = 2;
+        } else if (mapSize == 15) {
+            startingCounter = 4;
+        } else {
+            startingCounter = 6;
+        }
+        this.startingPointNumberCounter = startingCounter;
+        this.randomItemCounter = startingCounter;
     }
 
-    resetNumberRandomItem() {
-        this.startingPointNumber = DEFAULT_STARTING_POINT_NUMBER;
+    reduceNumberStartingPoints() {
+        if (this.startingPointNumberCounter > 0) this.startingPointNumberCounter--;
     }
+
+    reduceNumberRandomItem() {
+        if (this.randomItemCounter > 0) this.randomItemCounter--;
+    }
+
+    // resetNumberRandomItem() {
+    //     this.startingPointNumberCounter = DEFAULT_STARTING_POINT_NUMBER;
+    // }
 
     getTransparentImage(): string {
         return this.transparentImage;

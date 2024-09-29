@@ -14,7 +14,7 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { currentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
-import { TileTypes } from '@app/data-structure/tileType';
+import { TileTypes } from '@app/data-structure/toolType';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 
@@ -53,8 +53,8 @@ export class EditPageComponent implements OnInit {
     gameTitle: string = 'Untitled';
     gameDescription: string = 'Once upon a time...';
 
+    //TODO: Put Router and ActivatedRoute in a single service
     @ViewChild(MapComponent) map: MapComponent;
-
     constructor(
         public dialog: MatDialog,
         private httpService: HttpClientService,

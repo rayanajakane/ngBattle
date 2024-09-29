@@ -5,9 +5,10 @@
             <mat-grid-tile>
                 <app-tile-basic
                     tileType="{{ tile.tileType }}"
+                    itemType="{{ tile.item }}"
                     (contextmenu)="$event.preventDefault()"
                     (mousedown)="onMouseDown($event, tile.idx); $event.preventDefault()"
-                    (mouseup)="onMouseUp()"
+                    (mouseup)="onMouseUp(tile.idx)"
                     (mouseenter)="onMouseEnter(tile.idx)"
                 >
                 </app-tile-basic>

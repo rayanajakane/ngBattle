@@ -2,40 +2,46 @@
     <div id="sidebar" cdkDropList>
         <mat-grid-list cols="2" rowHeight="1:1">
             <mat-grid-tile (mousedown)="startDragging('AA1')" matTooltip="Changement 1 de l'attribut du personnage !" matTooltipPosition="above">
-                <img src="./assets/AA1_image.png" alt="AA1" class="drag-image"/>
+                <img src="./assets/AA1_image.png" alt="AA1" class="drag-image" />
             </mat-grid-tile>
-            <mat-grid-tile  matTooltip="Changement 2 de l'attribut du personnage !" matTooltipPosition="above">
+            <mat-grid-tile matTooltip="Changement 2 de l'attribut du personnage !" matTooltipPosition="above">
                 <img (mousedown)="startDragging('AA2')" src="./assets/AA2_image.png" alt="AA2" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AC1')" matTooltip="Changement 1 de la condition du personnage !" matTooltipPosition="left">
-                <img src="./assets/AC1_image.png" alt="AC1" class="drag-image"/>
+                <img src="./assets/AC1_image.png" alt="AC1" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AC2')" matTooltip="Changement 2 de la condition du personnage !" matTooltipPosition="right">
-                <img src="./../../../assets/AC2_transparent.png" alt="TESTER ICI" class="drag-image"/>
+                <img src="./../../../assets/AC2_transparent.png" alt="TESTER ICI" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AF1')" matTooltip="Changement 1 du fonctionnement !" matTooltipPosition="left">
-                <img src="./assets/AF1_image.png" alt="AF1" class="drag-image"/>
+                <img src="./assets/AF1_image.png" alt="AF1" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('AF2')" matTooltip="Changement 2 du fonctionnement !" matTooltipPosition="right">
-                <img src="./assets/AF2_image.png" alt="AF2" class="drag-image"/>
+                <img src="./assets/AF2_image.png" alt="AF2" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('item-aleatoire')" matTooltip="Item aléatoire à découvrir !" matTooltipPosition="left">
-                <img src="./assets/item_aleatoire_image.png" alt="Item Aléatoire" class="drag-image"/>
-            </mat-grid-tile>
-            <mat-grid-tile (mousedown)="startDragging('point-depart')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
                 <span
-                    [matBadge]="this.dragDropService.startingPointNumber"
+                    [matBadge]="this.dragDropService.randomItemCounter"
                     matBadgeSize="medium"
                     matBadgeOverlap="false"
                     matBadgePosition="above"
                 ></span>
-                <img src="./assets/point_depart_image.png" alt="COMPTEUR " class="drag-image"/>
+                <img src="./assets/item_aleatoire_image.png" alt="Item Aléatoire" class="drag-image" />
+            </mat-grid-tile>
+            <mat-grid-tile (mousedown)="startDragging('point-depart')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
+                <span
+                    [matBadge]="this.dragDropService.startingPointNumberCounter"
+                    matBadgeSize="medium"
+                    matBadgeOverlap="false"
+                    matBadgePosition="above"
+                ></span>
+                <img src="./assets/point_depart_image.png" alt="COMPTEUR " class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('drapeau-A')" matTooltip="Premier Drapeau !" matTooltipPosition="below">
-                <img src="./assets/drapeau_A_image.png" alt="Drapeau A" class="drag-image"/>
+                <img src="./assets/drapeau_A_image.png" alt="Drapeau A" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile (mousedown)="startDragging('drapeau-B')" matTooltip="Deuxième Drapeau !" matTooltipPosition="below">
-                <img src="./assets/drapeau_B_image.png" alt="Drapeau B" class="drag-image"/>
+                <img src="./assets/drapeau_B_image.png" alt="Drapeau B" class="drag-image" />
             </mat-grid-tile>
         </mat-grid-list>
     </div>
