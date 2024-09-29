@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations'; // Import NoopAnimationsModule
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DEFAULT_CHAR_COUNT } from '@app/components/edit-header-dialog/constant';
 import { DialogData, EditHeaderDialogComponent } from './edit-header-dialog.component';
 
@@ -22,14 +22,7 @@ describe('EditHeaderDialogComponent', () => {
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
 
         await TestBed.configureTestingModule({
-            imports: [
-                EditHeaderDialogComponent, // Import the standalone component here
-                MatFormFieldModule,
-                MatInputModule,
-                FormsModule,
-                MatButtonModule,
-                NoopAnimationsModule, // Add this line
-            ],
+            imports: [EditHeaderDialogComponent, MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule, NoopAnimationsModule],
             providers: [
                 { provide: MatDialogRef, useValue: mockDialogRef },
                 { provide: MAT_DIALOG_DATA, useValue: dialogData },
@@ -40,7 +33,7 @@ describe('EditHeaderDialogComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(EditHeaderDialogComponent);
         component = fixture.componentInstance;
-        fixture.detectChanges(); // Trigger lifecycle hooks
+        fixture.detectChanges();
     });
 
     it('should create the component', () => {
