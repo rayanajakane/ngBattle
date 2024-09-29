@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
@@ -16,7 +18,7 @@ import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
-// import { filter } from 'rxjs/operators';
+
 @Component({
     selector: 'app-edit-page',
     standalone: true,
@@ -51,11 +53,12 @@ export class EditPageComponent implements OnInit {
     gameDescription: string = 'Once upon a time...';
 
     constructor(
-        public dialog: MatDialog,
+        private dialog: MatDialog,
         private mapService: MapService,
         private httpService: HttpClientService,
         private idService: IDGenerationService,
         private router: Router,
+        private snackbar: MatSnackBar,
     ) {}
 
     ngOnInit() {
@@ -104,12 +107,42 @@ export class EditPageComponent implements OnInit {
     saveGame() {
         const game = this.createGameJSON();
         if (this.httpService.gameExists(game.id)) {
-            this.httpService.updateGame(game).subscribe(() => {
-                this.router.navigate(['/admin']);
+            // Update game if it already exists
+            this.httpService.updateGame(game).subscribe({
+                next: () => {
+                    this.router.navigate(['/admin']);
+                },
+                error: (error: HttpErrorResponse) => {
+                    this.handleError(error);
+                },
+            });
+        } else {
+            // Send game if it doesn't exist yet
+            this.httpService.sendGame(game).subscribe({
+                next: () => {
+                    this.router.navigate(['/admin']);
+                },
+                error: (error: HttpErrorResponse) => {
+                    this.handleError(error);
+                },
             });
         }
-        this.httpService.sendGame(game).subscribe(() => {
-            this.router.navigate(['/admin']);
+    }
+    private handleError(error: HttpErrorResponse) {
+        let errorMessage = 'An unexpected error occurred';
+
+        // Extract the error message from 'errors' array or 'message' property
+        if (error.error.errors && error.error.errors.length > 0) {
+            errorMessage = error.error.errors.join(',');
+        } else if (error.error.message) {
+            errorMessage = error.error.message;
+        }
+
+        // Display error in a snackbar
+        this.snackbar.open(errorMessage, 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
         });
     }
     // ngOnInit(): void {
