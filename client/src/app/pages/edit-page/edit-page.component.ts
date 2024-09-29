@@ -133,7 +133,7 @@ export class EditPageComponent implements OnInit {
 
         // Extract the error message from 'errors' array or 'message' property
         if (error.error.errors && error.error.errors.length > 0) {
-            errorMessage = error.error.errors.join(',');
+            errorMessage = error.error.errors.join(', ');
         } else if (error.error.message) {
             errorMessage = error.error.message;
         }
