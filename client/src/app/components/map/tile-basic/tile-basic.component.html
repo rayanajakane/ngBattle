@@ -1,6 +1,10 @@
-<div (dragstart)="dragStart($event)" class="tile" (drop)="dropObject()" (dragover)="allowDrop($event)" (dragend)="dragEnd()">
-    <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="true" />
+<div class="tile" >
+    @if ( this.imageUrl && this.isToolbarTile ) {
+    <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false"/> 
+    } @else{
+        <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="true"/> 
+    }
     @if ( this.transparentImage ) {
-    <img [src]="this.transparentImage" alt="OBJET DE MAP" style="position: absolute; top: 0; left: 0; opacity: 0.4" />
+    <img [src]="this.transparentImage" alt="{{this.itemType}}" style="position: absolute; top: 0; left: 0; opacity: 0.4" />
     }
 </div>

@@ -54,9 +54,15 @@ export class MapComponent implements OnInit {
         const currentTileType = this.tiles[index].tileType;
         tileType = this.mapService.chooseTileType(currentTileType, tileType);
         this.tiles[index].tileType = tileType;
+        if (tileType === TileTypes.DOOR || TileTypes.WALL) {
+            this.tiles[index].item = '';
+        }
     }
 
     setItemType(index: number, itemType: string) {
+        if (this.dragDropService.draggedTile == '') {
+            return;
+        }
         if (itemType === 'point-depart') {
             if (this.dragDropService.startingPointNumberCounter === 0 || this.tiles[index].item === 'point-depart') {
                 return;
@@ -78,18 +84,15 @@ export class MapComponent implements OnInit {
         ) {
             return;
         }
-        if (this.dragDropService.draggedTile) {
-            this.dragDropService.resetDraggedObject();
-        }
         this.tiles[index].item = itemType;
         console.log('item at index:', index, this.tiles[index].item);
+        this.dragDropService.resetDraggedObject();
     }
 
     // Triggered when the mouse button is pressed
     onMouseDown(event: MouseEvent, index: number) {
         if (event.button === 2 && this.tiles[index].item != '') {
             this.tiles[index].item = '';
-            console.log('ici');
         } else if (this.selectedMode == currentMode.TILETOOL) {
             this.isMouseDown = true;
             if (event.button === 2) {
