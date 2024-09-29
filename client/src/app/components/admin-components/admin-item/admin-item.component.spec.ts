@@ -20,7 +20,7 @@ describe('AdminItemComponent', () => {
             id: '1',
             gameName: 'Game 1',
             gameDescription: 'This is an example game description.',
-            mapSize: '10x10',
+            mapSize: '10',
             map: [
                 { idx: 0, tileType: 'grass', item: 'item1', hasPlayer: false },
                 { idx: 1, tileType: 'water', item: '', hasPlayer: false },

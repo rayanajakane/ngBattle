@@ -1,20 +1,19 @@
 import { Injectable } from '@angular/core';
+import { TileJson } from '@app/data-structure/game-structure';
+import { TileTypes } from '@app/data-structure/tileType';
 
-export type Tile = {
-    index: number;
-    type: string;
-};
+export const DEFAULT_MAP_SIZE = 10;
 
 @Injectable({
     providedIn: 'root',
 })
 export class MapService {
+    tiles: TileJson[];
+    oldTiles: TileJson[];
     gameType: string;
     mapSize: number;
-    tiles: Tile[];
     isMouseDown = false;
     isRightClick = false;
-
     setGameType(type: string) {
         this.gameType = type;
     }
@@ -22,49 +21,43 @@ export class MapService {
     setMapSize(size: number) {
         this.mapSize = size;
     }
+    // Optionally put a map if we import a map
 
-    createGrid(mapSize: number) {
-        this.tiles = Array(mapSize * mapSize)
-            .fill(0)
-            .map((_, idx) => {
-                // Assign a unique id based on the index
-                return {
-                    index: idx, // Unique ID for each tile
-                    type: '', // Tile type
-                };
-            });
-    }
-
-    // TODO: No need to recreate the whole object again, we can simply change the type
-    // Temporary function meanwhile service ( mouseUp mouse Down) is developed
-    createRandomGrid(mapSize: number) {
-        // TODO: We can create an enum with all the tileTypes
-        const tileTypes = ['', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
-        return Array(mapSize * mapSize)
-            .fill(0)
-            .map((_, idx) => {
-                // Full the array with random tile types
-                return {
-                    index: idx, // Unique ID for each tile
-                    type: tileTypes[Math.floor(Math.random() * tileTypes.length)], // Tile type
-                };
-            });
+    createGrid(mapSize?: number, tiles?: TileJson[]) {
+        if (mapSize != undefined && mapSize <= 0) {
+            throw new Error('MapSize must be a positive number.');
+        }
+        const arraySize = mapSize ? mapSize : DEFAULT_MAP_SIZE;
+        this.tiles = tiles
+            ? tiles
+            : Array(arraySize * arraySize)
+                  .fill(0)
+                  .map((_, index) => {
+                      // Assign a unique id based on the index
+                      return {
+                          idx: index, // Unique ID for each tile
+                          tileType: TileTypes.BASIC, // Tile type
+                          item: '',
+                          hasPlayer: false,
+                      };
+                  });
+        this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
     }
 
     resetGridToBasic() {
-        this.tiles.forEach((tile) => (tile.type = ''));
+        this.tiles = JSON.parse(JSON.stringify(this.oldTiles)); // Deep copy
     }
 
     // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
-        if (tileType === 'door') {
-            if (this.tiles[index].type === 'doorClosed') {
-                tileType = 'doorOpen';
+        if (tileType === TileTypes.DOOR) {
+            if (this.tiles[index].tileType === TileTypes.DOORCLOSED) {
+                tileType = TileTypes.DOOROPEN;
             } else {
-                tileType = 'doorClosed';
+                tileType = TileTypes.DOORCLOSED;
             }
         }
-        this.tiles[index].type = tileType;
+        this.tiles[index].tileType = tileType;
     }
 
     // Triggered when the mouse button is pressed
@@ -72,7 +65,7 @@ export class MapService {
         this.isMouseDown = true;
         if (event.button === 2) {
             this.isRightClick = true;
-            this.setTileType(index, '');
+            this.setTileType(index, TileTypes.BASIC);
         } else {
             this.setTileType(index, selectedTileType);
         }
@@ -87,7 +80,12 @@ export class MapService {
     // Triggered when the mouse enters a tile while pressed
     onMouseEnter(index: number, selectedTileType: string) {
         if (this.isMouseDown) {
-            this.setTileType(index, !this.isRightClick ? selectedTileType : '');
+            this.setTileType(index, !this.isRightClick ? selectedTileType : TileTypes.BASIC);
         }
+    }
+
+    onExit() {
+        this.isMouseDown = false;
+        this.isRightClick = false;
     }
 }

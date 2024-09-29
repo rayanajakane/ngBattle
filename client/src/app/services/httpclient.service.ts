@@ -12,6 +12,13 @@ export class HttpClientService {
 
     constructor(private httpService: HttpClient) {}
 
+    gameExists(id: string) {
+        this.httpService.get<GameJson>(`${this.baseUrl}/game/get/` + id).subscribe(() => {
+            return true;
+        });
+        return false;
+    }
+
     sendGame(gameJson: GameJson) {
         // TODO: Fix 'Content-Type' linting error'
         gameJson.creationDate = new Date().toISOString();

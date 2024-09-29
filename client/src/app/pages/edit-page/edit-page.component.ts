@@ -42,8 +42,9 @@ import { MapService } from '@app/services/map.service';
 })
 export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
-    mapSize: number;
     gameType: string;
+    mapSize: number;
+    gameId: number;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
@@ -81,25 +82,32 @@ export class EditPageComponent implements OnInit {
         });
     }
 
-    tempLog(tileType: string) {
+    changeSelectedTile(tileType: string) {
         this.selectedTileType = tileType;
     }
 
     createGameJSON() {
         return {
-            id: this.idService.generateID(),
+            id: this.gameId ? this.gameId : this.idService.generateID(),
             gameName: this.gameTitle,
             gameDescription: this.gameDescription,
             mapSize: this.mapSize.toString(),
-            map: [],
+            map: this.mapService.tiles,
             gameType: 'CTF',
             isVisible: true,
             creationDate: '',
         } as GameJson;
     }
 
+    // TODO: Add feature to save game conditionnally if game exists
     saveGame() {
-        this.httpService.sendGame(this.createGameJSON()).subscribe(() => {
+        const game = this.createGameJSON();
+        if (this.httpService.gameExists(game.id)) {
+            this.httpService.updateGame(game).subscribe(() => {
+                this.router.navigate(['/admin']);
+            });
+        }
+        this.httpService.sendGame(game).subscribe(() => {
             this.router.navigate(['/admin']);
         });
     }

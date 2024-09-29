@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { DragDropService } from '@app/services/drag-drop.service';
+import { TileTypes } from '@app/data-structure/tileType';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,
@@ -8,7 +9,7 @@ import { DragDropService } from '@app/services/drag-drop.service';
     styleUrl: './tile-basic.component.scss',
 })
 export class TileBasicComponent implements OnChanges {
-    @Input() tileType: string = '';
+    @Input() tileType: string = TileTypes.BASIC;
     @Input() isToolbarTile: boolean = false; // Differentiate between toolbar tiles and map tiles
     transparentImage: string = '';
     imageUrl: string = '';
@@ -64,23 +65,23 @@ export class TileBasicComponent implements OnChanges {
 
     setTileImage() {
         switch (this.tileType) {
-            case 'wall':
+            case TileTypes.WALL:
                 this.imageUrl = './../../../assets/WALL.jpg';
                 break;
 
-            case 'water':
+            case TileTypes.WATER:
                 this.imageUrl = './../../../assets/WATER.jpg';
                 break;
 
-            case 'ice':
+            case TileTypes.ICE:
                 this.imageUrl = './../../../assets/ICE.jpg';
                 break;
 
-            case 'doorOpen':
+            case TileTypes.DOOROPEN:
                 this.imageUrl = './../../../assets/DOOR_OPEN.jpg';
                 break;
 
-            case 'doorClosed':
+            case TileTypes.DOORCLOSED:
                 this.imageUrl = './../../../assets/DOOR_CLOSED.jpg';
                 break;
 

@@ -7,15 +7,16 @@ import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion
 import { GameJson } from '@app/data-structure/game-structure';
 import { ConfirmationSnackbarService } from '@app/services/confirmation-snackbar.service';
 import { HttpClientService } from '@app/services/httpclient.service';
+import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MatCardModule, MatButtonModule, MatTooltipModule],
+    imports: [MatCardModule, MatButtonModule, MatTooltipModule, MapComponent],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
-export class AdminItemComponent {
+export class AdminItemComponent implements AfterViewInit {
     @Input() game: GameJson;
     constructor(
         private http: HttpClientService,
