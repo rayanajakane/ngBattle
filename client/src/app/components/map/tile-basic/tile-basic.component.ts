@@ -27,48 +27,9 @@ export class TileBasicComponent implements OnChanges {
         this.setTileImage();
         this.setItemImage();
     }
-
-    dropObject() {
-        if (this.dragDropService.draggedTile === 'point-depart' && this.dragDropService.startingPointNumberCounter === 0) {
-            this.isDropped = false;
-            return;
-        }
-
-        // Empêcher le dépôt si c'est un mur ou une porte
-        if (this.tileType === 'wall' || this.tileType === 'doorClosed' || this.tileType === 'doorOpen') {
-            this.isDropped = false;
-            return;
-        }
-
-        this.transparentImage = this.dragDropService.getTransparentImage();
-        if (this.transparentImage !== '') {
-            this.isDropped = true;
-        }
-        if (this.isToolbarTile) {
-            this.isDropped = false;
-            return;
-        }
-
-        if (this.dragDropService.draggedTile === 'point-depart') {
-            this.dragDropService.reduceNumberStartingPoints();
-        }
-
-        if (this.dragDropService.draggedTile) {
-            this.dragDropService.resetDraggedObject();
-        }
-    }
-
-    removeObject() {
-        if (this.isDropped) {
-            this.isDropped = false;
-            this.itemType = '';
-            this.transparentImage = '';
-        }
-    }
-
     setItemImage() {
         if (this.itemType) {
-            this.transparentImage = `./../../../assets/${this.itemType}_transparent.png`; // Définir l'image transparente
+            this.transparentImage = `./../../../assets/${this.itemType}_transparent.png`;
         } else {
             this.transparentImage = '';
         }

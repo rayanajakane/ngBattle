@@ -50,9 +50,15 @@ export class MapComponent implements OnInit {
         }
         tileType = this.mapService.chooseTileType(currentTileType, tileType);
         this.tiles[index].tileType = tileType;
+        if (tileType === TileTypes.DOOR || TileTypes.WALL) {
+            this.tiles[index].item = '';
+        }
     }
 
     setItemType(index: number, itemType: string) {
+        if (this.dragDropService.draggedTile == '') {
+            return;
+        }
         if (itemType === 'point-depart') {
             if (this.dragDropService.startingPointNumberCounter === 0 || this.tiles[index].item === 'point-depart') {
                 return;
@@ -74,11 +80,9 @@ export class MapComponent implements OnInit {
         ) {
             return;
         }
-        if (this.dragDropService.draggedTile) {
-            this.dragDropService.resetDraggedObject();
-        }
         this.tiles[index].item = itemType;
         console.log('item at index:', index, this.tiles[index].item);
+        this.dragDropService.resetDraggedObject();
     }
 
     // TODO: reincrement counters when starting points or random items are deleted
