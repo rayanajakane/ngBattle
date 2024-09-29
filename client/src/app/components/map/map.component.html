@@ -1,14 +1,14 @@
 <section (contextmenu)="$event.preventDefault()" (mousedown)="$event.preventDefault()">
-    <div class="app-map" (mouseleave)="mapService.onExit()">
+    <div class="app-map" (mouseleave)="onExit()">
         <mat-grid-list [cols]="mapSize">
-            @for ( tile of mapService.tiles; track $index) {
+            @for ( tile of tiles; track $index) {
             <mat-grid-tile>
                 <app-tile-basic
                     tileType="{{ tile.tileType }}"
                     (contextmenu)="$event.preventDefault()"
-                    (mousedown)="mapService.onMouseDown($event, tile.idx, selectedTileType); $event.preventDefault()"
-                    (mouseup)="mapService.onMouseUp()"
-                    (mouseenter)="mapService.onMouseEnter(tile.idx, selectedTileType)"
+                    (mousedown)="onMouseDown($event, tile.idx); $event.preventDefault()"
+                    (mouseup)="onMouseUp()"
+                    (mouseenter)="onMouseEnter(tile.idx)"
                 >
                 </app-tile-basic>
             </mat-grid-tile>

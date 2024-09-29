@@ -20,8 +20,6 @@ export class CreatePageComponent {
     mapService = inject(MapService);
     constructor(private router: Router) {}
     submitChoice() {
-        this.router.navigate(['/edit']);
-        this.mapService.setGameType(this.gameType);
-        this.mapService.setMapSize(Number(this.mapSize));
+        this.router.navigate(['/edit'], { queryParams: { gameType: this.gameType, mapSize: this.mapSize } });
     }
 }

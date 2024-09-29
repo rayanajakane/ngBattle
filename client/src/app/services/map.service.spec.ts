@@ -97,21 +97,9 @@ describe('MapService', () => {
         expect(newTilesCopy).toEqual(service.tiles);
     });
 
-    it('calling createGrid with a map should not consider the mapSize', () => {
-        service.createGrid(10); // Create grid with mapSize = 10
-        const tiles = JSON.parse(JSON.stringify(service.tiles)); // Create deepCopy
-        const newTiles = Array(5 * 5) // Create grid manually with mapSize = 5
-            .fill(0)
-            .map((_, index) => {
-                return {
-                    idx: index,
-                    tileType: TileTypes.BASIC,
-                    item: '',
-                    hasPlayer: false,
-                };
-            });
-        service.createGrid(10, newTiles);
-        expect(service.tiles.length === tiles.length).toBeFalsy();
-        expect(service.tiles.length).toBe(5 * 5);
+    it('createGrid should create a tileGrid with a size equivalent to the square of the size given', () => {
+        service.createGrid(5);
+        expect(service.tiles.length).toBe(25);
+        expect(randomTileIsBasic(service.tiles, 25));
     });
 });

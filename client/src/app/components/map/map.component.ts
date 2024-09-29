@@ -2,6 +2,8 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
+import { TileJson } from '@app/data-structure/game-structure';
+import { TileTypes } from '@app/data-structure/tileType';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { MapService } from '@app/services/map.service';
 
@@ -15,10 +17,73 @@ import { MapService } from '@app/services/map.service';
 export class MapComponent implements OnInit {
     @Input() mapSize: number = DEFAULT_MAP_SIZE;
     @Input() selectedTileType: string;
+    @Input() selectedItem: string;
+
+    tiles: TileJson[];
+    oldTiles: TileJson[];
+
+    isMouseDown = false;
+    isRightClick = false;
 
     mapService = inject(MapService);
     dragDropService = inject(DragDropService);
+
     ngOnInit(): void {
-        this.mapService.createGrid(this.mapSize);
+        this.tiles = this.mapService.createGrid(this.mapSize);
+        this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
+    }
+
+    // onMouseDown(event: MouseEvent, index: number) {
+    //     if (this.selectedTileType != TileTypes.BASIC) {
+    //         this.mapService.onMouseDown(event, index, this.selectedTileType);
+    //     } else if (this.selectedItem != '') {
+    //         console.log('nice');
+    //         //TODO: change behavior depending on selected Item/TileType
+    //     }
+    // }
+
+    resetGridToBasic() {
+        this.tiles = JSON.parse(JSON.stringify(this.oldTiles)); // Deep copy
+    }
+
+    // Function to automatically change the tile's type
+    setTileType(index: number, tileType: string) {
+        if (tileType === TileTypes.DOOR) {
+            if (this.tiles[index].tileType === TileTypes.DOORCLOSED) {
+                tileType = TileTypes.DOOROPEN;
+            } else {
+                tileType = TileTypes.DOORCLOSED;
+            }
+        }
+        this.tiles[index].tileType = tileType;
+    }
+
+    // Triggered when the mouse button is pressed
+    onMouseDown(event: MouseEvent, index: number) {
+        this.isMouseDown = true;
+        if (event.button === 2) {
+            this.isRightClick = true;
+            this.setTileType(index, TileTypes.BASIC);
+        } else {
+            this.setTileType(index, this.selectedTileType);
+        }
+    }
+
+    // Triggered when the mouse button is released
+    onMouseUp() {
+        this.isMouseDown = false;
+        this.isRightClick = false;
+    }
+
+    // Triggered when the mouse enters a tile while pressed
+    onMouseEnter(index: number) {
+        if (this.isMouseDown) {
+            this.setTileType(index, !this.isRightClick ? this.selectedTileType : TileTypes.BASIC);
+        }
+    }
+
+    onExit() {
+        this.isMouseDown = false;
+        this.isRightClick = false;
     }
 }

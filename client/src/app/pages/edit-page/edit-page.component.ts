@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,17 +6,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
-import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
+import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
+import { currentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
+import { TileTypes } from '@app/data-structure/tileType';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
-import { MapService } from '@app/services/map.service';
-// import { filter } from 'rxjs/operators';
+
 @Component({
     selector: 'app-edit-page',
     standalone: true,
@@ -42,33 +43,54 @@ import { MapService } from '@app/services/map.service';
 })
 export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
+    selectedItem: string = '';
     gameType: string;
     mapSize: number;
     gameId: number;
+    selectedMode: currentMode = currentMode.NOTSELECTED;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
     gameDescription: string = 'Once upon a time...';
 
+    @ViewChild(MapComponent) map: MapComponent;
+
     constructor(
         public dialog: MatDialog,
-        private mapService: MapService,
         private httpService: HttpClientService,
         private idService: IDGenerationService,
         private router: Router,
+        private route: ActivatedRoute,
     ) {}
 
     ngOnInit() {
         // verify if the game is imported or not
-        this.gameType = this.mapService.gameType;
-        this.mapSize = this.mapService.mapSize || DEFAULT_MAP_SIZE;
+        this.route.queryParams.subscribe((params) => {
+            this.gameType = this.selectGameType(params['gameType']);
+            this.mapSize = this.selectMapSize(params['mapSize']);
+        });
+    }
+
+    selectGameType(gameType: string): string {
+        return gameType == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
+    }
+
+    selectMapSize(mapSize: string): number {
+        if (mapSize == 'medium') {
+            return 15;
+        }
+        if (mapSize == 'large') {
+            return 20;
+        }
+        return DEFAULT_MAP_SIZE;
     }
 
     resetGame(): void {
-        this.mapService.resetGridToBasic();
+        this.map.resetGridToBasic();
         this.gameTitle = 'Untitled';
         this.gameDescription = 'Once upon a time...';
     }
+
     openDialog(): void {
         const dialogRef = this.dialog.open(EditHeaderDialogComponent, {
             data: { gameNameInput: this.gameTitle, gameDescriptionInput: this.gameDescription },
@@ -84,6 +106,14 @@ export class EditPageComponent implements OnInit {
 
     changeSelectedTile(tileType: string) {
         this.selectedTileType = tileType;
+        this.selectedItem = '';
+        this.selectedMode = currentMode.TILETOOL;
+    }
+
+    changeSelectedItem(itemType: string) {
+        this.selectedItem = itemType;
+        this.selectedTileType = TileTypes.BASIC;
+        this.selectedMode = currentMode.ITEMTOOL;
     }
 
     createGameJSON() {
@@ -92,7 +122,7 @@ export class EditPageComponent implements OnInit {
             gameName: this.gameTitle,
             gameDescription: this.gameDescription,
             mapSize: this.mapSize.toString(),
-            map: this.mapService.tiles,
+            map: this.map.tiles,
             gameType: 'CTF',
             isVisible: true,
             creationDate: '',
@@ -111,10 +141,4 @@ export class EditPageComponent implements OnInit {
             this.router.navigate(['/admin']);
         });
     }
-    // ngOnInit(): void {
-    //     // TODO : update the redirection to create page with new method
-    //     if (performance.navigation.type === 1) {
-    //         this.router.navigate(['/create']);
-    //       }
-    // }
 }
