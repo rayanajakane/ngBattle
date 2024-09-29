@@ -145,10 +145,4 @@ export class EditPageComponent implements OnInit {
             horizontalPosition: 'center',
         });
     }
-    // ngOnInit(): void {
-    //     // TODO : update the redirection to create page with new method
-    //     if (performance.navigation.type === 1) {
-    //         this.router.navigate(['/create']);
-    //       }
-    // }
 }

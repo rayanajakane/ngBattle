@@ -1,23 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDeletionDialogComponent } from './confirm-deletion-dialog.component';
 
 describe('ConfirmDeletionDialogComponent', () => {
     let component: ConfirmDeletionDialogComponent;
-    let fixture: ComponentFixture<ConfirmDeletionDialogComponent>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<ConfirmDeletionDialogComponent>>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [ConfirmDeletionDialogComponent],
-            providers: [{ provide: MatDialogRef, useValue: {} }],
-        }).compileComponents();
-
-        fixture = TestBed.createComponent(ConfirmDeletionDialogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
+    beforeEach(() => {
+        const spy = jasmine.createSpyObj('MatDialogRef', ['close']);
+        TestBed.configureTestingModule({
+            providers: [ConfirmDeletionDialogComponent, { provide: MatDialogRef, useValue: spy }],
+        });
+        component = TestBed.inject(ConfirmDeletionDialogComponent);
+        dialogRefSpy = TestBed.inject(MatDialogRef) as jasmine.SpyObj<MatDialogRef<ConfirmDeletionDialogComponent>>;
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    it('should call dialogRef.close with true when confirmDeletion is called', () => {
+        component.confirmDeletion();
+        expect(dialogRefSpy.close).toHaveBeenCalledWith(true);
     });
 });
