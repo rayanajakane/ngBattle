@@ -96,6 +96,7 @@ export class EditPageComponent implements OnInit {
             gameType: 'CTF',
             isVisible: true,
             creationDate: '',
+            lastModified: '',
         } as GameJson;
     }
 

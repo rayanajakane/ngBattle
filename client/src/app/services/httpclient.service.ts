@@ -20,8 +20,8 @@ export class HttpClientService {
     }
 
     sendGame(gameJson: GameJson) {
-        // TODO: Fix 'Content-Type' linting error'
         gameJson.creationDate = new Date().toISOString();
+        gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
         // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
@@ -42,7 +42,7 @@ export class HttpClientService {
     }
 
     updateGame(gameJson: GameJson) {
-        // TODO: Fix 'Content-Type' linting error'
+        gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
         // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.patch(`${this.baseUrl}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
