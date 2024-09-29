@@ -108,7 +108,7 @@ export class CharacterSelectionPageComponent {
     }
 
     async formChecking(): Promise<string[]> {
-        let errors: string[] = [];
+        const errors: string[] = [];
         // Vérification des erreurs
         if (!this.selectedAvatar) errors.push('- Veuillez sélectionner un avatar avant de continuer');
         if (!this.isNameValid()) errors.push('- Veuillez mettre un nom pour le personne entre 3 et 15 charactères');

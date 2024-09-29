@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { CharacterSelectionPageComponent, DialogDataComponent } from './character-selection-page.component';
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 describe('CharacterSelectionPageComponent', () => {
     let component: CharacterSelectionPageComponent;
     let dialogDataComponent: DialogDataComponent;
@@ -46,6 +46,7 @@ describe('CharacterSelectionPageComponent', () => {
     const mockHttpClientService = {
         getGame: jasmine.createSpy('getGame').and.returnValue(Promise.resolve(mockGame)),
     };
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [CharacterSelectionPageComponent, HttpClientModule],
