@@ -30,6 +30,10 @@ export class MapComponent implements OnInit {
     mapService = inject(MapService);
     dragDropService = inject(DragDropService);
 
+    // To save temporay item when draging from one tile to another in map
+    draggedItem: string | null = null;
+    draggedFromIndex: number | null = null;
+
     ngOnInit(): void {
         this.tiles = this.mapService.createGrid(this.mapSize);
         this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
@@ -41,8 +45,6 @@ export class MapComponent implements OnInit {
     }
 
     // Function to automatically change the tile's type
-
-    // TODO: erase Item if it is not allowed on the new tileType
     setTileType(index: number, tileType: string) {
         const currentTileType = this.tiles[index].tileType;
         if (tileType == TileTypes.WALL || tileType == TileTypes.DOOR) {
@@ -50,9 +52,6 @@ export class MapComponent implements OnInit {
         }
         tileType = this.mapService.chooseTileType(currentTileType, tileType);
         this.tiles[index].tileType = tileType;
-        if (tileType === TileTypes.DOOR || TileTypes.WALL) {
-            this.tiles[index].item = '';
-        }
     }
 
     setItemType(index: number, itemType: string) {
@@ -81,7 +80,6 @@ export class MapComponent implements OnInit {
             return;
         }
         this.tiles[index].item = itemType;
-        console.log('item at index:', index, this.tiles[index].item);
         this.dragDropService.resetDraggedObject();
     }
 
@@ -94,6 +92,11 @@ export class MapComponent implements OnInit {
         if (event.button === 2) {
             // erase item only and no drag
             if (this.tiles[index].item != '') {
+                if (this.tiles[index].item === 'point-depart') {
+                    this.dragDropService.incrementNumberStartingPoints();
+                } else if (this.tiles[index].item === 'item-aleatoire') {
+                    this.dragDropService.incrementNumberRandomItem();
+                }
                 this.isRightClick = true;
             } else {
                 // erase tile and drag
@@ -105,8 +108,6 @@ export class MapComponent implements OnInit {
             if (this.selectedTileType != '') {
                 this.isMouseDown = true;
                 this.setTileType(index, this.selectedTileType);
-            } else {
-                this.setItemType(index, this.selectedItem);
             }
         }
     }
@@ -141,5 +142,22 @@ export class MapComponent implements OnInit {
 
     returnMapSize(): number {
         return this.mapSize;
+    }
+
+    onDragStart(item: string, index: number): void {
+        this.draggedItem = item;
+        this.draggedFromIndex = index;
+    }
+
+    onDrop(event: Event, dropIndex: number): void {
+        event.preventDefault();
+
+        if (this.draggedItem !== null && this.draggedFromIndex !== null) {
+            this.tiles[dropIndex].item = this.draggedItem;
+            this.tiles[this.draggedFromIndex].item = '';
+        }
+
+        this.draggedItem = null;
+        this.draggedFromIndex = null;
     }
 }

@@ -129,7 +129,6 @@ export class EditPageComponent implements OnInit {
         } as GameJson;
     }
 
-    // TODO: Add feature to save game conditionnally if game exists
     saveGame() {
         const game = this.createGameJSON();
         if (this.httpService.gameExists(game.id)) {
