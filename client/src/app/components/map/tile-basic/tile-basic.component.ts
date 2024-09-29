@@ -9,6 +9,7 @@ import { DragDropService } from '@app/services/drag-drop.service';
 })
 export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = '';
+    @Input() isToolbarTile: boolean = false; // Differentiate between toolbar tiles and map tiles
     transparentImage: string = '';
     imageUrl: string = '';
     objectName: string = '';
@@ -29,13 +30,20 @@ export class TileBasicComponent implements OnChanges {
             return;
         }
 
+        // Empêcher le dépôt si c'est un mur ou une porte
+        if (this.tileType === 'wall' || this.tileType === 'doorClosed' || this.tileType === 'doorOpen') {
+            this.isDropped = false;
+            return;
+        }
+
         this.transparentImage = this.dragDropService.getTransparentImage();
         if (this.transparentImage !== '') {
             this.isDropped = true;
         }
-
-        this.objectName = this.dragDropService.draggedTile;
-        console.log('debug: ', this.dragDropService.draggedTile);
+        if (this.isToolbarTile) {
+            this.isDropped = false;
+            return;
+        }
 
         if (this.dragDropService.draggedTile === 'point-depart') {
             this.dragDropService.reduceNumberRandomItem();
@@ -43,6 +51,14 @@ export class TileBasicComponent implements OnChanges {
 
         if (this.dragDropService.draggedTile) {
             this.dragDropService.resetDraggedObject();
+        }
+    }
+
+    removeObject() {
+        if (this.isDropped) {
+            this.isDropped = false;
+            this.objectName = '';
+            this.transparentImage = '';
         }
     }
 
@@ -73,26 +89,18 @@ export class TileBasicComponent implements OnChanges {
                 break;
         }
     }
-
-    drop = (event: DragEvent) => {
-        event.preventDefault();
-        this.dropObject();
-    };
-
     allowDrop(event: DragEvent) {
         if (this.dragDropService.draggedTile !== '') {
             event.preventDefault();
-        } else {
         }
     }
 
     dragStart(event: DragEvent) {
         // Handle drag start logic here
-        event.dataTransfer?.setData('text/plain', 'dragging');
+        event.dataTransfer?.setData('text/plain', this.objectName);
     }
 
-    dragEnd(event: DragEvent) {
-        // Handle drag end logic here
+    dragEnd() {
         this.isDropped = false;
     }
 }

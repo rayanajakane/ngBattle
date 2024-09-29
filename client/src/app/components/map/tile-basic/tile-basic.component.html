@@ -1,14 +1,14 @@
 <div
+    (dragstart)="dragStart($event)"
     class="tile"
-    (mousedown)="this.dragDropService.setDraggedObject(this.objectName)"
-    (drop)="drop($event)"
+    (drop)="dropObject()"
     (dragover)="allowDrop($event)"
     draggable="true"
-    (dragstart)="dragStart($event)"
-    (dragend)="dragEnd($event)"
+    (dragend)="dragEnd()"
+    (contextmenu)="removeObject()"
 >
-    <img [src]="imageUrl" alt="{{ this.tileType }}" (mouseup)="dropObject()" (dragover)="$event.preventDefault()" />
+    <img [src]="imageUrl" alt="{{ this.tileType }}" (mouseup)="dropObject()" draggable="true"/>
     @if (this.isDropped ) {
-    <img [src]="this.transparentImage" alt="OBJET DE MAP" style="position: absolute; top: 0; left: 0; opacity: 0.5" />
+    <img [src]="this.transparentImage" alt="OBJET DE MAP"  style="position: absolute; top: 0; left: 0; opacity: 0.4" />
     }
 </div>

@@ -1,8 +1,8 @@
 <section>
     <mat-grid-list cols="1" rowHeight="1:1">
-        <mat-grid-tile (click)="selectTileType('wall')"> <app-tile-basic tileType = "wall"> </app-tile-basic> </mat-grid-tile>
-        <mat-grid-tile (click)="selectTileType('door')"> <app-tile-basic tileType = "doorClosed"> </app-tile-basic> </mat-grid-tile>
-        <mat-grid-tile (click)="selectTileType('water')"> <app-tile-basic tileType = "water"> </app-tile-basic> </mat-grid-tile>
-        <mat-grid-tile (click)="selectTileType('ice')"> <app-tile-basic tileType = "ice"> </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('wall')" matTooltip="Un mur bloquant !" matTooltipPosition="left"><app-tile-basic [isToolbarTile]="true" tileType = "wall" > </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('door')" matTooltip="Une porte ouverte | fermé !" matTooltipPosition="left"> <app-tile-basic [isToolbarTile]="true"  tileType = "doorClosed"> </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('water')" matTooltip="Un surface d'eau !" matTooltipPosition="left"> <app-tile-basic [isToolbarTile]="true" tileType = "water"> </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('ice')" matTooltip="Une surface glaciale !" matTooltipPosition="left"> <app-tile-basic [isToolbarTile]="true" tileType = "ice"> </app-tile-basic> </mat-grid-tile>
     </mat-grid-list>
 </section>

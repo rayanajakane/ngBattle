@@ -10,6 +10,12 @@ mat-grid-tile {
     height: 10px;
 
 }
+
+// EFFECT ON THE IMAGE WHEN DRAGGED
+mat-grid-tile:active {
+    opacity: 0.8;
+    border: 3px solid rgb(19, 37, 110);
+  }
 .cdk-drag-preview {
     height: 10px;
     transform: scale(1.1); 
@@ -39,3 +45,5 @@ mat-grid-tile {
     object-fit: cover; 
     cursor: pointer; 
 }
+
+
