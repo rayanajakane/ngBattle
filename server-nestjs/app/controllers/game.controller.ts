@@ -12,7 +12,7 @@ export class GameController {
 
     @Post('upload')
     async uploadGame(@Body() gameData: GameJson) {
-        const errors = await this.validationService.validateGame(gameData);
+        const errors = await this.validationService.validateNewGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
                 {
@@ -23,12 +23,22 @@ export class GameController {
                 HttpStatus.BAD_REQUEST,
             );
         }
-        return await this.gameService.create(gameData);
+        await this.gameService.create(gameData);
     }
 
     @Patch('update')
     async updateGame(@Body() gameData: GameJson) {
-        const errors = await this.validationService.validateGame(gameData);
+        if (!(await this.validationService.idExists(gameData.id))) {
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.NOT_FOUND,
+                    message: 'Validation failed',
+                    errors: ['Id does not exist'],
+                },
+                HttpStatus.NOT_FOUND,
+            );
+        }
+        const errors = await this.validationService.validateUpdatedGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
                 {
@@ -39,7 +49,7 @@ export class GameController {
                 HttpStatus.BAD_REQUEST,
             );
         }
-        return await this.gameService.update(gameData);
+        await this.gameService.update(gameData);
     }
 
     @Patch('changeVisibility/:id')
