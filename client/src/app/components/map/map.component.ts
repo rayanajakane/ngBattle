@@ -156,6 +156,7 @@ export class MapComponent implements OnInit {
             this.tiles[index].tileType !== TileTypes.WALL &&
             this.tiles[index].tileType !== TileTypes.DOORCLOSED &&
             this.tiles[index].tileType !== TileTypes.DOOROPEN &&
+            this.tiles[index].item === '' &&
             index !== this.draggedFromIndex
         ) {
             this.tiles[index].item = this.draggedItem;
