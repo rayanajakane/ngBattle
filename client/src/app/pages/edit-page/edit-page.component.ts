@@ -88,6 +88,7 @@ export class EditPageComponent {
             gameType: 'CTF',
             isVisible: true,
             creationDate: '',
+            lastModified: '',
         } as GameJson;
     }
 
