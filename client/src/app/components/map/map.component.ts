@@ -117,7 +117,6 @@ export class MapComponent implements OnInit {
      * @param index - The index of the item or tile to delete.
      */
     delete(index: number) {
-        console.log('delete');
         if (this.tiles[index].item !== '') {
             this.deleteItem(index);
         } else {
@@ -143,20 +142,28 @@ export class MapComponent implements OnInit {
     }
 
     /**
-     * Handles the end of an item drag operation.
+     * Ends the dragging of an item and places it on a new tile if the conditions are met.
      *
-     * This method updates the tiles array to reflect the new position of the dragged item.
-     * It sets the item at the specified index to the dragged item, clears the item from the original position,
-     * and resets the dragging state.
+     * @param index - The index of the tile where the item is being dropped.
      *
-     * @param index - The index in the tiles array where the dragged item should be placed.
+     * The function checks if the tile at the given index is not a wall or door and is not the same tile from which the item was dragged.
+     * If these conditions are met, the item is placed on the new tile, and the original tile is cleared.
+     * The dragging state is then reset.
      */
     endItemDrag(index: number) {
-        this.tiles[index].item = this.draggedItem;
-        this.tiles[this.draggedFromIndex].item = '';
+        // check if the tile is not a wall or door and not the same tile from which the item is dragged
+        if (
+            this.tiles[index].tileType !== TileTypes.WALL &&
+            this.tiles[index].tileType !== TileTypes.DOORCLOSED &&
+            this.tiles[index].tileType !== TileTypes.DOOROPEN &&
+            index !== this.draggedFromIndex
+        ) {
+            this.tiles[index].item = this.draggedItem;
+            this.tiles[this.draggedFromIndex].item = '';
+            this.draggedItem = '';
+            this.draggedFromIndex = -1;
+        }
         this.isDraggingItem = false;
-        this.draggedItem = '';
-        this.draggedFromIndex = -1;
     }
 
     /**
