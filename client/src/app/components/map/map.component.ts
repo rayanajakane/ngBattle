@@ -35,7 +35,10 @@ export class MapComponent implements OnInit {
     draggedFromIndex: number | null = null;
 
     ngOnInit(): void {
-        this.tiles = this.mapService.createGrid(this.mapSize);
+        if (!this.tiles) {
+            console.log(this.mapSize);
+            this.tiles = this.mapService.createGrid(this.mapSize);
+        }
         this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
         this.dragDropService.setMultipleItemCounter(this.mapSize);
     }
@@ -58,8 +61,8 @@ export class MapComponent implements OnInit {
         if (this.dragDropService.draggedTile == '') {
             return;
         }
-        if (itemType === 'point-depart') {
-            if (this.dragDropService.startingPointNumberCounter === 0 || this.tiles[index].item === 'point-depart') {
+        if (itemType === 'startingPoint') {
+            if (this.dragDropService.startingPointNumberCounter === 0 || this.tiles[index].item === 'startingPoint') {
                 return;
             } else {
                 this.dragDropService.reduceNumberStartingPoints();
@@ -92,7 +95,7 @@ export class MapComponent implements OnInit {
         if (event.button === 2) {
             // erase item only and no drag
             if (this.tiles[index].item != '') {
-                if (this.tiles[index].item === 'point-depart') {
+                if (this.tiles[index].item === 'startingPoint') {
                     this.dragDropService.incrementNumberStartingPoints();
                 } else if (this.tiles[index].item === 'item-aleatoire') {
                     this.dragDropService.incrementNumberRandomItem();

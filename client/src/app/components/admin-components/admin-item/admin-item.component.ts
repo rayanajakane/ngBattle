@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,24 +6,35 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SNACKBAR_DURATION } from '@app/components/admin-components/admin-item/constant';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
+import { MapComponent } from '@app/components/map/map.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MatCardModule, MatButtonModule, MatTooltipModule],
+    imports: [MapComponent, MatCardModule, MatButtonModule, MatTooltipModule],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
 export class AdminItemComponent {
     @Input() game: GameJson;
+    @Output() editGameEvent = new EventEmitter<string>();
+    mapSize: number;
+    mapService: any;
+
+    @ViewChild(MapComponent) mapGrid: MapComponent;
     constructor(
         private http: HttpClientService,
         private dialog: MatDialog,
         private snackbar: MatSnackBar,
         private el: ElementRef,
     ) {}
+
+    ngAfterViewInit() {
+        this.mapSize = parseInt(this.game.mapSize);
+        this.mapGrid.tiles = this.game.map;
+    }
 
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {
@@ -35,7 +46,7 @@ export class AdminItemComponent {
         const dialogRef = this.dialog.open(ConfirmDeletionDialogComponent);
         dialogRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
-                this.http.getGame(this.game.id).subscribe((game) => {
+                this.http.getGame(this.game.id).then((game) => {
                     if (!game) {
                         this.snackbar.open("Le jeu n'existe pas", 'Fermer', {
                             duration: SNACKBAR_DURATION,
@@ -56,5 +67,9 @@ export class AdminItemComponent {
                 });
             }
         });
+    }
+
+    editGame() {
+        this.editGameEvent.emit(this.game.id);
     }
 }

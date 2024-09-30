@@ -28,7 +28,7 @@
                 ></span>
                 <img src="./assets/item_aleatoire_image.png" alt="Item Aléatoire" class="drag-image" />
             </mat-grid-tile>
-            <mat-grid-tile (mousedown)="startDragging('point-depart')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
+            <mat-grid-tile (mousedown)="startDragging('startingPoint')" matTooltip="LA DESCRIPTION" matTooltipPosition="right">
                 <span
                     [matBadge]="this.dragDropService.startingPointNumberCounter"
                     matBadgeSize="medium"

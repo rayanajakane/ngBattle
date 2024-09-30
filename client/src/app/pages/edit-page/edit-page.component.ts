@@ -46,17 +46,16 @@ import { IDGenerationService } from '@app/services/idgeneration.service';
 export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
     selectedItem: string = '';
-    gameType: string;
-    mapSize: number;
-    gameId: number;
+
+    game: GameJson;
+    mapSize: number = DEFAULT_MAP_SIZE;
+
     selectedMode: currentMode = currentMode.NOTSELECTED;
 
     // default values for game title and description
-    gameTitle: string = 'Untitled';
-    gameDescription: string = 'Once upon a time...';
 
     //TODO: Put Router and ActivatedRoute in a single service
-    @ViewChild(MapComponent) map: MapComponent;
+    @ViewChild(MapComponent) mapGrid: MapComponent;
     constructor(
         public dialog: MatDialog,
         private httpService: HttpClientService,
@@ -68,41 +67,71 @@ export class EditPageComponent implements OnInit {
 
     ngOnInit() {
         // verify if the game is imported or not
-        this.route.queryParams.subscribe((params) => {
-            this.gameType = this.selectGameType(params['gameType']);
-            this.mapSize = this.selectMapSize(params['mapSize']);
+        this.initEditView();
+    }
+
+    ngAfterViewInit() {
+        this.afterInitEditView();
+    }
+
+    initEditView() {
+        this.route.queryParams.subscribe(async (params) => {
+            let gameId: string = params['gameId'];
+            // TODO: check if game exist
+            if (gameId && (await this.httpService.gameExists(gameId))) {
+                setTimeout(() => {
+                    this.httpService
+                        .getGame(gameId)
+                        .then((game: GameJson) => {
+                            this.game = game;
+                        })
+                        .catch((error) => {
+                            this.handleError(error);
+                        });
+                }, 0);
+            } else {
+                this.game = this.createGameJSON();
+                this.game.gameType = this.selectGameType(params['gameType']);
+                this.game.mapSize = this.selectMapSize(params['mapSize']);
+            }
+            this.mapSize = parseInt(this.game.mapSize);
         });
+    }
+
+    afterInitEditView() {
+        if (this.game.map.length !== 0) {
+            this.mapGrid.tiles = this.game.map;
+        }
     }
 
     selectGameType(gameType: string): string {
         return gameType == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
     }
 
-    selectMapSize(mapSize: string): number {
+    selectMapSize(mapSize: string): string {
         if (mapSize == 'medium') {
-            return 15;
+            return '15';
         }
         if (mapSize == 'large') {
-            return 20;
+            return '20';
         }
-        return DEFAULT_MAP_SIZE;
+        return DEFAULT_MAP_SIZE.toString();
     }
 
     resetGame(): void {
-        this.map.resetGridToBasic();
-        this.gameTitle = 'Untitled';
-        this.gameDescription = 'Once upon a time...';
+        this.initEditView();
+        this.afterInitEditView();
     }
 
     openDialog(): void {
         const dialogRef = this.dialog.open(EditHeaderDialogComponent, {
-            data: { gameNameInput: this.gameTitle, gameDescriptionInput: this.gameDescription },
+            data: { gameNameInput: this.game.gameName, gameDescriptionInput: this.game.gameDescription },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
-                this.gameTitle = result.gameNameInput;
-                this.gameDescription = result.gameDescriptionInput;
+                this.game.gameName = result.gameNameInput;
+                this.game.gameDescription = result.gameDescriptionInput;
             }
         });
     }
@@ -121,23 +150,24 @@ export class EditPageComponent implements OnInit {
 
     createGameJSON() {
         return {
-            id: this.gameId ? this.gameId : this.idService.generateID(),
-            gameName: this.gameTitle,
-            gameDescription: this.gameDescription,
-            mapSize: this.mapSize.toString(),
-            map: this.map.tiles,
-            gameType: 'CTF',
+            id: this.idService.generateID(),
+            gameName: 'Sans titre',
+            gameDescription: 'Il était une fois...',
+            mapSize: '10',
+            map: [],
+            gameType: '',
             isVisible: true,
             creationDate: '',
             lastModified: '',
         } as GameJson;
     }
 
-    saveGame() {
-        const game = this.createGameJSON();
-        if (this.httpService.gameExists(game.id)) {
+    async saveGame() {
+        this.game.map = this.mapGrid.tiles;
+        if (await this.httpService.gameExists(this.game.id)) {
             // Update game if it already exists
-            this.httpService.updateGame(game).subscribe({
+            console.log('im here');
+            this.httpService.updateGame(this.game).subscribe({
                 next: () => {
                     this.router.navigate(['/admin']);
                 },
@@ -147,7 +177,7 @@ export class EditPageComponent implements OnInit {
             });
         } else {
             // Send game if it doesn't exist yet
-            this.httpService.sendGame(game).subscribe({
+            this.httpService.sendGame(this.game).subscribe({
                 next: () => {
                     this.router.navigate(['/admin']);
                 },
