@@ -57,7 +57,7 @@ export class EditPageComponent implements OnInit {
     gameTitle: string = 'Untitled';
     gameDescription: string = 'Once upon a time...';
 
-    //TODO: Put Router and ActivatedRoute in a single service
+    // TODO: Put Router and ActivatedRoute in a single service
     @ViewChild(MapComponent) map: MapComponent;
     constructor(
         public dialog: MatDialog,

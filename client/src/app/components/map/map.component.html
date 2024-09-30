@@ -3,13 +3,21 @@
         <mat-grid-list [cols]="mapSize">
             @for ( tile of tiles; track $index) {
             <mat-grid-tile>
-                <app-tile-basic draggable="true" tileType="{{ tile.tileType }}" itemType="{{ tile.item }}"
-                    (contextmenu)="$event.preventDefault(); delete(tile.idx);"
-                    (mousedown)=" $event.preventDefault();  onMouseDown($event, tile.idx)"
-                    (mouseup)="$event.preventDefault(); onMouseUp($index,$event,this.dragDropService.draggedTile)"
+                @if ( tile.item === 'AF2'){
+                <img src="./../../../assets/AC2_transparent.png" draggable="true" />
+                }
+                <app-tile-basic
+                    draggable="true"
+                    tileType="{{ tile.tileType }}"
+                    itemType="{{ tile.item }}"
+                    (contextmenu)="$event.preventDefault(); delete(tile.idx)"
+                    (mousedown)="$event.preventDefault(); onMouseDown($event, tile.idx)"
+                    (mouseup)="$event.preventDefault(); onMouseUp($index, $event, this.dragDropService.draggedTile)"
                     (drop)="setItemType(tile.idx, this.dragDropService.draggedTile)"
-                    (dragover)="$event.preventDefault();" (dragenter)="$event.preventDefault()"
-                    (mouseenter)="onMouseEnter(tile.idx,$event)">
+                    (dragover)="$event.preventDefault(); $event.stopPropagation()"
+                    (dragenter)="$event.preventDefault()"
+                    (mouseenter)="onMouseEnter(tile.idx, $event)"
+                >
                 </app-tile-basic>
             </mat-grid-tile>
             }

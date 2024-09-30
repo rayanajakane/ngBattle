@@ -12,7 +12,6 @@ export class DragDropService {
 
     setDraggedObject(objectType: string) {
         this.draggedTile = objectType;
-        //this.transparentImage = `./../../../assets/${objectType}_transparent.png`;
     }
 
     resetDraggedObject() {

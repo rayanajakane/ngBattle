@@ -47,7 +47,7 @@ export class MapComponent implements OnInit {
     // Function to automatically change the tile's type
     setTileType(index: number, tileType: string) {
         const currentTileType = this.tiles[index].tileType;
-        if (tileType == TileTypes.WALL || tileType == TileTypes.DOOR) {
+        if (tileType === TileTypes.WALL || tileType === TileTypes.DOOR) {
             this.deleteItem(index);
         }
         tileType = this.mapService.chooseTileType(currentTileType, tileType);
@@ -59,7 +59,7 @@ export class MapComponent implements OnInit {
             this.tiles[index].tileType === TileTypes.WALL ||
             this.tiles[index].tileType === TileTypes.DOORCLOSED ||
             this.tiles[index].tileType === TileTypes.DOOROPEN ||
-            this.dragDropService.draggedTile == ''
+            this.dragDropService.draggedTile === ''
         ) {
             return;
         }
@@ -89,7 +89,7 @@ export class MapComponent implements OnInit {
     }
 
     delete(index: number) {
-        if (this.tiles[index].item != '') {
+        if (this.tiles[index].item !== '') {
             this.deleteItem(index);
         } else {
             this.deleteTile(index);
@@ -97,14 +97,12 @@ export class MapComponent implements OnInit {
     }
 
     placeTile(index: number) {
-        console.log('placeTile');
-        if (this.isMouseDown && this.isLeftClick && this.selectedTileType != '' && this.selectedMode == currentMode.TILETOOL) {
+        if (this.isMouseDown && this.isLeftClick && this.selectedTileType !== '' && this.selectedMode === currentMode.TILETOOL) {
             this.setTileType(index, this.selectedTileType);
         }
     }
 
     onMouseDown(event: MouseEvent, index: number) {
-        console.log('onMouseDown');
         this.isMouseDown = true;
         if (event.button == 0) {
             this.isLeftClick = true;
@@ -115,7 +113,6 @@ export class MapComponent implements OnInit {
     }
 
     onMouseUp(index: number, event: MouseEvent, draggedTile: string) {
-        console.log('onMouseUp');
         this.isMouseDown = false;
         this.isLeftClick = false;
         if (event.button == 0) {
@@ -126,10 +123,11 @@ export class MapComponent implements OnInit {
     }
 
     onMouseEnter(index: number, event: MouseEvent) {
-        console.log('onMouseEnter');
+        console.log(event);
         if (this.isMouseDown && this.isLeftClick) {
             this.placeTile(index);
         } else if (this.isMouseDown && !this.isLeftClick) {
+            console.log('le delete c fait ici !');
             this.delete(index);
         }
     }
