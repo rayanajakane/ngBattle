@@ -11,8 +11,7 @@
     <mat-card-content id="main-container">
         <p>Taille: {{ game.mapSize }}</p>
         <p>Mode: {{ game.gameType }}</p>
-        <p>creation date: {{ game.creationDate }}</p>
-        <p>Derniere Modif: {{ 'pas encore implementee' }}</p>
+        <p>Derniere Modif: {{ game.lastModified }}</p>
         @if (game.isVisible){
         <p>Publique</p>
         } @else {

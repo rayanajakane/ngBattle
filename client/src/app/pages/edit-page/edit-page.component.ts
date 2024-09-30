@@ -71,7 +71,7 @@ export class EditPageComponent implements OnInit {
     }
 
     ngAfterViewInit() {
-        this.afterInitEditView();
+        setTimeout(() => this.afterInitEditView(), 0);
     }
 
     initEditView() {
@@ -97,7 +97,7 @@ export class EditPageComponent implements OnInit {
     }
 
     afterInitEditView() {
-        if (this.game.map.length !== 0) {
+        if (this.game && this.game.map.length !== 0) {
             this.mapGrid.tiles = this.game.map;
         }
     }
@@ -177,7 +177,6 @@ export class EditPageComponent implements OnInit {
         this.game.map = this.mapGrid.tiles;
         if (await this.httpService.gameExists(this.game.id)) {
             // Update game if it already exists
-            console.log('im here');
             this.httpService.updateGame(this.game).subscribe({
                 next: () => {
                     this.router.navigate(['/admin']);

@@ -36,7 +36,7 @@ export class MapComponent implements OnInit {
 
     ngOnInit(): void {
         if (!this.tiles) {
-            console.log(this.mapSize);
+            // console.log(this.mapSize);
             this.tiles = this.mapService.createGrid(this.mapSize);
         }
         this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy

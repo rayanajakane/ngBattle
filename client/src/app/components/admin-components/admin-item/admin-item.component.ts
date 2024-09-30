@@ -31,9 +31,12 @@ export class AdminItemComponent {
         private el: ElementRef,
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.mapSize = parseInt(this.game.mapSize);
-        this.mapGrid.tiles = this.game.map;
+    }
+
+    ngAfterViewInit() {
+        setTimeout(() => (this.mapGrid.tiles = this.game.map), 0);
     }
 
     invertVisibility() {

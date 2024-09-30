@@ -28,13 +28,13 @@
     </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions>
-    <button mat-button (click)="onNoClick()" color="primary">Close</button>
+    <button mat-button (click)="onNoClick()" color="primary">Fermer</button>
     <button
         mat-button
         (click)="onYesClick()"
         color="primary"
         [disabled]="gameNameInput.invalid || (gameNameInput.pristine && gameDescriptionInput.pristine)"
     >
-        Apply Changes
+        Appliquer
     </button>
 </mat-dialog-actions>

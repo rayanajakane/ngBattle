@@ -56,7 +56,7 @@ export class GameValidationService {
         this.validateProperties(game);
         this.validateMap(game);
         this.validateGameName(game);
-        this.validateUniqueNameUpdate(game.gameName, game.id);
+        await this.validateUniqueNameUpdate(game.gameName, game.id);
 
         return this.errors;
     }

@@ -1,8 +1,9 @@
+@if (game) {
 <div class="edit-page-div">
     <div class="left-panel">
         <h1 class="game-title-edit-page">
             <div class="border-div">
-                {{ this.game.gameName }}
+                {{ game.gameName }}
                 <button mat-mini-fab color="primary" class="edit-game-name-btn" (click)="openDialog()">
                     <mat-icon>edit</mat-icon>
                 </button>
@@ -18,3 +19,4 @@
         <app-map [mapSize]="mapSize" [selectedTileType]="selectedTileType" [selectedItem]="selectedItem" [selectedMode]="selectedMode"></app-map>
     </div>
 </div>
+}
