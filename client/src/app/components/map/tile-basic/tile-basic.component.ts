@@ -62,18 +62,4 @@ export class TileBasicComponent implements OnChanges {
                 break;
         }
     }
-    allowDrop(event: DragEvent) {
-        if (this.dragDropService.draggedTile !== '') {
-            event.preventDefault();
-        }
-    }
-
-    dragStart(event: DragEvent) {
-        // Handle drag start logic here
-        event.dataTransfer?.setData('text/plain', this.itemType);
-    }
-
-    dragEnd() {
-        this.isDropped = false;
-    }
 }

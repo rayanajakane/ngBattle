@@ -44,7 +44,4 @@ export class DragDropService {
     incrementNumberRandomItem() {
         this.randomItemCounter++;
     }
-    // resetNumberRandomItem() {
-    //     this.startingPointNumberCounter = DEFAULT_STARTING_POINT_NUMBER;
-    // }
 }
