@@ -27,6 +27,9 @@ export class Game extends Document {
 
     @Prop({ required: true })
     creationDate: string;
+
+    @Prop({ required: true })
+    lastModified: string;
 }
 
 export const gameSchema = SchemaFactory.createForClass(Game);
