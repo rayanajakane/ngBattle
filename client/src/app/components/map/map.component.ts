@@ -79,11 +79,12 @@ export class MapComponent implements OnInit {
             this.tiles[index].tileType === TileTypes.WALL ||
             this.tiles[index].tileType === TileTypes.DOORCLOSED ||
             this.tiles[index].tileType === TileTypes.DOOROPEN ||
-            this.dragDropService.draggedTile === ''
+            this.dragDropService.draggedTile === '' ||
+            (itemType === 'point-depart' && this.dragDropService.startingPointNumberCounter === 0) ||
+            (itemType === 'item-aleatoire' && this.dragDropService.randomItemCounter === 0)
         ) {
             return;
         }
-
         // decerease counter when starting points or random items are added
         if (itemType === 'point-depart' && !(this.tiles[index].item === 'point-depart')) {
             this.dragDropService.reduceNumberStartingPoints();
@@ -117,6 +118,7 @@ export class MapComponent implements OnInit {
      * @param index - The index of the item or tile to delete.
      */
     delete(index: number) {
+        console.log('Delete');
         if (this.tiles[index].item !== '') {
             this.deleteItem(index);
         } else {
@@ -181,11 +183,12 @@ export class MapComponent implements OnInit {
      * - Otherwise, it sets the `isLeftClick` flag to true and places a tile at the given index.
      */
     onMouseDown(index: number, event: MouseEvent) {
+        console.log('OnMouseDown');
         event.preventDefault();
         event.stopPropagation();
         this.isMouseDown = true;
 
-        if (event.button == 0) {
+        if (event.button === 0) {
             // priority to drag item from one tile to another
             if (this.tiles[index].item !== '') {
                 this.startItemDrag(index);
@@ -210,6 +213,7 @@ export class MapComponent implements OnInit {
      * If the left mouse button is released, it sets the item type for the specified tile.
      */
     onMouseUp(index: number, event: MouseEvent, draggedTile: string) {
+        console.log('OnMouseUp');
         event.preventDefault();
         event.stopPropagation();
         this.isMouseDown = false;
@@ -220,7 +224,7 @@ export class MapComponent implements OnInit {
             return;
         }
 
-        if (event.button == 0) this.setItemType(index, draggedTile);
+        if (event.button === 0) this.setItemType(index, draggedTile);
     }
 
     /**
@@ -233,6 +237,7 @@ export class MapComponent implements OnInit {
      * If not dragging, places or deletes a tile based on the mouse button pressed.
      */
     onMouseEnter(index: number, event: MouseEvent) {
+        console.log('OnMouseEnter');
         event.preventDefault();
         event.stopPropagation();
 

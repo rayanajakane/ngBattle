@@ -21,9 +21,9 @@ export class DragDropService {
 
     setMultipleItemCounter(mapSize: number) {
         let startingCounter: number;
-        if (mapSize == 10) {
+        if (mapSize === 10) {
             startingCounter = 2;
-        } else if (mapSize == 15) {
+        } else if (mapSize === 15) {
             startingCounter = 4;
         } else {
             startingCounter = 6;

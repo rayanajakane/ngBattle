@@ -71,8 +71,8 @@ export class EditPageComponent implements OnInit {
     ngOnInit() {
         // verify if the game is imported or not
         this.route.queryParams.subscribe((params) => {
-            this.gameType = params['gameType'] == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
-            this.mapSize = params['mapSize'] == 'medium' ? 15 : params['mapSize'] == 'large' ? 20 : DEFAULT_MAP_SIZE;
+            this.gameType = params['gameType'] === 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
+            this.mapSize = params['mapSize'] === 'medium' ? 15 : params['mapSize'] === 'large' ? 20 : DEFAULT_MAP_SIZE;
         });
     }
 

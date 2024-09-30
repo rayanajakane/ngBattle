@@ -1,10 +1,11 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
+import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,
-    imports: [],
+    imports: [CommonModule],
     templateUrl: './tile-basic.component.html',
     styleUrl: './tile-basic.component.scss',
 })

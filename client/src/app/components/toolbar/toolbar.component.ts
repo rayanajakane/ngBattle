@@ -1,19 +1,22 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
+import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
+import { currentMode } from '@app/data-structure/editViewSelectedMode';
+import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-toolbar',
     standalone: true,
-    imports: [MatGridListModule, TileBasicComponent, DragDropModule, MatTooltipModule],
+    imports: [CommonModule, MatGridListModule, TileBasicComponent, DragDropModule, MatTooltipModule],
     templateUrl: './toolbar.component.html',
     styleUrl: './toolbar.component.scss',
 })
 export class ToolbarComponent {
     @Output() selectTileTypeEvent = new EventEmitter<string>();
-
+    @Input() selectedTileTypeToolbar: string;
+    @Input() selectedModeToolbar: currentMode;
+    validCurrentMode: currentMode = currentMode.TILETOOL; // Used to compare the valid mode in the template
     items: object = [];
     selectedItem: object = {};
     selectTileType(tileType: string) {

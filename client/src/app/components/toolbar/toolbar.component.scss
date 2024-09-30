@@ -9,4 +9,11 @@ mat-grid-tile {
         z-index: 1;
     }
 }
+.hovered-tile {
+    border: 5px solid rgb(72, 243, 42);
+    transform: scale(1.15);
+    z-index: 1;
+}
+
+
 

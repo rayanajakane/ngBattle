@@ -15,7 +15,7 @@ describe('MapService', () => {
             item: '',
             hasPlayer: false,
         };
-        return tiles[randomIndex] == singleTile;
+        return tiles[randomIndex] === singleTile;
     }
 
     beforeEach(() => {
