@@ -12,7 +12,7 @@ export class GameController {
 
     @Post('upload')
     async uploadGame(@Body() gameData: GameJson) {
-        const errors = await this.validationService.validateGame(gameData);
+        const errors = await this.validationService.validateNewGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
                 {
@@ -28,7 +28,7 @@ export class GameController {
 
     @Patch('update')
     async updateGame(@Body() gameData: GameJson) {
-        const errors = await this.validationService.validateGame(gameData);
+        const errors = await this.validationService.validateUpdatedGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
                 {

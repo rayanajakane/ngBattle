@@ -71,14 +71,14 @@ describe('GameController', () => {
 
     it('should call validateGame method of validationService and return HTTP exception', async () => {
         const errors = ['error1', 'error2'];
-        jest.spyOn(gameValidationService, 'validateGame').mockResolvedValue(errors);
+        jest.spyOn(gameValidationService, 'validateNewGame').mockResolvedValue(errors);
         await expect(gameController.uploadGame(gameData)).rejects.toThrow(HttpException);
         await expect(gameController.updateGame(gameData)).rejects.toThrow(HttpException);
-        expect(gameValidationService.validateGame).toHaveBeenCalledWith(gameData);
+        expect(gameValidationService.validateNewGame).toHaveBeenCalledWith(gameData);
     });
 
     it('should call create method of gameService', async () => {
-        jest.spyOn(gameValidationService, 'validateGame').mockResolvedValue([]);
+        jest.spyOn(gameValidationService, 'validateNewGame').mockResolvedValue([]);
         await gameController.uploadGame(gameData);
         expect(gameService.create).toHaveBeenCalledWith(gameData);
     });

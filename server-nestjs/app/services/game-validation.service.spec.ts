@@ -76,7 +76,7 @@ describe('GameValidationService', () => {
         jest.spyOn(service, 'validateMap').mockImplementationOnce(() => {});
         jest.spyOn(service, 'validateGameName').mockImplementationOnce(() => {});
         jest.spyOn(service, 'validateUniqueChecks').mockResolvedValueOnce(undefined);
-        service.validateGame(validGame);
+        service.validateNewGame(validGame);
         expect(service.validateProperties).toHaveBeenCalled();
         expect(service.validateMap).toHaveBeenCalled();
         expect(service.validateGameName).toHaveBeenCalled();
