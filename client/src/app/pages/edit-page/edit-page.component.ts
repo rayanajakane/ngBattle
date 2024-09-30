@@ -79,16 +79,14 @@ export class EditPageComponent implements OnInit {
             let gameId: string = params['gameId'];
             // TODO: check if game exist
             if (gameId && (await this.httpService.gameExists(gameId))) {
-                setTimeout(() => {
-                    this.httpService
-                        .getGame(gameId)
-                        .then((game: GameJson) => {
-                            this.game = game;
-                        })
-                        .catch((error) => {
-                            this.handleError(error);
-                        });
-                }, 0);
+                await this.httpService
+                    .getGame(gameId)
+                    .then((game: GameJson) => {
+                        this.game = game;
+                    })
+                    .catch((error) => {
+                        this.handleError(error);
+                    });
             } else {
                 this.game = this.createGameJSON();
                 this.game.gameType = this.selectGameType(params['gameType']);
@@ -118,9 +116,22 @@ export class EditPageComponent implements OnInit {
         return DEFAULT_MAP_SIZE.toString();
     }
 
-    resetGame(): void {
-        this.initEditView();
-        this.afterInitEditView();
+    async resetGame() {
+        if (await this.httpService.gameExists(this.game.id)) {
+            await this.httpService
+                .getGame(this.game.id)
+                .then((game: GameJson) => {
+                    this.game = game;
+                })
+                .catch((error) => {
+                    this.handleError(error);
+                });
+            this.afterInitEditView();
+        } else {
+            this.game.gameName = 'Sans titre';
+            this.game.gameDescription = 'Il était une fois...';
+            this.mapGrid.resetGridToBasic();
+        }
     }
 
     openDialog(): void {
