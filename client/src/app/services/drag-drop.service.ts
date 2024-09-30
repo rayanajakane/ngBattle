@@ -8,18 +8,15 @@ export class DragDropService {
     startingPointNumberCounter: number = DEFAULT_STARTING_POINT_NUMBER;
     randomItemCounter: number = DEFAULT_STARTING_POINT_NUMBER;
     draggedTile: string = '';
-    isDragging: boolean = false;
     transparentImage: string = '';
 
     setDraggedObject(objectType: string) {
         this.draggedTile = objectType;
-        this.isDragging = true;
         //this.transparentImage = `./../../../assets/${objectType}_transparent.png`;
     }
 
     resetDraggedObject() {
         this.draggedTile = '';
-        this.isDragging = false;
         this.transparentImage = '';
     }
 
@@ -39,22 +36,16 @@ export class DragDropService {
     reduceNumberStartingPoints() {
         if (this.startingPointNumberCounter > 0) this.startingPointNumberCounter--;
     }
-
     reduceNumberRandomItem() {
         if (this.randomItemCounter > 0) this.randomItemCounter--;
     }
     incrementNumberStartingPoints() {
         this.startingPointNumberCounter++;
     }
-
     incrementNumberRandomItem() {
         this.randomItemCounter++;
     }
     // resetNumberRandomItem() {
     //     this.startingPointNumberCounter = DEFAULT_STARTING_POINT_NUMBER;
     // }
-
-    getTransparentImage(): string {
-        return this.transparentImage;
-    }
 }

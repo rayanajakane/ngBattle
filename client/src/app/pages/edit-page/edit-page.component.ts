@@ -44,12 +44,14 @@ import { IDGenerationService } from '@app/services/idgeneration.service';
     styleUrl: './edit-page.component.scss',
 })
 export class EditPageComponent implements OnInit {
+    // for drag and drop
     selectedTileType: string = '';
     selectedItem: string = '';
+    selectedMode: currentMode = currentMode.NOTSELECTED;
+    // game type and map size
     gameType: string;
     mapSize: number;
     gameId: number;
-    selectedMode: currentMode = currentMode.NOTSELECTED;
 
     // default values for game title and description
     gameTitle: string = 'Untitled';
@@ -69,24 +71,24 @@ export class EditPageComponent implements OnInit {
     ngOnInit() {
         // verify if the game is imported or not
         this.route.queryParams.subscribe((params) => {
-            this.gameType = this.selectGameType(params['gameType']);
-            this.mapSize = this.selectMapSize(params['mapSize']);
+            this.gameType = params['gameType'] == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
+            this.mapSize = params['mapSize'] == 'medium' ? 15 : params['mapSize'] == 'large' ? 20 : DEFAULT_MAP_SIZE;
         });
     }
 
-    selectGameType(gameType: string): string {
-        return gameType == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
-    }
+    // selectGameType(gameType: string): string {
+    //     return gameType == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
+    // }
 
-    selectMapSize(mapSize: string): number {
-        if (mapSize == 'medium') {
-            return 15;
-        }
-        if (mapSize == 'large') {
-            return 20;
-        }
-        return DEFAULT_MAP_SIZE;
-    }
+    // selectMapSize(mapSize: string): number {
+    //     if (mapSize == 'medium') {
+    //         return 15;
+    //     }
+    //     if (mapSize == 'large') {
+    //         return 20;
+    //     }
+    //     return DEFAULT_MAP_SIZE;
+    // }
 
     resetGame(): void {
         this.map.resetGridToBasic();
@@ -107,19 +109,19 @@ export class EditPageComponent implements OnInit {
         });
     }
 
-    changeSelectedTile(tileType: string) {
-        this.selectedTileType = tileType;
+    changeSelectedTile(tileType: string): void {
         this.selectedItem = '';
+        this.selectedTileType = tileType;
         this.selectedMode = currentMode.TILETOOL;
     }
 
-    changeSelectedItem(itemType: string) {
+    changeSelectedItem(itemType: string): void {
         this.selectedItem = itemType;
         this.selectedTileType = TileTypes.BASIC;
         this.selectedMode = currentMode.ITEMTOOL;
     }
 
-    createGameJSON() {
+    createGameJSON(): GameJson {
         return {
             id: this.gameId ? this.gameId : this.idService.generateID(),
             gameName: this.gameTitle,
@@ -157,6 +159,7 @@ export class EditPageComponent implements OnInit {
             });
         }
     }
+
     private handleError(error: HttpErrorResponse) {
         let errorMessage = 'An unexpected error occurred';
 
