@@ -56,21 +56,26 @@ export class GameValidationService {
         this.validateProperties(game);
         this.validateMap(game);
         this.validateGameName(game);
-        if (!(await this.isUniqueNameUpdate(game.gameName, game.id))) {
-            this.errors.push('Un jeu avec ce nom existe déjà');
-        }
+        this.validateUniqueNameUpdate(game.gameName, game.id);
 
         return this.errors;
     }
 
-    async isUniqueName(name: string): Promise<boolean> {
+    async idExists(id: string): Promise<boolean> {
+        const filteredGamesById: Game[] = await this.gameModel.find({ id }).exec();
+        return filteredGamesById.length !== 0;
+    }
+
+    async isUniqueNewName(name: string): Promise<boolean> {
         const filteredGamesByName: Game[] = await this.gameModel.find({ gameName: name }).exec();
         return filteredGamesByName.length === 0;
     }
 
-    async isUniqueNameUpdate(name: string, id: string): Promise<boolean> {
+    async validateUniqueNameUpdate(name: string, id: string) {
         const filteredGamesByName: Game[] = await this.gameModel.find({ gameName: name, id: { $ne: id } }).exec();
-        return filteredGamesByName.length === 0;
+        if (filteredGamesByName.length !== 0) {
+            this.errors.push('Un jeu avec ce nom existe déjà');
+        }
     }
 
     async isUniqueId(id: string): Promise<boolean> {
@@ -128,7 +133,7 @@ export class GameValidationService {
     }
 
     async validateUniqueChecks(game: GameJson): Promise<void> {
-        if (!(await this.isUniqueName(game.gameName))) {
+        if (!(await this.isUniqueNewName(game.gameName))) {
             this.errors.push('Un jeu avec ce nom existe déjà');
         }
         if (!(await this.isUniqueId(game.id))) {

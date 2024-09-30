@@ -71,7 +71,19 @@ describe('GameValidationService', () => {
         jest.clearAllMocks();
     });
 
-    it('should call all validation methods', () => {
+    it('should call all validation methods for updated game', () => {
+        jest.spyOn(service, 'validateProperties').mockImplementationOnce(() => {});
+        jest.spyOn(service, 'validateMap').mockImplementationOnce(() => {});
+        jest.spyOn(service, 'validateGameName').mockImplementationOnce(() => {});
+        jest.spyOn(service, 'validateUniqueNameUpdate').mockResolvedValueOnce(undefined);
+        service.validateUpdatedGame(validGame);
+        expect(service.validateProperties).toHaveBeenCalled();
+        expect(service.validateMap).toHaveBeenCalled();
+        expect(service.validateGameName).toHaveBeenCalled();
+        expect(service.validateUniqueNameUpdate).toHaveBeenCalled();
+    });
+
+    it('should call all validation methods for new game', () => {
         jest.spyOn(service, 'validateProperties').mockImplementationOnce(() => {});
         jest.spyOn(service, 'validateMap').mockImplementationOnce(() => {});
         jest.spyOn(service, 'validateGameName').mockImplementationOnce(() => {});
@@ -179,7 +191,25 @@ describe('GameValidationService', () => {
         expect(service.errors.length).toBe(1);
     });
 
-    it('should not add errors for unique game name and id', async () => {
+    it('should return true if id of updated game does not exist', async () => {
+        jest.spyOn(model, 'find').mockReturnValue({
+            exec: jest.fn().mockResolvedValue([{}]),
+        } as unknown as Query<Game[], Game>);
+        const id = '123';
+        const result = await service.idExists(id);
+        expect(result).toBeTruthy();
+    });
+
+    it('should return false if id of updated game does not exist', async () => {
+        jest.spyOn(model, 'find').mockReturnValue({
+            exec: jest.fn().mockResolvedValue([]),
+        } as unknown as Query<Game[], Game>);
+        const id = '123';
+        const result = await service.idExists(id);
+        expect(result).toBeFalsy();
+    });
+
+    it('should not add errors for new unique game name and id', async () => {
         jest.spyOn(model, 'find').mockReturnValue({
             exec: jest.fn().mockResolvedValue([]),
         } as unknown as Query<Game[], Game>);
@@ -188,13 +218,31 @@ describe('GameValidationService', () => {
         expect(service.errors.length).toBe(0);
     });
 
-    it('should add errorss for non-unique game name and game id', async () => {
+    it('should add errors for new non-unique game name and game id', async () => {
         jest.spyOn(model, 'find').mockReturnValue({
             exec: jest.fn().mockResolvedValue([{}]),
         } as unknown as Query<Game[], Game>);
         const game = { gameName: 'NonUniqueGame', id: 'non-unique-id' };
         await service.validateUniqueChecks(game as any);
         expect(service.errors.length).toBe(2);
+    });
+
+    it('should not add errors for updated game with same name', async () => {
+        jest.spyOn(model, 'find').mockReturnValue({
+            exec: jest.fn().mockResolvedValue([]),
+        } as unknown as Query<Game[], Game>);
+        const game = { gameName: 'sameName', id: 'id' };
+        await service.validateUniqueNameUpdate(game.gameName, game.id);
+        expect(service.errors.length).toBe(0);
+    });
+
+    it('should add errors for updated game with new non-unique name', async () => {
+        jest.spyOn(model, 'find').mockReturnValue({
+            exec: jest.fn().mockResolvedValue([{}]),
+        } as unknown as Query<Game[], Game>);
+        const game = { gameName: 'NonUniqueName', id: 'id' };
+        await service.validateUniqueNameUpdate(game.gameName, game.id);
+        expect(service.errors.length).toBe(1);
     });
 
     it('should not add errors for valid map services', () => {
