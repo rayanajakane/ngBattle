@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,7 +17,7 @@ import { HttpClientService } from '@app/services/httpclient.service';
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
-export class AdminItemComponent {
+export class AdminItemComponent implements OnInit {
     @Input() game: GameJson;
     @Output() editGameEvent = new EventEmitter<string>();
     mapSize: number;
@@ -30,7 +30,7 @@ export class AdminItemComponent {
     ) {}
 
     ngOnInit() {
-        this.mapSize = parseInt(this.game.mapSize);
+        this.mapSize = parseInt(this.game.mapSize, 10);
     }
 
     invertVisibility() {

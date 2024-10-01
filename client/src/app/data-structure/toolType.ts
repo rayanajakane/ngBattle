@@ -15,8 +15,8 @@ export enum ItemTypes {
     AC2 = 'AC2',
     AF1 = 'AF1',
     AF2 = 'AF2',
-    RANDOM_ITEM = 'item-aleatoire',
-    STARTING_POINT = 'startingPoint',
-    FLAG_A = 'drapeauA',
-    FLAG_B = 'drapeauB',
+    RANDOMITEM = 'item-aleatoire',
+    STARTINGPOINT = 'startingPoint',
+    FLAGA = 'drapeauA',
+    FLAGB = 'drapeauB',
 }

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -44,7 +44,7 @@ import { MapService } from '@app/services/map.service';
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })
-export class EditPageComponent {
+export class EditPageComponent implements OnInit {
     // for drag and drop
     selectedTileType: string = '';
     selectedItem: string = '';
@@ -52,15 +52,14 @@ export class EditPageComponent {
     game: GameJson;
     mapSize: number = DEFAULT_MAP_SIZE;
     mapService = inject(MapService);
+    idService = inject(IDGenerationService);
+
     gameCreated = false;
 
-    // default values for game title and description
-
-    //TODO: Put Router and ActivatedRoute in a single service
+    // TODO: Put Router and ActivatedRoute in a single service
     constructor(
         public dialog: MatDialog,
         private httpService: HttpClientService,
-        private idService: IDGenerationService,
         private router: Router,
         private route: ActivatedRoute,
         private snackbar: MatSnackBar,
@@ -74,9 +73,9 @@ export class EditPageComponent {
         if (this.game.map.length === 0) {
             this.game.gameType = this.selectGameType(this.route.snapshot.queryParams['gameType']);
             this.game.mapSize = this.selectMapSize(this.route.snapshot.queryParams['mapSize']);
-            this.game.map = this.mapService.createGrid(parseInt(this.game.mapSize));
+            this.game.map = this.mapService.createGrid(parseInt(this.game.mapSize, 10));
         }
-        this.mapSize = parseInt(this.game.mapSize);
+        this.mapSize = parseInt(this.game.mapSize, 10);
         this.gameCreated = true;
     }
 
@@ -87,14 +86,14 @@ export class EditPageComponent {
     }
 
     selectGameType(gameType: string): string {
-        return gameType == 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
+        return gameType === 'classic' ? 'classic' : DEFAULT_GAME_TYPE;
     }
 
     selectMapSize(mapSize: string): string {
-        if (mapSize == 'medium') {
+        if (mapSize === 'medium') {
             return '15';
         }
-        if (mapSize == 'large') {
+        if (mapSize === 'large') {
             return '20';
         }
         return DEFAULT_MAP_SIZE.toString();

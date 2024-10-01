@@ -29,7 +29,6 @@ export class MapComponent implements OnInit {
     mapService = inject(MapService);
     dragDropService = inject(DragDropService);
 
-    // To save temporary item when draging from one tile to another in map
     draggedItem: string = '';
     draggedFromIndex: number = -1;
 

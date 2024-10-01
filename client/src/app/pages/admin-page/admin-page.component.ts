@@ -33,6 +33,6 @@ export class AdminPageComponent implements OnInit {
     }
 
     editGame(gameId: string) {
-        this.router.navigate(['/edit'], { queryParams: { gameId: gameId } });
+        this.router.navigate(['/edit'], { queryParams: { gameId } });
     }
 }
