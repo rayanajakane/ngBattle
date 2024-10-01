@@ -20,7 +20,7 @@
     </mat-card-content>
 
     <mat-card-actions class="btn-container">
-        <button mat-raised-button (click)="editGame()">Editer</button>
+        <button mat-raised-button [routerLink]="['/edit', game.id]">Editer</button>
         <button mat-raised-button color="warn" (click)="deleteGame()">Supprimer</button>
         <button mat-raised-button (click)="invertVisibility()">Inverser</button>
     </mat-card-actions>

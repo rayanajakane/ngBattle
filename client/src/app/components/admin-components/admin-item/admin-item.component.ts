@@ -4,16 +4,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 import { SNACKBAR_DURATION } from '@app/components/admin-components/admin-item/constant';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
 import { MapComponent } from '@app/components/map/map.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
-
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MapComponent, MatCardModule, MatButtonModule, MatTooltipModule],
+    imports: [MapComponent, MatCardModule, MatButtonModule, MatTooltipModule, RouterLink],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
@@ -36,7 +36,7 @@ export class AdminItemComponent {
     }
 
     ngAfterViewInit() {
-        setTimeout(() => (this.mapGrid.tiles = this.game.map), 0);
+        this.mapGrid.tiles = this.game.map;
     }
 
     invertVisibility() {
@@ -70,9 +70,5 @@ export class AdminItemComponent {
                 });
             }
         });
-    }
-
-    editGame() {
-        this.editGameEvent.emit(this.game.id);
     }
 }

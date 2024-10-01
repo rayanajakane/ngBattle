@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -43,7 +43,7 @@ import { IDGenerationService } from '@app/services/idgeneration.service';
     templateUrl: './edit-page.component.html',
     styleUrl: './edit-page.component.scss',
 })
-export class EditPageComponent implements OnInit {
+export class EditPageComponent {
     // for drag and drop
     selectedTileType: string = '';
     selectedItem: string = '';
@@ -64,41 +64,26 @@ export class EditPageComponent implements OnInit {
         private snackbar: MatSnackBar,
     ) {}
 
-    ngOnInit() {
-        // verify if the game is imported or not
-        this.initEditView();
-    }
-
     ngAfterViewInit() {
-        setTimeout(() => this.afterInitEditView(), 0);
-    }
-
-    initEditView() {
-        this.route.queryParams.subscribe(async (params) => {
-            let gameId: string = params['gameId'];
-            // TODO: check if game exist
-            if (gameId && (await this.httpService.gameExists(gameId))) {
-                await this.httpService
-                    .getGame(gameId)
-                    .then((game: GameJson) => {
-                        this.game = game;
-                    })
-                    .catch((error) => {
-                        this.handleError(error);
-                    });
-            } else {
-                this.game = this.createGameJSON();
-                this.game.gameType = this.selectGameType(params['gameType']);
-                this.game.mapSize = this.selectMapSize(params['mapSize']);
-            }
-            this.mapSize = parseInt(this.game.mapSize);
-        });
+        this.initEditView().then(() => this.afterInitEditView());
     }
 
     afterInitEditView() {
-        if (this.game && this.game.map.length !== 0) {
-            this.mapGrid.tiles = this.game.map;
+        if (this.game && this.game.map.length !== 0) this.mapGrid.tiles = this.game.map;
+    }
+
+    async initEditView() {
+        let gameId: string = this.route.snapshot.params.id;
+        this.game = await this.httpService.getGame(gameId);
+        this.game = await this.httpService.getGame(gameId);
+        if (!gameId || !this.game) {
+            console.log('Creating new game');
+            this.game = this.createGameJSON();
+            this.game.gameType = this.selectGameType(this.route.snapshot.queryParams['gameType']);
+            this.game.mapSize = this.selectMapSize(this.route.snapshot.queryParams['mapSize']);
         }
+
+        this.mapSize = parseInt(this.game.mapSize);
     }
 
     selectGameType(gameType: string): string {
