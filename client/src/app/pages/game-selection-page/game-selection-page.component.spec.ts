@@ -1,4 +1,5 @@
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameJson } from '@app/data-structure/game-structure';
@@ -55,8 +56,8 @@ describe('GameSelectionPageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [GameSelectionPageComponent, HttpClientModule],
-            providers: [{ provide: HttpClientService, useValue: mockHttpClientService }],
+            imports: [GameSelectionPageComponent],
+            providers: [{ provide: HttpClientService, useValue: mockHttpClientService }, provideHttpClient(), provideHttpClientTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameSelectionPageComponent);

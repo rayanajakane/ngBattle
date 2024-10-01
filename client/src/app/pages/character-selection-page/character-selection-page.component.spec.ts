@@ -1,4 +1,5 @@
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -49,11 +50,13 @@ describe('CharacterSelectionPageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [CharacterSelectionPageComponent, HttpClientModule],
+            imports: [CharacterSelectionPageComponent],
             providers: [
                 { provide: HttpClientService, useValue: mockHttpClientService },
                 { provide: ActivatedRoute, useValue: mockActivatedRoute },
                 { provide: MAT_DIALOG_DATA, useValue: mockData },
+                provideHttpClient(),
+                provideHttpClientTesting(),
             ],
         }).compileComponents();
 
