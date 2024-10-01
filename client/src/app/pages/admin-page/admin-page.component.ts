@@ -19,14 +19,7 @@ export class AdminPageComponent implements OnInit {
 
     constructor(private http: HttpClientService) {}
 
-    ngOnInit() {
-        this.loadGames();
+    async ngOnInit() {
+        this.games = await this.http.getAllGames();
     }
-
-    loadGames() {
-        this.http.getAllGames().subscribe((data: GameJson[]) => {
-            this.games = data;
-        });
-    }
-    // TODO: Add a ngOndestruct to unsuscribe from the stream
 }

@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GameJson } from '@app/data-structure/game-structure';
-import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 @Injectable({
     providedIn: 'root',
 })
@@ -19,14 +18,16 @@ export class HttpClientService {
         return this.httpService.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
-    getGame(id: string): Observable<GameJson> {
-        return this.httpService.get<GameJson>(`${this.baseUrl}/game/get/` + id);
+    async getGame(id: string): Promise<GameJson> {
+        return await firstValueFrom(this.httpService.get<GameJson>(`${this.baseUrl}/game/get/` + id));
     }
 
-    getAllGames() {
-        return this.httpService
-            .get<GameJson[]>(`${this.baseUrl}/game/getAll/`)
-            .pipe(map((games: GameJson[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime())));
+    async getAllGames(): Promise<GameJson[]> {
+        return await firstValueFrom(
+            this.httpService
+                .get<GameJson[]>(`${this.baseUrl}/game/getAll/`)
+                .pipe(map((games: GameJson[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()))),
+        );
     }
 
     deleteGame(id: string) {

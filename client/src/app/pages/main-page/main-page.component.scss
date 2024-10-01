@@ -1,26 +1,33 @@
-/* Classe pour l'image d'arrière-plan couvrant toute la page */
+@import url('../../global-files/global.css');
+
 .background-full {
-    background-image: url('../../../assets/Background.jpg');
+    background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    height: auto; /* Assure que l'image couvre toute la hauteur de la page */
+    min-height: 100vh;
 }
+ .logo-ng-battle {
+    height: auto;
+    width: 200px;
+    border-radius: 20px;
+ }
 
-/* Le reste du CSS */
-.container {
-    min-height: 100vh; /* Assure que le conteneur couvre la hauteur de la fenêtre */
+.main-container {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    font-family: 'MedievalSharp', sans-serif;
+    color: white;
 }
 
 .justified {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
@@ -30,67 +37,41 @@
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    transition:
-        background-color 0.3s,
-        box-shadow 0.3s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: 'MedievalSharp', sans-serif;
+    color: white;
     margin: 5px;
+    background-color: rgb(62, 87, 103);
 }
 
-.button-join {
-    background-color: #007bff;
+
+
+.team-name, .footer-item p {
+    margin: 0.25em 0;
+    text-align: center;
+    font-family: 'MedievalSharp', sans-serif;
     color: white;
-}
-
-.button-create {
-    background-color: #28a745;
-    color: white;
-}
-
-.button-admin {
-    background-color: #dc3545;
-    color: white;
-}
-
-.button-demo {
-    background-color: #17a2b8;
-    color: white;
-}
-
-.button-play {
-    background-color: #ffc107;
-    color: white;
-}
-
-.team-name {
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
-    color: #333333;
 }
 
 .header-item {
-    justify-content: center;
     text-align: center;
+    font-family: 'MedievalSharp', sans-serif;
+    color: white;
+    margin:0px;
+    height: 70px;
 }
 
-.footer-item {
-    text-align: center;
-}
-
-.footer-item p :nth-child(even) {
-    color: #333333;
-}
-
-.footer-item p :nth-child(odd) {
-    color: #333333;
-}
-
-.server-message {
+#server-message {
     justify-content: center;
     width: 20%;
     min-width: min-content;
+    font-family: 'MedievalSharp', sans-serif;
+    color: white;
 }
 
-.gray {
-    color: #333333;
+span {
+    color: white;
+}
+
+button:hover {
+    transform: scale(1.08);
 }

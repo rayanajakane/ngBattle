@@ -1,0 +1,38 @@
+@import url('../../global-files/global.css');
+
+.game-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 200px;
+    height: 200px;
+    padding: 25px;
+
+    background-image: url('../../../assets/game-selection-page/Border_All_10.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    color: white;
+    overflow: hidden;
+}
+
+.game-info:hover {
+    transform: scale(1.05);
+}
+
+p {
+    margin: 5px 0;
+}
+
+.game-description {
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.game-name {
+    font-weight: bold;
+}
+
+
