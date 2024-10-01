@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,6 +19,7 @@ import { GameJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
+import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-edit-page',
@@ -50,11 +51,12 @@ export class EditPageComponent {
     selectedMode: CurrentMode = CurrentMode.NotSelected;
     game: GameJson;
     mapSize: number = DEFAULT_MAP_SIZE;
+    mapService = inject(MapService);
+    gameCreated = false;
 
     // default values for game title and description
 
     //TODO: Put Router and ActivatedRoute in a single service
-    @ViewChild(MapComponent) mapGrid: MapComponent;
     constructor(
         public dialog: MatDialog,
         private httpService: HttpClientService,
@@ -64,26 +66,24 @@ export class EditPageComponent {
         private snackbar: MatSnackBar,
     ) {}
 
-    ngAfterViewInit() {
-        this.initEditView().then(() => this.afterInitEditView());
+    ngOnInit() {
+        this.initEditView(this.route.snapshot.queryParams['gameId']).then(() => this.afterInitEditView());
     }
 
     afterInitEditView() {
-        if (this.game && this.game.map.length !== 0) this.mapGrid.tiles = this.game.map;
-    }
-
-    async initEditView() {
-        let gameId: string = this.route.snapshot.params.id;
-        this.game = await this.httpService.getGame(gameId);
-        this.game = await this.httpService.getGame(gameId);
-        if (!gameId || !this.game) {
-            console.log('Creating new game');
-            this.game = this.createGameJSON();
+        if (this.game.map.length === 0) {
             this.game.gameType = this.selectGameType(this.route.snapshot.queryParams['gameType']);
             this.game.mapSize = this.selectMapSize(this.route.snapshot.queryParams['mapSize']);
+            this.game.map = this.mapService.createGrid(parseInt(this.game.mapSize));
         }
-
         this.mapSize = parseInt(this.game.mapSize);
+        this.gameCreated = true;
+    }
+
+    async initEditView(gameId: string) {
+        if (!(this.game = await this.httpService.getGame(gameId))) {
+            this.game = this.createGameJSON();
+        }
     }
 
     selectGameType(gameType: string): string {
@@ -100,22 +100,9 @@ export class EditPageComponent {
         return DEFAULT_MAP_SIZE.toString();
     }
 
-    async resetGame() {
-        if (await this.httpService.gameExists(this.game.id)) {
-            await this.httpService
-                .getGame(this.game.id)
-                .then((game: GameJson) => {
-                    this.game = game;
-                })
-                .catch((error) => {
-                    this.handleError(error);
-                });
-            this.afterInitEditView();
-        } else {
-            this.game.gameName = 'Sans titre';
-            this.game.gameDescription = 'Il était une fois...';
-            this.mapGrid.resetGridToBasic();
-        }
+    resetGame() {
+        this.gameCreated = false;
+        this.initEditView(this.game.id).then(() => this.afterInitEditView());
     }
 
     openDialog(): void {
@@ -158,7 +145,6 @@ export class EditPageComponent {
     }
 
     async saveGame() {
-        this.game.map = this.mapGrid.tiles;
         if (await this.httpService.gameExists(this.game.id)) {
             // Update game if it already exists
             this.httpService.updateGame(this.game).subscribe({

@@ -1,6 +1,5 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
-import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { TileJson } from '@app/data-structure/game-structure';
@@ -16,13 +15,12 @@ import { MapService } from '@app/services/map.service';
     styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements OnInit {
-    @Input() mapSize: number = DEFAULT_MAP_SIZE;
+    @Input() mapSize: number;
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
     @Input() selectedMode: CurrentMode;
 
-    tiles: TileJson[];
-    oldTiles: TileJson[];
+    @Input() tiles: TileJson[];
 
     isMouseDown = false;
     isLeftClick = false;
@@ -35,16 +33,9 @@ export class MapComponent implements OnInit {
     draggedItem: string = '';
     draggedFromIndex: number = -1;
 
+    // TODO: Check in tiles how many random items and how many starting points
+    // there are to initialize setMultipleItemCounter
     ngOnInit(): void {
-        if (!this.tiles) {
-            this.tiles = this.mapService.createGrid(this.mapSize);
-        }
-        this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
-        this.dragDropService.setMultipleItemCounter(this.mapSize);
-    }
-
-    resetGridToBasic() {
-        this.tiles = JSON.parse(JSON.stringify(this.oldTiles)); // Deep copy
         this.dragDropService.setMultipleItemCounter(this.mapSize);
     }
 

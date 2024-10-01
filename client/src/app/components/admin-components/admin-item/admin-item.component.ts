@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,9 +21,7 @@ export class AdminItemComponent {
     @Input() game: GameJson;
     @Output() editGameEvent = new EventEmitter<string>();
     mapSize: number;
-    mapService: any;
 
-    @ViewChild(MapComponent) mapGrid: MapComponent;
     constructor(
         private http: HttpClientService,
         private dialog: MatDialog,
@@ -33,10 +31,6 @@ export class AdminItemComponent {
 
     ngOnInit() {
         this.mapSize = parseInt(this.game.mapSize);
-    }
-
-    ngAfterViewInit() {
-        this.mapGrid.tiles = this.game.map;
     }
 
     invertVisibility() {
@@ -70,5 +64,9 @@ export class AdminItemComponent {
                 });
             }
         });
+    }
+
+    editGame() {
+        this.editGameEvent.emit(this.game.id);
     }
 }
