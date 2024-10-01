@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
+import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
-
-export const DEFAULT_MAP_SIZE = 10;
 
 @Injectable({
     providedIn: 'root',
