@@ -1,10 +1,9 @@
-<div class="tile" >
-    @if ( this.imageUrl && this.isToolbarTile ) {
-    <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false"/> 
-    } @else{
-        <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="true"/> 
-    }
+<div class="tile">
     @if ( this.transparentImage ) {
-    <img [src]="this.transparentImage" alt="{{this.itemType}}" style="position: absolute; top: 0; left: 0; opacity: 0.4" />
+    <img [src]="this.transparentImage" alt="{{ this.itemType }}" style="position: absolute; top: 0; left: 0; opacity: 0.5" draggable="true" />
+    } @if ( this.imageUrl && this.isToolbarTile ) {
+    <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false" />
+    } @else{
+    <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false" />
     }
 </div>

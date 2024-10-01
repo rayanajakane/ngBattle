@@ -1,10 +1,11 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
+import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,
-    imports: [],
+    imports: [CommonModule],
     templateUrl: './tile-basic.component.html',
     styleUrl: './tile-basic.component.scss',
 })
@@ -61,19 +62,5 @@ export class TileBasicComponent implements OnChanges {
                 this.imageUrl = './../../../assets/GROUND.jpg';
                 break;
         }
-    }
-    allowDrop(event: DragEvent) {
-        if (this.dragDropService.draggedTile !== '') {
-            event.preventDefault();
-        }
-    }
-
-    dragStart(event: DragEvent) {
-        // Handle drag start logic here
-        event.dataTransfer?.setData('text/plain', this.itemType);
-    }
-
-    dragEnd() {
-        this.isDropped = false;
     }
 }

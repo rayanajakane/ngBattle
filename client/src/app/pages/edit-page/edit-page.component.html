@@ -10,13 +10,16 @@
             </div>
         </h1>
         <app-sidebar class="edit-page-sidebar" (selectItemTypeEvent)="changeSelectedItem($event)"></app-sidebar>
-        <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="changeSelectedTile($event)"></app-toolbar>
-        <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="saveGame()">Sauvegarder le Jeu !</button>
-        <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="resetGame()">Rénitialiser le Jeu !</button>
+        <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="changeSelectedTile($event)" [selectedTileTypeToolbar]="selectedTileType" [selectedModeToolbar]="selectedMode"></app-toolbar>
+        <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="saveGame()">Sauvegarder le
+            Jeu !</button>
+        <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="resetGame()">Rénitialiser le
+            Jeu !</button>
     </div>
 
     <div class="edit-page-map">
-        <app-map [mapSize]="mapSize" [selectedTileType]="selectedTileType" [selectedItem]="selectedItem" [selectedMode]="selectedMode"></app-map>
+        <app-map [mapSize]="mapSize" [selectedTileType]="selectedTileType" [selectedItem]="selectedItem"
+            [selectedMode]="selectedMode"></app-map>
     </div>
 </div>
 }

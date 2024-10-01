@@ -7,12 +7,12 @@
                     draggable="true"
                     tileType="{{ tile.tileType }}"
                     itemType="{{ tile.item }}"
-                    (contextmenu)="$event.preventDefault()"
-                    (mousedown)="onMouseDown($event, tile.idx); $event.preventDefault()"
-                    (mouseup)="onMouseUp(tile.idx)"
-                    (mouseenter)="onMouseEnter(tile.idx)"
-                    (drop)="$event.preventDefault(); setItemType(tile.idx, this.dragDropService.draggedTile)"
-                    (dragover)="$event.preventDefault()"
+                    (contextmenu)="$event.preventDefault(); delete(tile.idx)"
+                    (mousedown)="onMouseDown(tile.idx, $event)"
+                    (mouseup)="onMouseUp(tile.idx, $event, this.dragDropService.draggedTile)"
+                    (drop)="$event.stopPropagation(); setItemType(tile.idx, this.dragDropService.draggedTile)"
+                    (dragover)="$event.preventDefault(); $event.stopPropagation()"
+                    (mouseenter)="onMouseEnter(tile.idx, $event)"
                 >
                 </app-tile-basic>
             </mat-grid-tile>

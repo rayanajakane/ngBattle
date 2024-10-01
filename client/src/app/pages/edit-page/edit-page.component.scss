@@ -1,8 +1,8 @@
 * {
     user-select: none;
-    -webkit-user-select: none; /* Pour Safari et Chrome */
-    -moz-user-select: none; /* Pour Firefox */
-    -ms-user-select: none; /* Pour Internet Explorer/Edge */
+    -webkit-user-select: none; 
+    -moz-user-select: none; 
+    -ms-user-select: none;
 }
 /* main container */
 .edit-page-div {
@@ -13,9 +13,8 @@
 }
 /* dragged elements style */
 .cdk-drag-preview {
-    width: 4px; /* Appliquer la même taille que les tuiles de la carte */
+    width: 4px; 
     height: 10px;
-    /* Vous pouvez aussi ajouter d'autres styles, comme un contour pour indiquer qu'un objet est en train d'être glissé */
     border: 2px solid #1976d2;
     background-color: rgba(255, 255, 255, 0.8);
 }

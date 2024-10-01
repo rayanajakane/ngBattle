@@ -1,8 +1,15 @@
 <section>
     <mat-grid-list cols="1" rowHeight="1:1">
-        <mat-grid-tile (click)="selectTileType('wall')" matTooltip="Un mur bloquant !" matTooltipPosition="left"><app-tile-basic [isToolbarTile]="true" tileType = "wall"> </app-tile-basic> </mat-grid-tile>
-        <mat-grid-tile (click)="selectTileType('door')" matTooltip="Une porte ouverte | fermé !" matTooltipPosition="left"> <app-tile-basic [isToolbarTile]="true"  tileType = "doorClosed"> </app-tile-basic> </mat-grid-tile>
-        <mat-grid-tile (click)="selectTileType('water')" matTooltip="Un surface d'eau !" matTooltipPosition="left"> <app-tile-basic [isToolbarTile]="true" tileType = "water"> </app-tile-basic> </mat-grid-tile>
-        <mat-grid-tile (click)="selectTileType('ice')" matTooltip="Une surface glaciale !" matTooltipPosition="left"> <app-tile-basic [isToolbarTile]="true" tileType = "ice"> </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('wall')" matTooltip="Un mur bloquant !" matTooltipPosition="left" [ngClass]="{'hovered-tile': this.selectedTileTypeToolbar === 'wall' && this.selectedModeToolbar === this.validCurrentMode}">
+            <app-tile-basic [isToolbarTile]="true" tileType = "wall"> 
+            </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('door')" matTooltip="Une porte ouverte | fermé !" matTooltipPosition="left" 
+        [ngClass]="{'hovered-tile': this.selectedTileTypeToolbar === 'door' && this.selectedModeToolbar === this.validCurrentMode}"> 
+            <app-tile-basic [isToolbarTile]="true"  tileType = "doorClosed"> </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('water')" matTooltip="Un surface d'eau !" matTooltipPosition="left"
+        [ngClass]="{'hovered-tile': this.selectedTileTypeToolbar === 'water' && this.selectedModeToolbar === this.validCurrentMode}"> 
+            <app-tile-basic [isToolbarTile]="true" tileType = "water"> </app-tile-basic> </mat-grid-tile>
+        <mat-grid-tile (click)="selectTileType('ice')" matTooltip="Une surface glaciale !" matTooltipPosition="left"
+        [ngClass]="{'hovered-tile': this.selectedTileTypeToolbar === 'ice' && this.selectedModeToolbar === this.validCurrentMode}"> <app-tile-basic [isToolbarTile]="true" tileType = "ice"> </app-tile-basic> </mat-grid-tile>
     </mat-grid-list>
 </section>

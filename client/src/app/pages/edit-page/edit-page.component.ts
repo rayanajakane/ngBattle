@@ -14,7 +14,7 @@ import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/map/constan
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
-import { currentMode } from '@app/data-structure/editViewSelectedMode';
+import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { HttpClientService } from '@app/services/httpclient.service';
@@ -44,13 +44,12 @@ import { IDGenerationService } from '@app/services/idgeneration.service';
     styleUrl: './edit-page.component.scss',
 })
 export class EditPageComponent implements OnInit {
+    // for drag and drop
     selectedTileType: string = '';
     selectedItem: string = '';
-
+    selectedMode: CurrentMode = CurrentMode.NotSelected;
     game: GameJson;
     mapSize: number = DEFAULT_MAP_SIZE;
-
-    selectedMode: currentMode = currentMode.NOTSELECTED;
 
     // default values for game title and description
 
@@ -147,19 +146,19 @@ export class EditPageComponent implements OnInit {
         });
     }
 
-    changeSelectedTile(tileType: string) {
-        this.selectedTileType = tileType;
+    changeSelectedTile(tileType: string): void {
         this.selectedItem = '';
-        this.selectedMode = currentMode.TILETOOL;
+        this.selectedTileType = tileType;
+        this.selectedMode = CurrentMode.TileTool;
     }
 
-    changeSelectedItem(itemType: string) {
+    changeSelectedItem(itemType: string): void {
         this.selectedItem = itemType;
         this.selectedTileType = TileTypes.BASIC;
-        this.selectedMode = currentMode.ITEMTOOL;
+        this.selectedMode = CurrentMode.ItemTool;
     }
 
-    createGameJSON() {
+    createGameJSON(): GameJson {
         return {
             id: this.idService.generateID(),
             gameName: 'Sans titre',
@@ -197,6 +196,7 @@ export class EditPageComponent implements OnInit {
             });
         }
     }
+
     private handleError(error: HttpErrorResponse) {
         let errorMessage = 'An unexpected error occurred';
 

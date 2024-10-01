@@ -1,5 +1,5 @@
-export enum currentMode {
-    NOTSELECTED,
-    TILETOOL,
-    ITEMTOOL,
+export enum CurrentMode {
+    NotSelected,
+    TileTool,
+    ItemTool,
 }
