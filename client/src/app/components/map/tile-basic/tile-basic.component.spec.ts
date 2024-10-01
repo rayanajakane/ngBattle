@@ -20,7 +20,7 @@ describe('TileBasicComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // TODO: check for random itemType once
+    // TODO: check for random itemType once assets are added
     it('setItemImage should change transparentImage based on itemType', () => {
         const itemTypes = ['AA1', 'AA2', 'AC1', 'AC2', 'AF1', 'AF2', 'item-aleatoire', 'startingPoint', 'drapeauA', 'drapeauB'];
         component.itemType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
