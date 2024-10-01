@@ -55,5 +55,36 @@ describe('MapService', () => {
         }).toThrowError('MapSize must be a positive number.');
     });
 
-    it('chooseTileType should return currentTileType if not a door', () => {});
+    it('chooseTileType should return newTileType if not a door', () => {
+        const possibleCurrentTileType = ['', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
+        const possibleNewTileTypes = ['', 'wall', 'water', 'ice'];
+        const currentTileType = possibleCurrentTileType[Math.floor(Math.random() * possibleCurrentTileType.length)];
+        const newTileType = possibleNewTileTypes[Math.floor(Math.random() * possibleNewTileTypes.length)];
+
+        expect(service.chooseTileType(currentTileType, newTileType)).toBe(newTileType);
+    });
+
+    it('chooseTileType should return newTileType if not a door', () => {
+        const possibleCurrentTileType = ['', 'wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
+        const possibleNewTileTypes = ['', 'wall', 'water', 'ice'];
+        const currentTileType = possibleCurrentTileType[Math.floor(Math.random() * possibleCurrentTileType.length)];
+        const newTileType = possibleNewTileTypes[Math.floor(Math.random() * possibleNewTileTypes.length)];
+
+        expect(service.chooseTileType(currentTileType, newTileType)).toBe(newTileType);
+    });
+
+    it('chooseTileType should return doorclosed if newTileType is door and current is not doorclosed', () => {
+        const possibleCurrentTileType = ['', 'wall', 'doorOpen', 'water', 'ice'];
+        const currentTileType = possibleCurrentTileType[Math.floor(Math.random() * possibleCurrentTileType.length)];
+        const newTileType = TileTypes.DOOR;
+
+        expect(service.chooseTileType(currentTileType, newTileType)).toBe(TileTypes.DOORCLOSED);
+    });
+
+    it('chooseTileType should return dooropen if newTileType is door and current is doorclosed', () => {
+        const currentTileType = TileTypes.DOORCLOSED;
+        const newTileType = TileTypes.DOOR;
+
+        expect(service.chooseTileType(currentTileType, newTileType)).toBe(TileTypes.DOOROPEN);
+    });
 });
