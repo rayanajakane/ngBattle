@@ -1,4 +1,3 @@
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -10,7 +9,7 @@ import { MapService } from '@app/services/map.service';
     standalone: true,
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
-    imports: [MatGridListModule, DragDropModule, MatBadgeModule, MatTooltipModule],
+    imports: [MatGridListModule, MatBadgeModule, MatTooltipModule],
 })
 export class SidebarComponent {
     @Output() selectItemTypeEvent = new EventEmitter<string>();

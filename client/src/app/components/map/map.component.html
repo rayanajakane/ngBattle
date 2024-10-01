@@ -3,13 +3,17 @@
         <mat-grid-list [cols]="mapSize">
             @for ( tile of tiles; track $index) {
             <mat-grid-tile>
-                <app-tile-basic draggable="true" tileType="{{ tile.tileType }}" itemType="{{ tile.item }}"
+                <app-tile-basic
+                    draggable="true"
+                    tileType="{{ tile.tileType }}"
+                    itemType="{{ tile.item }}"
                     (contextmenu)="$event.preventDefault(); delete(tile.idx)"
                     (mousedown)="onMouseDown(tile.idx, $event)"
-                    (mouseup)="onMouseUp(tile.idx , $event, this.dragDropService.draggedTile)"
+                    (mouseup)="onMouseUp(tile.idx, $event, this.dragDropService.draggedTile)"
                     (drop)="$event.stopPropagation(); setItemType(tile.idx, this.dragDropService.draggedTile)"
                     (dragover)="$event.preventDefault(); $event.stopPropagation()"
-                    (mouseenter)="onMouseEnter(tile.idx, $event)">
+                    (mouseenter)="onMouseEnter(tile.idx, $event)"
+                >
                 </app-tile-basic>
             </mat-grid-tile>
             }

@@ -14,7 +14,7 @@ import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/map/constan
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
-import { currentMode } from '@app/data-structure/editViewSelectedMode';
+import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { HttpClientService } from '@app/services/httpclient.service';
@@ -47,7 +47,7 @@ export class EditPageComponent implements OnInit {
     // for drag and drop
     selectedTileType: string = '';
     selectedItem: string = '';
-    selectedMode: currentMode = currentMode.NOTSELECTED;
+    selectedMode: CurrentMode = CurrentMode.NotSelected;
     // game type and map size
     gameType: string;
     mapSize: number;
@@ -112,13 +112,13 @@ export class EditPageComponent implements OnInit {
     changeSelectedTile(tileType: string): void {
         this.selectedItem = '';
         this.selectedTileType = tileType;
-        this.selectedMode = currentMode.TILETOOL;
+        this.selectedMode = CurrentMode.TileTool;
     }
 
     changeSelectedItem(itemType: string): void {
         this.selectedItem = itemType;
         this.selectedTileType = TileTypes.BASIC;
-        this.selectedMode = currentMode.ITEMTOOL;
+        this.selectedMode = CurrentMode.ItemTool;
     }
 
     createGameJSON(): GameJson {
