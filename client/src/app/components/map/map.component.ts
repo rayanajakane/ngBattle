@@ -19,7 +19,6 @@ export class MapComponent implements OnInit {
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
     @Input() selectedMode: CurrentMode;
-
     @Input() tiles: TileJson[];
 
     isMouseDown = false;
@@ -33,7 +32,7 @@ export class MapComponent implements OnInit {
     draggedFromIndex: number = -1;
 
     // TODO: Check in tiles how many random items and how many starting points
-    // there are to initialize setMultipleItemCounter
+    // are already present before to initialize setMultipleItemCounter
     ngOnInit(): void {
         this.dragDropService.setMultipleItemCounter(this.mapSize);
     }

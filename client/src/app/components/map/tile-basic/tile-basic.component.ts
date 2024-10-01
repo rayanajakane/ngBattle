@@ -1,7 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
-import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,
@@ -37,30 +37,10 @@ export class TileBasicComponent implements OnChanges {
     }
 
     setTileImage() {
-        switch (this.tileType) {
-            case TileTypes.WALL:
-                this.imageUrl = './../../../assets/WALL.jpg';
-                break;
-
-            case TileTypes.WATER:
-                this.imageUrl = './../../../assets/WATER.jpg';
-                break;
-
-            case TileTypes.ICE:
-                this.imageUrl = './../../../assets/ICE.jpg';
-                break;
-
-            case TileTypes.DOOROPEN:
-                this.imageUrl = './../../../assets/DOOR_OPEN.jpg';
-                break;
-
-            case TileTypes.DOORCLOSED:
-                this.imageUrl = './../../../assets/DOOR_CLOSED.jpg';
-                break;
-
-            default:
-                this.imageUrl = './../../../assets/GROUND.jpg';
-                break;
+        if (this.tileType) {
+            this.imageUrl = `./../../../assets/${this.tileType}.jpg`;
+        } else {
+            this.imageUrl = './../../../assets/ground.jpg';
         }
     }
 }
