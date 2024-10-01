@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-components/admin-item/admin-item.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
@@ -115,5 +115,13 @@ describe('AdminPageComponent', () => {
         component.loadGames();
 
         expect(component.games).toEqual(mockGames);
+    });
+
+    it('should navigate to /edit with gameId as a query parameter', () => {
+        const routerSpy = spyOn(TestBed.inject(Router), 'navigate');
+
+        component.editGame('1');
+
+        expect(routerSpy).toHaveBeenCalledWith(['/edit'], { queryParams: { gameId: '1' } });
     });
 });
