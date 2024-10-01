@@ -43,14 +43,16 @@ describe('ToolbarComponent', () => {
 
     it('should render the correct number of app-tile-basic components', () => {
         fixture.detectChanges();
+        const EXPECTED_RENDERED_TILES = 4;
         const tileBasicElements = fixture.debugElement.queryAll(By.css('app-tile-basic'));
-        expect(tileBasicElements.length).toBe(4);
+        expect(tileBasicElements.length).toBe(EXPECTED_RENDERED_TILES);
     });
 
     it('should render the correct number of mat-grid-tile elements', () => {
         fixture.detectChanges();
+        const EXPECTED_RENDERED_TILES = 4;
         const itemElements = fixture.debugElement.queryAll(By.css('mat-grid-tile'));
-        expect(itemElements.length).toBe(4);
+        expect(itemElements.length).toBe(EXPECTED_RENDERED_TILES);
     });
 
     it('should call selectTileType with correct argument on click for each mat-grid-tile', async () => {

@@ -43,7 +43,7 @@ describe('MapService', () => {
     });
 
     it('createGrid should create a tileGrid with a size equivalent to the square of the size given', () => {
-        const randomMapSize = Math.floor(Math.random() * DEFAULT_MAP_SIZE);
+        const randomMapSize = Math.floor(Math.random() * DEFAULT_MAP_SIZE) + 1;
         const tiles = service.createGrid(randomMapSize);
         expect(tiles.length).toBe(randomMapSize * randomMapSize);
         expect(randomTileIsBasic(tiles, randomMapSize * randomMapSize)).toBeTrue();

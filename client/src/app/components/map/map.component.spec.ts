@@ -68,7 +68,7 @@ describe('MapComponent', () => {
         expect(component.tiles[randomIndex].tileType).toBe(TileTypes.BASIC);
     });
 
-    it('deleteItem should replace a tile by a basic tile', () => {
+    it('deleteItem should remove the item', () => {
         component.ngOnInit();
         const possibleItemTypes = ['AA1', 'AA2', 'AC1', 'AC2', 'AF1', 'AF2', 'drapeauA', 'drapeauB'];
         const itemType = possibleItemTypes[Math.floor(Math.random() * possibleItemTypes.length)];
