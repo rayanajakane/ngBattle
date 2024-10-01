@@ -37,7 +37,6 @@ export class MapComponent implements OnInit {
 
     ngOnInit(): void {
         if (!this.tiles) {
-            // console.log(this.mapSize);
             this.tiles = this.mapService.createGrid(this.mapSize);
         }
         this.oldTiles = JSON.parse(JSON.stringify(this.tiles)); // Deep copy
@@ -46,6 +45,7 @@ export class MapComponent implements OnInit {
 
     resetGridToBasic() {
         this.tiles = JSON.parse(JSON.stringify(this.oldTiles)); // Deep copy
+        this.dragDropService.setMultipleItemCounter(this.mapSize);
     }
 
     /**
@@ -72,7 +72,7 @@ export class MapComponent implements OnInit {
      *
      * This method performs the following actions:
      * - Checks if the tile is of type WALL, DOORCLOSED, DOOROPEN, or if there is no dragged tile. If any of these conditions are met, the method returns early.
-     * - If the item type is 'point-depart' and the current item is not 'point-depart', it decreases the counter for starting points.
+     * - If the item type is 'startingPoint' and the current item is not 'startingPoint', it decreases the counter for starting points.
      * - If the item type is 'item-aleatoire' and the current item is not 'item-aleatoire', it decreases the counter for random items.
      * - Sets the item type for the tile at the specified index.
      * - Resets the dragged object in the dragDropService.
@@ -83,13 +83,13 @@ export class MapComponent implements OnInit {
             this.tiles[index].tileType === TileTypes.DOORCLOSED ||
             this.tiles[index].tileType === TileTypes.DOOROPEN ||
             this.dragDropService.draggedTile === '' ||
-            (itemType === 'point-depart' && this.dragDropService.startingPointNumberCounter === 0) ||
+            (itemType === 'startingPoint' && this.dragDropService.startingPointNumberCounter === 0) ||
             (itemType === 'item-aleatoire' && this.dragDropService.randomItemCounter === 0)
         ) {
             return;
         }
         // decerease counter when starting points or random items are added
-        if (itemType === 'point-depart' && !(this.tiles[index].item === 'point-depart')) {
+        if (itemType === 'startingPoint' && !(this.tiles[index].item === 'startingPoint')) {
             this.dragDropService.reduceNumberStartingPoints();
         }
         if (itemType === 'item-aleatoire' && !(this.tiles[index].item === 'item-aleatoire')) {
@@ -100,7 +100,7 @@ export class MapComponent implements OnInit {
     }
 
     deleteItem(index: number) {
-        if (this.tiles[index].item === 'point-depart') {
+        if (this.tiles[index].item === 'startingPoint') {
             this.dragDropService.incrementNumberStartingPoints();
         } else if (this.tiles[index].item === 'item-aleatoire') {
             this.dragDropService.incrementNumberRandomItem();
@@ -245,7 +245,7 @@ export class MapComponent implements OnInit {
             if (this.isMouseDown && this.isLeftClick) {
                 this.placeTile(index);
             } else if (this.isMouseDown && !this.isLeftClick) {
-                this.delete(index);
+                this.deleteTile(index);
             }
         }
     }
