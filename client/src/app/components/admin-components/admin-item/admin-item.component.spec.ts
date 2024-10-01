@@ -4,6 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
+import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
+import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { of } from 'rxjs';
 import { AdminItemComponent } from './admin-item.component';
@@ -12,8 +14,8 @@ describe('AdminItemComponent', () => {
     let component: AdminItemComponent;
     let fixture: ComponentFixture<AdminItemComponent>;
     let httpClientService: jasmine.SpyObj<HttpClientService>;
-    // let dialog: jasmine.SpyObj<MatDialog>;
-    // let snackbar: jasmine.SpyObj<MatSnackBar>;
+    let dialog: jasmine.SpyObj<MatDialog>;
+    let snackbar: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
         const httpClientSpy = jasmine.createSpyObj('HttpClientService', ['changeVisibility', 'getGame', 'deleteGame']);
@@ -35,8 +37,8 @@ describe('AdminItemComponent', () => {
         fixture = TestBed.createComponent(AdminItemComponent);
         component = fixture.componentInstance;
         httpClientService = TestBed.inject(HttpClientService) as jasmine.SpyObj<HttpClientService>;
-        // dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
-        // snackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+        dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
+        snackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
 
         component.game = {
             id: '1',
@@ -69,38 +71,46 @@ describe('AdminItemComponent', () => {
         expect(component.game.isVisible).toBeFalse();
     });
 
-    // it('should delete game and show snackbar when game does not exist', () => {
-    //     const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
-    //     dialog.open.and.returnValue(dialogRefSpy);
-    //     httpClientService.getGame.and.returnValue(of(null as unknown as GameJson));
-    //     httpClientService.deleteGame.and.returnValue(of({}));
+    it('should delete game and show snackbar when game does not exist', async () => {
+        const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
+        dialog.open.and.returnValue(dialogRefSpy);
+        httpClientService.getGame.and.returnValue(Promise.resolve(null as unknown as GameJson));
+        httpClientService.deleteGame.and.returnValue(of({}));
 
-    //     component.deleteGame();
+        component.deleteGame();
 
-    //     expect(dialog.open).toHaveBeenCalledWith(ConfirmDeletionDialogComponent);
-    //     expect(httpClientService.getGame).toHaveBeenCalledWith('1');
-    //     expect(snackbar.open).toHaveBeenCalledWith("Le jeu n'existe pas", 'Fermer', {
-    //         duration: 2000,
-    //         horizontalPosition: 'right',
-    //         verticalPosition: 'top',
-    //     });
-    // });
+        expect(dialog.open).toHaveBeenCalledWith(ConfirmDeletionDialogComponent);
+        await fixture.whenStable();
+        expect(httpClientService.getGame).toHaveBeenCalledWith('1');
+        expect(snackbar.open).toHaveBeenCalledWith("Le jeu n'existe pas", 'Fermer', {
+            duration: 2000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+        });
+    });
 
-    // it('should delete game and show snackbar when game exists', () => {
-    //     const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
-    //     dialog.open.and.returnValue(dialogRefSpy);
-    //     httpClientService.getGame.and.returnValue(of(component.game));
-    //     httpClientService.deleteGame.and.returnValue(of({}));
+    it('should delete game and show snackbar when game exists', async () => {
+        const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
+        dialog.open.and.returnValue(dialogRefSpy);
+        httpClientService.getGame.and.returnValue(Promise.resolve(component.game));
+        httpClientService.deleteGame.and.returnValue(of({}));
 
-    //     component.deleteGame();
+        component.deleteGame();
 
-    //     expect(dialog.open).toHaveBeenCalledWith(ConfirmDeletionDialogComponent);
-    //     expect(httpClientService.getGame).toHaveBeenCalledWith('1');
-    //     expect(httpClientService.deleteGame).toHaveBeenCalledWith('1');
-    //     expect(snackbar.open).toHaveBeenCalledWith('Le jeu a été supprimé', 'Fermer', {
-    //         duration: 2000,
-    //         horizontalPosition: 'right',
-    //         verticalPosition: 'top',
-    //     });
-    // });
+        expect(dialog.open).toHaveBeenCalledWith(ConfirmDeletionDialogComponent);
+        await fixture.whenStable();
+        expect(httpClientService.getGame).toHaveBeenCalledWith('1');
+        expect(httpClientService.deleteGame).toHaveBeenCalledWith('1');
+        expect(snackbar.open).toHaveBeenCalledWith('Le jeu a été supprimé', 'Fermer', {
+            duration: 2000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+        });
+    });
+
+    it('should emit editGameEvent when editGame is called', () => {
+        spyOn(component.editGameEvent, 'emit');
+        component.editGame();
+        expect(component.editGameEvent.emit).toHaveBeenCalledWith('1');
+    });
 });
