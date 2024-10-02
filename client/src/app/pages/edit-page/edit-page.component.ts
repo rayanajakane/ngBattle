@@ -50,7 +50,7 @@ export class EditPageComponent implements OnInit {
     selectedItem: string = '';
     selectedMode: CurrentMode = CurrentMode.NotSelected;
     game: GameJson;
-    mapSize: number = DEFAULT_MAP_SIZE;
+    mapSize: number;
     mapService = inject(MapService);
     idService = inject(IDGenerationService);
 
@@ -66,10 +66,16 @@ export class EditPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.initEditView(this.route.snapshot.queryParams['gameId']).then(() => this.afterInitEditView());
+        this.setGame(this.route.snapshot.queryParams['gameId']).then(() => this.configureGame());
     }
 
-    afterInitEditView() {
+    async setGame(gameId: string) {
+        if (!(this.game = await this.httpService.getGame(gameId))) {
+            this.game = this.createGameJSON();
+        }
+    }
+
+    configureGame() {
         if (this.game.map.length === 0) {
             this.game.gameType = this.selectGameType(this.route.snapshot.queryParams['gameType']);
             this.game.mapSize = this.selectMapSize(this.route.snapshot.queryParams['mapSize']);
@@ -77,12 +83,6 @@ export class EditPageComponent implements OnInit {
         }
         this.mapSize = parseInt(this.game.mapSize, 10);
         this.gameCreated = true;
-    }
-
-    async initEditView(gameId: string) {
-        if (!(this.game = await this.httpService.getGame(gameId))) {
-            this.game = this.createGameJSON();
-        }
     }
 
     selectGameType(gameType: string): string {
@@ -101,7 +101,7 @@ export class EditPageComponent implements OnInit {
 
     resetGame() {
         this.gameCreated = false;
-        this.initEditView(this.game.id).then(() => this.afterInitEditView());
+        this.setGame(this.game.id).then(() => this.configureGame());
     }
 
     openDialog(): void {
@@ -167,14 +167,14 @@ export class EditPageComponent implements OnInit {
         }
     }
 
-    private handleError(error: HttpErrorResponse) {
+    private handleError(HttpError: HttpErrorResponse) {
         let errorMessage = 'An unexpected error occurred';
 
         // Extract the error message from 'errors' array or 'message' property
-        if (error.error.errors && error.error.errors.length > 0) {
-            errorMessage = error.error.errors.join(', ');
-        } else if (error.error.message) {
-            errorMessage = error.error.message;
+        if (HttpError.error.errors && HttpError.error.errors.length > 0) {
+            errorMessage = HttpError.error.errors.join(', ');
+        } else if (HttpError.error.message) {
+            errorMessage = HttpError.error.message;
         }
 
         // Display error in a snackbar
