@@ -26,8 +26,15 @@ describe('EditPageComponent', () => {
         lastModified: '',
     } as GameJson;
 
+    // const mockRouter = {
+    //     navigate: jasmine.createSpy('navigate'),
+    // };
+
     const mockHttpClientService = {
         getGame: jasmine.createSpy('getGame'),
+        gameExists: jasmine.createSpy('gameExists'),
+        sendGame: jasmine.createSpy('sendGame'),
+        updateGame: jasmine.createSpy('updateGame'),
     };
 
     const mapServiceSpy = {
@@ -49,6 +56,7 @@ describe('EditPageComponent', () => {
                 provideHttpClient(),
                 provideHttpClientTesting(),
                 provideRouter([]),
+                // { provide: Router, useValue: mockRouter },
                 { provide: IDGenerationService, useValue: mockIdGenerationService },
                 { provide: MapService, useValue: mapServiceSpy },
                 { provide: HttpClientService, useValue: mockHttpClientService },
@@ -88,6 +96,18 @@ describe('EditPageComponent', () => {
         };
 
         mockHttpClientService.getGame.and.returnValue(mockGameJson);
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve());
+        mockHttpClientService.sendGame.and.returnValue({
+            subscribe: ({ next }: { next: Function }) => {
+                next();
+            },
+        });
+        mockHttpClientService.updateGame.and.returnValue({
+            subscribe: ({ next }: { next: Function }) => {
+                next();
+            },
+        });
+
         fixture = TestBed.createComponent(EditPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -174,12 +194,6 @@ describe('EditPageComponent', () => {
         expect(configureGameSpy).toHaveBeenCalled();
     });
 
-    // it('openDialog should call dialog.open', () => {
-    //     const dialogSpy = spyOn(component.dialog, 'open');
-    //     component.openDialog();
-    //     expect(dialogSpy).toHaveBeenCalled();
-    // });
-
     it('changeSelectedTile should set selectedTileType and selectedMode', () => {
         component.selectedItem = 'test';
         component.selectedTileType = '';
@@ -201,5 +215,20 @@ describe('EditPageComponent', () => {
     it('createGameJSON should return a GameJson object', () => {
         const game = component.createGameJSON();
         expect(game).toEqual(mockCreateGameReturn);
+    });
+
+    it('saveGame should call updateGame if game exists', async () => {
+        component.game = mockGameJson;
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve(true));
+        await component.saveGame();
+        expect(mockHttpClientService.gameExists).toHaveBeenCalled();
+        expect(mockHttpClientService.updateGame).toHaveBeenCalled();
+    });
+
+    it('saveGame should call sendGame if game does not exists', async () => {
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve(false));
+        await component.saveGame();
+        console.log(component.game);
+        expect(mockHttpClientService.sendGame).toHaveBeenCalled();
     });
 });
