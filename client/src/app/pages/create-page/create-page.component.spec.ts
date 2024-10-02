@@ -1,7 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CreatePageComponent } from './create-page.component';
-import { provideRouter, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { CreatePageComponent } from './create-page.component';
 
 describe('CreatePageComponent', () => {
     let component: CreatePageComponent;
@@ -26,6 +26,7 @@ describe('CreatePageComponent', () => {
     });
 
     it('submitChoice should change the location', () => {
+        // TODO: Check if this is a acceptable test
         const location: Location = TestBed.inject(Location);
 
         spyOn(router, 'navigate').and.callFake(async (path: string[]) => {

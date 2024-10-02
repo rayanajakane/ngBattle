@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { GameJson } from '@app/data-structure/game-structure';
 import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 @Injectable({
     providedIn: 'root',
 })
@@ -27,10 +26,12 @@ export class HttpClientService {
         return await firstValueFrom(this.httpService.get<GameJson>(`${this.baseUrl}/game/get/` + id));
     }
 
-    getAllGames() {
-        return this.httpService
-            .get<GameJson[]>(`${this.baseUrl}/game/getAll/`)
-            .pipe(map((games: GameJson[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime())));
+    async getAllGames(): Promise<GameJson[]> {
+        return await firstValueFrom(
+            this.httpService
+                .get<GameJson[]>(`${this.baseUrl}/game/getAll/`)
+                .pipe(map((games: GameJson[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()))),
+        );
     }
 
     deleteGame(id: string) {

@@ -1,28 +1,28 @@
 <div class="create-game-page">
-    <h1>Créer un jeu</h1>
+    <h1 class="medievalsharp-regular">Créer un jeu</h1>
 
     <form #gameForm="ngForm" (ngSubmit)="submitChoice()" novalidate>
         <div>
-            <h3>Choisir le mode de jeu</h3>
+            <h3 class="medievalsharp-regular">Choisir le mode de jeu</h3>
             <mat-radio-group aria-label="Sélectionner le mode de jeu" [(ngModel)]="gameType" name="gameMode" required>
                 <span
-                    ><mat-radio-button value="classic">Classique</mat-radio-button>
-                    <mat-radio-button value="ctf">Capturer le drapeau</mat-radio-button>
-                </span>
-            </mat-radio-group>
-        </div>
-
-        <div>
-            <h3>Choisir la taille de la carte</h3>
-            <mat-radio-group aria-label="Sélectionner la taille de la carte" [(ngModel)]="mapSize" name="sizeMap" required>
-                <span
-                    ><mat-radio-button value="small">Petit</mat-radio-button>
-                    <mat-radio-button value="medium">Moyen</mat-radio-button>
-                    <mat-radio-button value="large">Grand</mat-radio-button></span
+                    ><mat-radio-button value="classic" class="medievalsharp-regular">Classique</mat-radio-button>
+                    <mat-radio-button value="captureTheFlag" class="medievalsharp-regular">Capturer le drapeau</mat-radio-button></span
                 >
             </mat-radio-group>
         </div>
 
-        <button mat-fab extended color="primary" type="submit" [disabled]="gameForm.invalid">Continuer</button>
+        <div>
+            <h3 class="medievalsharp-regular">Choisir la taille de la carte</h3>
+            <mat-radio-group aria-label="Sélectionner la taille de la carte" [(ngModel)]="mapSize" name="sizeMap" required>
+                <span
+                    ><mat-radio-button value="small" class="medievalsharp-regular">Petit</mat-radio-button>
+                    <mat-radio-button value="normal" class="medievalsharp-regular">Moyen</mat-radio-button>
+                    <mat-radio-button value="large" class="medievalsharp-regular">Grand</mat-radio-button></span
+                >
+            </mat-radio-group>
+        </div>
+
+        <button mat-fab extended color="primary" type="submit" [disabled]="gameForm.invalid" class="medievalsharp-regular">Continuer</button>
     </form>
 </div>

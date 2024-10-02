@@ -22,8 +22,8 @@ export class AdminPageComponent implements OnInit {
         private router: Router,
     ) {}
 
-    ngOnInit() {
-        this.loadGames();
+    async ngOnInit() {
+        this.games = await this.http.getAllGames();
     }
 
     loadGames() {
