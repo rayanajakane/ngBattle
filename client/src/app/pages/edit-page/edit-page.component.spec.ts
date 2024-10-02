@@ -3,11 +3,13 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
+import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
+import { of } from 'rxjs';
 import { EditPageComponent } from './edit-page.component';
 
 describe('EditPageComponent', () => {
@@ -201,5 +203,39 @@ describe('EditPageComponent', () => {
     it('createGameJSON should return a GameJson object', () => {
         const game = component.createGameJSON();
         expect(game).toEqual(mockCreateGameReturn);
+    });
+
+    it('openDialog should call dialog.open with correct data', () => {
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(null) });
+        mockMatDialog.open.and.returnValue(dialogRefSpyObj);
+
+        component.game = mockGameJson;
+        component.openDialog();
+
+        expect(mockMatDialog.open).toHaveBeenCalledWith(EditHeaderDialogComponent, {
+            data: { gameNameInput: component.game.gameName, gameDescriptionInput: component.game.gameDescription },
+        });
+    });
+
+    it('openDialog should update gameName and gameDescription when dialog is closed with result', () => {
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of({ gameNameInput: 'New Name', gameDescriptionInput: 'New Description' }) });
+        mockMatDialog.open.and.returnValue(dialogRefSpyObj);
+
+        component.game = mockGameJson;
+        component.openDialog();
+
+        expect(component.game.gameName).toBe('New Name');
+        expect(component.game.gameDescription).toBe('New Description');
+    });
+
+    it('openDialog should not update gameName and gameDescription when dialog is closed without result', () => {
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(null) });
+        mockMatDialog.open.and.returnValue(dialogRefSpyObj);
+
+        component.game = mockGameJson;
+        component.openDialog();
+
+        expect(component.game.gameName).toBe(mockGameJson.gameName);
+        expect(component.game.gameDescription).toBe(mockGameJson.gameDescription);
     });
 });
