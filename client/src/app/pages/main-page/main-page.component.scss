@@ -8,11 +8,11 @@
     background-attachment: fixed;
     min-height: 100vh;
 }
- .logo-ng-battle {
+.logo-ng-battle {
     height: auto;
     width: 200px;
     border-radius: 20px;
- }
+}
 
 .main-container {
     min-height: 100vh;
@@ -43,9 +43,8 @@
     background-color: rgb(62, 87, 103);
 }
 
-
-
-.team-name, .footer-item p {
+.team-name,
+.footer-item p {
     margin: 0.25em 0;
     text-align: center;
     font-family: 'MedievalSharp', sans-serif;
@@ -56,7 +55,7 @@
     text-align: center;
     font-family: 'MedievalSharp', sans-serif;
     color: white;
-    margin:0px;
+    margin: 0px;
     height: 70px;
 }
 
@@ -72,6 +71,10 @@ span {
     color: white;
 }
 
-button:hover {
-    transform: scale(1.08);
+button {
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: scale(1.08);
+    }
 }
