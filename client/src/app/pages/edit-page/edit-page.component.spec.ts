@@ -1,7 +1,8 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
@@ -237,5 +238,78 @@ describe('EditPageComponent', () => {
 
         expect(component.game.gameName).toBe(mockGameJson.gameName);
         expect(component.game.gameDescription).toBe(mockGameJson.gameDescription);
+    });
+});
+
+describe('EditPageComponent handleError', () => {
+    let component: EditPageComponent;
+    let fixture: ComponentFixture<EditPageComponent>;
+    let mockSnackBar: MatSnackBar;
+
+    beforeEach(async () => {
+        mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        await TestBed.configureTestingModule({
+            imports: [EditPageComponent],
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                provideRouter([]),
+                { provide: IDGenerationService, useValue: IDGenerationService },
+                { provide: MapService, useValue: MapService },
+                { provide: HttpClientService, useValue: HttpClientService },
+                { provide: MatDialog, useValue: MatDialog },
+                { provide: MatSnackBar, useValue: mockSnackBar },
+            ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(EditPageComponent);
+        component = fixture.componentInstance;
+    });
+
+    it('should display many error messages', () => {
+        const httpError = {
+            error: {
+                errors: ['Test error 1', 'Test error 2'],
+            },
+        } as HttpErrorResponse;
+
+        component['handleError'](httpError);
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith('Test error 1, Test error 2', 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+        });
+    });
+
+    it('should display one error message', () => {
+        const httpError = {
+            error: {
+                message: 'An error occurred',
+            },
+        } as HttpErrorResponse;
+
+        component['handleError'](httpError);
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith('An error occurred', 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+        });
+    });
+
+    it('should display default error message when no specific error is provided', () => {
+        const httpError = {
+            error: {},
+        } as HttpErrorResponse;
+
+        component['handleError'](httpError);
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith('An unexpected error occurred', 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+        });
     });
 });
