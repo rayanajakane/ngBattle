@@ -1,13 +1,16 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
+import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
+import { of } from 'rxjs';
 import { EditPageComponent } from './edit-page.component';
 
 describe('EditPageComponent', () => {
@@ -230,5 +233,112 @@ describe('EditPageComponent', () => {
         await component.saveGame();
         console.log(component.game);
         expect(mockHttpClientService.sendGame).toHaveBeenCalled();
+    });
+
+    it('openDialog should call dialog.open with correct data', () => {
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(null) });
+        mockMatDialog.open.and.returnValue(dialogRefSpyObj);
+
+        component.game = mockGameJson;
+        component.openDialog();
+
+        expect(mockMatDialog.open).toHaveBeenCalledWith(EditHeaderDialogComponent, {
+            data: { gameNameInput: component.game.gameName, gameDescriptionInput: component.game.gameDescription },
+        });
+    });
+
+    it('openDialog should update gameName and gameDescription when dialog is closed with result', () => {
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of({ gameNameInput: 'New Name', gameDescriptionInput: 'New Description' }) });
+        mockMatDialog.open.and.returnValue(dialogRefSpyObj);
+
+        component.game = mockGameJson;
+        component.openDialog();
+
+        expect(component.game.gameName).toBe('New Name');
+        expect(component.game.gameDescription).toBe('New Description');
+    });
+
+    it('openDialog should not update gameName and gameDescription when dialog is closed without result', () => {
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(null) });
+        mockMatDialog.open.and.returnValue(dialogRefSpyObj);
+
+        component.game = mockGameJson;
+        component.openDialog();
+
+        expect(component.game.gameName).toBe(mockGameJson.gameName);
+        expect(component.game.gameDescription).toBe(mockGameJson.gameDescription);
+    });
+});
+
+describe('EditPageComponent handleError', () => {
+    let component: EditPageComponent;
+    let fixture: ComponentFixture<EditPageComponent>;
+    let mockSnackBar: MatSnackBar;
+
+    beforeEach(async () => {
+        mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        await TestBed.configureTestingModule({
+            imports: [EditPageComponent],
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                provideRouter([]),
+                { provide: IDGenerationService, useValue: IDGenerationService },
+                { provide: MapService, useValue: MapService },
+                { provide: HttpClientService, useValue: HttpClientService },
+                { provide: MatDialog, useValue: MatDialog },
+                { provide: MatSnackBar, useValue: mockSnackBar },
+            ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(EditPageComponent);
+        component = fixture.componentInstance;
+    });
+
+    it('should display many error messages', () => {
+        const httpError = {
+            error: {
+                errors: ['Test error 1', 'Test error 2'],
+            },
+        } as HttpErrorResponse;
+
+        component['handleError'](httpError);
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith('Test error 1, Test error 2', 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+        });
+    });
+
+    it('should display one error message', () => {
+        const httpError = {
+            error: {
+                message: 'An error occurred',
+            },
+        } as HttpErrorResponse;
+
+        component['handleError'](httpError);
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith('An error occurred', 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+        });
+    });
+
+    it('should display default error message when no specific error is provided', () => {
+        const httpError = {
+            error: {},
+        } as HttpErrorResponse;
+
+        component['handleError'](httpError);
+
+        expect(mockSnackBar.open).toHaveBeenCalledWith('An unexpected error occurred', 'Fermer', {
+            duration: undefined,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+        });
     });
 });
