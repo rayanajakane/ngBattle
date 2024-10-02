@@ -14,6 +14,17 @@ describe('EditPageComponent', () => {
     let component: EditPageComponent;
     let fixture: ComponentFixture<EditPageComponent>;
     let mockGameJson: GameJson;
+    const mockCreateGameReturn = {
+        id: '456',
+        gameName: 'Sans titre',
+        gameDescription: 'Il était une fois...',
+        mapSize: '10',
+        map: [],
+        gameType: '',
+        isVisible: true,
+        creationDate: '',
+        lastModified: '',
+    } as GameJson;
 
     const mockHttpClientService = {
         getGame: jasmine.createSpy('getGame'),
@@ -27,6 +38,10 @@ describe('EditPageComponent', () => {
         open: jasmine.createSpy('open'),
     };
 
+    const mockIdGenerationService = {
+        generateID: jasmine.createSpy('generateID').and.returnValue('456'),
+    };
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [EditPageComponent],
@@ -34,7 +49,7 @@ describe('EditPageComponent', () => {
                 provideHttpClient(),
                 provideHttpClientTesting(),
                 provideRouter([]),
-                IDGenerationService,
+                { provide: IDGenerationService, useValue: mockIdGenerationService },
                 { provide: MapService, useValue: mapServiceSpy },
                 { provide: HttpClientService, useValue: mockHttpClientService },
                 { provide: MatDialog, useValue: mockMatDialog },
@@ -172,5 +187,19 @@ describe('EditPageComponent', () => {
         expect(component.selectedItem).toBe('');
         expect(component.selectedTileType).toBe('test');
         expect(component.selectedMode).toBe(CurrentMode.TileTool);
+    });
+
+    it('changeSelectedItem should set selectedItem and selectedMode', () => {
+        component.selectedItem = '';
+        component.selectedTileType = 'test';
+        component.changeSelectedItem('test');
+        expect(component.selectedItem).toBe('test');
+        expect(component.selectedTileType).toBe('');
+        expect(component.selectedMode).toBe(CurrentMode.ItemTool);
+    });
+
+    it('createGameJSON should return a GameJson object', () => {
+        const game = component.createGameJSON();
+        expect(game).toEqual(mockCreateGameReturn);
     });
 });
