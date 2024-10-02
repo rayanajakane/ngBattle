@@ -12,7 +12,7 @@ import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
 import { of } from 'rxjs';
 import { EditPageComponent } from './edit-page.component';
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 describe('EditPageComponent', () => {
     let component: EditPageComponent;
     let fixture: ComponentFixture<EditPageComponent>;
@@ -30,9 +30,6 @@ describe('EditPageComponent', () => {
     } as GameJson;
 
     const mockError = new HttpErrorResponse({ error: 'Update error' });
-    // const mockRouter = {
-    //     navigate: jasmine.createSpy('navigate'),
-    // };
 
     const mockHttpClientService = {
         getGame: jasmine.createSpy('getGame'),
@@ -102,12 +99,12 @@ describe('EditPageComponent', () => {
         mockHttpClientService.getGame.and.returnValue(mockGameJson);
         mockHttpClientService.gameExists.and.returnValue(Promise.resolve());
         mockHttpClientService.sendGame.and.returnValue({
-            subscribe: ({ next }: { next: Function }) => {
+            subscribe: ({ next }: { next: () => void }) => {
                 next();
             },
         });
         mockHttpClientService.updateGame.and.returnValue({
-            subscribe: ({ next }: { next: Function }) => {
+            subscribe: ({ next }: { next: () => void }) => {
                 next();
             },
         });
@@ -152,9 +149,10 @@ describe('EditPageComponent', () => {
     });
 
     it('configureGame should set mapSize', () => {
+        const EXPECTED_SIZE = 10;
         component.game = mockGameJson;
         component.configureGame();
-        expect(component.mapSize).toBe(10);
+        expect(component.mapSize).toBe(EXPECTED_SIZE);
     });
 
     it('selectGameType should return ctf', () => {
@@ -256,6 +254,7 @@ describe('EditPageComponent', () => {
         const handleErrorSpy = spyOn(component as any, 'handleError');
 
         mockHttpClientService.updateGame.and.returnValue({
+            // eslint-disable-next-line
             subscribe: ({ error }: { error: Function }) => {
                 error(mockError);
             },
@@ -269,6 +268,7 @@ describe('EditPageComponent', () => {
         const handleErrorSpy = spyOn(component as any, 'handleError');
 
         mockHttpClientService.sendGame.and.returnValue({
+            // eslint-disable-next-line
             subscribe: ({ error }: { error: Function }) => {
                 error(mockError);
             },

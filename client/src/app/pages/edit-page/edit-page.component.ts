@@ -167,14 +167,14 @@ export class EditPageComponent implements OnInit {
         }
     }
 
-    private handleError(HttpError: HttpErrorResponse) {
+    private handleError(httpError: HttpErrorResponse) {
         let errorMessage = 'An unexpected error occurred';
 
         // Extract the error message from 'errors' array or 'message' property
-        if (HttpError.error.errors && HttpError.error.errors.length > 0) {
-            errorMessage = HttpError.error.errors.join(', ');
-        } else if (HttpError.error.message) {
-            errorMessage = HttpError.error.message;
+        if (httpError.error.errors && httpError.error.errors.length > 0) {
+            errorMessage = httpError.error.errors.join(', ');
+        } else if (httpError.error.message) {
+            errorMessage = httpError.error.message;
         }
 
         // Display error in a snackbar
