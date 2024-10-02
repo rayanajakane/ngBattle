@@ -46,6 +46,6 @@ export class HttpClientService {
 
     changeVisibility(id: string) {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        return this.httpService.patch(`${this.baseUrl}/game/changeVisibility/` + id, { headers: { 'Content-Type': 'application/json' } });
+        return this.httpService.patch(`${this.baseUrl}/game/changeVisibility/` + id, {}, { headers: { 'Content-Type': 'application/json' } });
     }
 }
