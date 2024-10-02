@@ -29,6 +29,7 @@ describe('EditPageComponent', () => {
         lastModified: '',
     } as GameJson;
 
+    const mockError = new HttpErrorResponse({ error: 'Update error' });
     // const mockRouter = {
     //     navigate: jasmine.createSpy('navigate'),
     // };
@@ -221,7 +222,6 @@ describe('EditPageComponent', () => {
     });
 
     it('saveGame should call updateGame if game exists', async () => {
-        component.game = mockGameJson;
         mockHttpClientService.gameExists.and.returnValue(Promise.resolve(true));
         await component.saveGame();
         expect(mockHttpClientService.gameExists).toHaveBeenCalled();
@@ -231,8 +231,50 @@ describe('EditPageComponent', () => {
     it('saveGame should call sendGame if game does not exists', async () => {
         mockHttpClientService.gameExists.and.returnValue(Promise.resolve(false));
         await component.saveGame();
-        console.log(component.game);
+        expect(mockHttpClientService.gameExists).toHaveBeenCalled();
         expect(mockHttpClientService.sendGame).toHaveBeenCalled();
+    });
+
+    it('saveGame should navigate to admin page if game is saved', async () => {
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve(false));
+
+        const navigateSpy = spyOn(component['router'], 'navigate');
+        await component.saveGame();
+        expect(navigateSpy).toHaveBeenCalledWith(['/admin']);
+    });
+
+    it('saveGame should navigate to admin page if game is updated', async () => {
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve(true));
+
+        const navigateSpy = spyOn(component['router'], 'navigate');
+        await component.saveGame();
+        expect(navigateSpy).toHaveBeenCalledWith(['/admin']);
+    });
+
+    it('saveGame should call handleError if an error occurs and the game exists', async () => {
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve(true));
+        const handleErrorSpy = spyOn(component as any, 'handleError');
+
+        mockHttpClientService.updateGame.and.returnValue({
+            subscribe: ({ error }: { error: Function }) => {
+                error(mockError);
+            },
+        });
+        await component.saveGame();
+        expect(handleErrorSpy).toHaveBeenCalled();
+    });
+
+    it('saveGame should call handleError if an error occurs and the game does not exists', async () => {
+        mockHttpClientService.gameExists.and.returnValue(Promise.resolve(false));
+        const handleErrorSpy = spyOn(component as any, 'handleError');
+
+        mockHttpClientService.sendGame.and.returnValue({
+            subscribe: ({ error }: { error: Function }) => {
+                error(mockError);
+            },
+        });
+        await component.saveGame();
+        expect(handleErrorSpy).toHaveBeenCalled();
     });
 
     it('openDialog should call dialog.open with correct data', () => {
