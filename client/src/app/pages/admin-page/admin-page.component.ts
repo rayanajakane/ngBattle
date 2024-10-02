@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-components/admin-item/admin-item.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
@@ -17,9 +17,22 @@ import { HttpClientService } from '@app/services/httpclient.service';
 export class AdminPageComponent implements OnInit {
     games: GameJson[];
 
-    constructor(private http: HttpClientService) {}
+    constructor(
+        private http: HttpClientService,
+        private router: Router,
+    ) {}
 
     async ngOnInit() {
         this.games = await this.http.getAllGames();
+    }
+
+    loadGames() {
+        this.http.getAllGames().then((data: GameJson[]) => {
+            this.games = data;
+        });
+    }
+
+    editGame(gameId: string) {
+        this.router.navigate(['/edit'], { queryParams: { gameId } });
     }
 }

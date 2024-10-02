@@ -1,20 +1,37 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
+import { SNACKBAR_DURATION } from '@app/components/admin-components/admin-item/constant';
+import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
+import { MapComponent } from '@app/components/map/map.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
-
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MatCardModule, MatButtonModule, MatTooltipModule],
+    imports: [MapComponent, MatCardModule, MatButtonModule, MatTooltipModule, RouterLink],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
-export class AdminItemComponent {
+export class AdminItemComponent implements OnInit {
     @Input() game: GameJson;
-    constructor(private http: HttpClientService) {}
+    @Output() editGameEvent = new EventEmitter<string>();
+    mapSize: number;
+
+    constructor(
+        private http: HttpClientService,
+        private dialog: MatDialog,
+        private snackbar: MatSnackBar,
+        private el: ElementRef,
+    ) {}
+
+    ngOnInit() {
+        this.mapSize = parseInt(this.game.mapSize, 10);
+    }
 
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {
@@ -22,24 +39,34 @@ export class AdminItemComponent {
         });
     }
 
-    async deleteGame() {
-        if (confirm('Êtes-vous sûr de vouloir supprimer ce jeu?')) {
-            const game: GameJson = await this.http.getGame(this.game.id);
-            if (!game) {
-                alert('Le jeu a déjà été supprimé par un autre administrateur');
-                return;
-            } else {
-                this.http.deleteGame(this.game.id).subscribe(() => {
-                    alert('Le jeu a été supprimé avec succès');
+    deleteGame(): void {
+        const dialogRef = this.dialog.open(ConfirmDeletionDialogComponent);
+        dialogRef.afterClosed().subscribe((result: boolean) => {
+            if (result) {
+                this.http.getGame(this.game.id).then((game) => {
+                    if (!game) {
+                        this.snackbar.open("Le jeu n'existe pas", 'Fermer', {
+                            duration: SNACKBAR_DURATION,
+                            horizontalPosition: 'right',
+                            verticalPosition: 'top',
+                        });
+                        this.el.nativeElement.remove();
+                    } else {
+                        this.http.deleteGame(this.game.id).subscribe(() => {
+                            this.snackbar.open('Le jeu a été supprimé', 'Fermer', {
+                                duration: SNACKBAR_DURATION,
+                                horizontalPosition: 'right',
+                                verticalPosition: 'top',
+                            });
+                        });
+                        this.el.nativeElement.remove();
+                    }
                 });
-
-                const componentElement = document.querySelector('app-admin-item');
-                if (componentElement) {
-                    componentElement.remove();
-                }
             }
-        }
+        });
     }
 
-    // TODO: Add a function to unsuscribe from the streams of the component (use ngOnDestruct)
+    editGame() {
+        this.editGameEvent.emit(this.game.id);
+    }
 }

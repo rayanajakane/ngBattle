@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Routes, provideRouter } from '@angular/router';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CharacterSelectionPageComponent } from '@app/pages/character-selection-page/character-selection-page.component';

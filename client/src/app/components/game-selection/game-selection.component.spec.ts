@@ -30,6 +30,7 @@ describe('GameSelectionComponent', () => {
             map: [],
             isVisible: true,
             creationDate: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
         };
 
         fixture = TestBed.createComponent(GameSelectionComponent);

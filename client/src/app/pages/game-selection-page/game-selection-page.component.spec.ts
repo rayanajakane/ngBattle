@@ -27,6 +27,7 @@ describe('GameSelectionPageComponent', () => {
             map: [],
             isVisible: true,
             creationDate: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
         },
         {
             id: '2',
@@ -37,6 +38,7 @@ describe('GameSelectionPageComponent', () => {
             map: [],
             isVisible: false,
             creationDate: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
         },
         {
             id: '3',
@@ -47,6 +49,7 @@ describe('GameSelectionPageComponent', () => {
             map: [],
             isVisible: true,
             creationDate: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
         },
     ];
 

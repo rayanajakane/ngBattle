@@ -1,16 +1,33 @@
+@if (gameCreated) {
 <div class="edit-page-div">
-    <h1 class="game-title-edit-page">
-        {{ this.gameTitle }}
-        <button mat-mini-fab color="primary" class="edit-game-name-btn" (click)="openDialog()">
-            <mat-icon>edit</mat-icon>
-        </button>
-    </h1>
+    <div class="left-panel">
+        <h1 class="game-title-edit-page">
+            <div class="border-div">
+                {{ game.gameName }}
+                <button mat-mini-fab color="primary" class="edit-game-name-btn" (click)="openDialog()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+            </div>
+        </h1>
+        <app-sidebar class="edit-page-sidebar" (selectItemTypeEvent)="changeSelectedItem($event)"></app-sidebar>
+        <app-toolbar
+            class="edit-page-toolbar"
+            (selectTileTypeEvent)="changeSelectedTile($event)"
+            [selectedTileTypeToolbar]="selectedTileType"
+            [selectedModeToolbar]="selectedMode"
+        ></app-toolbar>
+        <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="saveGame()">Sauvegarder le Jeu !</button>
+        <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="resetGame()">Rénitialiser le Jeu !</button>
+    </div>
 
     <div class="edit-page-map">
-        <app-map [mapSize]="mapSize" [selectedTileType]="selectedTileType"></app-map>
+        <app-map
+            [mapSize]="mapSize"
+            [selectedTileType]="selectedTileType"
+            [selectedItem]="selectedItem"
+            [selectedMode]="selectedMode"
+            [tiles]="game.map"
+        ></app-map>
     </div>
-    <app-sidebar class="edit-page-sidebar"></app-sidebar>
-    <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="tempLog($event)"></app-toolbar>
-    <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="saveGame()">Save Game</button>
-    <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="resetGame()">Reset Game</button>
 </div>
+}

@@ -1,49 +1,46 @@
-import { Component, Input, OnChanges } from '@angular/core';
-
+import { CommonModule } from '@angular/common';
+import { Component, Input, OnChanges, inject } from '@angular/core';
+import { TileTypes } from '@app/data-structure/toolType';
+import { DragDropService } from '@app/services/drag-drop.service';
 @Component({
     selector: 'app-tile-basic',
     standalone: true,
-    imports: [],
+    imports: [CommonModule],
     templateUrl: './tile-basic.component.html',
     styleUrl: './tile-basic.component.scss',
 })
 export class TileBasicComponent implements OnChanges {
-    @Input() tileType: string = '';
+    @Input() tileType: string = TileTypes.BASIC;
+    @Input() isToolbarTile: boolean = false; // Differentiate between toolbar tiles and map tiles
+    @Input() itemType: string = '';
+
+    transparentImage: string = '';
     imageUrl: string = '';
+
+    dragDropService = inject(DragDropService);
+    isDropped: boolean = false;
+
     constructor() {
         this.setTileImage();
     }
 
     ngOnChanges() {
-        // Regenerate the image if the type change
         this.setTileImage();
+        this.setItemImage();
+    }
+    setItemImage() {
+        if (this.itemType) {
+            this.transparentImage = `./../../../assets/${this.itemType}_transparent.png`;
+        } else {
+            this.transparentImage = '';
+        }
     }
 
     setTileImage() {
-        switch (this.tileType) {
-            case 'wall':
-                this.imageUrl = './../../../assets/WALL.jpg';
-                break;
-
-            case 'water':
-                this.imageUrl = './../../../assets/WATER.jpg';
-                break;
-
-            case 'ice':
-                this.imageUrl = './../../../assets/ICE.jpg';
-                break;
-
-            case 'doorOpen':
-                this.imageUrl = './../../../assets/DOOR_OPEN.jpg';
-                break;
-
-            case 'doorClosed':
-                this.imageUrl = './../../../assets/DOOR_CLOSED.jpg';
-                break;
-
-            default:
-                this.imageUrl = './../../../assets/GROUND.jpg';
-                break;
+        if (this.tileType) {
+            this.imageUrl = `./../../../assets/${this.tileType}.jpg`;
+        } else {
+            this.imageUrl = './../../../assets/ground.jpg';
         }
     }
 }

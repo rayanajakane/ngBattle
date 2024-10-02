@@ -11,6 +11,10 @@ export class HttpClientService {
 
     constructor(private httpService: HttpClient) {}
 
+    async gameExists(id: string): Promise<boolean> {
+        return (await this.getGame(id)) !== null;
+    }
+
     sendGame(gameJson: GameJson) {
         gameJson.creationDate = new Date().toISOString();
         gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
@@ -43,6 +47,6 @@ export class HttpClientService {
 
     changeVisibility(id: string) {
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        return this.httpService.patch(`${this.baseUrl}/game/changeVisibility/` + id, { headers: { 'Content-Type': 'application/json' } });
+        return this.httpService.patch(`${this.baseUrl}/game/changeVisibility/` + id, {}, { headers: { 'Content-Type': 'application/json' } });
     }
 }

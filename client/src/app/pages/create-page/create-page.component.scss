@@ -4,7 +4,7 @@
     background-image: url('./../../../assets/creation-redirect-background.jpg');
     background-position: center;
     background-repeat: no-repeat;
-    background-size:contain;
+    background-size: contain;
     background-color: #5b6d0b;
     min-height: 100vh;
     width: 100%;
@@ -29,22 +29,19 @@ mat-radio-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem; 
+    margin-bottom: 2rem;
 }
 
 button {
-    margin-top: 2rem; 
+    margin-top: 2rem;
 }
 
 .mat-mdc-radio-button ~ .mat-mdc-radio-button {
     margin-left: 16px;
-  }
-  
+}
 
-
-  .submit-icon {
-    width: 10%;  
+.submit-icon {
+    width: 10%;
     height: 1%;
-    margin-right: 8px; 
-  }
-  
+    margin-right: 8px;
+}

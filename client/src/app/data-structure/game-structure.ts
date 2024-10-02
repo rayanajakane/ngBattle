@@ -1,6 +1,5 @@
-interface TileJson {
-    i: number;
-    j: number;
+export interface TileJson {
+    idx: number;
     tileType: string;
     item: string;
     hasPlayer: boolean;
