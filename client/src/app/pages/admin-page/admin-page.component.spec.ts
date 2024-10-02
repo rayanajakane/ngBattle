@@ -6,7 +6,6 @@ import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/route
 import { AdminItemComponent } from '@app/components/admin-components/admin-item/admin-item.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
-import { of } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 
 describe('AdminPageComponent', () => {
@@ -92,27 +91,27 @@ describe('AdminPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should load games on ngOnInit', () => {
-        httpClientService.getAllGames.and.returnValue(of(mockGames));
+    it('should load games on ngOnInit', async () => {
+        httpClientService.getAllGames.and.resolveTo(mockGames);
 
-        component.ngOnInit();
+        await component.ngOnInit();
 
         expect(httpClientService.getAllGames).toHaveBeenCalled();
         expect(component.games).toEqual(mockGames);
     });
 
     it('should call getAllGames when loadGames is called', () => {
-        httpClientService.getAllGames.and.returnValue(of(mockGames));
+        httpClientService.getAllGames.and.resolveTo(mockGames);
 
         component.loadGames();
 
         expect(httpClientService.getAllGames).toHaveBeenCalled();
     });
 
-    it('should set games property with the data returned from getAllGames', () => {
-        httpClientService.getAllGames.and.returnValue(of(mockGames));
+    it('should set games property with the data returned from getAllGames', async () => {
+        httpClientService.getAllGames.and.resolveTo(mockGames);
 
-        component.loadGames();
+        await component.loadGames();
 
         expect(component.games).toEqual(mockGames);
     });

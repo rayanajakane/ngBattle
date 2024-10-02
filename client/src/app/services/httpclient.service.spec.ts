@@ -71,7 +71,7 @@ describe('HttpClientService', () => {
             { id: '2', creationDate: '2023-01-02' },
         ] as GameJson[];
 
-        service.getAllGames().subscribe((games) => {
+        service.getAllGames().then((games) => {
             expect(games).toEqual(mockGames);
         });
 

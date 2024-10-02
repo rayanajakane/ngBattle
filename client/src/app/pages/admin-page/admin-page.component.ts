@@ -27,7 +27,7 @@ export class AdminPageComponent implements OnInit {
     }
 
     loadGames() {
-        this.http.getAllGames().subscribe((data: GameJson[]) => {
+        this.http.getAllGames().then((data: GameJson[]) => {
             this.games = data;
         });
     }
