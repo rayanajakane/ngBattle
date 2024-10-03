@@ -36,7 +36,7 @@ p {
     width: 18vw;
 }
 
-button:hover {
+button:hover:not(:active) {
     transform: translateY(-3px);
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 }
@@ -61,7 +61,7 @@ button {
         box-shadow $transition-duration,
         background-color $transition-duration;
 
-    &:hover {
+    &:hover:not(:active) {
         transform: scale(1.1) rotate(10deg);
         background-color: $hover-color;
         box-shadow:
@@ -93,6 +93,7 @@ button {
         transform: scale(0.9);
         background-color: $active-color;
         box-shadow: none;
+        animation: none;
     }
 
     @keyframes colorChange {
