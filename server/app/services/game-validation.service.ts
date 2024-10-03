@@ -127,7 +127,7 @@ export class GameValidationService {
         if (/\s{2,}/.test(game.gameName) || game.gameName.trim() !== game.gameName) {
             this.errors.push('Le nom ne doit pas contenir des espaces doubles ou des espaces au début/à la fin');
         }
-        if (/[^a-zA-Z0-9 ]/.test(game.gameName)) {
+        if (/[^a-zA-Z0-9 àâäéèêëîïôöùûüçÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ]/.test(game.gameName)) {
             this.errors.push('Le nom ne doit pas contenir de symboles comme / ? ! - _');
         }
     }
