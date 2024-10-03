@@ -25,6 +25,7 @@ export class MapService {
                 };
             });
     }
+
     chooseTileType(currentTileType: string, newTileType: string): string {
         if (newTileType === TileTypes.DOOR) {
             if (currentTileType === TileTypes.DOORCLOSED) {
