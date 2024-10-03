@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,7 @@ import { MapService } from '@app/services/map.service';
     imports: [MatButtonModule, FormsModule, RouterLink, CommonModule, MatRadioModule, MatIconModule],
     templateUrl: './create-page.component.html',
     styleUrl: './create-page.component.scss',
+    encapsulation: ViewEncapsulation.None,
 })
 export class CreatePageComponent {
     gameType: string;
