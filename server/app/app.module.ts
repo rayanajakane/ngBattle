@@ -6,6 +6,7 @@ import { Game, gameSchema } from './model/schema/game.schema';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
 import { MapValidationService } from './services/map-validation.service';
+import { MatchService } from './services/match.service';
 
 @Module({
     imports: [
@@ -14,6 +15,6 @@ import { MapValidationService } from './services/map-validation.service';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [GameService, GameValidationService, MapValidationService, Logger],
+    providers: [GameService, GameValidationService, MapValidationService, Logger, MatchService],
 })
 export class AppModule {}
