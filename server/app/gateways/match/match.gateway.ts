@@ -11,7 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: '*' } })
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     private server: Server;
 
@@ -30,9 +30,16 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         this.matchService.leaveAllRooms(this.server, client);
     }
 
+    @SubscribeMessage('createRoom')
+    handleCreateRoom(@MessageBody() data: { gameId: string; roomId: string; playerName: string }, @ConnectedSocket() client: Socket) {
+        console.log('createRoom', data.gameId, data.roomId, data.playerName);
+        this.matchService.createRoom(client, data.gameId, data.roomId, data.playerName);
+    }
+
     @SubscribeMessage('joinRoom')
-    handleJoinRoom(@MessageBody() data: { gameId: string; roomId: string; playerName: string }, @ConnectedSocket() client: Socket) {
-        this.matchService.joinRoom(this.server, client, data.gameId, data.roomId, data.playerName);
+    handleJoinRoom(@MessageBody() data: { roomId: string; playerName: string }, @ConnectedSocket() client: Socket) {
+        console.log('joinRoom', data.roomId, data.playerName);
+        this.matchService.joinRoom(this.server, client, data.roomId, data.playerName);
     }
 
     @SubscribeMessage('leaveRoom')

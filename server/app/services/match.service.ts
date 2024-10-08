@@ -22,14 +22,30 @@ export class MatchService {
 
     constructor(private readonly gameService: GameService) {}
 
-    async joinRoom(server: Server, client: Socket, gameId: string, roomId: string, playerName: string) {
+    async createRoom(client: Socket, gameId: string, roomId: string, playerName: string) {
+        const game = await this.gameService.get(gameId);
+        if (!game) {
+            client.emit('error', 'Game not found');
+            return;
+        }
+        const mapSize = game.mapSize;
+        const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
+        const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers };
+        this.rooms.set(roomId, room);
+
+        const player: Player = { id: client.id, name: playerName, isAdmin: true };
+        room.players.push(player);
+
+        console.log(room);
+        client.join(roomId);
+    }
+
+    async joinRoom(server: Server, client: Socket, roomId: string, playerName: string) {
         let room = this.rooms.get(roomId);
 
         if (!room) {
-            const mapSize = (await this.gameService.get(gameId)).mapSize;
-            const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
-            room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers };
-            this.rooms.set(roomId, room);
+            client.emit('error', 'Room not found');
+            return;
         }
 
         if (room.isLocked) {
@@ -37,13 +53,14 @@ export class MatchService {
             return;
         }
 
-        const isAdmin = room.players.length === 0;
-        const player: Player = { id: client.id, name: playerName, isAdmin };
+        const player: Player = { id: client.id, name: playerName, isAdmin: false };
         room.players.push(player);
 
         if (room.players.length >= room.maxPlayers) {
             room.isLocked = true;
         }
+
+        console.log(room);
 
         client.join(roomId);
         server.to(roomId).emit('updatePlayers', room.players);
@@ -61,6 +78,8 @@ export class MatchService {
         } else {
             server.to(roomId).emit('updatePlayers', room.players);
         }
+
+        console.log(room);
     }
 
     lockRoom(server: Server, client: Socket, roomId: string) {
@@ -72,6 +91,8 @@ export class MatchService {
             room.isLocked = true;
             server.to(roomId).emit('roomLocked');
         }
+
+        console.log(room);
     }
 
     unlockRoom(server: Server, client: Socket, roomId: string) {
@@ -84,6 +105,8 @@ export class MatchService {
             room.isLocked = false;
             server.to(roomId).emit('roomUnlocked');
         }
+
+        console.log(room);
     }
 
     kickPlayer(server: Server, client: Socket, roomId: string, playerId: string) {

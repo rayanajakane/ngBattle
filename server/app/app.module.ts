@@ -2,6 +2,7 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game.controller';
+import { MatchGateway } from './gateways/match/match.gateway';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
@@ -15,6 +16,6 @@ import { MatchService } from './services/match.service';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [GameService, GameValidationService, MapValidationService, Logger, MatchService],
+    providers: [GameService, GameValidationService, MapValidationService, Logger, MatchService, MatchGateway],
 })
 export class AppModule {}
