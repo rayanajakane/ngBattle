@@ -6,6 +6,7 @@ interface Player {
     id: string;
     name: string;
     isAdmin: boolean;
+    avatar: string;
 }
 
 interface Room {
@@ -19,28 +20,35 @@ interface Room {
 @Injectable()
 export class MatchService {
     private rooms: Map<string, Room> = new Map();
+    private readonly floorRandomNumber: number = 1000;
+    private readonly maxValueRandomNumber: number = 8999;
 
     constructor(private readonly gameService: GameService) {}
 
-    async createRoom(client: Socket, gameId: string, roomId: string, playerName: string) {
+    async createRoom(server: Server, client: Socket, gameId: string, playerName: string, avatar: string) {
         const game = await this.gameService.get(gameId);
         if (!game) {
             client.emit('error', 'Game not found');
             return;
         }
+
+        const roomId = this.generateMatchId();
+
         const mapSize = game.mapSize;
         const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
         const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers };
         this.rooms.set(roomId, room);
 
-        const player: Player = { id: client.id, name: playerName, isAdmin: true };
+        const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar };
         room.players.push(player);
 
         console.log(room);
         client.join(roomId);
+        client.emit('roomJoined', { roomId: roomId, playerId: client.id });
+        server.to(roomId).emit('updatePlayers', room.players);
     }
 
-    async joinRoom(server: Server, client: Socket, roomId: string, playerName: string) {
+    async joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string) {
         let room = this.rooms.get(roomId);
 
         if (!room) {
@@ -53,7 +61,7 @@ export class MatchService {
             return;
         }
 
-        const player: Player = { id: client.id, name: playerName, isAdmin: false };
+        const player: Player = { id: client.id, name: playerName, isAdmin: false, avatar };
         room.players.push(player);
 
         if (room.players.length >= room.maxPlayers) {
@@ -61,8 +69,8 @@ export class MatchService {
         }
 
         console.log(room);
-
         client.join(roomId);
+        client.emit('roomJoined', { roomId: roomId, playerId: client.id });
         server.to(roomId).emit('updatePlayers', room.players);
     }
 
@@ -80,6 +88,10 @@ export class MatchService {
         }
 
         console.log(room);
+
+        if (room.players.length === 0) {
+            this.rooms.delete(roomId);
+        }
     }
 
     lockRoom(server: Server, client: Socket, roomId: string) {
@@ -128,5 +140,13 @@ export class MatchService {
                 this.leaveRoom(server, client, roomId);
             }
         });
+    }
+
+    generateMatchId() {
+        let randomIntInRange: string = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
+        while (this.rooms.get(randomIntInRange)) {
+            randomIntInRange = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
+        }
+        return randomIntInRange;
     }
 }

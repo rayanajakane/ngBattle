@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialog
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClientService } from '@app/services/httpclient.service';
+import { JoinMatchService } from '@app/services/join-match.service';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -50,6 +51,7 @@ export class CharacterSelectionPageComponent {
         private router: Router,
         private http: HttpClientService,
         private route: ActivatedRoute,
+        private joinMatchService: JoinMatchService,
     ) {
         this.life = this.defaultAttributeValueSelected;
         this.speed = this.defaultAttributeValue;
@@ -132,7 +134,7 @@ export class CharacterSelectionPageComponent {
         if (!(await this.isGameValidToCreate())) {
             this.dialog.open(DialogDataComponent, {
                 data: {
-                    foundErrors: ["La partie n'existe pas -> VOUS ÊTES RAMMENÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
+                    foundErrors: ["La partie n'existe pas -> VOUS SEREZ REDIRIGÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
                     navigateGameSelection: true,
                 },
             });
@@ -145,6 +147,21 @@ export class CharacterSelectionPageComponent {
             });
         } else {
             // TODO: Envoi des données
+            this.joinMatchService.connect();
+            // if (!this.joinMatchService.isSocketAlive()) {
+            //     this.dialog.open(DialogDataComponent, {
+            //         data: {
+            //             foundErrors: ['Erreur de connexion au serveur'],
+            //             navigateGameSelection: false,
+            //         },
+            //     });
+            //     return;
+            // }
+            this.joinMatchService.emit('createRoom', {
+                gameId: this.route.snapshot.params.id,
+                playerName: this.characterName,
+                avatar: this.selectedAvatar?.name,
+            });
             this.router.navigate(['/waitingRoom']);
         }
     }

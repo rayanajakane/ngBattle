@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { JoinMatchService } from '@app/services/join-match.service';
 
 @Component({
     selector: 'app-waiting-page',
@@ -8,14 +9,14 @@ import { Component } from '@angular/core';
     styleUrl: './waiting-page.component.scss',
 })
 export class WaitingPageComponent {
-    randomNumber: number;
-    private readonly floorRandomNumber: number = 1000;
-    private readonly maxValueRandomNumber: number = 8999;
-    constructor() {
-        this.randomNumber = this.genrateRandomFourDigitNumber();
-    }
+    roomId: string;
+    playerId: string;
+    constructor(private joinMatchService: JoinMatchService) {}
 
-    genrateRandomFourDigitNumber(): number {
-        return Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber);
+    ngOnInit() {
+        this.joinMatchService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
+            this.roomId = data.roomId;
+            this.playerId = data.playerId;
+        });
     }
 }
