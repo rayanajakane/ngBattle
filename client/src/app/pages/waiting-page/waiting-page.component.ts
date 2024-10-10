@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { JoinMatchService } from '@app/services/join-match.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { JoinMatchService } from '@app/services/join-match.service';
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
-export class WaitingPageComponent {
+export class WaitingPageComponent implements OnInit {
     roomId: string;
     playerId: string;
     constructor(private joinMatchService: JoinMatchService) {}
