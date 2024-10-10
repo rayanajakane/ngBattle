@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { JoinMatchService } from '@app/services/join-match.service';
+import { SocketService } from '@app/services/socket.service';
 
 @Component({
     selector: 'app-waiting-page',
@@ -11,7 +11,7 @@ import { JoinMatchService } from '@app/services/join-match.service';
 export class WaitingPageComponent implements OnInit {
     roomId: string;
     playerId: string;
-    constructor(private joinMatchService: JoinMatchService) {}
+    constructor(private joinMatchService: SocketService) {}
 
     ngOnInit() {
         this.joinMatchService.on('roomJoined', (data: { roomId: string; playerId: string }) => {

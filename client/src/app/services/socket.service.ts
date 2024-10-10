@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
     providedIn: 'root',
 })
-export class JoinMatchService {
+export class SocketService {
     socket: Socket;
 
     isSocketAlive() {

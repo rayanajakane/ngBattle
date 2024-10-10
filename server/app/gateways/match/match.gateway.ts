@@ -42,6 +42,16 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         this.matchService.joinRoom(this.server, client, data.roomId, data.playerName, data.avatar);
     }
 
+    @SubscribeMessage('validRoom')
+    handleValidRoom(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
+        this.matchService.isCodeValid(roomId, client);
+    }
+
+    @SubscribeMessage('getPlayers')
+    handleGetPlayers(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
+        this.matchService.getAllPlayersInRoom(roomId, client);
+    }
+
     @SubscribeMessage('leaveRoom')
     handleLeaveRoom(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
         this.matchService.leaveRoom(this.server, client, roomId);

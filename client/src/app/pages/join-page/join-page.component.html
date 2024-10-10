@@ -1,0 +1,13 @@
+<div class="main-container">
+    <h1 class="medievalsharp-regular">Rejoindre une partie</h1>
+    <p #roomCheck></p>
+    <input class="name-input" type="text" placeholder="Entrez un code à 4 chiffres" [(ngModel)]="roomCode" (keyup.enter)="onSubmit($event)" />
+    @if (isRoomCodeValid){
+    <app-avatar-slider [avatars]="availableAvatars"></app-avatar-slider>
+    <h4 class="medievalsharp-regular">Attributs du personnage</h4>
+
+    <app-attribute-selection></app-attribute-selection>
+
+    <button mat-flat-button type="submit">Rejoindre la partie!</button>
+    }
+</div>

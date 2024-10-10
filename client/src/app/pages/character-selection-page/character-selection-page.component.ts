@@ -8,7 +8,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { HttpClientService } from '@app/services/httpclient.service';
-import { JoinMatchService } from '@app/services/join-match.service';
+import { SocketService } from '@app/services/socket.service';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -30,7 +30,7 @@ export class CharacterSelectionPageComponent {
         private router: Router,
         private http: HttpClientService,
         private route: ActivatedRoute,
-        private joinMatchService: JoinMatchService,
+        private socketService: SocketService,
     ) {}
 
     receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
@@ -77,7 +77,7 @@ export class CharacterSelectionPageComponent {
             });
         } else {
             // TODO: Envoi des données
-            this.joinMatchService.connect();
+            this.socketService.connect();
             // if (!this.joinMatchService.isSocketAlive()) {
             //     this.dialog.open(DialogDataComponent, {
             //         data: {
@@ -87,7 +87,7 @@ export class CharacterSelectionPageComponent {
             //     });
             //     return;
             // }
-            this.joinMatchService.emit('createRoom', {
+            this.socketService.emit('createRoom', {
                 gameId: this.route.snapshot.params.id,
                 playerName: this.characterName,
                 avatar: this.selectedAvatar?.name,

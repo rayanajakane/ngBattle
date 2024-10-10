@@ -48,7 +48,18 @@ export class MatchService {
         server.to(roomId).emit('updatePlayers', room.players);
     }
 
-    async joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string) {
+    isCodeValid(roomId: string, client: Socket) {
+        let room = this.rooms.get(roomId);
+        if (room && !room.isLocked) client.emit('validRoom', true);
+        else client.emit('validRoom', false);
+    }
+
+    getAllPlayersInRoom(roomId: string, client: Socket) {
+        let room = this.rooms.get(roomId);
+        if (room) client.emit('getPlayers', room.players);
+    }
+
+    joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string) {
         let room = this.rooms.get(roomId);
 
         if (!room) {
