@@ -45,7 +45,7 @@ export class MatchService {
         console.log(room);
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id });
-        server.to(roomId).emit('updatePlayers', room.players);
+        this.updatePlayers(server, room);
     }
 
     isCodeValid(roomId: string, client: Socket) {
@@ -60,7 +60,7 @@ export class MatchService {
     }
 
     joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string) {
-        let room = this.rooms.get(roomId);
+        const room = this.rooms.get(roomId);
 
         if (!room) {
             client.emit('error', 'Room not found');
@@ -82,7 +82,15 @@ export class MatchService {
         console.log(room);
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id });
-        server.to(roomId).emit('updatePlayers', room.players);
+        this.updatePlayers(server, room);
+    }
+
+    updatePlayers(server: Server, room: Room) {
+        server.to(room.id).emit('updatePlayers', room.players);
+        server.emit('availableAvatars', {
+            roomId: room.id,
+            avatars: room.players.map((p) => p.avatar),
+        });
     }
 
     leaveRoom(server: Server, client: Socket, roomId: string) {

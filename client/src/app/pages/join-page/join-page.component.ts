@@ -1,8 +1,11 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
+import { DialogDataComponent } from '@app/components/character-selection-dialog/character-selection-dialog.component';
 import { SocketService } from '@app/services/socket.service';
 
 interface Player {
@@ -21,12 +24,16 @@ interface Player {
 })
 export class JoinPageComponent {
     @ViewChild('roomCheck') roomCheck: ElementRef;
+    dialog = inject(MatDialog);
 
-    roomCode: number;
+    private readonly minNameLength: number = 3;
+    private readonly maxNameLength: number = 15;
+    characterName = '';
+    selectedAvatar = '';
+    roomCode: string;
     isRoomCodeValid: boolean;
     playerList: Player[];
     nonAvailableAvatars: { name: string; img: string }[] = [];
-
     availableAvatars: { name: string; img: string }[] = [
         { name: 'Avatar 1', img: '../../../assets/characters/1.png' },
         { name: 'Avatar 2', img: '../../../assets/characters/2.png' },
@@ -42,12 +49,30 @@ export class JoinPageComponent {
         { name: 'Avatar 12', img: '../../../assets/characters/12.png' },
     ];
 
-    constructor(private readonly socketService: SocketService) {
+    constructor(
+        private readonly socketService: SocketService,
+        private router: Router,
+    ) {
         this.socketService.connect();
         this.isRoomCodeValid = false;
     }
 
-    async onSubmit(event: Event) {
+    formChecking(): string[] {
+        const errors: string[] = [];
+        if (!this.selectedAvatar) errors.push('- Veuillez sélectionner un avatar avant de continuer');
+        if (!this.isNameValid()) errors.push('- Veuillez mettre un nom pour le personne entre 3 et 15 charactères');
+        return errors;
+    }
+
+    isNameValid(): boolean {
+        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength;
+    }
+
+    receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
+        this.selectedAvatar = selectedAvatarFromChild.name;
+    }
+
+    async onSubmitCode(event: Event) {
         event.preventDefault();
         this.socketService.on('validRoom', (isValid: boolean) => {
             this.isRoomCodeValid = isValid;
@@ -57,12 +82,29 @@ export class JoinPageComponent {
     }
 
     codeValidationMessage() {
+        //TODO change name
         if (this.isRoomCodeValid) {
             this.roomCheck.nativeElement.innerText = '';
             this.getAllPlayers();
+            this.updateAllPlayers();
         } else {
             this.roomCheck.nativeElement.innerText = 'This room is not valid';
         }
+    }
+
+    updateAllPlayers() {
+        this.socketService.on('availableAvatars', (availableAvatarNew: { roomId: string; avatars: string[] }) => {
+            console.log(availableAvatarNew);
+            console.log(availableAvatarNew.roomId);
+            console.log(this.roomCode);
+            if (availableAvatarNew.roomId === this.roomCode) {
+                console.log('caca');
+                this.availableAvatars = this.availableAvatars.filter(
+                    (avatar) => !availableAvatarNew.avatars.some((nonAvailable) => nonAvailable === avatar.name),
+                );
+            }
+            console.log(this.availableAvatars);
+        });
     }
 
     getAllPlayers() {
@@ -80,10 +122,31 @@ export class JoinPageComponent {
                 img: `../../../assets/characters/${player.avatar.slice(-1)}.png`,
             };
         });
-        console.log(this.nonAvailableAvatars);
         this.availableAvatars = this.availableAvatars.filter(
             (avatar) => !this.nonAvailableAvatars.some((nonAvailable) => nonAvailable.name === avatar.name),
         );
-        console.log(this.availableAvatars);
+    }
+
+    onSubmit() {
+        let errors = this.formChecking();
+        if (errors.length > 0) {
+            this.dialog.open(DialogDataComponent, {
+                data: {
+                    foundErrors: errors,
+                    navigateGameSelection: false,
+                },
+            });
+        } else {
+            this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
+                console.log(data);
+            });
+            this.socketService.emit('joinRoom', {
+                roomId: this.roomCode,
+                playerName: this.characterName,
+                avatar: this.selectedAvatar,
+            });
+
+            this.router.navigate(['/waitingRoom']);
+        }
     }
 }

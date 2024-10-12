@@ -11,10 +11,10 @@ import { SocketService } from '@app/services/socket.service';
 export class WaitingPageComponent implements OnInit {
     roomId: string;
     playerId: string;
-    constructor(private joinMatchService: SocketService) {}
+    constructor(private socketService: SocketService) {}
 
     ngOnInit() {
-        this.joinMatchService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
+        this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
             this.roomId = data.roomId;
             this.playerId = data.playerId;
         });

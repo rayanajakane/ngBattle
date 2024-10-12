@@ -2,11 +2,12 @@ import { NgFor } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
+import { DialogDataComponent } from '@app/components/character-selection-dialog/character-selection-dialog.component';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { SocketService } from '@app/services/socket.service';
 
@@ -39,7 +40,7 @@ export class CharacterSelectionPageComponent {
 
     // Méthodes publiques
 
-    async formChecking(): Promise<string[]> {
+    formChecking(): string[] {
         const errors: string[] = [];
         // Vérification des erreurs
         if (!this.selectedAvatar) errors.push('- Veuillez sélectionner un avatar avant de continuer');
@@ -78,15 +79,6 @@ export class CharacterSelectionPageComponent {
         } else {
             // TODO: Envoi des données
             this.socketService.connect();
-            // if (!this.joinMatchService.isSocketAlive()) {
-            //     this.dialog.open(DialogDataComponent, {
-            //         data: {
-            //             foundErrors: ['Erreur de connexion au serveur'],
-            //             navigateGameSelection: false,
-            //         },
-            //     });
-            //     return;
-            // }
             this.socketService.emit('createRoom', {
                 gameId: this.route.snapshot.params.id,
                 playerName: this.characterName,
@@ -95,26 +87,4 @@ export class CharacterSelectionPageComponent {
             this.router.navigate(['/waitingRoom']);
         }
     }
-}
-
-@Component({
-    selector: 'app-dialog-data-example-dialog',
-    template: `<mat-dialog-content>
-        <h1 mat-dialog-title>Note</h1>
-        @for (error of data.foundErrors; track $index) {
-        <p>{{ error }}</p>
-        }
-        <mat-dialog-actions>
-            @if (data.navigateGameSelection) {
-            <button mat-button mat-dialog-close [routerLink]="['/gameSelection']">Close</button>
-            } @else {
-            <button mat-button mat-dialog-close>Close</button>
-            }
-        </mat-dialog-actions>
-    </mat-dialog-content>`,
-    standalone: true,
-    imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, RouterLink],
-})
-export class DialogDataComponent {
-    data = inject(MAT_DIALOG_DATA);
 }

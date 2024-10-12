@@ -40,10 +40,10 @@ export class AttributeSelectionComponent {
     }
 
     addBonus(attribute: 'life' | 'speed'): void {
-        if (attribute === 'life') {
+        if (attribute === 'life' && this.life == this.defaultAttributeValue) {
             this.life += 2;
             this.speed -= 2;
-        } else if (attribute === 'speed') {
+        } else if (attribute === 'speed' && this.life == this.defaultAttributeValue) {
             this.speed += 2;
             this.life -= 2;
         }
