@@ -12,8 +12,11 @@ import { RouterLink } from '@angular/router';
         <mat-dialog-actions>
             @if (data.navigateGameSelection) {
             <button mat-button mat-dialog-close [routerLink]="['/gameSelection']">Close</button>
-            } @else {
-            <button mat-button mat-dialog-close>Close</button>
+            } @else if (data.navigateInitView) {
+            <button mat-button mat-dialog-close [routerLink]="['/home']">Oui</button>
+            <button mat-button mat-dialog-close>Non</button>
+            } @else{
+            <button mat-button mat-dialog-close>Fermer</button>
             }
         </mat-dialog-actions>
     </mat-dialog-content>`,

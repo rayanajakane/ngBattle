@@ -72,7 +72,9 @@ export class MatchService {
             return;
         }
 
-        const player: Player = { id: client.id, name: playerName, isAdmin: false, avatar };
+        const checkedPlayerName = this.checkAndSetPlayerName(room, playerName);
+
+        const player: Player = { id: client.id, name: checkedPlayerName, isAdmin: false, avatar };
         room.players.push(player);
 
         if (room.players.length >= room.maxPlayers) {
@@ -91,6 +93,23 @@ export class MatchService {
             roomId: room.id,
             avatars: room.players.map((p) => p.avatar),
         });
+    }
+
+    checkAndSetPlayerName(room: Room, playerName: string) {
+        let nameExistsCount = 1;
+        while (
+            room.players.some((player) => {
+                return player.name === playerName;
+            })
+        ) {
+            nameExistsCount++;
+            if (nameExistsCount === 2) {
+                playerName = playerName + '-2';
+                continue;
+            }
+            playerName = playerName.slice(0, -2) + '-' + nameExistsCount.toString();
+        }
+        return playerName;
     }
 
     leaveRoom(server: Server, client: Socket, roomId: string) {

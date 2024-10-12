@@ -76,19 +76,18 @@ export class JoinPageComponent {
         event.preventDefault();
         this.socketService.on('validRoom', (isValid: boolean) => {
             this.isRoomCodeValid = isValid;
-            this.codeValidationMessage();
+            this.codeValidated();
         });
         this.socketService.emit('validRoom', this.roomCode);
     }
 
-    codeValidationMessage() {
-        //TODO change name
+    codeValidated() {
         if (this.isRoomCodeValid) {
             this.roomCheck.nativeElement.innerText = '';
             this.getAllPlayers();
             this.updateAllPlayers();
         } else {
-            this.roomCheck.nativeElement.innerText = 'This room is not valid';
+            this.roomCheck.nativeElement.innerText = 'Le code est invalide ou la salle est verrouillée';
         }
     }
 
@@ -98,7 +97,6 @@ export class JoinPageComponent {
             console.log(availableAvatarNew.roomId);
             console.log(this.roomCode);
             if (availableAvatarNew.roomId === this.roomCode) {
-                console.log('caca');
                 this.availableAvatars = this.availableAvatars.filter(
                     (avatar) => !availableAvatarNew.avatars.some((nonAvailable) => nonAvailable === avatar.name),
                 );
@@ -128,25 +126,37 @@ export class JoinPageComponent {
     }
 
     onSubmit() {
-        let errors = this.formChecking();
-        if (errors.length > 0) {
-            this.dialog.open(DialogDataComponent, {
-                data: {
-                    foundErrors: errors,
-                    navigateGameSelection: false,
-                },
-            });
-        } else {
-            this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
-                console.log(data);
-            });
-            this.socketService.emit('joinRoom', {
-                roomId: this.roomCode,
-                playerName: this.characterName,
-                avatar: this.selectedAvatar,
-            });
+        this.socketService.once('validRoom', (isRoomUnlocked) => {
+            if (isRoomUnlocked) {
+                let errors = this.formChecking();
+                if (errors.length > 0) {
+                    this.dialog.open(DialogDataComponent, {
+                        data: {
+                            foundErrors: errors,
+                            navigateGameSelection: false,
+                        },
+                    });
+                } else {
+                    this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
+                        console.log(data);
+                    });
+                    this.socketService.emit('joinRoom', {
+                        roomId: this.roomCode,
+                        playerName: this.characterName,
+                        avatar: this.selectedAvatar,
+                    });
 
-            this.router.navigate(['/waitingRoom']);
-        }
+                    this.router.navigate(['/waitingRoom']);
+                }
+            } else {
+                this.dialog.open(DialogDataComponent, {
+                    data: {
+                        foundErrors: ["La partie est verrouillée, voulez vous retourner à la page d'accueil ?"],
+                        navigateInitView: true,
+                    },
+                });
+            }
+        });
+        this.socketService.emit('validRoom', this.roomCode);
     }
 }

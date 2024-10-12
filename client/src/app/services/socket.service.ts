@@ -27,4 +27,8 @@ export class SocketService {
     emit<T>(event: string, data?: T, callback?: Function): void {
         this.socket.emit(event, ...[data, callback].filter((x) => x));
     }
+
+    once<T>(event: string, action: (data: T) => void): void {
+        this.socket.once(event, action);
+    }
 }
