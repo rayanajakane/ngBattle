@@ -4,22 +4,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-dialog-data-example-dialog',
-    template: `<mat-dialog-content>
-        <h1 mat-dialog-title>Note</h1>
-        @for (error of data.foundErrors; track $index) {
-        <p>{{ error }}</p>
-        }
-        <mat-dialog-actions>
-            @if (data.navigateGameSelection) {
-            <button mat-button mat-dialog-close [routerLink]="['/gameSelection']">Close</button>
-            } @else if (data.navigateInitView) {
-            <button mat-button mat-dialog-close [routerLink]="['/home']">Oui</button>
-            <button mat-button mat-dialog-close>Non</button>
-            } @else{
-            <button mat-button mat-dialog-close>Fermer</button>
-            }
-        </mat-dialog-actions>
-    </mat-dialog-content>`,
+    templateUrl: './character-selection-dialog.component.html',
     standalone: true,
     imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, RouterLink],
 })
