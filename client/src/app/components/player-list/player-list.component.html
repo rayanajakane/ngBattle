@@ -1,0 +1,15 @@
+<div class="player-list-container">
+    <p>Joueurs dans salle: {{ playerList.length }}</p>
+    @for(player of playerList; track $index){
+    <div>
+        <img [src]="'../../../assets/characters/' + player.avatar.slice(-1) + '.png'" />
+        <span>{{ player.name }}</span>
+        @if(player.isAdmin){
+        <p>(Admin)</p>
+        <img />
+        } @else if(!player.isAdmin && isUserAdmin) {
+        <button (click)="deletePlayerEmitter(player.id)">Delete</button>
+        }
+    </div>
+    }
+</div>

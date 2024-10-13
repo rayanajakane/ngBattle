@@ -24,7 +24,7 @@ export class SocketService {
         this.socket.on(event, action);
     }
 
-    emit<T>(event: string, data?: T, callback?: Function): void {
+    emit<T>(event: string, data?: T, callback?: () => void): void {
         this.socket.emit(event, ...[data, callback].filter((x) => x));
     }
 

@@ -116,8 +116,17 @@ export class MatchService {
         const room = this.rooms.get(roomId);
         if (!room) return;
 
+        if (client.id === room.players[0].id) {
+            room.players.forEach((p) => {
+                if (p.id !== client.id) {
+                    this.leaveRoom(server, server.sockets.sockets.get(p.id), roomId);
+                }
+            });
+        }
+
         room.players = room.players.filter((p) => p.id !== client.id);
         client.leave(roomId);
+        client.emit('roomLeft');
 
         if (room.players.length === 0) {
             this.rooms.delete(roomId);
@@ -126,10 +135,6 @@ export class MatchService {
         }
 
         console.log(room);
-
-        if (room.players.length === 0) {
-            this.rooms.delete(roomId);
-        }
     }
 
     lockRoom(server: Server, client: Socket, roomId: string) {
@@ -167,6 +172,7 @@ export class MatchService {
         if (player && player.isAdmin) {
             const playerToKick = room.players.find((p) => p.id === playerId);
             if (playerToKick) {
+                server.sockets.sockets.get(playerToKick.id).emit('kicked');
                 this.leaveRoom(server, server.sockets.sockets.get(playerId), roomId);
             }
         }

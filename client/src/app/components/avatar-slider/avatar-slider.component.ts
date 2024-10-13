@@ -28,7 +28,6 @@ export class AvatarSliderComponent {
 
     selectedAvatar: { name: string; img: string } | null = null;
     private readonly scrollValue: number = 150;
-    constructor() {}
 
     scrollLeft(): void {
         this.widgetsContent.nativeElement.scrollLeft -= this.scrollValue;

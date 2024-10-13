@@ -1,4 +1,9 @@
 <div class="main-container">
     <h1>{{ roomId }}</h1>
+    <app-player-list (deletePlayerAsAdmin)="deletePlayer($event)" [playerList]="players" [isUserAdmin]="isAdmin"></app-player-list>
+
+    @if(isAdmin){
     <button (click)="lockRoom()">verouiller</button>
+    <button>Start</button>
+    }
 </div>

@@ -78,13 +78,23 @@ export class CharacterSelectionPageComponent {
             });
         } else {
             // TODO: Envoi des données
+            let navData;
             this.socketService.connect();
+            this.socketService.once('roomJoined', (data: { roomId: string; playerId: string }) => {
+                navData = {
+                    roomId: data.roomId,
+                    playerId: data.playerId,
+                    characterName: this.characterName,
+                    selectedAvatar: this.selectedAvatar?.name,
+                    isAdmin: true,
+                };
+                this.router.navigate(['/waitingRoom', navData]);
+            });
             this.socketService.emit('createRoom', {
                 gameId: this.route.snapshot.params.id,
                 playerName: this.characterName,
                 avatar: this.selectedAvatar?.name,
             });
-            this.router.navigate(['/waitingRoom']);
         }
     }
 }

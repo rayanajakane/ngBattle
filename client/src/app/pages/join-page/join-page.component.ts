@@ -6,14 +6,8 @@ import { Router } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { DialogDataComponent } from '@app/components/character-selection-dialog/character-selection-dialog.component';
+import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
-
-interface Player {
-    id: string;
-    name: string;
-    isAdmin: boolean;
-    avatar: string;
-}
 
 @Component({
     selector: 'app-join-page',
@@ -25,12 +19,9 @@ interface Player {
 export class JoinPageComponent {
     @ViewChild('roomCheck') roomCheck: ElementRef;
     dialog = inject(MatDialog);
-
-    private readonly minNameLength: number = 3;
-    private readonly maxNameLength: number = 15;
     characterName = '';
     selectedAvatar = '';
-    roomCode: string;
+    roomId: string;
     isRoomCodeValid: boolean;
     playerList: Player[];
     nonAvailableAvatars: { name: string; img: string }[] = [];
@@ -48,6 +39,8 @@ export class JoinPageComponent {
         { name: 'Avatar 11', img: '../../../assets/characters/11.png' },
         { name: 'Avatar 12', img: '../../../assets/characters/12.png' },
     ];
+    private readonly minNameLength: number = 3;
+    private readonly maxNameLength: number = 15;
 
     constructor(
         private readonly socketService: SocketService,
@@ -78,7 +71,7 @@ export class JoinPageComponent {
             this.isRoomCodeValid = isValid;
             this.codeValidated();
         });
-        this.socketService.emit('validRoom', this.roomCode);
+        this.socketService.emit('validRoom', this.roomId);
     }
 
     codeValidated() {
@@ -93,15 +86,11 @@ export class JoinPageComponent {
 
     updateAllPlayers() {
         this.socketService.on('availableAvatars', (availableAvatarNew: { roomId: string; avatars: string[] }) => {
-            console.log(availableAvatarNew);
-            console.log(availableAvatarNew.roomId);
-            console.log(this.roomCode);
-            if (availableAvatarNew.roomId === this.roomCode) {
+            if (availableAvatarNew.roomId === this.roomId) {
                 this.availableAvatars = this.availableAvatars.filter(
                     (avatar) => !availableAvatarNew.avatars.some((nonAvailable) => nonAvailable === avatar.name),
                 );
             }
-            console.log(this.availableAvatars);
         });
     }
 
@@ -110,7 +99,7 @@ export class JoinPageComponent {
             this.playerList = players;
             this.setAvailableAvatars();
         });
-        this.socketService.emit('getPlayers', this.roomCode);
+        this.socketService.emit('getPlayers', this.roomId);
     }
 
     setAvailableAvatars() {
@@ -128,7 +117,7 @@ export class JoinPageComponent {
     onSubmit() {
         this.socketService.once('validRoom', (isRoomUnlocked) => {
             if (isRoomUnlocked) {
-                let errors = this.formChecking();
+                const errors = this.formChecking();
                 if (errors.length > 0) {
                     this.dialog.open(DialogDataComponent, {
                         data: {
@@ -137,16 +126,7 @@ export class JoinPageComponent {
                         },
                     });
                 } else {
-                    this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
-                        console.log(data);
-                    });
-                    this.socketService.emit('joinRoom', {
-                        roomId: this.roomCode,
-                        playerName: this.characterName,
-                        avatar: this.selectedAvatar,
-                    });
-
-                    this.router.navigate(['/waitingRoom']);
+                    this.joinRoom();
                 }
             } else {
                 this.dialog.open(DialogDataComponent, {
@@ -157,6 +137,26 @@ export class JoinPageComponent {
                 });
             }
         });
-        this.socketService.emit('validRoom', this.roomCode);
+        this.socketService.emit('validRoom', this.roomId);
+    }
+
+    joinRoom() {
+        this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
+            this.router.navigate([
+                '/waitingRoom',
+                {
+                    roomId: data.roomId,
+                    playerId: data.playerId,
+                    characterName: this.characterName,
+                    selectedAvatar: this.selectedAvatar,
+                    isAdmin: false,
+                },
+            ]);
+        });
+        this.socketService.emit('joinRoom', {
+            roomId: this.roomId,
+            playerName: this.characterName,
+            avatar: this.selectedAvatar,
+        });
     }
 }

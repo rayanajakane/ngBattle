@@ -1,7 +1,7 @@
 <div class="main-container">
     <h1 class="medievalsharp-regular">Rejoindre une partie</h1>
     <p #roomCheck></p>
-    <input class="code-input" type="text" placeholder="Entrez un code à 4 chiffres" [(ngModel)]="roomCode" (keyup.enter)="onSubmitCode($event)" />
+    <input class="code-input" type="text" placeholder="Entrez un code à 4 chiffres" [(ngModel)]="roomId" (keyup.enter)="onSubmitCode($event)" />
     @if (isRoomCodeValid){
     <div class="input-name-container">
         <input

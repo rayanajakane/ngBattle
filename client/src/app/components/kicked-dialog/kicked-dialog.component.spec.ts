@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { JoinPageComponent } from './join-page.component';
+import { KickedDialogComponent } from './kicked-dialog.component';
 
-describe('JoinPageComponent', () => {
-    let component: JoinPageComponent;
-    let fixture: ComponentFixture<JoinPageComponent>;
+describe('KickedDialogComponent', () => {
+    let component: KickedDialogComponent;
+    let fixture: ComponentFixture<KickedDialogComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [JoinPageComponent],
+            imports: [KickedDialogComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(JoinPageComponent);
+        fixture = TestBed.createComponent(KickedDialogComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
