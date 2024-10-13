@@ -87,6 +87,7 @@ export class JoinPageComponent {
     updateAllPlayers() {
         this.socketService.on('availableAvatars', (availableAvatarNew: { roomId: string; avatars: string[] }) => {
             if (availableAvatarNew.roomId === this.roomId) {
+                this.selectedAvatar = '';
                 this.availableAvatars = this.availableAvatars.filter(
                     (avatar) => !availableAvatarNew.avatars.some((nonAvailable) => nonAvailable === avatar.name),
                 );
