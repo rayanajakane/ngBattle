@@ -1,9 +1,13 @@
 <div class="main-container">
     <h1>{{ roomId }}</h1>
-    <app-player-list (deletePlayerAsAdmin)="deletePlayer($event)" [playerList]="players" [isUserAdmin]="isAdmin"></app-player-list>
-
-    @if(isAdmin){
-    <button (click)="lockRoom()">verouiller</button>
-    <button (click)="startGame()">Start</button>
-    }
+    <div id="player-data">
+        <app-player-list (deletePlayerAsAdmin)="deletePlayer($event)" [playerList]="players" [isUserAdmin]="isAdmin"></app-player-list>
+        <div id="chat-container"></div>
+    </div>
+    <div id="btn-container">
+        @if(isAdmin){
+        <button (click)="lockRoom()">De/verrouiller</button>
+        <button (click)="startGame()">Debuter</button>
+        }
+    </div>
 </div>

@@ -17,7 +17,7 @@ export class HttpClientService {
 
     sendGame(gameJson: GameJson) {
         gameJson.creationDate = new Date().toISOString();
-        gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
+        gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'America/Toronto' });
         // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
@@ -40,7 +40,7 @@ export class HttpClientService {
     }
 
     updateGame(gameJson: GameJson) {
-        gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'UTC' });
+        gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'America/Toronto' });
         // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.patch(`${this.baseUrl}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
