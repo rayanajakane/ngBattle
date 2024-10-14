@@ -21,6 +21,12 @@ $transition-duration: 0.3s;
     font-family: 'MedievalSharp', sans-serif;
 }
 
+h1,
+p,
+button {
+    font-family: $font-family;
+}
+
 h1 {
     padding: 1%;
     font-family: 'MedievalSharp', sans-serif;
