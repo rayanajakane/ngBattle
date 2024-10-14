@@ -23,10 +23,10 @@ interface Room {
     players: Player[];
     isLocked: boolean;
     maxPlayers: number;
-    messages: Message[];
+    messages: PlayerMessage[];
 }
 
-interface Message {
+interface PlayerMessage {
     name: string;
     message: string;
     date: string;
@@ -56,8 +56,6 @@ export class MatchService {
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id });
         this.updatePlayers(server, room);
-
-        this.loadMessages(client, room);
     }
 
     isCodeValid(roomId: string, client: Socket) {
@@ -102,10 +100,8 @@ export class MatchService {
 
         console.log(room);
         client.join(roomId);
-        client.emit('roomJoined', { roomId: roomId, playerId: client.id });
+        client.emit('roomJoined', { roomId: roomId, playerId: client.id, playerName: checkedPlayerName });
         this.updatePlayers(server, room);
-
-        this.loadMessages(client, room);
     }
 
     updatePlayers(server: Server, room: Room) {
@@ -241,13 +237,16 @@ export class MatchService {
         const room = this.rooms.get(roomId);
         const player = room.players.find((player) => player.id === client.id);
 
-        const message: Message = { name: player.name, message: messageString, date: date };
+        const message: PlayerMessage = { name: player.name, message: messageString, date: date };
         room.messages.push(message);
-
-        server.to(roomId).emit('singleMessage', { playerName: player.name, message: message, date: date });
+        console.log('singleMessage', room.messages);
+        server.to(roomId).emit('singleMessage', message);
     }
 
-    loadMessages(client: Socket, room: Room) {
-        client.emit('loadMessages', { messages: room.messages });
+    loadAllMessages(client: Socket, roomId: string) {
+        const room = this.rooms.get(roomId);
+        const messages = room.messages;
+        console.log('loadAllMessages', room.messages);
+        client.emit('loadAllMessages', { messages });
     }
 }

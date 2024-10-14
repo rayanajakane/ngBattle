@@ -92,4 +92,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     roomMessage(@MessageBody() data: { roomId: string; message: string; date: string }, @ConnectedSocket() client: Socket) {
         this.matchService.roomMessage(this.server, client, data.roomId, data.message, data.date);
     }
+
+    @SubscribeMessage('loadAllMessages')
+    loadAllMessages(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
+        this.matchService.loadAllMessages(client, data.roomId);
+    }
 }
