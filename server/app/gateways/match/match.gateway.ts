@@ -47,6 +47,11 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         this.matchService.isCodeValid(roomId, client);
     }
 
+    @SubscribeMessage('isRoomLocked')
+    handleIsRoomLocked(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
+        this.matchService.isRoomLocked(roomId, client);
+    }
+
     @SubscribeMessage('getPlayers')
     handleGetPlayers(@MessageBody() roomId: string, @ConnectedSocket() client: Socket) {
         this.matchService.getAllPlayersInRoom(roomId, client);
@@ -70,5 +75,10 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     @SubscribeMessage('kickPlayer')
     handleKickPlayer(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
         this.matchService.kickPlayer(this.server, client, data.roomId, data.playerId);
+    }
+
+    @SubscribeMessage('startGame')
+    startGame(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
+        this.matchService.startGame(this.server, client, data.roomId);
     }
 }

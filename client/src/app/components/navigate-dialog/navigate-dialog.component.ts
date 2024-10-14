@@ -4,10 +4,10 @@ import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-dialog-data-example-dialog',
-    templateUrl: './character-selection-dialog.component.html',
+    templateUrl: './navigate-dialog.component.html',
     standalone: true,
     imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, RouterLink],
 })
-export class DialogDataComponent {
+export class NavigateDialogComponent {
     data = inject(MAT_DIALOG_DATA);
 }

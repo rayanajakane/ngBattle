@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
+import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
 import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
@@ -45,6 +46,14 @@ export class WaitingPageComponent implements OnInit {
             this.selectedAvatar = params.selectedAvatar;
             this.isAdmin = params.isAdmin === 'true' ? true : false;
         });
+        this.gameStartedListener();
+    }
+
+    gameStartedListener() {
+        this.socketService.once('gameStarted', () => {
+            //TODO: change the url path
+            this.router.navigate(['/home']);
+        });
     }
 
     getPlayers() {
@@ -69,17 +78,30 @@ export class WaitingPageComponent implements OnInit {
     }
 
     lockRoom() {
-        this.socketService.on('validRoom', (isRoomUnlocked) => {
-            if (isRoomUnlocked) {
-                this.socketService.emit('lockRoom', this.roomId);
-            } else {
+        this.socketService.on('isRoomLocked', (isRoomLocked) => {
+            console.log(isRoomLocked);
+            if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
+            } else {
+                this.socketService.emit('lockRoom', this.roomId);
             }
         });
-        this.socketService.emit('validRoom', this.roomId);
+        this.socketService.emit('isRoomLocked', this.roomId);
     }
 
     deletePlayer(kickedPlayerId: string) {
         this.socketService.emit('kickPlayer', { roomId: this.roomId, playerId: kickedPlayerId });
+    }
+
+    startGame() {
+        this.socketService.once('startError', (error: string) => {
+            this.dialog.open(NavigateDialogComponent, {
+                data: {
+                    foundErrors: [error],
+                },
+            });
+            console.log(error);
+        });
+        this.socketService.emit('startGame', { roomId: this.roomId });
     }
 }

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CharacterSelectionDialogComponent } from './character-selection-dialog.component';
+import { NavigateDialogComponent } from './navigate-dialog.component';
 
 describe('CharacterSelectionDialogComponent', () => {
-    let component: CharacterSelectionDialogComponent;
-    let fixture: ComponentFixture<CharacterSelectionDialogComponent>;
+    let component: NavigateDialogComponent;
+    let fixture: ComponentFixture<NavigateDialogComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [CharacterSelectionDialogComponent],
+            imports: [NavigateDialogComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(CharacterSelectionDialogComponent);
+        fixture = TestBed.createComponent(NavigateDialogComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

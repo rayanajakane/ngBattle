@@ -7,7 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
-import { DialogDataComponent } from '@app/components/character-selection-dialog/character-selection-dialog.component';
+import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { SocketService } from '@app/services/socket.service';
 
@@ -63,14 +63,14 @@ export class CharacterSelectionPageComponent {
         const errors = await this.formChecking();
 
         if (!(await this.isGameValidToCreate())) {
-            this.dialog.open(DialogDataComponent, {
+            this.dialog.open(NavigateDialogComponent, {
                 data: {
                     foundErrors: ["La partie n'existe pas -> VOUS SEREZ REDIRIGÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
                     navigateGameSelection: true,
                 },
             });
         } else if (errors.length > 0) {
-            this.dialog.open(DialogDataComponent, {
+            this.dialog.open(NavigateDialogComponent, {
                 data: {
                     foundErrors: errors,
                     navigateGameSelection: false,

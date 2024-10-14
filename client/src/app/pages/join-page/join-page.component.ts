@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
-import { DialogDataComponent } from '@app/components/character-selection-dialog/character-selection-dialog.component';
+import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
 
@@ -22,7 +22,7 @@ export class JoinPageComponent {
     characterName = '';
     selectedAvatar = '';
     roomId: string;
-    isRoomCodeValid: boolean;
+    isRoomCodeValid: boolean = false;
     playerList: Player[];
     nonAvailableAvatars: { name: string; img: string }[] = [];
     availableAvatars: { name: string; img: string }[] = [
@@ -45,10 +45,7 @@ export class JoinPageComponent {
     constructor(
         private readonly socketService: SocketService,
         private router: Router,
-    ) {
-        this.socketService.connect();
-        this.isRoomCodeValid = false;
-    }
+    ) {}
 
     formChecking(): string[] {
         const errors: string[] = [];
@@ -66,6 +63,8 @@ export class JoinPageComponent {
     }
 
     async onSubmitCode(event: Event) {
+        if (this.socketService.isSocketAlive()) this.socketService.disconnect();
+        this.socketService.connect();
         event.preventDefault();
         this.socketService.on('validRoom', (isValid: boolean) => {
             this.isRoomCodeValid = isValid;
@@ -81,6 +80,7 @@ export class JoinPageComponent {
             this.updateAllPlayers();
         } else {
             this.roomCheck.nativeElement.innerText = 'Le code est invalide ou la salle est verrouillée';
+            this.socketService.disconnect();
         }
     }
 
@@ -116,11 +116,11 @@ export class JoinPageComponent {
     }
 
     onSubmit() {
-        this.socketService.once('validRoom', (isRoomUnlocked) => {
-            if (isRoomUnlocked) {
+        this.socketService.once('isRoomLocked', (isRoomLocked) => {
+            if (!isRoomLocked) {
                 const errors = this.formChecking();
                 if (errors.length > 0) {
-                    this.dialog.open(DialogDataComponent, {
+                    this.dialog.open(NavigateDialogComponent, {
                         data: {
                             foundErrors: errors,
                             navigateGameSelection: false,
@@ -130,7 +130,7 @@ export class JoinPageComponent {
                     this.joinRoom();
                 }
             } else {
-                this.dialog.open(DialogDataComponent, {
+                this.dialog.open(NavigateDialogComponent, {
                     data: {
                         foundErrors: ["La partie est verrouillée, voulez vous retourner à la page d'accueil ?"],
                         navigateInitView: true,
@@ -138,7 +138,7 @@ export class JoinPageComponent {
                 });
             }
         });
-        this.socketService.emit('validRoom', this.roomId);
+        this.socketService.emit('isRoomLocked', this.roomId);
     }
 
     joinRoom() {

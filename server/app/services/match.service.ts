@@ -26,16 +26,11 @@ export class MatchService {
     constructor(private readonly gameService: GameService) {}
 
     async createRoom(server: Server, client: Socket, gameId: string, playerName: string, avatar: string) {
-        const game = await this.gameService.get(gameId);
-        if (!game) {
-            client.emit('error', 'Game not found');
-            return;
-        }
-
-        const roomId = this.generateMatchId();
-
+        const game = await this.getGame(client, gameId);
         const mapSize = game.mapSize;
         const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
+
+        const roomId = this.generateMatchId();
         const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers };
         this.rooms.set(roomId, room);
 
@@ -52,6 +47,13 @@ export class MatchService {
         let room = this.rooms.get(roomId);
         if (room && !room.isLocked) client.emit('validRoom', true);
         else client.emit('validRoom', false);
+    }
+
+    isRoomLocked(roomId: string, client: Socket) {
+        const room = this.rooms.get(roomId);
+        if (!room) return;
+
+        client.emit('isRoomLocked', room.isLocked);
     }
 
     getAllPlayersInRoom(roomId: string, client: Socket) {
@@ -134,6 +136,7 @@ export class MatchService {
             server.to(roomId).emit('updatePlayers', room.players);
         }
 
+        client.disconnect();
         console.log(room);
     }
 
@@ -192,5 +195,26 @@ export class MatchService {
             randomIntInRange = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
         }
         return randomIntInRange;
+    }
+
+    startGame(server: Server, client: Socket, roomId: string) {
+        // MaxPlayers is implicitly checked in joinRoom method by locking the room when maxPlayers is reached
+        const room = this.rooms.get(roomId);
+        if (room.players.length < 2) {
+            client.emit('startError', 'Il doit y avoir au moins 2 joueurs pour commencer la partie');
+        } else if (!room.isLocked) {
+            client.emit('startError', 'La partie doit être vérouillée pour commencer la partie');
+        } else {
+            server.to(roomId).emit('gameStarted', { gameId: room.gameId, players: room.players });
+        }
+    }
+
+    async getGame(client: Socket, gameId: string) {
+        const game = await this.gameService.get(gameId);
+        if (!game) {
+            client.emit('error', 'Game not found');
+            return;
+        }
+        return game;
     }
 }
