@@ -23,6 +23,13 @@ interface Room {
     players: Player[];
     isLocked: boolean;
     maxPlayers: number;
+    messages: Message[];
+}
+
+interface Message {
+    name: string;
+    message: string;
+    date: string;
 }
 
 @Injectable()
@@ -39,7 +46,7 @@ export class MatchService {
         const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
 
         const roomId = this.generateMatchId();
-        const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers };
+        const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers, messages: [] };
         this.rooms.set(roomId, room);
 
         const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar, attributes: attributes };
@@ -49,6 +56,8 @@ export class MatchService {
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id });
         this.updatePlayers(server, room);
+
+        this.loadMessages(client, room);
     }
 
     isCodeValid(roomId: string, client: Socket) {
@@ -95,6 +104,8 @@ export class MatchService {
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id });
         this.updatePlayers(server, room);
+
+        this.loadMessages(client, room);
     }
 
     updatePlayers(server: Server, room: Room) {
@@ -224,5 +235,19 @@ export class MatchService {
             return;
         }
         return game;
+    }
+
+    roomMessage(server: Server, client: Socket, roomId: string, messageString: string, date: string) {
+        const room = this.rooms.get(roomId);
+        const player = room.players.find((player) => player.id === client.id);
+
+        const message: Message = { name: player.name, message: messageString, date: date };
+        room.messages.push(message);
+
+        server.to(roomId).emit('singleMessage', { playerName: player.name, message: message, date: date });
+    }
+
+    loadMessages(client: Socket, room: Room) {
+        client.emit('loadMessages', { messages: room.messages });
     }
 }

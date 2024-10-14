@@ -87,4 +87,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     startGame(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
         this.matchService.startGame(this.server, client, data.roomId);
     }
+
+    @SubscribeMessage('roomMessage')
+    roomMessage(@MessageBody() data: { roomId: string; message: string; date: string }, @ConnectedSocket() client: Socket) {
+        this.matchService.roomMessage(this.server, client, data.roomId, data.message, data.date);
+    }
 }
