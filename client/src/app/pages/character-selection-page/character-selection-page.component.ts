@@ -77,7 +77,8 @@ export class CharacterSelectionPageComponent {
                 },
             });
         } else {
-            // TODO: Envoi des données
+            const submitButton = document.getElementById('submit-btn');
+            submitButton?.setAttribute('disabled', 'true');
             let navData;
             this.socketService.connect();
             this.socketService.once('roomJoined', (data: { roomId: string; playerId: string }) => {
