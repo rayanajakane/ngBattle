@@ -42,8 +42,6 @@ export class ChatComponent implements OnInit {
 
     receiveMessage() {
         this.socketService.on('singleMessage', (messageReceived: PlayerMessage) => {
-            if (messageReceived.name === this.characterName) return;
-
             const message = messageReceived;
             this.messages.push(message);
 
@@ -59,7 +57,6 @@ export class ChatComponent implements OnInit {
 
         this.socketService.emit('roomMessage', { roomId: this.roomId, message: this.myMessage.message, date: this.myMessage.date });
         console.log('sentMessage');
-        this.messages.push(this.myMessage);
         this.scrollToBottom();
     }
 
