@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PlayerAttribute } from '@app/interfaces/player';
 
 @Component({
     selector: 'app-attribute-selection',
@@ -8,7 +9,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     templateUrl: './attribute-selection.component.html',
     styleUrl: './attribute-selection.component.scss',
 })
-export class AttributeSelectionComponent {
+export class AttributeSelectionComponent implements OnInit {
+    @Output() attributesEmitter = new EventEmitter<PlayerAttribute>();
+
     life: number;
     speed: number;
     attack: number;
@@ -39,14 +42,19 @@ export class AttributeSelectionComponent {
         this.defenseDescription = 'Représente la capacité du personnage à se défendre contre une attaque';
     }
 
+    ngOnInit() {
+        this.changeAttributes();
+    }
+
     addBonus(attribute: 'life' | 'speed'): void {
         if (attribute === 'life' && this.life === this.defaultAttributeValue) {
             this.life += 2;
             this.speed -= 2;
-        } else if (attribute === 'speed' && this.life === this.defaultAttributeValue) {
+        } else if (attribute === 'speed' && this.speed === this.defaultAttributeValue) {
             this.speed += 2;
             this.life -= 2;
         }
+        this.changeAttributes();
     }
 
     assignDice(event: Event): void {
@@ -59,5 +67,17 @@ export class AttributeSelectionComponent {
             this.selectedDice.attack = this.dice4;
             this.selectedDice.defense = this.dice6;
         }
+        this.changeAttributes();
+    }
+
+    changeAttributes() {
+        const attributes: PlayerAttribute = {
+            health: this.life.toString(),
+            speed: this.speed.toString(),
+            attack: this.attack.toString(),
+            defense: this.defense.toString(),
+            dice: this.selectedDice.attack === this.defaultAttributeValueSelected ? 'attack' : 'defense',
+        };
+        this.attributesEmitter.emit(attributes);
     }
 }

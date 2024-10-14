@@ -1,4 +1,4 @@
-import { MatchService } from '@app/services/match.service';
+import { MatchService, PlayerAttribute } from '@app/services/match.service';
 import { Inject } from '@nestjs/common';
 import {
     ConnectedSocket,
@@ -31,15 +31,21 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     }
 
     @SubscribeMessage('createRoom')
-    handleCreateRoom(@MessageBody() data: { gameId: string; playerName: string; avatar: string }, @ConnectedSocket() client: Socket) {
-        console.log('createRoom', data.gameId, data.playerName, data.avatar);
-        this.matchService.createRoom(this.server, client, data.gameId, data.playerName, data.avatar);
+    handleCreateRoom(
+        @MessageBody() data: { gameId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
+        @ConnectedSocket() client: Socket,
+    ) {
+        console.log('createRoom', data.gameId, data.playerName, data.avatar, data.attributes);
+        this.matchService.createRoom(this.server, client, data.gameId, data.playerName, data.avatar, data.attributes);
     }
 
     @SubscribeMessage('joinRoom')
-    handleJoinRoom(@MessageBody() data: { roomId: string; playerName: string; avatar: string }, @ConnectedSocket() client: Socket) {
-        console.log('joinRoom', data.roomId, data.playerName, data.avatar);
-        this.matchService.joinRoom(this.server, client, data.roomId, data.playerName, data.avatar);
+    handleJoinRoom(
+        @MessageBody() data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
+        @ConnectedSocket() client: Socket,
+    ) {
+        console.log('joinRoom', data.roomId, data.playerName, data.avatar, data.attributes);
+        this.matchService.joinRoom(this.server, client, data.roomId, data.playerName, data.avatar, data.attributes);
     }
 
     @SubscribeMessage('validRoom')

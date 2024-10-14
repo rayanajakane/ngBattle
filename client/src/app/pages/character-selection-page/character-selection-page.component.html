@@ -21,7 +21,7 @@
 
         <h4 class="medievalsharp-regular">Attributs du personnage</h4>
 
-        <app-attribute-selection></app-attribute-selection>
+        <app-attribute-selection (attributesEmitter)="receiveAttributes($event)"></app-attribute-selection>
 
         <button type="submit" id="submit-btn">Créer le personnage</button>
     </form>

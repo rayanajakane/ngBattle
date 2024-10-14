@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
-import { Player } from '@app/interfaces/player';
+import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
 
 @Component({
@@ -19,6 +19,7 @@ import { SocketService } from '@app/services/socket.service';
 export class JoinPageComponent {
     @ViewChild('roomCheck') roomCheck: ElementRef;
     dialog = inject(MatDialog);
+    attributes: PlayerAttribute;
     characterName = '';
     selectedAvatar = '';
     roomId: string;
@@ -60,6 +61,11 @@ export class JoinPageComponent {
 
     receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
         this.selectedAvatar = selectedAvatarFromChild.name;
+    }
+
+    receiveAttributes(attributesFromChild: PlayerAttribute) {
+        console.log(attributesFromChild);
+        this.attributes = attributesFromChild;
     }
 
     async onSubmitCode(event: Event) {
@@ -158,6 +164,7 @@ export class JoinPageComponent {
             roomId: this.roomId,
             playerName: this.characterName,
             avatar: this.selectedAvatar,
+            attributes: this.attributes,
         });
     }
 }

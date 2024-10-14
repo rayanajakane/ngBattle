@@ -7,6 +7,14 @@ interface Player {
     name: string;
     isAdmin: boolean;
     avatar: string;
+    attributes: PlayerAttribute;
+}
+
+export interface PlayerAttribute {
+    health: string;
+    speed: string;
+    attack: string;
+    defense: string;
 }
 
 interface Room {
@@ -25,7 +33,7 @@ export class MatchService {
 
     constructor(private readonly gameService: GameService) {}
 
-    async createRoom(server: Server, client: Socket, gameId: string, playerName: string, avatar: string) {
+    async createRoom(server: Server, client: Socket, gameId: string, playerName: string, avatar: string, attributes: PlayerAttribute) {
         const game = await this.getGame(client, gameId);
         const mapSize = game.mapSize;
         const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
@@ -34,7 +42,7 @@ export class MatchService {
         const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers };
         this.rooms.set(roomId, room);
 
-        const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar };
+        const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar, attributes: attributes };
         room.players.push(player);
 
         console.log(room);
@@ -61,7 +69,7 @@ export class MatchService {
         if (room) client.emit('getPlayers', room.players);
     }
 
-    joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string) {
+    joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string, attributes: PlayerAttribute) {
         const room = this.rooms.get(roomId);
 
         if (!room) {
@@ -76,7 +84,7 @@ export class MatchService {
 
         const checkedPlayerName = this.checkAndSetPlayerName(room, playerName);
 
-        const player: Player = { id: client.id, name: checkedPlayerName, isAdmin: false, avatar };
+        const player: Player = { id: client.id, name: checkedPlayerName, isAdmin: false, avatar, attributes: attributes };
         room.players.push(player);
 
         if (room.players.length >= room.maxPlayers) {
