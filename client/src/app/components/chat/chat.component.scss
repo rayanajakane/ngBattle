@@ -1,0 +1,35 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box; /* Assure que les bordures et le padding sont inclus dans la hauteur */
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: scroll; /* Défilement seulement si nécessaire */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Messages alignés a la fin */
+    max-height: 200px; /* Limite la hauteur avant le défilement */
+}
+
+.message {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: #f1f1f1;
+    color: black;
+    border-radius: 5px;
+}
+
+#textInput {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}

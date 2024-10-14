@@ -12,7 +12,6 @@ import { HttpClientService } from '@app/services/httpclient.service';
 import { SocketService } from '@app/services/socket.service';
 import { PlayerAttribute } from '@app/interfaces/player';
 
-
 @Component({
     selector: 'app-character-selection-page',
     standalone: true,
@@ -90,7 +89,7 @@ export class CharacterSelectionPageComponent {
             submitButton?.setAttribute('disabled', 'true');
             let navData;
             this.socketService.connect();
-            this.socketService.once('roomJoined', (data: { roomId: string; playerId: string }) => {
+            this.socketService.once('roomJoined', (data: { roomId: string; playerId: string; playerName: string }) => {
                 navData = {
                     roomId: data.roomId,
                     playerId: data.playerId,
