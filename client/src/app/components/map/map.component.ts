@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
@@ -14,7 +14,7 @@ import { MapService } from '@app/services/map.service';
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit {
+export class MapComponent {
     @Input() mapSize: number;
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
@@ -33,7 +33,6 @@ export class MapComponent implements OnInit {
 
     // TODO: Check in tiles how many random items and how many starting points
     // are already present before to initialize setMultipleItemCounter
-    ngOnInit(): void {}
 
     /**
      * Sets the type of a tile at a specified index. If the new tile type is a wall or door,
