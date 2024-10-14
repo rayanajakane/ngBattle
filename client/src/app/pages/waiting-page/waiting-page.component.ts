@@ -7,11 +7,12 @@ import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigat
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
 import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
+import { ChatComponent } from '@app/components/chat/chat.component';
 
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [MatButtonModule, PlayerListComponent],
+    imports: [MatButtonModule, PlayerListComponent, ChatComponent],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
@@ -41,6 +42,7 @@ export class WaitingPageComponent implements OnInit {
         this.getPlayers();
         this.updatePlayers();
         this.route.params.subscribe((params) => {
+            console.log(params.characterName);
             this.roomId = params.roomId;
             this.playerId = params.playerId;
             this.characterName = params.characterName;
@@ -52,7 +54,7 @@ export class WaitingPageComponent implements OnInit {
 
     gameStartedListener() {
         this.socketService.once('gameStarted', () => {
-            //TODO: change the url path
+            // TODO: change the url path
             this.router.navigate(['/home']);
         });
     }

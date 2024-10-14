@@ -148,13 +148,13 @@ export class JoinPageComponent {
     }
 
     joinRoom() {
-        this.socketService.on('roomJoined', (data: { roomId: string; playerId: string }) => {
+        this.socketService.on('roomJoined', (data: { roomId: string; playerId: string; playerName: string }) => {
             this.router.navigate([
                 '/waitingRoom',
                 {
                     roomId: data.roomId,
                     playerId: data.playerId,
-                    characterName: this.characterName,
+                    characterName: data.playerName,
                     selectedAvatar: this.selectedAvatar,
                     isAdmin: false,
                 },
