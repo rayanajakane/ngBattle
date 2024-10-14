@@ -33,9 +33,7 @@ export class MapComponent implements OnInit {
 
     // TODO: Check in tiles how many random items and how many starting points
     // are already present before to initialize setMultipleItemCounter
-    ngOnInit(): void {
-        this.dragDropService.setMultipleItemCounter(this.mapSize);
-    }
+    ngOnInit(): void {}
 
     /**
      * Sets the type of a tile at a specified index. If the new tile type is a wall or door,

@@ -32,7 +32,7 @@ export class DragDropService {
         this.transparentImage = '';
     }
 
-    setMultipleItemCounter(mapSize: number) {
+    setMultipleItemCounter(mapSize: number, placedStartingPoints: number, placedRandomItem: number) {
         let startingCounter: number;
         if (mapSize === this.mapSizeSmall) {
             startingCounter = this.startingCounterTwo;
@@ -41,8 +41,9 @@ export class DragDropService {
         } else {
             startingCounter = this.startingCounterSix;
         }
-        this.startingPointNumberCounter = startingCounter;
-        this.randomItemCounter = startingCounter;
+
+        this.startingPointNumberCounter = startingCounter - placedStartingPoints < 0 ? 0 : startingCounter - placedStartingPoints;
+        this.randomItemCounter = startingCounter - placedRandomItem < 0 ? 0 : startingCounter - placedRandomItem;
     }
 
     reduceNumberStartingPoints() {

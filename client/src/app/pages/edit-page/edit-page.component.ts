@@ -17,10 +17,10 @@ import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
+import { DragDropService } from '@app/services/drag-drop.service';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
-
 @Component({
     selector: 'app-edit-page',
     standalone: true,
@@ -53,6 +53,9 @@ export class EditPageComponent implements OnInit {
     mapSize: number;
     mapService = inject(MapService);
     idService = inject(IDGenerationService);
+    dragDropService = inject(DragDropService);
+    placedStartingPoints: number = 0;
+    placedRandomItems: number = 0;
 
     gameCreated = false;
 
@@ -66,7 +69,26 @@ export class EditPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.setGame(this.route.snapshot.queryParams['gameId']).then(() => this.configureGame());
+        this.setGame(this.route.snapshot.queryParams['gameId']).then(() => {
+            this.configureGame();
+
+            this.countPlacedStartingPoints();
+            this.countPlacedRandomItems();
+
+            this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.placedStartingPoints, this.placedRandomItems);
+        });
+    }
+
+    countPlacedStartingPoints() {
+        this.placedStartingPoints = this.game.map.reduce((acc, tile) => {
+            return tile.item === 'startingPoint' ? acc + 1 : acc;
+        }, 0);
+    }
+
+    countPlacedRandomItems() {
+        this.placedRandomItems = this.game.map.reduce((acc, tile) => {
+            return tile.item === 'item-aleatoire' ? acc + 1 : acc;
+        }, 0);
     }
 
     async setGame(gameId: string) {
