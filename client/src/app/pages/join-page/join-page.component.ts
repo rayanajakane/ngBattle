@@ -64,7 +64,6 @@ export class JoinPageComponent {
     }
 
     receiveAttributes(attributesFromChild: PlayerAttribute) {
-        console.log(attributesFromChild);
         this.attributes = attributesFromChild;
     }
 

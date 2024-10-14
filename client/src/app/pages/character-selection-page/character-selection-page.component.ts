@@ -42,7 +42,6 @@ export class CharacterSelectionPageComponent {
     }
 
     receiveAttributes(attributesFromChild: PlayerAttribute) {
-        console.log(attributesFromChild);
         this.attributes = attributesFromChild;
     }
 

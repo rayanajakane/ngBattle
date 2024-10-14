@@ -82,7 +82,7 @@ export class WaitingPageComponent implements OnInit {
 
     lockRoom() {
         this.socketService.on('isRoomLocked', (isRoomLocked) => {
-            this.isRoomLocked = !Boolean(isRoomLocked);
+            this.isRoomLocked = isRoomLocked === 'true' ? true : false;
             if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
             } else {
@@ -103,7 +103,6 @@ export class WaitingPageComponent implements OnInit {
                     foundErrors: [error],
                 },
             });
-            console.log(error);
         });
         this.socketService.emit('startGame', { roomId: this.roomId });
     }
