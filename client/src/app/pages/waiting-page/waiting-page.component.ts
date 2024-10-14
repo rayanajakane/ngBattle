@@ -24,6 +24,7 @@ export class WaitingPageComponent implements OnInit {
     playerId: string;
     players: Player[] = [];
     isAdmin: boolean;
+    isRoomLocked: boolean = false;
     constructor(
         private socketService: SocketService,
         private router: Router,
@@ -79,7 +80,7 @@ export class WaitingPageComponent implements OnInit {
 
     lockRoom() {
         this.socketService.on('isRoomLocked', (isRoomLocked) => {
-            console.log(isRoomLocked);
+            this.isRoomLocked = !Boolean(isRoomLocked);
             if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
             } else {

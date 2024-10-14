@@ -5,8 +5,8 @@
         <div id="chat-container"></div>
     </div>
     <div id="btn-container">
-        @if(isAdmin){
-        <button (click)="lockRoom()">De/verrouiller</button>
+        @if(isAdmin){ @if(isRoomLocked){
+        <button (click)="lockRoom()">Deverrouiller</button>} @else{ <button (click)="lockRoom()">Verrouiller</button>}
         <button (click)="startGame()">Debuter</button>
         }
     </div>
