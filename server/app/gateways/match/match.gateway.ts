@@ -3,17 +3,17 @@ import { Inject } from '@nestjs/common';
 import {
     ConnectedSocket,
     MessageBody,
-    OnGatewayConnection,
     OnGatewayDisconnect,
     OnGatewayInit,
     SubscribeMessage,
     WebSocketGateway,
+    WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: { origin: '*' } })
-export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-    private server: Server;
+export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
+    @WebSocketServer() private server: Server;
 
     constructor(@Inject() private readonly matchService: MatchService) {}
 
@@ -21,12 +21,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         this.server = server;
     }
 
-    handleConnection(client: Socket) {
-        console.log(`Client connected: ${client.id}`);
-    }
-
     handleDisconnect(client: Socket) {
-        console.log(`Client disconnected: ${client.id}`);
         this.matchService.leaveAllRooms(this.server, client);
     }
 
