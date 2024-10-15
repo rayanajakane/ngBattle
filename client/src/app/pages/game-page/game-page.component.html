@@ -1,5 +1,6 @@
 <div class="container">
     <section class="game-map">
+        <app-game-panel class="game-card"></app-game-panel>
         <app-player-panel class="player-card"></app-player-panel>
         <app-combat-interface class="combat-card"></app-combat-interface>
         <app-map [mapSize]="mapSize" [tiles]="gameMap"></app-map>
@@ -26,12 +27,12 @@
         </section>
     </section>
 
-    <section class="tabs">
+    <mat-card class="tabs" appearance="outlined">
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
             <mat-tab label="Clavardage"> [ChatComponent] </mat-tab>
             <mat-tab label="Journalisation"> [LogComponent] </mat-tab>
         </mat-tab-group>
-    </section>
+    </mat-card>
     <app-timer class="timer"></app-timer>
     <app-leaderboard class="leaderboard"></app-leaderboard>
 </div>

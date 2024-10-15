@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class PlayerPanelComponent {
     playerName: string;
-    PV: number;
+    lifePoints: number;
     speed: number;
     attack: number;
     bonusAttackDice: string;
