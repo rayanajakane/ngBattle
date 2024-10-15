@@ -15,8 +15,4 @@ export class EditMapComponent extends BaseMapComponent {
     constructor(protected mapService: MapEditService) {
         super(mapService);
     }
-
-    ngAfterViewInit() {
-        console.log('EditMapComponent', this.mapService.tiles);
-    }
 }

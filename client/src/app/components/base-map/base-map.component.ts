@@ -10,7 +10,6 @@ import { MapBaseService } from '@app/services/map-base.service';
     templateUrl: './base-map.component.html',
     styleUrl: './base-map.component.scss',
 })
-//providers: [MapBaseService] // TODO: Figure out how to add providers in the children
 export abstract class BaseMapComponent {
     @Input() mapSize: number;
 

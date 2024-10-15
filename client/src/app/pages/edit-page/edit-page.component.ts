@@ -75,7 +75,6 @@ export class EditPageComponent implements OnInit {
 
             this.countPlacedStartingPoints();
             this.countPlacedRandomItems();
-            console.log('Edit Page Component', this.mapEditService.tiles);
 
             this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.placedStartingPoints, this.placedRandomItems);
         });
@@ -107,7 +106,6 @@ export class EditPageComponent implements OnInit {
         }
         this.mapSize = parseInt(this.game.mapSize, 10);
         this.mapEditService.tiles = this.game.map; // Find better way to update service tiles
-        console.log('configureGame()', this.mapEditService.tiles);
         this.gameCreated = true;
     }
 
