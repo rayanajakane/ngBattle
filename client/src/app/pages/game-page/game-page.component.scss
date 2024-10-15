@@ -13,11 +13,9 @@
     justify-content: space-between;
     flex-wrap: wrap;
     margin-top: 1rem;
-    //margin-left: 40%;
 }
 
 .tabs {
-    // place this on the top right of the screen
     position: absolute;
     top: 0;
     right: 0;
@@ -34,4 +32,13 @@ mat-grid-tile {
 
 .game-btns button {
     margin-top: 1.5rem;
+}
+
+.user-list {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin-right: 5rem;
+    margin-bottom: 8rem;
+    border: 1px solid #ccc;
 }
