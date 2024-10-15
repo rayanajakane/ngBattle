@@ -34,19 +34,17 @@ mat-grid-tile {
     margin-top: 1.5rem;
 }
 
-.user-list {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    margin-right: 5rem;
-    margin-bottom: 8rem;
-    border: 1px solid #ccc;
-}
-
 .timer {
     position: absolute;
     bottom: 0;
     right: 0;
     margin-bottom: 3rem;
     margin-right: 5rem;
+}
+.leaderboard {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-right: 2rem;
+    margin-bottom: 8rem;
 }

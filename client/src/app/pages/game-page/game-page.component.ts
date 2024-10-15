@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TileJson } from '@app/data-structure/game-structure';
@@ -29,6 +30,7 @@ import { TimerComponent } from '../../components/timer/timer.component';
         MatTabsModule,
         MatGridListModule,
         TimerComponent,
+        LeaderboardComponent,
     ],
 })
 export class GamePageComponent {
