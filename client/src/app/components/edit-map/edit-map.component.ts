@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
-import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
+import { TileBasicComponent } from '@app/components/tile-basic/tile-basic.component';
 import { MapEditService } from '@app/services/map-edit.service';
 import { BaseMapComponent } from '../base-map/base-map.component';
 

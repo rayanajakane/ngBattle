@@ -9,10 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/constants';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { EditMapComponent } from '@app/components/edit-map/edit-map.component';
-import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/map/constants';
-import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
@@ -28,7 +27,6 @@ import { MapService } from '@app/services/map.service';
     standalone: true,
     imports: [
         EditHeaderDialogComponent,
-        MapComponent,
         EditMapComponent,
         ToolbarComponent,
         SidebarComponent,

@@ -5,10 +5,10 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TileJson } from '@app/data-structure/game-structure';
-import { MapComponent } from '../../components/map/map.component';
 
 @Component({
     selector: 'app-game-page',
@@ -21,7 +21,7 @@ import { MapComponent } from '../../components/map/map.component';
         MatDividerModule,
         SidebarComponent,
         PlayAreaComponent,
-        MapComponent,
+        MapPreviewComponent,
         MatButtonModule,
         MatTabsModule,
         MatGridListModule,
