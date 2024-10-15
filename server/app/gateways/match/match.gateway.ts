@@ -30,7 +30,6 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         @MessageBody() data: { gameId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
         @ConnectedSocket() client: Socket,
     ) {
-        console.log('createRoom', data.gameId, data.playerName, data.avatar, data.attributes);
         this.matchService.createRoom(this.server, client, data.gameId, data.playerName, data.avatar, data.attributes);
     }
 
@@ -39,7 +38,6 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         @MessageBody() data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
         @ConnectedSocket() client: Socket,
     ) {
-        console.log('joinRoom', data.roomId, data.playerName, data.avatar, data.attributes);
         this.matchService.joinRoom(this.server, client, data.roomId, data.playerName, data.avatar, data.attributes);
     }
 

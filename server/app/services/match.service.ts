@@ -34,7 +34,7 @@ interface PlayerMessage {
 
 @Injectable()
 export class MatchService {
-    private rooms: Map<string, Room> = new Map();
+    public rooms: Map<string, Room> = new Map();
     private readonly floorRandomNumber: number = 1000;
     private readonly maxValueRandomNumber: number = 8999;
 
@@ -43,7 +43,7 @@ export class MatchService {
     async createRoom(server: Server, client: Socket, gameId: string, playerName: string, avatar: string, attributes: PlayerAttribute) {
         const game = await this.getGame(client, gameId);
         const mapSize = game.mapSize;
-        const maxPlayers = mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
+        const maxPlayers = this.setMaxPlayers(mapSize);
 
         const roomId = this.generateMatchId();
         const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers, messages: [] };
@@ -52,10 +52,13 @@ export class MatchService {
         const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar, attributes: attributes };
         room.players.push(player);
 
-        console.log(room);
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id });
         this.updatePlayers(server, room);
+    }
+
+    setMaxPlayers(mapSize: string) {
+        return mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
     }
 
     isCodeValid(roomId: string, client: Socket) {
@@ -98,7 +101,6 @@ export class MatchService {
             room.isLocked = true;
         }
 
-        console.log(room);
         client.join(roomId);
         client.emit('roomJoined', { roomId: roomId, playerId: client.id, playerName: checkedPlayerName });
         this.updatePlayers(server, room);
@@ -152,7 +154,6 @@ export class MatchService {
         }
 
         client.disconnect();
-        console.log(room);
     }
 
     lockRoom(server: Server, client: Socket, roomId: string) {
@@ -164,8 +165,6 @@ export class MatchService {
             room.isLocked = true;
             server.to(roomId).emit('roomLocked');
         }
-
-        console.log(room);
     }
 
     unlockRoom(server: Server, client: Socket, roomId: string) {
@@ -178,8 +177,6 @@ export class MatchService {
             room.isLocked = false;
             server.to(roomId).emit('roomUnlocked');
         }
-
-        console.log(room);
     }
 
     kickPlayer(server: Server, client: Socket, roomId: string, playerId: string) {
@@ -226,10 +223,6 @@ export class MatchService {
 
     async getGame(client: Socket, gameId: string) {
         const game = await this.gameService.get(gameId);
-        if (!game) {
-            client.emit('error', 'Game not found');
-            return;
-        }
         return game;
     }
 
@@ -239,14 +232,12 @@ export class MatchService {
 
         const message: PlayerMessage = { name: player.name, message: messageString, date: date };
         room.messages.push(message);
-        console.log('singleMessage', room.messages);
         server.to(roomId).emit('singleMessage', message);
     }
 
     loadAllMessages(client: Socket, roomId: string) {
         const room = this.rooms.get(roomId);
         const messages = room.messages;
-        console.log('loadAllMessages', room.messages);
         client.emit('loadAllMessages', { messages });
     }
 }
