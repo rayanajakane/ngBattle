@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
-import { Map } from '@app/interfaces/map';
 import { MapBaseService } from '@app/services/map-base.service';
 
 @Component({
@@ -12,7 +11,7 @@ import { MapBaseService } from '@app/services/map-base.service';
     styleUrl: './base-map.component.scss',
 })
 //providers: [MapBaseService] // TODO: Figure out how to add providers in the children
-export abstract class BaseMapComponent implements Map {
+export abstract class BaseMapComponent {
     @Input() mapSize: number;
 
     constructor(protected mapService: MapBaseService) {}

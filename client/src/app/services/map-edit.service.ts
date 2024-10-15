@@ -1,4 +1,4 @@
-import { inject, Injectable, Input } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from './drag-drop.service';
@@ -9,9 +9,9 @@ import { MapService } from './map.service';
     providedIn: 'root',
 })
 export class MapEditService extends MapBaseService {
-    @Input() selectedTileType: string;
-    @Input() selectedItem: string;
-    @Input() selectedMode: CurrentMode;
+    selectedTileType: string = '';
+    selectedItem: string = '';
+    selectedMode: CurrentMode = CurrentMode.NotSelected;
 
     isMouseDown = false;
     isLeftClick = false;

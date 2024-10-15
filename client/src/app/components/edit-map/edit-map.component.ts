@@ -1,14 +1,22 @@
 import { Component } from '@angular/core';
-import { MapBaseService } from '@app/services/map-base.service';
+import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
+import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { MapEditService } from '@app/services/map-edit.service';
 import { BaseMapComponent } from '../base-map/base-map.component';
 
 @Component({
     selector: 'app-edit-map',
     standalone: true,
-    imports: [],
+    imports: [MatGridListModule, MatGridTile, TileBasicComponent],
     templateUrl: '../base-map/base-map.component.html', //reuse base-map template
     styleUrl: '../base-map/base-map.component.scss',
-    providers: [{ provide: MapBaseService, useClass: MapEditService }],
 })
-export class EditMapComponent extends BaseMapComponent {}
+export class EditMapComponent extends BaseMapComponent {
+    constructor(protected mapService: MapEditService) {
+        super(mapService);
+    }
+
+    ngAfterViewInit() {
+        console.log('EditMapComponent', this.mapService.tiles);
+    }
+}

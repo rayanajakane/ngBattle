@@ -10,6 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
+import { EditMapComponent } from '@app/components/edit-map/edit-map.component';
 import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/map/constants';
 import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
@@ -20,6 +21,7 @@ import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
+import { MapEditService } from '@app/services/map-edit.service';
 import { MapService } from '@app/services/map.service';
 @Component({
     selector: 'app-edit-page',
@@ -27,6 +29,7 @@ import { MapService } from '@app/services/map.service';
     imports: [
         EditHeaderDialogComponent,
         MapComponent,
+        EditMapComponent,
         ToolbarComponent,
         SidebarComponent,
         MatButtonModule,
@@ -46,14 +49,12 @@ import { MapService } from '@app/services/map.service';
 })
 export class EditPageComponent implements OnInit {
     // for drag and drop
-    selectedTileType: string = '';
-    selectedItem: string = '';
-    selectedMode: CurrentMode = CurrentMode.NotSelected;
     game: GameJson;
     mapSize: number;
     mapService = inject(MapService);
     idService = inject(IDGenerationService);
     dragDropService = inject(DragDropService);
+    mapEditService = inject(MapEditService);
     placedStartingPoints: number = 0;
     placedRandomItems: number = 0;
 
@@ -74,6 +75,7 @@ export class EditPageComponent implements OnInit {
 
             this.countPlacedStartingPoints();
             this.countPlacedRandomItems();
+            console.log('Edit Page Component', this.mapEditService.tiles);
 
             this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.placedStartingPoints, this.placedRandomItems);
         });
@@ -104,6 +106,8 @@ export class EditPageComponent implements OnInit {
             this.game.map = this.mapService.createGrid(parseInt(this.game.mapSize, 10));
         }
         this.mapSize = parseInt(this.game.mapSize, 10);
+        this.mapEditService.tiles = this.game.map; // Find better way to update service tiles
+        console.log('configureGame()', this.mapEditService.tiles);
         this.gameCreated = true;
     }
 
@@ -139,16 +143,18 @@ export class EditPageComponent implements OnInit {
         });
     }
 
+    // TODO: Place into MapEditService
     changeSelectedTile(tileType: string): void {
-        this.selectedItem = '';
-        this.selectedTileType = tileType;
-        this.selectedMode = CurrentMode.TileTool;
+        this.mapEditService.selectedItem = '';
+        this.mapEditService.selectedTileType = tileType;
+        this.mapEditService.selectedMode = CurrentMode.TileTool;
     }
 
+    // TODO: Place into MapEditService
     changeSelectedItem(itemType: string): void {
-        this.selectedItem = itemType;
-        this.selectedTileType = TileTypes.BASIC;
-        this.selectedMode = CurrentMode.ItemTool;
+        this.mapEditService.selectedItem = itemType;
+        this.mapEditService.selectedTileType = TileTypes.BASIC;
+        this.mapEditService.selectedMode = CurrentMode.ItemTool;
     }
 
     createGameJSON(): GameJson {
