@@ -18,6 +18,7 @@ $transition-duration: 0.3s;
     color: white;
     display: flex;
     flex-direction: column;
+    align-items: center;
     font-family: 'MedievalSharp', sans-serif;
 }
 
@@ -33,9 +34,14 @@ h1 {
     text-align: center;
 }
 
+app-player-list,
+app-chat {
+    width: 30vw;
+}
+
 #player-data {
     display: flex;
-    justify-content: space-evenly;
+
     align-items: center;
 }
 

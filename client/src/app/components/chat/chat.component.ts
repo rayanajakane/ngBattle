@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { PlayerMessage } from '@app/interfaces/message';
 import { SocketService } from '@app/services/socket.service';
-import { DatePipe, CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-chat',
@@ -23,6 +23,7 @@ export class ChatComponent implements OnInit {
     constructor(
         private socketService: SocketService,
         private datePipe: DatePipe,
+        private cdr: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -45,6 +46,7 @@ export class ChatComponent implements OnInit {
             const message = messageReceived;
             this.messages.push(message);
 
+            this.cdr.detectChanges();
             this.scrollToBottom();
         });
     }
@@ -57,10 +59,17 @@ export class ChatComponent implements OnInit {
 
         this.socketService.emit('roomMessage', { roomId: this.roomId, message: this.myMessage.message, date: this.myMessage.date });
         console.log('sentMessage');
+        this.myMessage.message = '';
+
+        this.cdr.detectChanges();
         this.scrollToBottom();
     }
 
     scrollToBottom(): void {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        try {
+            this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        } catch (err) {
+            console.error('Scroll to bottom failed', err);
+        }
     }
 }

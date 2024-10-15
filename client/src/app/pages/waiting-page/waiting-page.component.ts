@@ -2,12 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ChatComponent } from '@app/components/chat/chat.component';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
 import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
-import { ChatComponent } from '@app/components/chat/chat.component';
 
 @Component({
     selector: 'app-waiting-page',
@@ -81,8 +81,9 @@ export class WaitingPageComponent implements OnInit {
     }
 
     lockRoom() {
-        this.socketService.on('isRoomLocked', (isRoomLocked) => {
-            this.isRoomLocked = isRoomLocked === 'true' ? true : false;
+        this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
+            this.isRoomLocked = !isRoomLocked;
+            console.log('isRoomLocked', this.isRoomLocked);
             if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
             } else {
