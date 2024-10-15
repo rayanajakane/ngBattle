@@ -4,6 +4,7 @@
     flex-wrap: wrap;
     width: 100%;
 }
+
 .game-map {
     width: 45%;
     height: 45%;
@@ -43,12 +44,21 @@ mat-grid-tile {
     margin-bottom: 3rem;
     margin-right: 5rem;
 }
+
 .leaderboard {
     position: absolute;
     bottom: 0;
     right: 0;
     margin-right: 2rem;
     margin-bottom: 8rem;
+}
+.combat-card {
+    width: 25%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-left: 4rem;
+    margin-bottom: 7.5rem;
 }
 
 @media (max-width: 1300px) {

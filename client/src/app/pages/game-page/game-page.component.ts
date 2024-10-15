@@ -10,6 +10,7 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TileJson } from '@app/data-structure/game-structure';
+import { CombatInterfaceComponent } from '../../components/combat-interface/combat-interface.component';
 import { MapComponent } from '../../components/map/map.component';
 import { TimerComponent } from '../../components/timer/timer.component';
 
@@ -31,6 +32,7 @@ import { TimerComponent } from '../../components/timer/timer.component';
         MatGridListModule,
         TimerComponent,
         LeaderboardComponent,
+        CombatInterfaceComponent,
     ],
 })
 export class GamePageComponent {
