@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { SNACKBAR_DURATION } from '@app/components/admin-components/admin-item/constant';
+import { SNACKBAR_DURATION } from '@app/components/admin-item/constant';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
 import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { GameJson } from '@app/data-structure/game-structure';
