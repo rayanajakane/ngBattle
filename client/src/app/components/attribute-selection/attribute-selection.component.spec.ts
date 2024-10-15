@@ -19,4 +19,43 @@ describe('AttributeSelectionComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should add bonus speed', () => {
+        component.addBonus('speed');
+        // eslint-disable-next-line
+        expect(component.speed).toBe(6);
+    });
+
+    it('should add bonus life', () => {
+        component.life = 4;
+        component.addBonus('life');
+        // eslint-disable-next-line
+        expect(component.life).toBe(6);
+    });
+
+    it('should assign dice', () => {
+        const event = {
+            target: {
+                value: 'attack',
+            },
+        } as unknown as Event;
+        component.assignDice(event);
+        // eslint-disable-next-line
+        expect(component.selectedDice.attack).toBe(6);
+        // eslint-disable-next-line
+        expect(component.selectedDice.defense).toBe(4);
+    });
+
+    it('should assign dice', () => {
+        const event = {
+            target: {
+                value: 'defense',
+            },
+        } as unknown as Event;
+        component.assignDice(event);
+        // eslint-disable-next-line
+        expect(component.selectedDice.attack).toBe(4);
+        // eslint-disable-next-line
+        expect(component.selectedDice.defense).toBe(6);
+    });
 });

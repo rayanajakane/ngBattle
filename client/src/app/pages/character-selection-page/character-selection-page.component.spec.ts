@@ -1,24 +1,17 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClientService } from '@app/services/httpclient.service';
-import { CharacterSelectionPageComponent, DialogDataComponent } from './character-selection-page.component';
+import { CharacterSelectionPageComponent } from './character-selection-page.component';
+import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 describe('CharacterSelectionPageComponent', () => {
     let component: CharacterSelectionPageComponent;
-    let dialogDataComponent: DialogDataComponent;
+    let navigateDialogComponent: NavigateDialogComponent;
     let fixture: ComponentFixture<CharacterSelectionPageComponent>;
-    let dialogDataFixture: ComponentFixture<DialogDataComponent>;
-
-    const mockElementRef = {
-        nativeElement: {
-            scrollLeft: 0,
-            scrollRight: 0,
-        },
-    } as ElementRef;
+    let navigateDialogFixture: ComponentFixture<NavigateDialogComponent>;
 
     const mockActivatedRoute = {
         snapshot: {
@@ -65,79 +58,18 @@ describe('CharacterSelectionPageComponent', () => {
 
         fixture.detectChanges();
 
-        dialogDataFixture = TestBed.createComponent(DialogDataComponent);
-        dialogDataComponent = dialogDataFixture.componentInstance;
+        navigateDialogFixture = TestBed.createComponent(NavigateDialogComponent);
+        navigateDialogComponent = navigateDialogFixture.componentInstance;
 
         fixture.detectChanges();
-
-        mockElementRef.nativeElement.scrollRight = 0;
-        mockElementRef.nativeElement.scrollLeft = 0;
-
-        component.widgetsContent = mockElementRef;
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should scroll left', () => {
-        component.scrollLeft();
-        // eslint-disable-next-line
-        expect(component.widgetsContent.nativeElement.scrollLeft).toBe(-150);
-    });
-
-    it('should scroll right', () => {
-        component.scrollRight();
-        // eslint-disable-next-line
-        expect(component.widgetsContent.nativeElement.scrollRight).toBe(150);
-    });
-
-    it('should select an avatar', () => {
-        const avatar = { name: 'Avatar 1', img: '../../../assets/characters/1.png' };
-        component.selectAvatar(avatar);
-        expect(component.selectedAvatar).toEqual(avatar);
-    });
-
-    it('should add bonus speed', () => {
-        const speed = component.speed;
-        component.addBonus('speed');
-        expect(component.speed).toBe(speed + 2);
-    });
-
-    it('should add bonus life', () => {
-        const life = component.life;
-        component.addBonus('life');
-        expect(component.life).toBe(life + 2);
-    });
-
-    it('should assign dice', () => {
-        const event = {
-            target: {
-                value: 'attack',
-            },
-        } as unknown as Event;
-        component.assignDice(event);
-        // eslint-disable-next-line
-        expect(component.selectedDice.attack).toBe(6);
-        // eslint-disable-next-line
-        expect(component.selectedDice.defense).toBe(4);
-    });
-
-    it('should assign dice', () => {
-        const event = {
-            target: {
-                value: 'defense',
-            },
-        } as unknown as Event;
-        component.assignDice(event);
-        // eslint-disable-next-line
-        expect(component.selectedDice.attack).toBe(4);
-        // eslint-disable-next-line
-        expect(component.selectedDice.defense).toBe(6);
-    });
-
     it('should check if the game is valid to create', async () => {
-        const isValid = await component.isGameValidToCreate();
+        const isValid = await component.isGameValidToJoin();
         expect(isValid).toBe(true);
     });
 
@@ -189,22 +121,12 @@ describe('CharacterSelectionPageComponent', () => {
         expect(component.formChecking).toHaveBeenCalled();
     });
 
-    it('onSubmit should navigate to game page', async () => {
-        const event = {
-            preventDefault: jasmine.createSpy('preventDefault'),
-        } as unknown as Event;
-        component.formChecking = jasmine.createSpy('formChecking').and.returnValue([]);
-        const navigate = spyOn((component as any).router, 'navigate');
-        await component.onSubmit(event);
-        expect(navigate).toHaveBeenCalled();
-    });
-
     it('onSubmit should open a dialog if form is invalid (game not found)', async () => {
         const event = {
             preventDefault: jasmine.createSpy('preventDefault'),
         } as unknown as Event;
         component.formChecking = jasmine.createSpy('formChecking').and.returnValue([]);
-        component.isGameValidToCreate = jasmine.createSpy('isGameValidToCreate').and.returnValue(false);
+        component.isGameValidToJoin = jasmine.createSpy('isGameValidToCreate').and.returnValue(false);
         const open = spyOn((component as any).dialog, 'open');
         await component.onSubmit(event);
         expect(open).toHaveBeenCalled();
@@ -220,7 +142,47 @@ describe('CharacterSelectionPageComponent', () => {
         expect(open).toHaveBeenCalled();
     });
 
+    it('onSubmit should navigate and emit if game is valid to join and no form checking errors', async () => {
+        const event = {
+            preventDefault: jasmine.createSpy('preventDefault'),
+        } as unknown as Event;
+
+        spyOn(component, 'formChecking').and.returnValue([]);
+
+        mockHttpClientService.getGame.and.returnValue(Promise.resolve(mockGame));
+        component.isGameValidToJoin = jasmine.createSpy('isGameValidToJoin').and.returnValue(true);
+
+        const mockRoomJoinedData = { roomId: 'room123', playerId: 'player456', playerName: 'TestPlayer' };
+        spyOn(component['socketService'], 'once').and.callFake(<T>(eventSocket: string, callback: (data: T) => void) => {
+            if (eventSocket === 'roomJoined') {
+                callback(mockRoomJoinedData as unknown as T);
+            }
+        });
+
+        const router = TestBed.inject(Router);
+        const navigateSpy = spyOn(router, 'navigate');
+
+        await component.onSubmit(event);
+
+        expect(navigateSpy).toHaveBeenCalledWith([
+            '/waitingRoom',
+            {
+                roomId: mockRoomJoinedData.roomId,
+                playerId: mockRoomJoinedData.playerId,
+                characterName: component.characterName,
+                selectedAvatar: component.selectedAvatar?.name,
+                isAdmin: true,
+            },
+        ]);
+    });
+
     it('should inject MAT_DIALOG_DATA', () => {
-        expect(dialogDataComponent.data).toEqual({ foundErrors: [], navigateGameSelection: false });
+        expect(navigateDialogComponent.data).toEqual({ foundErrors: [], navigateGameSelection: false });
+    });
+
+    it('should receive Avatar from child', () => {
+        const avatar = { name: 'Avatar 1', img: '../../Test.png' };
+        component.receiveSelectedAvatar(avatar);
+        expect(component.selectedAvatar).toEqual(avatar);
     });
 });

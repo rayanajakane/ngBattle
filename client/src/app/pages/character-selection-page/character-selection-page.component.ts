@@ -56,7 +56,7 @@ export class CharacterSelectionPageComponent {
         return errors;
     }
 
-    async isGameValidToCreate(): Promise<boolean> {
+    async isGameValidToJoin(): Promise<boolean> {
         return (await this.http.getGame(this.route.snapshot.params.id)) !== null;
     }
 
@@ -69,7 +69,7 @@ export class CharacterSelectionPageComponent {
 
         const errors = await this.formChecking();
 
-        if (!(await this.isGameValidToCreate())) {
+        if (!(await this.isGameValidToJoin())) {
             this.dialog.open(NavigateDialogComponent, {
                 data: {
                     foundErrors: ["La partie n'existe pas -> VOUS SEREZ REDIRIGÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
