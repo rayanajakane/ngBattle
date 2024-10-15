@@ -5,7 +5,7 @@
 
     <div matTooltip="{{ this.game.gameDescription }}" matTooltipPosition="below">
         <mat-card-content id="img-container" style="pointer-events: none">
-            <app-map [mapSize]="mapSize" [tiles]="game.map"></app-map>
+            <app-map-preview [mapSize]="mapSize" [tiles]="game.map"></app-map-preview>
         </mat-card-content>
     </div>
     <mat-card-content id="main-container">

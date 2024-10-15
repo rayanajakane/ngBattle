@@ -4,6 +4,7 @@ import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.co
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
+import { Map } from '@app/interfaces/map';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { MapService } from '@app/services/map.service';
 
@@ -14,7 +15,7 @@ import { MapService } from '@app/services/map.service';
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss'],
 })
-export class MapComponent {
+export class MapComponent implements Map {
     @Input() mapSize: number;
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
