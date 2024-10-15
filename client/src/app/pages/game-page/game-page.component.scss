@@ -1,20 +1,37 @@
 .container {
-    height: 100%;
     display: flex;
+    overflow: hidden;
+}
+.game-map {
+    width: 45%;
+    height: 45%;
+    margin-left: 35%;
 }
 
-.play-area-container {
-    overflow: auto;
-    flex: 1 1 auto;
+.game-btns {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    //margin-left: 40%;
 }
 
-.play-area {
-    display: grid;
-    outline: none;
-    height: 100vh;
+.tabs {
+    // place this on the top right of the screen
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 1 rem;
+}
+mat-grid-tile {
+    background: lightblue;
 }
 
-#sidebar {
-    flex-basis: 350px;
-    min-width: 200px;
+.tools {
+    height: 25%;
+    width: 25%;
+}
+
+.game-btns button {
+    margin-top: 1.5rem;
 }

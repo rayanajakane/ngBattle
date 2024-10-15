@@ -1,6 +1,24 @@
 <div class="container">
-    <app-sidebar id="sidebar"></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0"></app-play-area>
+    <section class="game-map">
+        <app-map [mapSize]="mapSize" [tiles]="gameMap"></app-map>
+
+        <section class="game-btns">
+            <div class="tools">
+                <mat-grid-list cols="2" rowHeight="1:1">
+                    <mat-grid-tile>1</mat-grid-tile>
+                    <mat-grid-tile>2</mat-grid-tile>
+                </mat-grid-list>
+            </div>
+            <button mat-raised-button color="primary">Action</button>
+            <button mat-raised-button color="primary">Fin de tours</button>
+            <button mat-raised-button color="warn">Abandon</button>
+        </section>
+    </section>
+
+    <section class="tabs">
+        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
+            <mat-tab label="Clavardage"> [ChatComponent] </mat-tab>
+            <mat-tab label="Journalisation"> [LogComponent] </mat-tab>
+        </mat-tab-group>
     </section>
 </div>
