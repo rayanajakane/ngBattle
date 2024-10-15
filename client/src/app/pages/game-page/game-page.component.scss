@@ -1,6 +1,8 @@
 .container {
     display: flex;
     overflow: hidden;
+    flex-wrap: wrap;
+    width: 100%;
 }
 .game-map {
     width: 45%;
@@ -19,8 +21,8 @@
     position: absolute;
     top: 0;
     right: 0;
-    margin: 1 rem;
 }
+
 mat-grid-tile {
     background: lightblue;
 }
@@ -47,4 +49,22 @@ mat-grid-tile {
     right: 0;
     margin-right: 2rem;
     margin-bottom: 8rem;
+}
+
+@media (max-width: 1300px) {
+    .tabs {
+        position: relative;
+        top: auto;
+        right: auto;
+    }
+}
+
+@media (max-width: 1300px) {
+    .leaderboard {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin-right: 0;
+        margin-bottom: 0;
+    }
 }
