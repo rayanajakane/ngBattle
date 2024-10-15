@@ -14,13 +14,6 @@ import { MapBaseService } from '@app/services/map-base.service';
 //providers: [MapBaseService] // TODO: Figure out how to add providers in the children
 export abstract class BaseMapComponent implements Map {
     @Input() mapSize: number;
-    mapService: MapBaseService;
 
-    abstract onRightClick(index: number): void;
-    abstract onMouseDown(index: number, event: MouseEvent): void;
-    abstract onMouseUp(index: number, event: MouseEvent): void;
-    abstract onDrop(index: number): void;
-    abstract onDragOver(): void;
-    abstract onMouseEnter(index: number, event: MouseEvent): void;
-    abstract onExit(): void;
+    constructor(protected mapService: MapBaseService) {}
 }

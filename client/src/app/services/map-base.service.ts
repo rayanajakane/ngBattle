@@ -6,8 +6,11 @@ import { TileJson } from '@app/data-structure/game-structure';
 })
 export abstract class MapBaseService {
     tiles: TileJson[];
-    getMapTiles(): TileJson[] {
-        return this.tiles;
-    }
-    abstract handleMapClick(event: MouseEvent): void;
+
+    abstract onRightClick(index: number): void;
+    abstract onMouseDown(index: number, event: MouseEvent): void;
+    abstract onMouseUp(index: number, event: MouseEvent): void;
+    abstract onDrop(index: number): void;
+    abstract onMouseEnter(index: number, event: MouseEvent): void;
+    abstract onExit(): void;
 }

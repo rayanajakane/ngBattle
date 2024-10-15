@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
+import { MapBaseService } from '@app/services/map-base.service';
 import { MapEditService } from '@app/services/map-edit.service';
 import { BaseMapComponent } from '../base-map/base-map.component';
 
@@ -7,16 +8,7 @@ import { BaseMapComponent } from '../base-map/base-map.component';
     standalone: true,
     imports: [],
     templateUrl: '../base-map/base-map.component.html', //reuse base-map template
-    styleUrl: './edit-map.component.scss',
+    styleUrl: '../base-map/base-map.component.scss',
+    providers: [{ provide: MapBaseService, useClass: MapEditService }],
 })
-export class EditMapComponent extends BaseMapComponent {
-    mapService = inject(MapEditService);
-
-    onRightClick(index: number): void {}
-    onMouseDown(index: number, event: MouseEvent): void {}
-    onMouseUp(index: number, event: MouseEvent): void {}
-    onDrop(index: number): void {}
-    onDragOver(): void {}
-    onMouseEnter(index: number, event: MouseEvent): void {}
-    onExit(): void {}
-}
+export class EditMapComponent extends BaseMapComponent {}
