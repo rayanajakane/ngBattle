@@ -200,7 +200,7 @@ export class MapComponent implements Map {
      * It also handles the end of a drag operation if dragging is in progress.
      * If the left mouse button is released, it sets the item type for the specified tile.
      */
-    onMouseUp(index: number, event: MouseEvent, draggedTile: string) {
+    onMouseUp(index: number, event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
         this.isMouseDown = false;
@@ -211,7 +211,7 @@ export class MapComponent implements Map {
             return;
         }
 
-        if (event.button === 0) this.setItemType(index, draggedTile);
+        if (event.button === 0) this.setItemType(index, this.dragDropService.draggedTile);
     }
 
     /**
@@ -240,5 +240,13 @@ export class MapComponent implements Map {
     onExit() {
         this.isMouseDown = false;
         this.isLeftClick = false;
+    }
+
+    onRightClick(index: number) {
+        this.delete(index);
+    }
+
+    onDrop(index: number) {
+        this.setItemType(index, this.dragDropService.draggedTile);
     }
 }
