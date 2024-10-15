@@ -8,6 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TileJson } from '@app/data-structure/game-structure';
 import { CombatInterfaceComponent } from '../../components/combat-interface/combat-interface.component';
@@ -33,6 +34,7 @@ import { TimerComponent } from '../../components/timer/timer.component';
         TimerComponent,
         LeaderboardComponent,
         CombatInterfaceComponent,
+        PlayerPanelComponent,
     ],
 })
 export class GamePageComponent {

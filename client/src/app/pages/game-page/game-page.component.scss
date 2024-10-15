@@ -8,7 +8,7 @@
 .game-map {
     width: 45%;
     height: 45%;
-    margin-left: 35%;
+    margin-left: 32%;
 }
 
 .game-btns {
@@ -22,6 +22,7 @@
     position: absolute;
     top: 0;
     right: 0;
+    margin-right: 2%;
 }
 
 mat-grid-tile {
@@ -58,7 +59,15 @@ mat-grid-tile {
     bottom: 0;
     left: 0;
     margin-left: 4rem;
-    margin-bottom: 7.5rem;
+    margin-bottom: 25rem;
+}
+.player-card {
+    width: 25%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-left: 4rem;
+    margin-bottom: 2rem;
 }
 
 @media (max-width: 1300px) {
