@@ -1,38 +1,26 @@
-import { Component, inject, Input } from '@angular/core';
-import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
-import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
+import { inject, Injectable } from '@angular/core';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
-import { DragDropService } from '@app/services/drag-drop.service';
-import { MapService } from '@app/services/map.service';
+import { DragDropService } from './drag-drop.service';
+import { MapBaseService } from './map-base.service';
+import { MapService } from './map.service';
 
-@Component({
-    selector: 'app-map',
-    standalone: true,
-    imports: [MatGridListModule, MatGridTile, TileBasicComponent],
-    templateUrl: './map.component.html',
-    styleUrls: ['./map.component.scss'],
+@Injectable({
+    providedIn: 'root',
 })
-export class MapComponent {
-    @Input() mapSize: number;
-    @Input() selectedTileType: string;
-    @Input() selectedItem: string;
-    @Input() selectedMode: CurrentMode;
-    @Input() tiles: TileJson[];
+export class MapEditService extends MapBaseService {
+    selectedTileType: string = '';
+    selectedItem: string = '';
+    selectedMode: CurrentMode = CurrentMode.NotSelected;
 
     isMouseDown = false;
     isLeftClick = false;
     isDraggingItem = false;
-
-    mapService = inject(MapService);
-    dragDropService = inject(DragDropService);
-
     draggedItem: string = '';
     draggedFromIndex: number = -1;
 
-    // TODO: Check in tiles how many random items and how many starting points
-    // are already present before to initialize setMultipleItemCounter
+    dragDropService = inject(DragDropService);
+    mapService = inject(MapService);
 
     /**
      * Sets the type of a tile at a specified index. If the new tile type is a wall or door,
@@ -199,7 +187,7 @@ export class MapComponent {
      * It also handles the end of a drag operation if dragging is in progress.
      * If the left mouse button is released, it sets the item type for the specified tile.
      */
-    onMouseUp(index: number, event: MouseEvent, draggedTile: string) {
+    onMouseUp(index: number, event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
         this.isMouseDown = false;
@@ -210,7 +198,7 @@ export class MapComponent {
             return;
         }
 
-        if (event.button === 0) this.setItemType(index, draggedTile);
+        if (event.button === 0) this.setItemType(index, this.dragDropService.draggedTile);
     }
 
     /**
@@ -239,5 +227,13 @@ export class MapComponent {
     onExit() {
         this.isMouseDown = false;
         this.isLeftClick = false;
+    }
+
+    onRightClick(index: number) {
+        this.delete(index);
+    }
+
+    onDrop(index: number) {
+        this.setItemType(index, this.dragDropService.draggedTile);
     }
 }

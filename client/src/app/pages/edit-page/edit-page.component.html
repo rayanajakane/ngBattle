@@ -13,21 +13,14 @@
         <app-toolbar
             class="edit-page-toolbar"
             (selectTileTypeEvent)="changeSelectedTile($event)"
-            [selectedTileTypeToolbar]="selectedTileType"
-            [selectedModeToolbar]="selectedMode"
+            [selectedTileTypeToolbar]="mapEditService.selectedTileType"
+            [selectedModeToolbar]="mapEditService.selectedMode"
         ></app-toolbar>
         <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="saveGame()">Sauvegarder le Jeu !</button>
         <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="resetGame()">Rénitialiser le Jeu !</button>
     </div>
-
     <div class="edit-page-map">
-        <app-map
-            [mapSize]="mapSize"
-            [selectedTileType]="selectedTileType"
-            [selectedItem]="selectedItem"
-            [selectedMode]="selectedMode"
-            [tiles]="game.map"
-        ></app-map>
+        <app-edit-map [mapSize]="mapSize"></app-edit-map>
     </div>
 </div>
 }

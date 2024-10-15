@@ -5,15 +5,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { SNACKBAR_DURATION } from '@app/components/admin-components/admin-item/constant';
+import { SNACKBAR_DURATION } from '@app/components/admin-item/constant';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
-import { MapComponent } from '@app/components/map/map.component';
+import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MapComponent, MatCardModule, MatButtonModule, MatTooltipModule, RouterLink],
+    imports: [MapPreviewComponent, MatCardModule, MatButtonModule, MatTooltipModule, RouterLink],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })

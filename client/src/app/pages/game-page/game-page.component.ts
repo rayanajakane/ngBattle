@@ -7,9 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { MapComponent } from '@app/components/map/map.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
@@ -30,7 +30,7 @@ import { GamePanelComponent } from '../../components/game-panel/game-panel.compo
         MatDividerModule,
         SidebarComponent,
         PlayAreaComponent,
-        MapComponent,
+        MapPreviewComponent,
         MatButtonModule,
         MatTabsModule,
         MatGridListModule,
