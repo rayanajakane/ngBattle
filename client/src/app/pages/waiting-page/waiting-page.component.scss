@@ -36,12 +36,14 @@ h1 {
 
 app-player-list,
 app-chat {
-    width: 30vw;
+    width: 50%;
+    height: 30vw;
 }
 
 #player-data {
     display: flex;
-
+    // justify-content: space-between;
+    width: 100vw;
     align-items: center;
 }
 

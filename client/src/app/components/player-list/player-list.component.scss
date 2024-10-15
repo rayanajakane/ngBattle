@@ -1,15 +1,22 @@
 @import url('../../global-files/global.css');
+$font-family: 'MedievalSharp';
+$primary-color: rgb(255, 255, 255);
+$secondary-color: rgb(140, 94, 184);
+$hover-color: #e5c50e;
+$active-color: darkgoldenrod;
+$border-color: black;
+$border-radius: 20px;
+$transition-duration: 0.3s;
 
 .player-list-container {
     font-family: 'MedievalSharp', sans-serif;
     font-size: 17px;
-
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-    background-color: #605c9e;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    color: black;
+    height: 100%;
+    background-color: $secondary-color;
+    border: 3px solid $border-color;
+    border-radius: $border-radius;
+    box-sizing: border-box; /* Assure que les bordures et le padding sont inclus dans la hauteur */
     padding: 10px;
 }
 
@@ -26,7 +33,7 @@ p {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid $border-color;
 }
 
 .player-item:last-child {
