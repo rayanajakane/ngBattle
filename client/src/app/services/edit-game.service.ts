@@ -33,7 +33,7 @@ export class EditGameService {
     ) {}
 
     initializeEditPage() {
-        this.setGame(this.route.snapshot.queryParams['gameId']).then(() => {
+        this.setGame(this.getQueryParam('gameId')).then(() => {
             this.configureGame();
 
             this.countPlacedStartingPoints();
@@ -41,6 +41,10 @@ export class EditGameService {
 
             this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.placedStartingPoints, this.placedRandomItems);
         });
+    }
+
+    getQueryParam(param: string): string {
+        return this.route.snapshot.queryParams[param];
     }
 
     async setGame(gameId: string) {
@@ -65,12 +69,12 @@ export class EditGameService {
 
     configureGame() {
         if (this.game.map.length === 0) {
-            this.game.gameType = this.selectGameType(this.route.snapshot.queryParams['gameType']);
-            this.game.mapSize = this.selectMapSize(this.route.snapshot.queryParams['mapSize']);
+            this.game.gameType = this.selectGameType(this.getQueryParam('gameType'));
+            this.game.mapSize = this.selectMapSize(this.getQueryParam('mapSize'));
             this.game.map = this.createGrid(parseInt(this.game.mapSize, 10));
         }
         this.mapSize = parseInt(this.game.mapSize, 10);
-        this.mapEditService.tiles = this.game.map; // Find better way to update service tiles
+        this.mapEditService.setTiles(this.game.map); // TODO: Find better way to update service tiles
         this.gameCreated = true;
     }
 
