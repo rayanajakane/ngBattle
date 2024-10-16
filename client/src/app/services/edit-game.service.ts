@@ -13,11 +13,10 @@ import { MapEditService } from './map-edit.service';
 @Injectable({
     providedIn: 'root',
 })
+// Handle the creation and modification of a game
 export class EditGameService {
     game: GameJson;
     mapSize: number;
-    placedStartingPoints: number = 0;
-    placedRandomItems: number = 0;
     gameCreated = false;
 
     idService = inject(IDGenerationService);
@@ -35,11 +34,7 @@ export class EditGameService {
     initializeEditPage() {
         this.setGame(this.getQueryParam('gameId')).then(() => {
             this.configureGame();
-
-            this.countPlacedStartingPoints();
-            this.countPlacedRandomItems();
-
-            this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.placedStartingPoints, this.placedRandomItems);
+            this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.game.map);
         });
     }
 
@@ -111,20 +106,6 @@ export class EditGameService {
             });
     }
 
-    // TODO: move in DragDropService
-    countPlacedStartingPoints() {
-        this.placedStartingPoints = this.game.map.reduce((acc, tile) => {
-            return tile.item === 'startingPoint' ? acc + 1 : acc;
-        }, 0);
-    }
-
-    // TODO: move in DragDropService
-    countPlacedRandomItems() {
-        this.placedRandomItems = this.game.map.reduce((acc, tile) => {
-            return tile.item === 'item-aleatoire' ? acc + 1 : acc;
-        }, 0);
-    }
-
     getGameDetails() {
         return {
             gameNameInput: this.game.gameName,
@@ -139,7 +120,10 @@ export class EditGameService {
 
     resetGame() {
         this.gameCreated = false;
-        this.setGame(this.game.id).then(() => this.configureGame());
+        this.setGame(this.game.id).then(() => {
+            this.configureGame();
+            this.dragDropService.setMultipleItemCounter(parseInt(this.game.mapSize, 10), this.game.map);
+        });
     }
 
     async saveGame() {
