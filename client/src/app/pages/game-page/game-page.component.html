@@ -1,4 +1,4 @@
-<div class="container">
+<div class="main-container">
     <section class="game-map">
         <app-game-panel class="game-card"></app-game-panel>
         <app-player-panel class="player-card"></app-player-panel>
@@ -6,12 +6,7 @@
         <app-map-preview [mapSize]="mapSize" [tiles]="gameMap"></app-map-preview>
 
         <section class="game-btns">
-            <div class="tools">
-                <mat-grid-list cols="2" rowHeight="1:1">
-                    <mat-grid-tile>1</mat-grid-tile>
-                    <mat-grid-tile>2</mat-grid-tile>
-                </mat-grid-list>
-            </div>
+            <app-inventory class="tools"></app-inventory>
             <button mat-raised-button color="primary">
                 <mat-icon> construction </mat-icon>
                 Action

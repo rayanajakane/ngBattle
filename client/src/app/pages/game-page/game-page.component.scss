@@ -1,4 +1,4 @@
-.container {
+.main-container {
     display: flex;
     overflow: hidden;
     flex-wrap: wrap;
@@ -9,6 +9,7 @@
     width: 45%;
     height: 45%;
     margin: 0 auto;
+    margin-top: 1rem;
 }
 
 .game-btns {
@@ -23,17 +24,15 @@
     top: 0;
     right: 0;
     margin-right: 2.5rem;
+    margin-top: 1rem;
     padding: 1rem;
-    padding-bottom: 200px;
-}
-
-mat-grid-tile {
-    background: lightblue;
+    padding-bottom: 180px;
 }
 
 .tools {
     height: 25%;
     width: 25%;
+    margin-bottom: 1rem;
 }
 
 .game-btns button {

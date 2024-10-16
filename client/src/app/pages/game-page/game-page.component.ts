@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
+import { InventoryComponent } from '@app/components/inventory/inventory.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
@@ -23,17 +20,14 @@ import { GamePanelComponent } from '../../components/game-panel/game-panel.compo
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     imports: [
+        InventoryComponent,
         MatCardModule,
         MatIconModule,
-        MatToolbarModule,
         MatListModule,
-        MatDividerModule,
         SidebarComponent,
-        PlayAreaComponent,
         MapPreviewComponent,
         MatButtonModule,
         MatTabsModule,
-        MatGridListModule,
         TimerComponent,
         LeaderboardComponent,
         CombatInterfaceComponent,
