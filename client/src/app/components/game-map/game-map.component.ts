@@ -9,7 +9,7 @@ import { BaseMapComponent } from '../base-map/base-map.component';
     selector: 'app-game-map',
     standalone: true,
     imports: [MatGridListModule, MatGridTile, TileBasicComponent],
-    templateUrl: '../base-map/base-map.component.html', //reuse base-map template
+    templateUrl: '../base-map/base-map.component.html', // reuse base-map template
     styleUrl: '../base-map/base-map.component.scss',
     providers: [{ provide: MapBaseService, useClass: MapGameService }],
 })

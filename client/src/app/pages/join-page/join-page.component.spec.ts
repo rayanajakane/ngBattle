@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JoinPageComponent } from './join-page.component';
-import { PlayerAttribute } from '@app/interfaces/player';
+import { PlayerAttribute, Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
-import { Player } from '@app/interfaces/player';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 
 describe('JoinPageComponent', () => {
@@ -76,7 +75,7 @@ describe('JoinPageComponent', () => {
     });
     it('should validate room code and set isRoomCodeValid to true', () => {
         mockSocketService.isSocketAlive.and.returnValue(false);
-        mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.on.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'validRoom') {
                 action(true); // Simulating a valid room code
             }
@@ -90,7 +89,7 @@ describe('JoinPageComponent', () => {
 
     it('should validate room code and set isRoomCodeValid to false', () => {
         mockSocketService.isSocketAlive.and.returnValue(false);
-        mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.on.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'validRoom') {
                 action(false); // Simulating an invalid room code
             }
@@ -111,7 +110,7 @@ describe('JoinPageComponent', () => {
             { name: 'Avatar 3', img: '../../../assets/characters/3.png' },
         ];
 
-        mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.on.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'availableAvatars') {
                 action(availableAvatarNew);
             }
@@ -119,18 +118,28 @@ describe('JoinPageComponent', () => {
 
         component.updateAllPlayers();
 
-        expect(component.availableAvatars).toEqual([
-            { name: 'Avatar 3', img: '../../../assets/characters/3.png' },
-        ]);
+        expect(component.availableAvatars).toEqual([{ name: 'Avatar 3', img: '../../../assets/characters/3.png' }]);
     });
 
     it('should set player list on receiving getPlayers event', () => {
         const players: Player[] = [
-            { id: '1', name: 'Player 1', avatar: 'Avatar 1', attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' }, isAdmin: false },
-            { id: '2', name: 'Player 2', avatar: 'Avatar 2', attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' }, isAdmin: false },
+            {
+                id: '1',
+                name: 'Player 1',
+                avatar: 'Avatar 1',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
+            {
+                id: '2',
+                name: 'Player 2',
+                avatar: 'Avatar 2',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
         ];
 
-        mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.on.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'getPlayers') {
                 action(players);
             }
@@ -145,7 +154,7 @@ describe('JoinPageComponent', () => {
         const navigateSpy = spyOn(component['router'], 'navigate');
         const roomData = { roomId: 'testRoom', playerId: 'testPlayer', playerName: 'testName' };
 
-        mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.on.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'roomJoined') {
                 action(roomData);
             }
@@ -189,7 +198,7 @@ describe('JoinPageComponent', () => {
         component.characterName = 'ValidName';
         component.isNameValid = jasmine.createSpy('isNameValid').and.returnValue(true);
 
-        mockSocketService.once.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.once.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'isRoomLocked') {
                 action(false);
             }
@@ -204,7 +213,7 @@ describe('JoinPageComponent', () => {
     it('should open dialog if room is locked on submit', () => {
         const dialogSpy = spyOn(component['dialog'], 'open');
 
-        mockSocketService.once.and.callFake((event: string, action: (data: any) => void) => {
+        mockSocketService.once.and.callFake((event: string, action: (data: unknown) => void) => {
             if (event === 'isRoomLocked') {
                 action(true);
             }
@@ -220,5 +229,4 @@ describe('JoinPageComponent', () => {
             },
         });
     });
-
 });
