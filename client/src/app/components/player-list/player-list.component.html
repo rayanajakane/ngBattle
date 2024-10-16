@@ -6,7 +6,6 @@
         <span class="player-name">{{ player.name }}</span>
         @if(player.isAdmin){
         <span>(Admin)</span>
-        <img />
         } @else if(!player.isAdmin && isUserAdmin) {
         <button (click)="deletePlayerEmitter(player.id)">Delete</button>
         }

@@ -1,11 +1,11 @@
-<p>{{ characterName }}</p>
 <div class="chat-container">
+    <p>{{ characterName }}</p>
     <div class="messages-container" #messageContainer>
         @for(message of messages; track $index) {
         <div class="message">
-            <span class="message-author">{{ message.name }}</span>
+            <span class="message-date">({{ message.date }})</span>
+            <span class="message-author" style="white-space: pre">{{ message.name }}: </span>
             <span class="message-content">{{ message.message }}</span>
-            <span class="message-date">{{ message.date }}</span>
         </div>
         }
     </div>
