@@ -3,7 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/constants';
-import { GameJson } from '@app/data-structure/game-structure';
+import { GameJson, TileJson } from '@app/data-structure/game-structure';
+import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from './drag-drop.service';
 import { HttpClientService } from './httpclient.service';
 import { IDGenerationService } from './idgeneration.service';
@@ -42,16 +43,10 @@ export class EditGameService {
         });
     }
 
-    countPlacedStartingPoints() {
-        this.placedStartingPoints = this.game.map.reduce((acc, tile) => {
-            return tile.item === 'startingPoint' ? acc + 1 : acc;
-        }, 0);
-    }
-
-    countPlacedRandomItems() {
-        this.placedRandomItems = this.game.map.reduce((acc, tile) => {
-            return tile.item === 'item-aleatoire' ? acc + 1 : acc;
-        }, 0);
+    async setGame(gameId: string) {
+        if (!(this.game = await this.httpService.getGame(gameId))) {
+            this.game = this.createGameJSON();
+        }
     }
 
     createGameJSON(): GameJson {
@@ -68,17 +63,11 @@ export class EditGameService {
         } as GameJson;
     }
 
-    async setGame(gameId: string) {
-        if (!(this.game = await this.httpService.getGame(gameId))) {
-            this.game = this.createGameJSON();
-        }
-    }
-
     configureGame() {
         if (this.game.map.length === 0) {
             this.game.gameType = this.selectGameType(this.route.snapshot.queryParams['gameType']);
             this.game.mapSize = this.selectMapSize(this.route.snapshot.queryParams['mapSize']);
-            this.game.map = this.mapEditService.createGrid(parseInt(this.game.mapSize, 10));
+            this.game.map = this.createGrid(parseInt(this.game.mapSize, 10));
         }
         this.mapSize = parseInt(this.game.mapSize, 10);
         this.mapEditService.tiles = this.game.map; // Find better way to update service tiles
@@ -97,6 +86,49 @@ export class EditGameService {
             return '20';
         }
         return DEFAULT_MAP_SIZE.toString();
+    }
+
+    // Optionally put a map if we import a map
+    createGrid(mapSize?: number): TileJson[] {
+        if (mapSize !== undefined && mapSize <= 0) {
+            throw new Error('MapSize must be a positive number.');
+        }
+        const arraySize = mapSize ? mapSize : DEFAULT_MAP_SIZE;
+        return Array(arraySize * arraySize)
+            .fill(0)
+            .map((_, index) => {
+                // Assign a unique id based on the index
+                return {
+                    idx: index, // Unique ID for each tile
+                    tileType: TileTypes.BASIC, // Tile type
+                    item: '',
+                    hasPlayer: false,
+                };
+            });
+    }
+
+    countPlacedStartingPoints() {
+        this.placedStartingPoints = this.game.map.reduce((acc, tile) => {
+            return tile.item === 'startingPoint' ? acc + 1 : acc;
+        }, 0);
+    }
+
+    countPlacedRandomItems() {
+        this.placedRandomItems = this.game.map.reduce((acc, tile) => {
+            return tile.item === 'item-aleatoire' ? acc + 1 : acc;
+        }, 0);
+    }
+
+    getGameDetails() {
+        return {
+            gameNameInput: this.game.gameName,
+            gameDescriptionInput: this.game.gameDescription,
+        };
+    }
+
+    setGameDetails(gameName: string, gameDescription: string) {
+        this.game.gameName = gameName;
+        this.game.gameDescription = gameDescription;
     }
 
     resetGame() {
@@ -144,17 +176,5 @@ export class EditGameService {
             verticalPosition: 'top',
             horizontalPosition: 'center',
         });
-    }
-
-    getGameDetails() {
-        return {
-            gameNameInput: this.game.gameName,
-            gameDescriptionInput: this.game.gameDescription,
-        };
-    }
-
-    setGameDetails(gameName: string, gameDescription: string) {
-        this.game.gameName = gameName;
-        this.game.gameDescription = gameDescription;
     }
 }
