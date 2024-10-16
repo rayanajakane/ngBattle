@@ -25,13 +25,13 @@ export class EditGameService {
     mapEditService = inject(MapEditService);
     dragDropService = inject(DragDropService);
 
-    // TODO: Put Router and ActivatedRoute in a single service
     constructor(
         private router: Router,
         private route: ActivatedRoute,
         private snackbar: MatSnackBar,
     ) {}
 
+    // TODO: Correct bug: starting points not refreshed after reinitializing game
     initializeEditPage() {
         this.setGame(this.getQueryParam('gameId')).then(() => {
             this.configureGame();
@@ -111,12 +111,14 @@ export class EditGameService {
             });
     }
 
+    // TODO: move in DragDropService
     countPlacedStartingPoints() {
         this.placedStartingPoints = this.game.map.reduce((acc, tile) => {
             return tile.item === 'startingPoint' ? acc + 1 : acc;
         }, 0);
     }
 
+    // TODO: move in DragDropService
     countPlacedRandomItems() {
         this.placedRandomItems = this.game.map.reduce((acc, tile) => {
             return tile.item === 'item-aleatoire' ? acc + 1 : acc;
