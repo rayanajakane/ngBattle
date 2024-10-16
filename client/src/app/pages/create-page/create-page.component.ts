@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { Router, RouterLink } from '@angular/router';
-import { MapService } from '@app/services/map.service';
 
 @Component({
     selector: 'app-create-page',
@@ -17,7 +16,6 @@ import { MapService } from '@app/services/map.service';
 export class CreatePageComponent {
     gameType: string;
     mapSize: string;
-    mapService = inject(MapService);
     constructor(private router: Router) {}
     submitChoice() {
         this.router.navigate(['/edit'], { queryParams: { gameType: this.gameType, mapSize: this.mapSize } });

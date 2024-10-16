@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
-import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
@@ -194,24 +193,6 @@ describe('EditPageComponent', () => {
         await component.resetGame();
         expect(setGameSpy).toHaveBeenCalledWith('123');
         expect(configureGameSpy).toHaveBeenCalled();
-    });
-
-    it('changeSelectedTile should set selectedTileType and selectedMode', () => {
-        component.selectedItem = 'test';
-        component.selectedTileType = '';
-        component.changeSelectedTile('test');
-        expect(component.selectedItem).toBe('');
-        expect(component.selectedTileType).toBe('test');
-        expect(component.selectedMode).toBe(CurrentMode.TileTool);
-    });
-
-    it('changeSelectedItem should set selectedItem and selectedMode', () => {
-        component.selectedItem = '';
-        component.selectedTileType = 'test';
-        component.changeSelectedItem('test');
-        expect(component.selectedItem).toBe('test');
-        expect(component.selectedTileType).toBe('');
-        expect(component.selectedMode).toBe(CurrentMode.ItemTool);
     });
 
     it('createGameJSON should return a GameJson object', () => {

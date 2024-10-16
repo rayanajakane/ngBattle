@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
+import { DEFAULT_MAP_SIZE } from '@app/components/constants';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
+import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from './drag-drop.service';
 import { MapBaseService } from './map-base.service';
-import { MapService } from './map.service';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +21,37 @@ export class MapEditService extends MapBaseService {
     draggedFromIndex: number = -1;
 
     dragDropService = inject(DragDropService);
-    mapService = inject(MapService);
+
+    changeSelectedTile(tileType: string): void {
+        this.selectedItem = '';
+        this.selectedTileType = tileType;
+        this.selectedMode = CurrentMode.TileTool;
+    }
+
+    changeSelectedItem(itemType: string): void {
+        this.selectedItem = itemType;
+        this.selectedTileType = TileTypes.BASIC;
+        this.selectedMode = CurrentMode.ItemTool;
+    }
+
+    // Optionally put a map if we import a map
+    createGrid(mapSize?: number): TileJson[] {
+        if (mapSize !== undefined && mapSize <= 0) {
+            throw new Error('MapSize must be a positive number.');
+        }
+        const arraySize = mapSize ? mapSize : DEFAULT_MAP_SIZE;
+        return Array(arraySize * arraySize)
+            .fill(0)
+            .map((_, index) => {
+                // Assign a unique id based on the index
+                return {
+                    idx: index, // Unique ID for each tile
+                    tileType: TileTypes.BASIC, // Tile type
+                    item: '',
+                    hasPlayer: false,
+                };
+            });
+    }
 
     /**
      * Sets the type of a tile at a specified index. If the new tile type is a wall or door,
@@ -34,10 +65,20 @@ export class MapEditService extends MapBaseService {
         if (tileType === TileTypes.WALL || tileType === TileTypes.DOOR) {
             this.deleteItem(index);
         }
-        tileType = this.mapService.chooseTileType(currentTileType, tileType);
+        tileType = this.chooseTileType(currentTileType, tileType);
         this.tiles[index].tileType = tileType;
     }
 
+    chooseTileType(currentTileType: string, newTileType: string): string {
+        if (newTileType === TileTypes.DOOR) {
+            if (currentTileType === TileTypes.DOORCLOSED) {
+                newTileType = TileTypes.DOOROPEN;
+            } else {
+                newTileType = TileTypes.DOORCLOSED;
+            }
+        }
+        return newTileType;
+    }
     /**
      * Sets the item type for a specific tile at the given index.
      *
