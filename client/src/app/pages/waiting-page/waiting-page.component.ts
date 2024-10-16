@@ -33,6 +33,7 @@ export class WaitingPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        console.log(this.socketService.id());
         this.socketService.once('roomLeft', () => {
             this.router.navigate(['/']);
         });
@@ -55,7 +56,16 @@ export class WaitingPageComponent implements OnInit {
     gameStartedListener() {
         this.socketService.once('gameStarted', () => {
             // TODO: change the url path
-            this.router.navigate(['/home']);
+            this.router.navigate([
+                '/game',
+                {
+                    roomId: this.roomId,
+                    playerId: this.playerId,
+                    characterName: this.characterName,
+                    selectedAvatar: this.selectedAvatar,
+                    isAdmin: this.isAdmin,
+                },
+            ]);
         });
     }
 

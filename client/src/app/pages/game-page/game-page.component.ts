@@ -4,6 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ActivatedRoute } from '@angular/router';
+import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
@@ -20,6 +22,7 @@ import { GamePanelComponent } from '../../components/game-panel/game-panel.compo
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     imports: [
+        ChatComponent,
         InventoryComponent,
         MatCardModule,
         MatIconModule,
@@ -38,7 +41,22 @@ import { GamePanelComponent } from '../../components/game-panel/game-panel.compo
 export class GamePageComponent implements OnInit {
     mapSize: number = 10;
     gameMap: TileJson[];
+    roomId: string;
+    playerId: string;
+    characterName: string;
+    selectedAvatar: string;
+    isAdmin: boolean;
+
+    constructor(private route: ActivatedRoute) {}
+
     ngOnInit() {
+        this.route.params.subscribe((params) => {
+            this.roomId = params['roomId'];
+            this.playerId = params['playerId'];
+            this.characterName = params['characterName'];
+            this.selectedAvatar = params['selectedAvatar'];
+            this.isAdmin = params['isAdmin'] === 'true';
+        });
         this.gameMap = Array(this.mapSize * this.mapSize).fill({ tileType: '' });
     }
 }

@@ -1,7 +1,7 @@
 <div class="main-container">
     <section class="game-map">
         <app-game-panel class="game-card"></app-game-panel>
-        <app-player-panel class="player-card"></app-player-panel>
+        <app-player-panel class="player-card" [playerName]="characterName"></app-player-panel>
         <app-combat-interface class="combat-card"></app-combat-interface>
         <app-map-preview [mapSize]="mapSize" [tiles]="gameMap"></app-map-preview>
 
@@ -24,7 +24,9 @@
 
     <mat-card class="tabs" appearance="outlined">
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
-            <mat-tab label="Clavardage"> [ChatComponent] </mat-tab>
+            <mat-tab label="Clavardage">
+                <app-chat [roomId]="roomId" [characterName]="characterName"></app-chat>
+            </mat-tab>
             <mat-tab label="Journalisation"> [LogComponent] </mat-tab>
         </mat-tab-group>
     </mat-card>

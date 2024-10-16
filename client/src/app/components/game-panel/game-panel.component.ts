@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -9,7 +9,8 @@ import { MatCardModule } from '@angular/material/card';
     styleUrl: './game-panel.component.scss',
 })
 export class GamePanelComponent {
-    mapSize: number;
-    nPlayers: number;
-    activePlayer: string;
+    @Input() gameName: any;
+    @Input() mapSize: number;
+    @Input() nPlayers: number;
+    @Input() activePlayer: string;
 }
