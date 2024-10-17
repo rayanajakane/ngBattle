@@ -8,6 +8,8 @@ interface Player {
     isAdmin: boolean;
     avatar: string;
     attributes: PlayerAttribute;
+    isActive: boolean;
+    abandoned: boolean;
 }
 
 export interface PlayerAttribute {
@@ -49,7 +51,7 @@ export class MatchService {
         const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers, messages: [] };
         this.rooms.set(roomId, room);
 
-        const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar, attributes: attributes };
+        const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar, attributes: attributes, isActive: false, abandoned: false };
         room.players.push(player);
 
         client.join(roomId);
@@ -94,7 +96,15 @@ export class MatchService {
 
         const checkedPlayerName = this.checkAndSetPlayerName(room, playerName);
 
-        const player: Player = { id: client.id, name: checkedPlayerName, isAdmin: false, avatar, attributes: attributes };
+        const player: Player = {
+            id: client.id,
+            name: checkedPlayerName,
+            isAdmin: false,
+            avatar,
+            attributes: attributes,
+            isActive: false,
+            abandoned: false,
+        };
         room.players.push(player);
 
         if (room.players.length >= room.maxPlayers) {

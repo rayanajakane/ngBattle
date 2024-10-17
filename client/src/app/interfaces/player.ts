@@ -4,6 +4,8 @@ export interface Player {
     isAdmin: boolean;
     avatar: string;
     attributes: PlayerAttribute;
+    isActive: boolean;
+    abandoned: boolean;
 }
 
 export interface PlayerAttribute {

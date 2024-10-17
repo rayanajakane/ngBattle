@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { JoinPageComponent } from './join-page.component';
-import { PlayerAttribute, Player } from '@app/interfaces/player';
-import { SocketService } from '@app/services/socket.service';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { SocketService } from '@app/services/socket.service';
+import { JoinPageComponent } from './join-page.component';
 
 describe('JoinPageComponent', () => {
     let component: JoinPageComponent;
@@ -129,6 +129,8 @@ describe('JoinPageComponent', () => {
                 avatar: 'Avatar 1',
                 attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
                 isAdmin: false,
+                isActive: false,
+                abandoned: false,
             },
             {
                 id: '2',
@@ -136,6 +138,8 @@ describe('JoinPageComponent', () => {
                 avatar: 'Avatar 2',
                 attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
                 isAdmin: false,
+                isActive: false,
+                abandoned: false,
             },
         ];
 

@@ -43,9 +43,10 @@ import { GamePanelComponent } from '../../components/game-panel/game-panel.compo
     ],
 })
 export class GamePageComponent implements OnInit {
-    mapSize: number = 10;
+    mapSize: number;
     game: GameJson;
     player: Player;
+    playersList: Player[];
     gameCreated = false;
     roomId: string;
 
@@ -60,6 +61,7 @@ export class GamePageComponent implements OnInit {
     ngOnInit() {
         this.roomId = this.route.snapshot.params['roomId'];
         this.socketService.once('getPlayers', (roomPlayers: Player[]) => {
+            this.playersList = roomPlayers;
             roomPlayers.find((player) => {
                 if (player.id === this.route.snapshot.params['playerId']) {
                     this.player = player;
@@ -71,6 +73,7 @@ export class GamePageComponent implements OnInit {
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map;
+            this.mapSize = parseInt(this.game.mapSize);
             this.gameCreated = true;
         });
     }
