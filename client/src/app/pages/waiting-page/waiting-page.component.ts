@@ -63,6 +63,7 @@ export class WaitingPageComponent implements OnInit {
                 {
                     playerId: this.playerId,
                     gameId: data.gameId,
+                    roomId: this.roomId,
                 },
             ]);
         });

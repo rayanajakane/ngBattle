@@ -13,11 +13,11 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { TileJson } from '@app/data-structure/game-structure';
-import { PlayerAttribute } from '@app/interfaces/player';
+import { GameJson } from '@app/data-structure/game-structure';
+import { Player } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { MapGameService } from '@app/services/map-game.service';
-import { PlayerService } from '@app/services/player.service';
+import { SocketService } from '@app/services/socket.service';
 import { GamePanelComponent } from '../../components/game-panel/game-panel.component';
 
 @Component({
@@ -44,30 +44,31 @@ import { GamePanelComponent } from '../../components/game-panel/game-panel.compo
 })
 export class GamePageComponent implements OnInit {
     mapSize: number = 10;
-    gameMap: TileJson[];
+    game: GameJson;
+    player: Player;
+    gameCreated = false;
     roomId: string;
-    playerId: string;
-    characterName: string;
-    selectedAvatar: string;
-    isAdmin: boolean;
-    attributes: PlayerAttribute;
-    game: any;
+
     httpService = inject(HttpClientService);
     mapService = inject(MapGameService);
-    gameCreated = false;
-
+    socketService = inject(SocketService);
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private playerService: PlayerService,
     ) {}
 
     ngOnInit() {
-        this.roomId = this.playerService.getRoomId();
-        this.characterName = this.playerService.getCharacterName();
-        this.selectedAvatar = this.playerService.getSelectedAvatar();
-        this.attributes = this.playerService.getAttributes();
-        console.log(this.attributes);
+        this.roomId = this.route.snapshot.params['roomId'];
+        this.socketService.once('getPlayers', (roomPlayers: Player[]) => {
+            roomPlayers.find((player) => {
+                if (player.id === this.route.snapshot.params['playerId']) {
+                    this.player = player;
+                }
+            });
+        });
+
+        this.socketService.emit('getPlayers', this.roomId);
+
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map;
             this.gameCreated = true;
