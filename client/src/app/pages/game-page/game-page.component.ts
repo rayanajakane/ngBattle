@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
@@ -47,7 +47,10 @@ export class GamePageComponent implements OnInit {
     selectedAvatar: string;
     isAdmin: boolean;
 
-    constructor(private route: ActivatedRoute) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+    ) {}
 
     ngOnInit() {
         this.route.params.subscribe((params) => {
@@ -58,5 +61,9 @@ export class GamePageComponent implements OnInit {
             this.isAdmin = params['isAdmin'] === 'true';
         });
         this.gameMap = Array(this.mapSize * this.mapSize).fill({ tileType: '' });
+    }
+
+    quitGame() {
+        this.router.navigate(['/home']);
     }
 }
