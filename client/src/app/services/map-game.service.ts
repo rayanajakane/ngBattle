@@ -5,7 +5,10 @@ import { MapBaseService } from './map-base.service';
     providedIn: 'root',
 })
 export class MapGameService extends MapBaseService {
-    handleMapClick(event: MouseEvent): void {
-        console.log('Game map clicked');
-    }
+    onRightClick(index: number): void {}
+    onMouseDown(index: number, event: MouseEvent): void {}
+    onMouseUp(index: number, event: MouseEvent): void {}
+    onDrop(index: number): void {}
+    onMouseEnter(index: number, event: MouseEvent): void {}
+    onExit(): void {}
 }

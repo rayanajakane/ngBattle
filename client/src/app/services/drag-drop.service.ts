@@ -1,27 +1,21 @@
 import { Injectable } from '@angular/core';
+import { TileJson } from '@app/data-structure/game-structure';
 import {
     DEFAULT_MAP_SIZE_MEDIUM,
     DEFAULT_MAP_SIZE_SMALL,
     DEFAULT_STARTING_COUNTER_FOUR,
     DEFAULT_STARTING_COUNTER_SIX,
     DEFAULT_STARTING_COUNTER_TWO,
-    DEFAULT_STARTING_POINT_NUMBER,
 } from '@app/services/constants';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DragDropService {
-    startingPointNumberCounter: number = DEFAULT_STARTING_POINT_NUMBER;
-    randomItemCounter: number = DEFAULT_STARTING_POINT_NUMBER;
+    startingPointNumberCounter: number = DEFAULT_STARTING_COUNTER_TWO;
+    randomItemCounter: number = DEFAULT_STARTING_COUNTER_TWO;
     draggedTile: string = '';
     transparentImage: string = '';
-
-    private mapSizeSmall: number = DEFAULT_MAP_SIZE_SMALL;
-    private mapSizeMedium: number = DEFAULT_MAP_SIZE_MEDIUM;
-    private startingCounterTwo: number = DEFAULT_STARTING_COUNTER_TWO;
-    private startingCounterFour: number = DEFAULT_STARTING_COUNTER_FOUR;
-    private startingCounterSix: number = DEFAULT_STARTING_COUNTER_SIX;
 
     setDraggedObject(objectType: string) {
         this.draggedTile = objectType;
@@ -32,18 +26,33 @@ export class DragDropService {
         this.transparentImage = '';
     }
 
-    setMultipleItemCounter(mapSize: number, placedStartingPoints: number, placedRandomItem: number) {
+    setMultipleItemCounter(mapSize: number, map: TileJson[]) {
+        const placedStartingPoints = this.countStartingPoints(map);
+        const placedRandomItems = this.countPlacedRandomItems(map);
+
         let startingCounter: number;
-        if (mapSize === this.mapSizeSmall) {
-            startingCounter = this.startingCounterTwo;
-        } else if (mapSize === this.mapSizeMedium) {
-            startingCounter = this.startingCounterFour;
+        if (mapSize === DEFAULT_MAP_SIZE_SMALL) {
+            startingCounter = DEFAULT_STARTING_COUNTER_TWO;
+        } else if (mapSize === DEFAULT_MAP_SIZE_MEDIUM) {
+            startingCounter = DEFAULT_STARTING_COUNTER_FOUR;
         } else {
-            startingCounter = this.startingCounterSix;
+            startingCounter = DEFAULT_STARTING_COUNTER_SIX;
         }
 
         this.startingPointNumberCounter = startingCounter - placedStartingPoints < 0 ? 0 : startingCounter - placedStartingPoints;
-        this.randomItemCounter = startingCounter - placedRandomItem < 0 ? 0 : startingCounter - placedRandomItem;
+        this.randomItemCounter = startingCounter - placedRandomItems < 0 ? 0 : startingCounter - placedRandomItems;
+    }
+
+    countStartingPoints(map: TileJson[]) {
+        return map.reduce((acc, tile) => {
+            return tile.item === 'startingPoint' ? acc + 1 : acc;
+        }, 0);
+    }
+
+    countPlacedRandomItems(map: TileJson[]) {
+        return map.reduce((acc, tile) => {
+            return tile.item === 'item-aleatoire' ? acc + 1 : acc;
+        }, 0);
     }
 
     reduceNumberStartingPoints() {

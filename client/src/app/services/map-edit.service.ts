@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
+import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from './drag-drop.service';
 import { MapBaseService } from './map-base.service';
-import { MapService } from './map.service';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +20,22 @@ export class MapEditService extends MapBaseService {
     draggedFromIndex: number = -1;
 
     dragDropService = inject(DragDropService);
-    mapService = inject(MapService);
+
+    changeSelectedTile(tileType: string): void {
+        this.selectedItem = '';
+        this.selectedTileType = tileType;
+        this.selectedMode = CurrentMode.TileTool;
+    }
+
+    changeSelectedItem(itemType: string): void {
+        this.selectedItem = itemType;
+        this.selectedTileType = TileTypes.BASIC;
+        this.selectedMode = CurrentMode.ItemTool;
+    }
+
+    setTiles(tiles: TileJson[]) {
+        this.tiles = tiles;
+    }
 
     /**
      * Sets the type of a tile at a specified index. If the new tile type is a wall or door,
@@ -34,10 +49,20 @@ export class MapEditService extends MapBaseService {
         if (tileType === TileTypes.WALL || tileType === TileTypes.DOOR) {
             this.deleteItem(index);
         }
-        tileType = this.mapService.chooseTileType(currentTileType, tileType);
+        tileType = this.chooseTileType(currentTileType, tileType);
         this.tiles[index].tileType = tileType;
     }
 
+    chooseTileType(currentTileType: string, newTileType: string): string {
+        if (newTileType === TileTypes.DOOR) {
+            if (currentTileType === TileTypes.DOORCLOSED) {
+                newTileType = TileTypes.DOOROPEN;
+            } else {
+                newTileType = TileTypes.DOORCLOSED;
+            }
+        }
+        return newTileType;
+    }
     /**
      * Sets the item type for a specific tile at the given index.
      *
