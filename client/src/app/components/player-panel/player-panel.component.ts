@@ -18,4 +18,5 @@ export class PlayerPanelComponent {
     @Input() bonusDefenseDice: string;
     @Input() movementPoints: number;
     @Input() actions: number;
+    @Input() selectedAvatar: string;
 }

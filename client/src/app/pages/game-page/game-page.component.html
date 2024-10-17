@@ -1,7 +1,7 @@
 <div class="main-container">
     <section class="game-map">
         <app-game-panel class="game-card"></app-game-panel>
-        <app-player-panel class="player-card" [playerName]="characterName"></app-player-panel>
+        <app-player-panel class="player-card" [playerName]="characterName" [selectedAvatar]="selectedAvatar"> </app-player-panel>
         <app-combat-interface class="combat-card"></app-combat-interface>
         <app-map-preview [mapSize]="mapSize" [tiles]="gameMap"></app-map-preview>
 

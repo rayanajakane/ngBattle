@@ -8,9 +8,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { PlayerAttribute } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { SocketService } from '@app/services/socket.service';
-import { PlayerAttribute } from '@app/interfaces/player';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -29,7 +29,6 @@ export class CharacterSelectionPageComponent {
     private readonly minNameLength: number = 3;
     private readonly maxNameLength: number = 15;
 
-    // Initialisation dans le constructeur
     constructor(
         private router: Router,
         private http: HttpClientService,

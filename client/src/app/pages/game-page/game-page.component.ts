@@ -14,6 +14,8 @@ import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { TileJson } from '@app/data-structure/game-structure';
+import { PlayerAttribute } from '@app/interfaces/player';
+import { PlayerService } from '@app/services/player.service';
 import { GamePanelComponent } from '../../components/game-panel/game-panel.component';
 
 @Component({
@@ -46,19 +48,23 @@ export class GamePageComponent implements OnInit {
     characterName: string;
     selectedAvatar: string;
     isAdmin: boolean;
+    attributes: PlayerAttribute;
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
+        private playerService: PlayerService,
     ) {}
 
     ngOnInit() {
         this.route.params.subscribe((params) => {
-            this.roomId = params['roomId'];
             this.playerId = params['playerId'];
-            this.characterName = params['characterName'];
-            this.selectedAvatar = params['selectedAvatar'];
             this.isAdmin = params['isAdmin'] === 'true';
+            this.roomId = this.playerService.getRoomId();
+            this.characterName = this.playerService.getCharacterName();
+            this.selectedAvatar = this.playerService.getSelectedAvatar();
+            this.attributes = this.playerService.getAttributes();
+            console.log(this.attributes);
         });
         this.gameMap = Array(this.mapSize * this.mapSize).fill({ tileType: '' });
     }
