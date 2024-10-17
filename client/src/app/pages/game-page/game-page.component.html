@@ -3,8 +3,9 @@
         <app-game-panel class="game-card"></app-game-panel>
         <app-player-panel class="player-card" [playerName]="characterName" [selectedAvatar]="selectedAvatar"> </app-player-panel>
         <app-combat-interface class="combat-card"></app-combat-interface>
-        <app-map-preview [mapSize]="mapSize" [tiles]="gameMap"></app-map-preview>
-
+        @if (gameCreated) {
+        <app-game-map [mapSize]="mapSize"></app-game-map>
+        }
         <section class="game-btns">
             <app-inventory class="tools"></app-inventory>
             <button mat-raised-button color="primary">

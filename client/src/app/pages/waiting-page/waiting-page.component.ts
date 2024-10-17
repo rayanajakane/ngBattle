@@ -26,6 +26,8 @@ export class WaitingPageComponent implements OnInit {
     players: Player[] = [];
     isAdmin: boolean;
     isRoomLocked: boolean = false;
+    gameId: string;
+
     constructor(
         private socketService: SocketService,
         private router: Router,
@@ -42,28 +44,25 @@ export class WaitingPageComponent implements OnInit {
         });
         this.getPlayers();
         this.updatePlayers();
-        this.route.params.subscribe((params) => {
-            console.log(params.characterName);
-            this.roomId = params.roomId;
-            this.playerId = params.playerId;
-            this.characterName = params.characterName;
-            this.selectedAvatar = params.selectedAvatar;
-            this.isAdmin = params.isAdmin === 'true' ? true : false;
-        });
+
+        this.roomId = this.route.snapshot.params['roomId'];
+        this.playerId = this.route.snapshot.params['playerId'];
+        this.characterName = this.route.snapshot.params['characterName'];
+        this.selectedAvatar = this.route.snapshot.params['selectedAvatar'];
+        this.isAdmin = this.route.snapshot.params['isAdmin'] === 'true' ? true : false;
+
         this.gameStartedListener();
     }
 
     gameStartedListener() {
-        this.socketService.once('gameStarted', () => {
+        this.socketService.once('gameStarted', (data: { gameId: string; players: Player[] }) => {
+            //players might not be necessary
             // TODO: change the url path
             this.router.navigate([
                 '/game',
                 {
-                    roomId: this.roomId,
                     playerId: this.playerId,
-                    characterName: this.characterName,
-                    selectedAvatar: this.selectedAvatar,
-                    isAdmin: this.isAdmin,
+                    gameId: data.gameId,
                 },
             ]);
         });
