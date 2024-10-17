@@ -3,7 +3,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
-import { DEFAULT_STARTING_POINT_NUMBER } from '@app/services/constants';
+import { DEFAULT_STARTING_COUNTER_TWO } from '@app/services/constants';
 import { DragDropService } from 'src/app/services/drag-drop.service';
 import { SidebarComponent } from './sidebar.component';
 
@@ -69,7 +69,7 @@ describe('SidebarComponent', () => {
     });
 
     it('should have correct initial values for badges', () => {
-        expect(component.dragDropService.randomItemCounter).toEqual(DEFAULT_STARTING_POINT_NUMBER);
-        expect(component.dragDropService.startingPointNumberCounter).toEqual(DEFAULT_STARTING_POINT_NUMBER);
+        expect(component.dragDropService.randomItemCounter).toEqual(DEFAULT_STARTING_COUNTER_TWO);
+        expect(component.dragDropService.startingPointNumberCounter).toEqual(DEFAULT_STARTING_COUNTER_TWO);
     });
 });

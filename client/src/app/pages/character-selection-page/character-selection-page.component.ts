@@ -87,11 +87,11 @@ export class CharacterSelectionPageComponent {
             submitButton?.setAttribute('disabled', 'true');
             let navData;
             this.socketService.connect();
-            this.socketService.once('roomJoined', (data: { roomId: string; playerId: string; playerName: string }) => {
+            this.socketService.once('roomJoined', async (data: { roomId: string; playerId: string; playerName: string }) => {
                 navData = {
                     roomId: data.roomId,
                     playerId: data.playerId,
-                    characterName: this.characterName,
+                    characterName: this.characterName, // shouldn't it be data.playerName instead
                     selectedAvatar: this.selectedAvatar?.name,
                     isAdmin: true,
                 };
