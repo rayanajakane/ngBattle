@@ -15,7 +15,7 @@ import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { TileJson } from '@app/data-structure/game-structure';
-import { GamePanelComponent } from '../../components/game-panel/game-panel.component';
+import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 
 @Component({
     selector: 'app-game-page',
