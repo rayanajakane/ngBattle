@@ -10,13 +10,18 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class PlayerPanelComponent {
     @Input() playerName: string;
-    @Input() lifePoints: number;
-    @Input() speed: number;
-    @Input() attack: number;
-    @Input() bonusAttackDice: string;
-    @Input() defense: number;
-    @Input() bonusDefenseDice: string;
+    @Input() lifePoints: string;
+    @Input() speed: string;
+    @Input() attack: string;
+    bonusAttackDice: string = 'D4';
+    @Input() defense: string;
+    bonusDefenseDice: string = 'D4';
     @Input() movementPoints: number;
-    @Input() actions: number;
+    @Input() nActions: number;
     @Input() selectedAvatar: string;
+    @Input() bonusDice: string;
+    ngOnInit() {
+        if (this.bonusDice === 'attack') this.bonusAttackDice = 'D6';
+        else if (this.bonusDice === 'defense') this.bonusDefenseDice = 'D6';
+    }
 }

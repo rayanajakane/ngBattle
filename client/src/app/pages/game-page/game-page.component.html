@@ -2,7 +2,17 @@
 <div class="main-container">
     <section class="game-map">
         <app-game-panel class="game-card"></app-game-panel>
-        <app-player-panel class="player-card" [playerName]="player.name" [selectedAvatar]="player.avatar"> </app-player-panel>
+        <app-player-panel
+            class="player-card"
+            [playerName]="player.name"
+            [selectedAvatar]="player.avatar"
+            [lifePoints]="player.attributes.health"
+            [speed]="player.attributes.speed"
+            [attack]="player.attributes.attack"
+            [defense]="player.attributes.defense"
+            [bonusDice]="player.attributes.dice"
+        >
+        </app-player-panel>
         <app-combat-interface class="combat-card"></app-combat-interface>
         <app-game-map [mapSize]="mapSize"></app-game-map>
 
