@@ -5,6 +5,7 @@ import { MapBaseService } from './map-base.service';
     providedIn: 'root',
 })
 export class MapGameService extends MapBaseService {
+    // TODO : check if it is allowed to pass lint for these abstract function
     onRightClick(index: number): void {}
     onMouseDown(index: number, event: MouseEvent): void {}
     onMouseUp(index: number, event: MouseEvent): void {}

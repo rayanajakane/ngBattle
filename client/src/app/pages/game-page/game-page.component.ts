@@ -16,7 +16,7 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { TileJson } from '@app/data-structure/game-structure';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
-
+import { DEFAULT_MAP_SIZE_SMALL } from '@app/services/constants';
 @Component({
     selector: 'app-game-page',
     standalone: true,
@@ -42,7 +42,7 @@ import { GamePanelComponent } from '@app/components/game-panel/game-panel.compon
     ],
 })
 export class GamePageComponent implements OnInit {
-    mapSize: number = 10;
+    mapSize: number = DEFAULT_MAP_SIZE_SMALL;
     gameMap: TileJson[];
     ngOnInit() {
         this.gameMap = Array(this.mapSize * this.mapSize).fill({ tileType: '' });
