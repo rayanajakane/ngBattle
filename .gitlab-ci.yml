@@ -228,5 +228,5 @@ deploy:server:
                 sudo amazon-cloudwatch-agent-ctl -a fetch-config -s -m ec2 -c file:../amazon-cloudwatch-agent-config.json
 
                 # Launch the server in background and append output to /var/log/messages for CloudWatch
-                PORT=${SERVER_PORT} forever start -a -l /var/log/messages out/server/app/index.js
+                PORT=${SERVER_PORT} forever start -a -l /var/log/messages out/index.js
             "
