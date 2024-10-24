@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
     providedIn: 'root',
 })
 export class HttpClientService {
-    private readonly baseUrl = environment.serverUrl;
+    private readonly baseUrl = environment.serverUrl + '/api';
 
     constructor(private httpService: HttpClient) {}
 
