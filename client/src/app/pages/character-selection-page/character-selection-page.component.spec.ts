@@ -99,7 +99,7 @@ describe('CharacterSelectionPageComponent', () => {
     });
 
     it('should check if avatar in form is valid', async () => {
-        component.selectedAvatar = { name: 'Avatar 1', img: '../../../assets/characters/1.png' };
+        component.selectedAvatar = { name: 'Avatar 1', img: 'src/assets/characters/1.png' };
         component.isNameValid = jasmine.createSpy('isValidName').and.returnValue(true);
         const errors = await component.formChecking();
         expect(errors.length).toBe(0);
