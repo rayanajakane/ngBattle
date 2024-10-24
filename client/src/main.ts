@@ -13,7 +13,7 @@ import { JoinPageComponent } from '@app/pages/join-page/join-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
-import { environment } from './environments/environment';
+import { environment } from './environments/environment.prod';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
