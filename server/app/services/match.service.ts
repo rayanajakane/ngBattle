@@ -99,6 +99,7 @@ export class MatchService {
 
         if (room.players.length >= room.maxPlayers) {
             room.isLocked = true;
+            server.to(roomId).emit('roomLocked');
         }
 
         client.join(roomId);
@@ -112,6 +113,11 @@ export class MatchService {
             roomId: room.id,
             avatars: room.players.map((p) => p.avatar),
         });
+    }
+
+    getMaxPlayers(roomId: string, socket: Socket) {
+        const room = this.rooms.get(roomId);
+        if (room) socket.emit('maxPlayers', room.maxPlayers);
     }
 
     checkAndSetPlayerName(room: Room, playerName: string) {

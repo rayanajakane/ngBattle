@@ -25,7 +25,7 @@ export class WaitingPageComponent implements OnInit {
     playerId: string;
     players: Player[] = [];
     isAdmin: boolean;
-    isRoomLocked: boolean = false;
+    maxPlayers: number;
     constructor(
         private socketService: SocketService,
         private router: Router,
@@ -33,23 +33,41 @@ export class WaitingPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.socketService.on('maxPlayers', (maxPlayers: number) => {
+            this.maxPlayers = maxPlayers;
+        });
         this.socketService.once('roomLeft', () => {
             this.router.navigate(['/']);
         });
         this.socketService.once('kicked', () => {
             this.openKickedDialog();
         });
+        this.socketService.on('roomLocked', () => {
+            const lockButton = document.getElementById('lock-btn');
+            console.log('room locked');
+            if (lockButton) {
+                lockButton.innerHTML = 'Déverrouiller';
+                if (this.players.length === this.maxPlayers) lockButton.setAttribute('disabled', 'true');
+            }
+        });
+        this.socketService.on('roomUnlocked', () => {
+            const lockButton = document.getElementById('lock-btn');
+            if (lockButton) {
+                lockButton.innerHTML = 'Verrouiller';
+                lockButton.removeAttribute('disabled');
+            }
+        });
         this.getPlayers();
         this.updatePlayers();
+        this.gameStartedListener();
         this.route.params.subscribe((params) => {
-            console.log(params.characterName);
             this.roomId = params.roomId;
             this.playerId = params.playerId;
             this.characterName = params.characterName;
             this.selectedAvatar = params.selectedAvatar;
             this.isAdmin = params.isAdmin === 'true' ? true : false;
+            this.socketService.emit('getMaxPlayers', { roomId: this.roomId });
         });
-        this.gameStartedListener();
     }
 
     gameStartedListener() {
@@ -81,9 +99,8 @@ export class WaitingPageComponent implements OnInit {
     }
 
     lockRoom() {
+        console.log('clicked');
         this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
-            this.isRoomLocked = !isRoomLocked;
-            console.log('isRoomLocked', this.isRoomLocked);
             if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
             } else {

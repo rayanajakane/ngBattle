@@ -81,6 +81,11 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         this.matchService.startGame(this.server, client, data.roomId);
     }
 
+    @SubscribeMessage('getMaxPlayers')
+    getMaxPlayers(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
+        this.matchService.getMaxPlayers(data.roomId, client);
+    }
+
     @SubscribeMessage('roomMessage')
     roomMessage(@MessageBody() data: { roomId: string; message: string; date: string }, @ConnectedSocket() client: Socket) {
         this.matchService.roomMessage(this.server, client, data.roomId, data.message, data.date);

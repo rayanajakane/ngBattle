@@ -5,8 +5,8 @@
         <app-chat [roomId]="roomId" [characterName]="characterName"></app-chat>
     </div>
     <div id="btn-container">
-        @if(isAdmin){ @if(isRoomLocked){
-        <button (click)="lockRoom()">Deverrouiller</button>} @else{ <button (click)="lockRoom()">Verrouiller</button>}
+        @if(isAdmin){
+        <button id="lock-btn" (click)="lockRoom()">Verrouiller</button>
         <button (click)="startGame()">Debuter</button>
         }
     </div>
