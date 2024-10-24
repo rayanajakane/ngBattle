@@ -2,7 +2,7 @@
     <p>Nombre de joueurs dans salle: {{ playerList.length }}</p>
     @for(player of playerList; track $index){
     <div class="player-item">
-        <img [src]="'src/assets/characters/' + player.avatar.slice(-1) + '.png'" />
+        <img [src]="'./assets/characters/' + player.avatar.slice(-1) + '.png'" />
         <span class="player-name">{{ player.name }}</span>
         @if(player.isAdmin){
         <span>(Admin)</span>
