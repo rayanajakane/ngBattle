@@ -36,7 +36,9 @@
     <mat-card class="tabs" appearance="outlined">
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
             <mat-tab label="Clavardage">
-                <app-chat [roomId]="roomId" [characterName]="player.name"></app-chat>
+                <div class="chat-container no-scroll">
+                    <app-chat [roomId]="roomId" [characterName]="player.name"></app-chat>
+                </div>
             </mat-tab>
             <mat-tab label="Journalisation"> [LogComponent] </mat-tab>
         </mat-tab-group>

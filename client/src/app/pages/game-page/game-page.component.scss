@@ -26,6 +26,8 @@
     margin-right: 2.5rem;
     margin-top: 1rem;
     padding: 1rem;
+    width: 320px;
+    height: 275px;
 }
 
 .tools {
@@ -78,7 +80,10 @@
     margin-top: 1rem;
 }
 
-app-chat {
-    width: 50%;
-    height: 30vw;
+.chat-container {
+    height: 200px;
+}
+
+.no-scroll {
+    overflow: hidden;
 }

@@ -40,6 +40,10 @@ p {
     border: 2px solid black;
     padding: 4px;
     margin: 3px;
+    text-wrap: wrap;
+}
+.message-content {
+    word-break: break-word; /* Ensures long words break properly */
 }
 
 #textInput {
