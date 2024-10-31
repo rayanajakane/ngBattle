@@ -13,6 +13,7 @@ export class TileBasicComponent implements OnChanges {
     @Input() tileType: string = TileTypes.BASIC;
     @Input() isToolbarTile: boolean = false; // Differentiate between toolbar tiles and map tiles
     @Input() itemType: string = '';
+    @Input() isAccessible?: boolean = false; // Only necessary for game map
 
     transparentImage: string = '';
     imageUrl: string = '';
