@@ -4,6 +4,8 @@ import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
 import { JoinPageComponent } from './join-page.component';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 describe('JoinPageComponent', () => {
     let component: JoinPageComponent;
     let fixture: ComponentFixture<JoinPageComponent>;

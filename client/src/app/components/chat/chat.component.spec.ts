@@ -4,6 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SocketService } from '@app/services/socket.service';
 import { ChatComponent } from './chat.component';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 describe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;

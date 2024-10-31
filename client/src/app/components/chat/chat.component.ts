@@ -36,7 +36,6 @@ export class ChatComponent implements OnInit {
     loadMessages() {
         this.socketService.once('loadAllMessages', (data: { messages: PlayerMessage[] }) => {
             this.messages = data.messages;
-            console.log(data.messages);
         });
         this.socketService.emit('loadAllMessages', { roomId: this.roomId });
     }
@@ -58,7 +57,6 @@ export class ChatComponent implements OnInit {
         this.myMessage.date = currentTime || '';
 
         this.socketService.emit('roomMessage', { roomId: this.roomId, message: this.myMessage.message, date: this.myMessage.date });
-        console.log('sentMessage');
         this.myMessage.message = '';
 
         this.cdr.detectChanges();

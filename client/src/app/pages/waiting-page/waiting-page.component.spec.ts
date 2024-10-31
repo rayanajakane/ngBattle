@@ -5,6 +5,8 @@ import { SocketService } from '@app/services/socket.service';
 import { of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
     let fixture: ComponentFixture<WaitingPageComponent>;

@@ -44,7 +44,6 @@ export class WaitingPageComponent implements OnInit {
         });
         this.socketService.on('roomLocked', () => {
             const lockButton = document.getElementById('lock-btn');
-            console.log(lockButton);
             if (lockButton) {
                 lockButton.innerHTML = 'Déverrouiller';
                 if (this.players.length === this.maxPlayers) lockButton.setAttribute('disabled', 'true');
