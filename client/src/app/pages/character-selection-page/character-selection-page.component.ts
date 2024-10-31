@@ -1,113 +1,52 @@
 import { NgFor } from '@angular/common';
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
+import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
+import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { PlayerAttribute } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
+import { SocketService } from '@app/services/socket.service';
 
 @Component({
     selector: 'app-character-selection-page',
     standalone: true,
-    imports: [NgFor, FormsModule, MatButtonModule, MatTooltipModule, RouterLink],
+    imports: [NgFor, FormsModule, MatButtonModule, MatTooltipModule, RouterLink, AttributeSelectionComponent, AvatarSliderComponent],
     templateUrl: './character-selection-page.component.html',
     styleUrl: './character-selection-page.component.scss',
 })
 export class CharacterSelectionPageComponent {
-    // Champs publics
-    @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
-
     dialog = inject(MatDialog);
 
-    avatars: { name: string; img: string }[];
     selectedAvatar: { name: string; img: string } | null = null;
     characterName: string = '';
-    life: number;
-    speed: number;
-    attack: number;
-    defense: number;
-    selectedDice: { attack: number; defense: number };
+    attributes: PlayerAttribute;
 
-    readonly healthDescription: string;
-    readonly speedDescription: string;
-    readonly attackDescription: string;
-    readonly defenseDescription: string;
-
-    // Constantes privées (camelCase)
-    private readonly defaultAttributeValue: number = 4;
-    private readonly defaultAttributeValueSelected: number = 6;
-    private readonly dice4: number = 4;
-    private readonly dice6: number = 6;
-    private readonly nAvatars: number = 12;
     private readonly minNameLength: number = 3;
     private readonly maxNameLength: number = 15;
 
-    private readonly scrollValue: number = 150;
-
-    // Initialisation dans le constructeur
     constructor(
         private router: Router,
         private http: HttpClientService,
         private route: ActivatedRoute,
-    ) {
-        this.life = this.defaultAttributeValueSelected;
-        this.speed = this.defaultAttributeValue;
-        this.attack = this.defaultAttributeValue;
-        this.defense = this.defaultAttributeValue;
-        this.selectedDice = { attack: this.dice6, defense: this.dice4 };
+        private socketService: SocketService,
+    ) {}
 
-        this.healthDescription = 'Le nombre de points de vie du personage';
-        this.speedDescription = "Sert a déterminer l'ordre des tours et correspond aussi au points de mouvement par tours du personnage";
-        this.attackDescription = 'Représente la force avec laquelle une attaque est faite par le personnage';
-        this.defenseDescription = 'Représente la capacité du personnage à se défendre contre une attaque';
+    receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
+        this.selectedAvatar = selectedAvatarFromChild;
+    }
 
-        // Initialisation des avatars
-        this.avatars = [];
-        for (let i = 1; i <= this.nAvatars; i++)
-            this.avatars.push({
-                name: `Avatar ${i}`,
-                img: `../../../assets/characters/${i}.png`, // Chemin générique pour les images
-            });
+    receiveAttributes(attributesFromChild: PlayerAttribute) {
+        this.attributes = attributesFromChild;
     }
 
     // Méthodes publiques
-    selectAvatar(avatar: { name: string; img: string }): void {
-        this.selectedAvatar = avatar;
-    }
 
-    scrollLeft(): void {
-        this.widgetsContent.nativeElement.scrollLeft -= this.scrollValue;
-    }
-
-    scrollRight(): void {
-        this.widgetsContent.nativeElement.scrollRight += this.scrollValue;
-    }
-
-    addBonus(attribute: 'life' | 'speed'): void {
-        if (attribute === 'life') {
-            this.life += 2;
-            this.speed -= 2;
-        } else if (attribute === 'speed') {
-            this.speed += 2;
-            this.life -= 2;
-        }
-    }
-
-    assignDice(event: Event): void {
-        const target = event.target as HTMLSelectElement;
-        const selectedValue = target.value;
-
-        if (selectedValue === 'attack') {
-            this.selectedDice.attack = this.dice6;
-            this.selectedDice.defense = this.dice4;
-        } else if (selectedValue === 'defense') {
-            this.selectedDice.attack = this.dice4;
-            this.selectedDice.defense = this.dice6;
-        }
-    }
-
-    async formChecking(): Promise<string[]> {
+    formChecking(): string[] {
         const errors: string[] = [];
         // Vérification des erreurs
         if (!this.selectedAvatar) errors.push('- Veuillez sélectionner un avatar avant de continuer');
@@ -116,7 +55,7 @@ export class CharacterSelectionPageComponent {
         return errors;
     }
 
-    async isGameValidToCreate(): Promise<boolean> {
+    async isGameValidToJoin(): Promise<boolean> {
         return (await this.http.getGame(this.route.snapshot.params.id)) !== null;
     }
 
@@ -129,45 +68,41 @@ export class CharacterSelectionPageComponent {
 
         const errors = await this.formChecking();
 
-        if (!(await this.isGameValidToCreate())) {
-            this.dialog.open(DialogDataComponent, {
+        if (!(await this.isGameValidToJoin())) {
+            this.dialog.open(NavigateDialogComponent, {
                 data: {
-                    foundErrors: ["La partie n'existe pas -> VOUS ÊTES RAMMENÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
+                    foundErrors: ["La partie n'existe pas -> VOUS SEREZ REDIRIGÉ VERS LA PAGE DE SÉLECTION DE PARTIE"],
                     navigateGameSelection: true,
                 },
             });
         } else if (errors.length > 0) {
-            this.dialog.open(DialogDataComponent, {
+            this.dialog.open(NavigateDialogComponent, {
                 data: {
                     foundErrors: errors,
                     navigateGameSelection: false,
                 },
             });
         } else {
-            // TODO: Envoi des données
-            this.router.navigate(['/waitingRoom']);
+            const submitButton = document.getElementById('submit-btn');
+            submitButton?.setAttribute('disabled', 'true');
+            let navData;
+            this.socketService.connect();
+            this.socketService.once('roomJoined', async (data: { roomId: string; playerId: string; playerName: string }) => {
+                navData = {
+                    roomId: data.roomId,
+                    playerId: data.playerId,
+                    characterName: this.characterName, // shouldn't it be data.playerName instead
+                    selectedAvatar: this.selectedAvatar?.name,
+                    isAdmin: true,
+                };
+                this.router.navigate(['/waitingRoom', navData]);
+            });
+            this.socketService.emit('createRoom', {
+                gameId: this.route.snapshot.params.id,
+                playerName: this.characterName,
+                avatar: this.selectedAvatar?.name,
+                attributes: this.attributes,
+            });
         }
     }
-}
-
-@Component({
-    selector: 'app-dialog-data-example-dialog',
-    template: `<mat-dialog-content>
-        <h1 mat-dialog-title>Note</h1>
-        @for (error of data.foundErrors; track $index) {
-        <p>{{ error }}</p>
-        }
-        <mat-dialog-actions>
-            @if (data.navigateGameSelection) {
-            <button mat-button mat-dialog-close [routerLink]="['/gameSelection']">Close</button>
-            } @else {
-            <button mat-button mat-dialog-close>Close</button>
-            }
-        </mat-dialog-actions>
-    </mat-dialog-content>`,
-    standalone: true,
-    imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, RouterLink],
-})
-export class DialogDataComponent {
-    data = inject(MAT_DIALOG_DATA);
 }

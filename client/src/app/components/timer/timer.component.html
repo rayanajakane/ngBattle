@@ -1,6 +1,13 @@
 <div class="timerbtn">
-    <button mat-fab extended color="warn">
+    @if (this.isActive) {
+    <button mat-fab extended color="warn" (click)="startTimer()">
         <mat-icon>hourglass_bottom</mat-icon>
-        59 sec.
+        {{ this.timeLeft }} sec.
     </button>
+    } @else {
+    <button mat-fab extended color="primary" disabled="">
+        <mat-icon>hourglass_top</mat-icon>
+        -- sec.
+    </button>
+    }
 </div>

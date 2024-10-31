@@ -1,4 +1,4 @@
-.container {
+.main-container {
     display: flex;
     overflow: hidden;
     flex-wrap: wrap;
@@ -9,6 +9,7 @@
     width: 45%;
     height: 45%;
     margin: 0 auto;
+    margin-top: 1rem;
 }
 
 .game-btns {
@@ -23,17 +24,16 @@
     top: 0;
     right: 0;
     margin-right: 2.5rem;
+    margin-top: 1rem;
     padding: 1rem;
-    padding-bottom: 200px;
-}
-
-mat-grid-tile {
-    background: lightblue;
+    width: 320px;
+    height: 275px;
 }
 
 .tools {
     height: 25%;
     width: 25%;
+    margin-bottom: 1rem;
 }
 
 .game-btns button {
@@ -78,4 +78,12 @@ mat-grid-tile {
     left: 0;
     margin-left: 1rem;
     margin-top: 1rem;
+}
+
+.chat-container {
+    height: 200px;
+}
+
+.no-scroll {
+    overflow: hidden;
 }

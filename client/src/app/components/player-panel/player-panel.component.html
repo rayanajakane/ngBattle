@@ -1,15 +1,18 @@
 <mat-card class="example-card" appearance="outlined">
     <mat-card-header>
-        <mat-card-title> [ nom du joueur ] </mat-card-title>
+        <mat-card-title>
+            {{ this.playerName }}
+        </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <p>PV:</p>
-        <p>Rapidité:</p>
-        <p>Attaque:</p>
-        <p>Dès Bonus (Attaque):</p>
-        <p>Défense</p>
-        <p>Dès Bonus (Défense)</p>
-        <p>Points de mouvement restants:</p>
-        <p>Actions restantes</p>
+        <!-- <img class="avatar-image" [src]="'../../../assets/characters/' + selectedAvatar.slice(-1) + '.png'" /> -->
+        <p>PV: {{ this.lifePoints }}</p>
+        <p>Rapidité: {{ this.speed }}</p>
+        <p>Attaque: {{ this.attack }}</p>
+        <p>Dès Attaque: {{ this.bonusAttackDice }}</p>
+        <p>Défense: {{ this.defense }}</p>
+        <p>Dès Défense: {{ this.bonusDefenseDice }}</p>
+        <p>Points de mouvement restants: {{ this.movementPoints }}</p>
+        <p>Actions restantes: {{ this.nActions }}</p>
     </mat-card-content>
 </mat-card>

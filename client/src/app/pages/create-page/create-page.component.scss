@@ -1,13 +1,13 @@
 @import url('../../global-files/global.css');
 
 .create-game-page {
-    background-image: url('./../../../assets/creation-redirect-background.jpg');
+    background-image: url('./../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
     background-position: center;
     background-repeat: no-repeat;
-    background-size: contain;
-    background-color: #5b6d0b;
-    min-height: 100vh;
-    width: 100%;
+    background-size: cover;
+    height: 100%;
+    width: auto;
+    color: white;
 }
 form {
     display: flex;
@@ -30,6 +30,10 @@ mat-radio-group {
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
+}
+
+mat-radio-button {
+    color: white;
 }
 
 button {
