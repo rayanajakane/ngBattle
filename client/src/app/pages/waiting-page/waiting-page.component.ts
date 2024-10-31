@@ -65,7 +65,7 @@ export class WaitingPageComponent implements OnInit {
             this.playerId = params.playerId;
             this.characterName = params.characterName;
             this.selectedAvatar = params.selectedAvatar;
-            this.isAdmin = params.isAdmin === 'true' ? true : false;
+            this.isAdmin = params.isAdmin === 'true';
             this.socketService.emit('getMaxPlayers', { roomId: this.roomId });
         });
     }

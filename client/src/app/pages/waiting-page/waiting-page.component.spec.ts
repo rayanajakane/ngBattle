@@ -62,6 +62,27 @@ describe('WaitingPageComponent', () => {
         expect(component.players).toEqual(players);
     });
 
+    it('should initialize component and set parameters from route', () => {
+        component.ngOnInit();
+
+        expect(component.roomId).toBe('testRoom');
+        expect(component.playerId).toBe('testPlayer');
+        expect(component.characterName).toBe('testName');
+        expect(component.selectedAvatar).toBe('Avatar 1');
+        expect(component.isAdmin).toBe(true);
+        expect(mockSocketService.emit).toHaveBeenCalledWith('getMaxPlayers', { roomId: 'testRoom' });
+    });
+    it('should initialize component and set parameters from route', () => {
+        component.ngOnInit();
+
+        expect(component.roomId).toBe('testRoom');
+        expect(component.playerId).toBe('testPlayer');
+        expect(component.characterName).toBe('testName');
+        expect(component.selectedAvatar).toBe('Avatar 1');
+        expect(component.isAdmin).toBe(true);
+        expect(mockSocketService.emit).toHaveBeenCalledWith('getMaxPlayers', { roomId: 'testRoom' });
+    });
+
     it('should update players on receiving updatePlayers event', () => {
         const players = [
             {
@@ -89,7 +110,36 @@ describe('WaitingPageComponent', () => {
         document.body.appendChild(lockButton);
 
         component.maxPlayers = 4;
-        component.players = [{}, {}, {}, {}] as any;
+        component.players = [
+            {
+                id: '1',
+                name: 'Player 1',
+                avatar: 'Avatar 1',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
+            {
+                id: '2',
+                name: 'Player 2',
+                avatar: 'Avatar 2',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
+            {
+                id: '3',
+                name: 'Player 3',
+                avatar: 'Avatar 3',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
+            {
+                id: '4',
+                name: 'Player 4',
+                avatar: 'Avatar 4',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
+        ];
 
         mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
             if (event === 'roomLocked') {
@@ -102,6 +152,24 @@ describe('WaitingPageComponent', () => {
 
         expect(document.getElementById('lock-btn')?.innerHTML).toBe('Déverrouiller');
         expect(document.getElementById('lock-btn')?.getAttribute('disabled')).toBe('true');
+    });
+
+    it('should change lock button text on roomUnlocked event', () => {
+        const lockButton = document.createElement('button');
+        lockButton.id = 'lock-btn';
+        document.body.appendChild(lockButton);
+
+        mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
+            if (event === 'roomUnlocked') {
+                action({});
+            }
+        });
+
+        component.ngOnInit();
+        fixture.detectChanges(); // Ensure the component and DOM are fully initialized
+
+        expect(document.getElementById('lock-btn')?.innerHTML).toBe('Verrouiller');
+        expect(document.getElementById('lock-btn')?.getAttribute('disabled')).toBeNull();
     });
 
     it('should navigate to home on gameStarted event', () => {
