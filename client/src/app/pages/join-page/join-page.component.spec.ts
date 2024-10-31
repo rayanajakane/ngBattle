@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { JoinPageComponent } from './join-page.component';
-import { PlayerAttribute } from '@app/interfaces/player';
-import { SocketService } from '@app/services/socket.service';
-import { Player } from '@app/interfaces/player';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { SocketService } from '@app/services/socket.service';
+import { JoinPageComponent } from './join-page.component';
 
 describe('JoinPageComponent', () => {
     let component: JoinPageComponent;
@@ -119,15 +118,25 @@ describe('JoinPageComponent', () => {
 
         component.updateAllPlayers();
 
-        expect(component.availableAvatars).toEqual([
-            { name: 'Avatar 3', img: '../../../assets/characters/3.png' },
-        ]);
+        expect(component.availableAvatars).toEqual([{ name: 'Avatar 3', img: '../../../assets/characters/3.png' }]);
     });
 
     it('should set player list on receiving getPlayers event', () => {
         const players: Player[] = [
-            { id: '1', name: 'Player 1', avatar: 'Avatar 1', attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' }, isAdmin: false },
-            { id: '2', name: 'Player 2', avatar: 'Avatar 2', attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' }, isAdmin: false },
+            {
+                id: '1',
+                name: 'Player 1',
+                avatar: 'Avatar 1',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
+            {
+                id: '2',
+                name: 'Player 2',
+                avatar: 'Avatar 2',
+                attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
+                isAdmin: false,
+            },
         ];
 
         mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
@@ -169,6 +178,12 @@ describe('JoinPageComponent', () => {
         const dialogSpy = spyOn(component['dialog'], 'open');
         component.selectedAvatar = '';
         component.characterName = '';
+
+        mockSocketService.once.and.callFake((event: string, action: (data: any) => void) => {
+            if (event === 'isRoomLocked') {
+                action(false);
+            }
+        });
 
         component.onSubmit();
 
@@ -221,4 +236,13 @@ describe('JoinPageComponent', () => {
         });
     });
 
+    it('should return true when characterName length is within the valid range', () => {
+        component.characterName = 'ValidName';
+        expect(component.isNameValid()).toBeTrue();
+    });
+
+    it('should return false when characterName length is less than 3', () => {
+        component.characterName = 'Na';
+        expect(component.isNameValid()).toBeFalse();
+    });
 });

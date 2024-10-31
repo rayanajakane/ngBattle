@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { KickedDialogComponent } from './kicked-dialog.component';
+const dialogData = { someData: 'test data' };
 
 describe('KickedDialogComponent', () => {
     let component: KickedDialogComponent;
@@ -8,7 +9,8 @@ describe('KickedDialogComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [KickedDialogComponent],
+            imports: [KickedDialogComponent, MatDialogModule],
+            providers: [{ provide: MAT_DIALOG_DATA, useValue: dialogData }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(KickedDialogComponent);
