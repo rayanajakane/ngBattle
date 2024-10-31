@@ -1,7 +1,14 @@
 @if (gameCreated) {
 <div class="main-container">
     <section class="game-map">
-        <app-game-panel class="game-card"></app-game-panel>
+        <app-game-panel
+            class="game-card"
+            [mapSize]="mapSize"
+            [nPlayers]="this.playersList.length"
+            [activePlayer]="this.player.name"
+            [gameName]="this.game.gameName"
+        >
+        </app-game-panel>
         <app-player-panel
             class="player-card"
             [playerName]="player.name"

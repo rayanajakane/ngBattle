@@ -1,10 +1,10 @@
 <mat-card class="game-card" appearance="outlined">
     <mat-card-header>
-        <mat-card-title> [ nom du jeu ] </mat-card-title>
+        <mat-card-title> {{ this.gameName }} </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <p>Taille de carte:</p>
-        <p>Joueurs actuels:</p>
-        <p>Joueur actif:</p>
+        <p>Taille de carte: {{ this.mapSize }} x {{ this.mapSize }}</p>
+        <p>Joueurs actuels: {{ this.nPlayers }}</p>
+        <p>Joueur actif: {{ this.activePlayer }}</p>
     </mat-card-content>
 </mat-card>
