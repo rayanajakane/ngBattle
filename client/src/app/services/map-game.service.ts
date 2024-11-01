@@ -14,4 +14,16 @@ export class MapGameService extends MapBaseService {
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {}
     onExit(): void {}
+
+    previewAvailableMoves(indexes: number[]): void {
+        indexes.forEach((index) => {
+            this.tiles[index].isAccessible = true;
+        });
+    }
+
+    removePreview(): void {
+        this.tiles.forEach((tile) => {
+            tile.isAccessible = false;
+        });
+    }
 }
