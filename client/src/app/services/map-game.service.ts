@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameTile } from '../data-structure/game-structure';
+import { GameTile, TilePreview } from '../data-structure/game-structure';
 import { MapBaseService } from './map-base.service';
 
 @Injectable({
@@ -15,15 +15,15 @@ export class MapGameService extends MapBaseService {
     onMouseEnter(index: number, event: MouseEvent): void {}
     onExit(): void {}
 
-    previewAvailableMoves(indexes: number[]): void {
+    setPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {
-            this.tiles[index].isAccessible = true;
+            this.tiles[index].isAccessible = previewType;
         });
     }
 
-    removePreview(): void {
+    removeAllPreview(): void {
         this.tiles.forEach((tile) => {
-            tile.isAccessible = false;
+            tile.isAccessible = TilePreview.NONE;
         });
     }
 }

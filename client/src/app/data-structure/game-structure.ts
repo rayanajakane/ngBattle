@@ -1,3 +1,9 @@
+export enum TilePreview {
+    NONE,
+    PREVIEW,
+    SHORTESTPATH,
+}
+
 export interface TileJson {
     idx: number;
     tileType: string;
@@ -6,7 +12,7 @@ export interface TileJson {
 }
 
 export interface GameTile extends TileJson {
-    isAccessible: boolean;
+    isAccessible: TilePreview;
 }
 
 // TODO: rename 'gameName' to just 'name'
