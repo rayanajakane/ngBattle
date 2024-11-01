@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TileJson } from '@app/data-structure/game-structure';
+import { GameTile, TileJson } from '@app/data-structure/game-structure';
 
 @Injectable({
     providedIn: 'root',
@@ -13,4 +13,8 @@ export abstract class MapBaseService {
     abstract onDrop(index: number): void;
     abstract onMouseEnter(index: number, event: MouseEvent): void;
     abstract onExit(): void;
+
+    isGameTile(tile: TileJson | GameTile): tile is GameTile {
+        return (tile as GameTile).isAccessible !== undefined;
+    }
 }

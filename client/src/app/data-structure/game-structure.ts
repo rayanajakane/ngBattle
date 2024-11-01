@@ -4,6 +4,11 @@ export interface TileJson {
     item: string;
     hasPlayer: boolean;
 }
+
+export interface GameTile extends TileJson {
+    isAccessible: boolean;
+}
+
 // TODO: rename 'gameName' to just 'name'
 export interface GameJson {
     id: string;

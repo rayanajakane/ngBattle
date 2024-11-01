@@ -13,7 +13,7 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { GameJson } from '@app/data-structure/game-structure';
+import { GameJson, GameTile } from '@app/data-structure/game-structure';
 import { Player } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { MapGameService } from '@app/services/map-game.service';
@@ -72,7 +72,7 @@ export class GamePageComponent implements OnInit {
         this.socketService.emit('getPlayers', this.roomId);
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
-            this.mapService.tiles = this.game.map;
+            this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize);
             this.gameCreated = true;
         });

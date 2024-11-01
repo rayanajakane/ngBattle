@@ -13,6 +13,7 @@
                     (drop)="$event.stopPropagation(); mapService.onDrop(tile.idx)"
                     (dragover)="$event.preventDefault(); $event.stopPropagation()"
                     (mouseenter)="mapService.onMouseEnter(tile.idx, $event)"
+                    [isAccessible]="mapService.isGameTile(tile) ? tile.isAccessible : undefined"
                 >
                 </app-tile-basic>
             </mat-grid-tile>
