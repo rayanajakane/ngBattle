@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-components/admin-item/admin-item.component';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { AdminPageComponent } from './admin-page.component';
 
@@ -13,7 +13,7 @@ describe('AdminPageComponent', () => {
     let fixture: ComponentFixture<AdminPageComponent>;
     let httpClientService: jasmine.SpyObj<HttpClientService>;
 
-    const mockGames: GameJson[] = [
+    const mockGames: Game[] = [
         {
             id: '1',
             gameName: 'Game 1',

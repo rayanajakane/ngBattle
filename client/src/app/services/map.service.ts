@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
-import { TileJson } from '@app/data-structure/game-structure';
+import { Tile } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { TileTypes } from '@app/data-structure/toolType';
 })
 export class MapService {
     // Optionally put a map if we import a map
-    createGrid(mapSize?: number): TileJson[] {
+    createGrid(mapSize?: number): Tile[] {
         if (mapSize !== undefined && mapSize <= 0) {
             throw new Error('MapSize must be a positive number.');
         }

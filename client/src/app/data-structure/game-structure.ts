@@ -1,16 +1,16 @@
-export interface TileJson {
+export interface Tile {
     idx: number;
     tileType: string;
     item: string;
     hasPlayer: boolean;
 }
 // TODO: rename 'gameName' to just 'name'
-export interface GameJson {
+export interface Game {
     id: string;
     gameName: string;
     gameDescription: string;
     mapSize: string;
-    map: TileJson[];
+    map: Tile[];
     gameType: string;
     isVisible: boolean;
     creationDate: string;

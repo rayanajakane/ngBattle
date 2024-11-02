@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from './httpclient.service';
 
 describe('HttpClientService', () => {
@@ -27,7 +27,7 @@ describe('HttpClientService', () => {
 
     it('should check if game exists and return true', async () => {
         const gameId = '123';
-        const mockGame = { id: gameId } as GameJson;
+        const mockGame = { id: gameId } as Game;
 
         spyOn(service, 'getGame').and.returnValue(Promise.resolve(mockGame));
         const exists = await service.gameExists(gameId);
@@ -43,7 +43,7 @@ describe('HttpClientService', () => {
     });
 
     it('should send game', () => {
-        const gameJson = { id: '123' } as GameJson;
+        const gameJson = { id: '123' } as Game;
         service.sendGame(gameJson).subscribe();
 
         const req = httpMock.expectOne(`${service['baseUrl']}/game/upload/`);
@@ -54,7 +54,7 @@ describe('HttpClientService', () => {
 
     it('should get game', async () => {
         const gameId = '123';
-        const mockGame = { id: gameId } as GameJson;
+        const mockGame = { id: gameId } as Game;
 
         service.getGame(gameId).then((game) => {
             expect(game).toEqual(mockGame);
@@ -69,7 +69,7 @@ describe('HttpClientService', () => {
         const mockGames = [
             { id: '1', creationDate: '2023-01-01' },
             { id: '2', creationDate: '2023-01-02' },
-        ] as GameJson[];
+        ] as Game[];
 
         service.getAllGames().then((games) => {
             expect(games).toEqual(mockGames);
@@ -91,7 +91,7 @@ describe('HttpClientService', () => {
     });
 
     it('should update game', () => {
-        const gameJson = { id: '123' } as GameJson;
+        const gameJson = { id: '123' } as Game;
         service.updateGame(gameJson).subscribe();
 
         const req = httpMock.expectOne(`${service['baseUrl']}/game/update/`);

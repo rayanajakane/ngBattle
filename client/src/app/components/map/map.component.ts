@@ -2,7 +2,7 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { TileJson } from '@app/data-structure/game-structure';
+import { Tile } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { MapService } from '@app/services/map.service';
@@ -19,7 +19,7 @@ export class MapComponent implements OnInit {
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
     @Input() selectedMode: CurrentMode;
-    @Input() tiles: TileJson[];
+    @Input() tiles: Tile[];
 
     isMouseDown = false;
     isLeftClick = false;

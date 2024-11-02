@@ -1,7 +1,7 @@
 import { NgFor } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { GameSelectionComponent } from '@app/components/game-selection/game-selection.component';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { HttpClientService } from '@app/services/httpclient.service';
 export class GameSelectionPageComponent {
     @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
 
-    games: GameJson[];
+    games: Game[];
 
     private readonly scrollValue: number = 300;
 

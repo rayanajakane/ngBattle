@@ -1,5 +1,6 @@
 import { NgFor } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Avatar } from '@app/interfaces/avatar';
 
 @Component({
     selector: 'app-avatar-slider',
@@ -10,8 +11,8 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@
 })
 export class AvatarSliderComponent {
     @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
-    @Output() selectedAvatarEmitter = new EventEmitter<{ name: string; img: string }>();
-    @Input() avatars: { name: string; img: string }[] = [
+    @Output() selectedAvatarEmitter = new EventEmitter<Avatar>();
+    @Input() avatars: Avatar[] = [
         { name: 'Avatar 1', img: './assets/characters/1.png' },
         { name: 'Avatar 2', img: './assets/characters/2.png' },
         { name: 'Avatar 3', img: './assets/characters/3.png' },

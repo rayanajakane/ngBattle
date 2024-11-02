@@ -15,7 +15,7 @@ import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
@@ -49,7 +49,7 @@ export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
     selectedItem: string = '';
     selectedMode: CurrentMode = CurrentMode.NotSelected;
-    game: GameJson;
+    game: Game;
     mapSize: number;
     mapService = inject(MapService);
     idService = inject(IDGenerationService);
@@ -129,7 +129,7 @@ export class EditPageComponent implements OnInit {
         this.selectedMode = CurrentMode.ItemTool;
     }
 
-    createGameJSON(): GameJson {
+    createGameJSON(): Game {
         return {
             id: this.idService.generateID(),
             gameName: 'Sans titre',
@@ -140,7 +140,7 @@ export class EditPageComponent implements OnInit {
             isVisible: true,
             creationDate: '',
             lastModified: '',
-        } as GameJson;
+        } as Game;
     }
 
     async saveGame() {

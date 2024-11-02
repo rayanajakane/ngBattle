@@ -8,9 +8,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { Avatar } from '@app/interfaces/avatar';
+import { PlayerAttribute } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { SocketService } from '@app/services/socket.service';
-import { PlayerAttribute } from '@app/interfaces/player';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -22,7 +23,7 @@ import { PlayerAttribute } from '@app/interfaces/player';
 export class CharacterSelectionPageComponent {
     dialog = inject(MatDialog);
 
-    selectedAvatar: { name: string; img: string } | null = null;
+    selectedAvatar: Avatar | null = null;
     characterName: string = '';
     attributes: PlayerAttribute;
 
@@ -37,15 +38,13 @@ export class CharacterSelectionPageComponent {
         private socketService: SocketService,
     ) {}
 
-    receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
+    receiveSelectedAvatar(selectedAvatarFromChild: Avatar) {
         this.selectedAvatar = selectedAvatarFromChild;
     }
 
     receiveAttributes(attributesFromChild: PlayerAttribute) {
         this.attributes = attributesFromChild;
     }
-
-    // Méthodes publiques
 
     formChecking(): string[] {
         const errors: string[] = [];
@@ -67,7 +66,7 @@ export class CharacterSelectionPageComponent {
     async onSubmit(event: Event) {
         event.preventDefault();
 
-        const errors = await this.formChecking();
+        const errors = this.formChecking();
 
         if (!(await this.isGameValidToJoin())) {
             this.dialog.open(NavigateDialogComponent, {

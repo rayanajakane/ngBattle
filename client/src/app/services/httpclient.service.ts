@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { firstValueFrom } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment.prod';
 @Injectable({
     providedIn: 'root',
 })
@@ -16,22 +16,22 @@ export class HttpClientService {
         return (await this.getGame(id)) !== null;
     }
 
-    sendGame(gameJson: GameJson) {
+    sendGame(gameJson: Game) {
         gameJson.creationDate = new Date().toISOString();
         gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'America/Toronto' });
         // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.post(`${this.baseUrl}/game/upload/`, gameJson, { headers: { 'Content-Type': 'application/json' } });
     }
 
-    async getGame(id: string): Promise<GameJson> {
-        return await firstValueFrom(this.httpService.get<GameJson>(`${this.baseUrl}/game/get/` + id));
+    async getGame(id: string): Promise<Game> {
+        return await firstValueFrom(this.httpService.get<Game>(`${this.baseUrl}/game/get/` + id));
     }
 
-    async getAllGames(): Promise<GameJson[]> {
+    async getAllGames(): Promise<Game[]> {
         return await firstValueFrom(
             this.httpService
-                .get<GameJson[]>(`${this.baseUrl}/game/getAll/`)
-                .pipe(map((games: GameJson[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()))),
+                .get<Game[]>(`${this.baseUrl}/game/getAll/`)
+                .pipe(map((games: Game[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()))),
         );
     }
 
@@ -40,7 +40,7 @@ export class HttpClientService {
         return this.httpService.delete(`${this.baseUrl}/game/delete/` + id, { headers: { 'Content-Type': 'application/json' } });
     }
 
-    updateGame(gameJson: GameJson) {
+    updateGame(gameJson: Game) {
         gameJson.lastModified = new Date().toLocaleString('en-GB', { timeZone: 'America/Toronto' });
         // eslint-disable-next-line @typescript-eslint/naming-convention
         return this.httpService.patch(`${this.baseUrl}/game/update/`, gameJson, { headers: { 'Content-Type': 'application/json' } });

@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
@@ -17,7 +17,7 @@ import { EditPageComponent } from './edit-page.component';
 describe('EditPageComponent', () => {
     let component: EditPageComponent;
     let fixture: ComponentFixture<EditPageComponent>;
-    let mockGameJson: GameJson;
+    let mockGameJson: Game;
     const mockCreateGameReturn = {
         id: '456',
         gameName: 'Sans titre',
@@ -28,7 +28,7 @@ describe('EditPageComponent', () => {
         isVisible: true,
         creationDate: '',
         lastModified: '',
-    } as GameJson;
+    } as Game;
 
     const mockError = new HttpErrorResponse({ error: 'Update error' });
 
