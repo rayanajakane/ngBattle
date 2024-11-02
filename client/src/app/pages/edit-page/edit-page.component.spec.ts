@@ -11,6 +11,7 @@ import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
 import { of } from 'rxjs';
+import { AdminPageComponent } from '../admin-page/admin-page.component';
 import { EditPageComponent } from './edit-page.component';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 describe('EditPageComponent', () => {
@@ -56,7 +57,7 @@ describe('EditPageComponent', () => {
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
-                provideRouter([]),
+                provideRouter([{ path: 'admin', component: AdminPageComponent }]),
                 // { provide: Router, useValue: mockRouter },
                 { provide: IDGenerationService, useValue: mockIdGenerationService },
                 { provide: MapService, useValue: mapServiceSpy },
