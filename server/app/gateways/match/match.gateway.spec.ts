@@ -33,6 +33,7 @@ describe('MatchGateway', () => {
                         startGame: jest.fn(),
                         roomMessage: jest.fn(),
                         loadAllMessages: jest.fn(),
+                        getMaxPlayers: jest.fn(),
                     },
                 },
             ],
@@ -138,5 +139,11 @@ describe('MatchGateway', () => {
         const roomId = 'roomId';
         gateway.loadAllMessages({ roomId }, client);
         expect(matchService.loadAllMessages).toHaveBeenCalledWith(client, roomId);
+    });
+
+    it('should call getMaxPlayers method of matchService', () => {
+        const data = { roomId: 'roomId' };
+        gateway.getMaxPlayers(data, client);
+        expect(matchService.getMaxPlayers).toHaveBeenCalledWith(data.roomId, client);
     });
 });

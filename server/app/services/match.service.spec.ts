@@ -839,4 +839,19 @@ describe('MatchService', () => {
 
         expect(client.emit).toHaveBeenCalledWith('loadAllMessages', { messages });
     });
+
+    it('should get max players', () => {
+        const roomId = '123';
+
+        const room = {
+            id: roomId,
+            maxPlayers: 2,
+        } as any;
+
+        service.rooms.set(roomId, room);
+
+        service.getMaxPlayers(roomId, client);
+
+        expect(client.emit).toHaveBeenCalledWith('maxPlayers', 2);
+    });
 });
