@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { COUNTDOWN_DELAY } from '@app/components/timer/constant';
 import { interval, Subscription } from 'rxjs';
 
+const TIME_LEFT = 59;
+
 @Component({
     selector: 'app-timer',
     standalone: true,
@@ -12,7 +14,7 @@ import { interval, Subscription } from 'rxjs';
     styleUrl: './timer.component.scss',
 })
 export class TimerComponent implements OnDestroy {
-    timeLeft: number = 59; // Set the initial time in seconds
+    timeLeft: number = TIME_LEFT; // Set the initial time in seconds
     timerSubscription: Subscription | null = null;
     isRunning: boolean = false;
     isActive: boolean = false;

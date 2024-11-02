@@ -6,15 +6,15 @@ import { DragDropService } from './drag-drop.service';
 describe('DragDropService', () => {
     let service: DragDropService;
 
-    const MAP_SIZE_SMALL: number = 10;
-    const MAP_SIZE_MEDIUM: number = 15;
-    const MAP_SIZE_LARGE: number = 20;
-    const STARTING_COUNTER_TWO: number = 2;
-    const RANDOM_ITEM_COUNTER_TWO: number = 2;
-    const STARTING_COUNTER_FOUR: number = 4;
-    const RANDOM_ITEM_COUNTER_FOUR: number = 4;
-    const STARTING_COUNTER_SIX: number = 6;
-    const RANDOM_ITEM_COUNTER_SIX: number = 6;
+    const MAP_SIZE_SMALL = 10;
+    const MAP_SIZE_MEDIUM = 15;
+    const MAP_SIZE_LARGE = 20;
+    const STARTING_COUNTER_TWO = 2;
+    const RANDOM_ITEM_COUNTER_TWO = 2;
+    const STARTING_COUNTER_FOUR = 4;
+    const RANDOM_ITEM_COUNTER_FOUR = 4;
+    const STARTING_COUNTER_SIX = 6;
+    const RANDOM_ITEM_COUNTER_SIX = 6;
 
     function createTiles(size: number) {
         return Array(size * size)

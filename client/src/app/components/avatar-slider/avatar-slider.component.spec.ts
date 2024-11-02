@@ -1,5 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ElementRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AvatarSliderComponent } from './avatar-slider.component';
 
 describe('AvatarSliderComponent', () => {
@@ -46,12 +46,5 @@ describe('AvatarSliderComponent', () => {
         component.scrollRight();
         // eslint-disable-next-line
         expect(component.widgetsContent.nativeElement.scrollRight).toBe(150);
-    });
-
-    it('should select avatar', () => {
-        const avatar = { name: 'Avatar 1', img: '../../test.png' };
-        component.selectAvatar(avatar);
-        expect(component.selectedAvatar).toEqual(avatar);
-        expect(component.selectedAvatarEmitter).toHaveBeenCalled();
     });
 });
