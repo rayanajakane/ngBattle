@@ -2,7 +2,7 @@ import { NgFor } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { GameSelectionComponent } from '@app/components/game-selection/game-selection.component';
 import { Game } from '@app/data-structure/game-structure';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 
 @Component({
     selector: 'app-game-selection-page',

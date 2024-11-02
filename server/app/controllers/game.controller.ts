@@ -1,6 +1,6 @@
-import { GameJson } from '@app/model/game-structure';
 import { GameValidationService } from '@app/services/game-validation.service';
 import { GameService } from '@app/services/game.service';
+import { GameStructure } from '@common/game-structure';
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 
 @Controller('game')
@@ -11,7 +11,7 @@ export class GameController {
     ) {}
 
     @Post('upload')
-    async uploadGame(@Body() gameData: GameJson) {
+    async uploadGame(@Body() gameData: GameStructure) {
         const errors = await this.validationService.validateNewGame(gameData);
         if (errors.length > 0) {
             throw new HttpException(
@@ -27,7 +27,7 @@ export class GameController {
     }
 
     @Patch('update')
-    async updateGame(@Body() gameData: GameJson) {
+    async updateGame(@Body() gameData: GameStructure) {
         if (!(await this.validationService.idExists(gameData.id))) {
             throw new HttpException(
                 {

@@ -1,4 +1,5 @@
-import { MatchService, PlayerAttribute } from '@app/services/match.service';
+import { MatchService } from '@app/services/match.service';
+import { PlayerAttribute } from '@common/player';
 import { Inject } from '@nestjs/common';
 import {
     ConnectedSocket,

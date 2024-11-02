@@ -1,16 +1,16 @@
-export interface TileJson {
+export interface TileStructure {
     idx: number;
     tileType: string;
     item: string;
     hasPlayer: boolean;
 }
 
-export interface GameJson {
+export interface GameStructure {
     id: string;
     gameName: string;
     gameDescription: string;
     mapSize: string;
-    map: TileJson[];
+    map: TileStructure[];
     gameType: string;
     isVisible: boolean;
     creationDate: string;

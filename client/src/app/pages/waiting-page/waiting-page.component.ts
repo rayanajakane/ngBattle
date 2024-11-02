@@ -6,8 +6,8 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
-import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-waiting-page',

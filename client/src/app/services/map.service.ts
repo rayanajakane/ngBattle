@@ -9,7 +9,7 @@ import { TileTypes } from '@app/data-structure/toolType';
 export class MapService {
     // Optionally put a map if we import a map
     createGrid(mapSize?: number): Tile[] {
-        if (mapSize !== undefined && mapSize <= 0) {
+        if (mapSize && mapSize <= 0) {
             throw new Error('MapSize must be a positive number.');
         }
         const arraySize = mapSize ? mapSize : DEFAULT_MAP_SIZE;

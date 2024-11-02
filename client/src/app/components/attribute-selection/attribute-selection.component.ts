@@ -1,6 +1,6 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PlayerAttribute } from '@app/interfaces/player';
+import { PlayerAttribute } from '@common/player';
 
 @Component({
     selector: 'app-attribute-selection',

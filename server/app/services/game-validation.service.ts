@@ -1,37 +1,13 @@
-import { GameJson, TileJson } from '@app/model/game-structure';
 import { Game } from '@app/model/schema/game.schema';
 import { MapValidationService } from '@app/services/map-validation.service';
+import { GameStructure, TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PROPERTIES_TO_CHECK } from './validation-constants';
 
 @Injectable()
 export class GameValidationService {
-    readonly propertiesToCheck = [
-        { prop: 'gameName', emptyMsg: 'Le nom ne peut pas être vide', type: 'string', typeMsg: 'Le nom doit être une chaîne de caractères' },
-        { prop: 'id', emptyMsg: "L'id ne peut pas être vide", type: 'string', typeMsg: "L'id doit être une chaîne de caractères" },
-        {
-            prop: 'gameDescription',
-            emptyMsg: 'La description ne peut pas être vide',
-            type: 'string',
-            typeMsg: 'La description doit être une chaîne de caractères',
-        },
-        { prop: 'mapSize', emptyMsg: 'La taille ne peut pas être vide', type: 'string', typeMsg: 'La taille doit être une chaîne de caractères' },
-        { prop: 'gameType', emptyMsg: 'Le type ne peut pas être vide', type: 'string', typeMsg: 'Le type doit être une chaîne de caractères' },
-        {
-            prop: 'creationDate',
-            emptyMsg: 'La date de création ne peut pas être vide',
-            type: 'string',
-            typeMsg: 'La date de création doit être une chaîne de caractères',
-        },
-        {
-            prop: 'lastModified',
-            emptyMsg: 'La date de modification ne peut pas être vide',
-            type: 'string',
-            typeMsg: 'La date de modification doit être une chaîne de caractères',
-        },
-    ];
-
     errors: string[] = [];
 
     constructor(
@@ -39,7 +15,7 @@ export class GameValidationService {
         private readonly mapValidationService: MapValidationService,
     ) {}
 
-    async validateNewGame(game: GameJson): Promise<string[]> {
+    async validateNewGame(game: GameStructure): Promise<string[]> {
         this.errors = [];
 
         this.validateProperties(game);
@@ -50,7 +26,7 @@ export class GameValidationService {
         return this.errors;
     }
 
-    async validateUpdatedGame(game: GameJson): Promise<string[]> {
+    async validateUpdatedGame(game: GameStructure): Promise<string[]> {
         this.errors = [];
 
         this.validateProperties(game);
@@ -83,8 +59,8 @@ export class GameValidationService {
         return filteredGamesById.length === 0;
     }
 
-    validateProperties(game: GameJson): void {
-        for (const { prop, emptyMsg, type, typeMsg } of this.propertiesToCheck) {
+    validateProperties(game: GameStructure): void {
+        for (const { prop, emptyMsg, type, typeMsg } of PROPERTIES_TO_CHECK) {
             if (!game[prop]) {
                 this.errors.push(emptyMsg);
             }
@@ -94,7 +70,7 @@ export class GameValidationService {
         }
     }
 
-    isValidTileJson(tile: TileJson): boolean {
+    isValidTileJson(tile: TileStructure): boolean {
         if (
             tile &&
             typeof tile.idx === 'number' &&
@@ -108,7 +84,7 @@ export class GameValidationService {
         return false;
     }
 
-    validateMap(game: GameJson): void {
+    validateMap(game: GameStructure): void {
         if (!game.map || !Array.isArray(game.map)) {
             this.errors.push('La carte ne peut pas être vide et doit être un tableau');
             return;
@@ -123,7 +99,7 @@ export class GameValidationService {
         this.validateMapServices(game);
     }
 
-    validateGameName(game: GameJson): void {
+    validateGameName(game: GameStructure): void {
         if (/\s{2,}/.test(game.gameName) || game.gameName.trim() !== game.gameName) {
             this.errors.push('Le nom ne doit pas contenir des espaces doubles ou des espaces au début/à la fin');
         }
@@ -132,7 +108,7 @@ export class GameValidationService {
         }
     }
 
-    async validateUniqueChecks(game: GameJson): Promise<void> {
+    async validateUniqueChecks(game: GameStructure): Promise<void> {
         if (!(await this.isUniqueNewName(game.gameName))) {
             this.errors.push('Un jeu avec ce nom existe déjà');
         }
@@ -141,7 +117,7 @@ export class GameValidationService {
         }
     }
 
-    validateMapServices(game: GameJson): void {
+    validateMapServices(game: GameStructure): void {
         if (game.map.length !== parseInt(game.mapSize, 10) ** 2) {
             this.errors.push('La taille de la carte ne correspond pas à la taille de la carte');
             return; // return early to avoid further errors in MapValidationService

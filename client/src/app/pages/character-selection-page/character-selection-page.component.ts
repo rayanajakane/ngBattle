@@ -9,9 +9,10 @@ import { AttributeSelectionComponent } from '@app/components/attribute-selection
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { Avatar } from '@app/interfaces/avatar';
-import { PlayerAttribute } from '@app/interfaces/player';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 import { SocketService } from '@app/services/socket.service';
+import { PlayerAttribute } from '../../../../../common/player';
+import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from './constants';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -26,9 +27,6 @@ export class CharacterSelectionPageComponent {
     selectedAvatar: Avatar | null = null;
     characterName: string = '';
     attributes: PlayerAttribute;
-
-    private readonly minNameLength: number = 3;
-    private readonly maxNameLength: number = 15;
 
     // Initialisation dans le constructeur
     constructor(
@@ -60,7 +58,7 @@ export class CharacterSelectionPageComponent {
     }
 
     isNameValid(): boolean {
-        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength;
+        return this.characterName.length >= MIN_NAME_LENGTH && this.characterName.length <= MAX_NAME_LENGTH;
     }
 
     async onSubmit(event: Event) {

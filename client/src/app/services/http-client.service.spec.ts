@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Game } from '@app/data-structure/game-structure';
-import { HttpClientService } from './httpclient.service';
+import { HttpClientService } from './http-client.service';
 
 describe('HttpClientService', () => {
     let service: HttpClientService;

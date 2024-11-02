@@ -17,7 +17,7 @@ import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { Game } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
 

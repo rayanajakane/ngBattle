@@ -118,7 +118,7 @@ export class MapComponent implements OnInit {
     }
 
     placeTile(index: number) {
-        if (this.isMouseDown && this.isLeftClick && this.selectedTileType !== '' && this.selectedMode === CurrentMode.TileTool) {
+        if (this.isMouseDown && this.isLeftClick && this.selectedTileType && this.selectedMode === CurrentMode.TileTool) {
             this.setTileType(index, this.selectedTileType);
         }
     }

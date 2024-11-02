@@ -1,6 +1,6 @@
-import { GameJson } from '@app/model/game-structure';
 import { GameValidationService } from '@app/services/game-validation.service';
 import { GameService } from '@app/services/game.service';
+import { GameStructure } from '@common/game-structure';
 import { HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';
@@ -10,7 +10,7 @@ describe('GameController', () => {
     let gameService: GameService;
     let gameValidationService: GameValidationService;
 
-    const gameData: GameJson = {
+    const gameData: GameStructure = {
         id: '123',
         gameName: 'Game e34wdwd23',
         gameDescription: 'This is an example game description.',

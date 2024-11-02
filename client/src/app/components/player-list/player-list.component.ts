@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Player } from '@app/interfaces/player';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-player-list',

@@ -3,7 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Game } from '@app/data-structure/game-structure';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 import { GameSelectionPageComponent } from './game-selection-page.component';
 
 describe('GameSelectionPageComponent', () => {

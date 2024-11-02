@@ -6,7 +6,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
 import { Game } from '@app/data-structure/game-structure';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 import { of } from 'rxjs';
 import { AdminItemComponent } from './admin-item.component';
 
