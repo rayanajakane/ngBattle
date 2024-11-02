@@ -17,20 +17,13 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
 
     constructor(@Inject() private readonly matchService: MatchService) {}
 
-    afterInit(server: Server) {
-        this.server = server;
-    }
-
-    handleDisconnect(client: Socket) {
-        this.matchService.leaveAllRooms(this.server, client);
-    }
-
     @SubscribeMessage('createRoom')
     handleCreateRoom(
         @MessageBody() data: { gameId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
         @ConnectedSocket() client: Socket,
     ) {
-        this.matchService.createRoom(this.server, client, data.gameId, data.playerName, data.avatar, data.attributes);
+        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes };
+        this.matchService.createRoom(this.server, client, data.gameId, playerData);
     }
 
     @SubscribeMessage('joinRoom')
@@ -38,7 +31,8 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         @MessageBody() data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
         @ConnectedSocket() client: Socket,
     ) {
-        this.matchService.joinRoom(this.server, client, data.roomId, data.playerName, data.avatar, data.attributes);
+        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes };
+        this.matchService.joinRoom(this.server, client, data.roomId, playerData);
     }
 
     @SubscribeMessage('validRoom')
@@ -94,5 +88,13 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     @SubscribeMessage('loadAllMessages')
     loadAllMessages(@MessageBody() data: { roomId: string }, @ConnectedSocket() client: Socket) {
         this.matchService.loadAllMessages(client, data.roomId);
+    }
+
+    afterInit(server: Server) {
+        this.server = server;
+    }
+
+    handleDisconnect(client: Socket) {
+        this.matchService.leaveAllRooms(this.server, client);
     }
 }

@@ -4,6 +4,8 @@ import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { MatchGateway } from './match.gateway';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
     let matchService: MatchService;
@@ -67,7 +69,8 @@ describe('MatchGateway', () => {
             attributes: { attribute: 'attribute' },
         } as any;
         gateway.handleCreateRoom(data, client);
-        expect(matchService.createRoom).toHaveBeenCalledWith(server, client, data.gameId, data.playerName, data.avatar, data.attributes);
+        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes };
+        expect(matchService.createRoom).toHaveBeenCalledWith(server, client, data.gameId, playerData);
     });
 
     it('should call joinRoom method of matchService', () => {
@@ -78,7 +81,8 @@ describe('MatchGateway', () => {
             attributes: { attribute: 'attribute' },
         } as any;
         gateway.handleJoinRoom(data, client);
-        expect(matchService.joinRoom).toHaveBeenCalledWith(server, client, data.roomId, data.playerName, data.avatar, data.attributes);
+        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes };
+        expect(matchService.joinRoom).toHaveBeenCalledWith(server, client, data.roomId, playerData);
     });
 
     it('should call isCodeValid method of matchService', () => {

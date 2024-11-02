@@ -4,6 +4,12 @@ import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { MatchService } from './match.service';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable max-lines */
+/* eslint-disable object-shorthand */
+
 describe('MatchService', () => {
     let service: MatchService;
     let gameService: GameService;
@@ -96,7 +102,8 @@ describe('MatchService', () => {
         jest.spyOn(service, 'getGame').mockResolvedValue(game);
         jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-        await service.createRoom(server, client, gameId, playerName, avatar, attributes);
+        const playerData = { playerName, avatar, attributes };
+        await service.createRoom(server, client, gameId, playerData);
 
         expect(service.rooms.get(roomId)).toEqual(room);
         expect(client.join).toHaveBeenCalledWith(roomId);
@@ -249,7 +256,8 @@ describe('MatchService', () => {
             defense: '100',
         };
 
-        service.joinRoom(server, client, roomId, playerName, avatar, attributes);
+        const playerData = { playerName, avatar, attributes };
+        await service.joinRoom(server, client, roomId, playerData);
 
         expect(client.emit).toHaveBeenCalledWith('error', 'Room not found');
     });
@@ -276,7 +284,8 @@ describe('MatchService', () => {
 
         service.rooms.set(roomId, room);
 
-        service.joinRoom(server, client, roomId, playerName, avatar, attributes);
+        const playerData = { playerName, avatar, attributes };
+        await service.joinRoom(server, client, roomId, playerData);
 
         expect(client.emit).toHaveBeenCalledWith('error', 'Room is locked');
     });
@@ -306,7 +315,8 @@ describe('MatchService', () => {
         jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
         jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-        await service.joinRoom(server, client, roomId, playerName, avatar, attributes);
+        const playerData = { playerName, avatar, attributes };
+        await service.joinRoom(server, client, roomId, playerData);
 
         expect(room.players).toEqual([
             {
@@ -357,7 +367,8 @@ describe('MatchService', () => {
         jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
         jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-        await service.joinRoom(server, client, roomId, playerName, avatar, attributes);
+        const playerData = { playerName, avatar, attributes };
+        await service.joinRoom(server, client, roomId, playerData);
 
         expect(room.isLocked).toBe(true);
     });
@@ -824,7 +835,7 @@ describe('MatchService', () => {
             {
                 name: 'playerName',
                 message: 'message',
-                date: 'date',
+                date: 'randomDate',
             },
         ];
 
