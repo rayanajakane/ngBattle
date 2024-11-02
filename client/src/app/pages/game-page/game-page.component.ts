@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
+import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
@@ -18,7 +19,6 @@ import { Player } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
-import { GamePanelComponent } from '../../components/game-panel/game-panel.component';
 
 @Component({
     selector: 'app-game-page',
@@ -73,7 +73,7 @@ export class GamePageComponent implements OnInit {
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map;
-            this.mapSize = parseInt(this.game.mapSize);
+            this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
         });
     }

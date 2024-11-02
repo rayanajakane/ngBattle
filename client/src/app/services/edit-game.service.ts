@@ -51,8 +51,8 @@ export class EditGameService {
     createGameJSON(): GameJson {
         return {
             id: this.idService.generateID(),
-            gameName: 'Sans titre',
-            gameDescription: 'Il était une fois...',
+            gameName: 'No title',
+            gameDescription: 'One day...',
             mapSize: '10',
             map: [],
             gameType: '',

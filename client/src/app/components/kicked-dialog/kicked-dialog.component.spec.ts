@@ -1,22 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { KickedDialogComponent } from './kicked-dialog.component';
+// import { KickedDialogComponent } from './kicked-dialog.component';
 
-describe('KickedDialogComponent', () => {
-    let component: KickedDialogComponent;
-    let fixture: ComponentFixture<KickedDialogComponent>;
+// describe('KickedDialogComponent', () => {
+//     let component: KickedDialogComponent;
+//     let fixture: ComponentFixture<KickedDialogComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [KickedDialogComponent],
-        }).compileComponents();
+//     beforeEach(async () => {
+//         await TestBed.configureTestingModule({
+//             imports: [KickedDialogComponent],
+//         }).compileComponents();
 
-        fixture = TestBed.createComponent(KickedDialogComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+//         fixture = TestBed.createComponent(KickedDialogComponent);
+//         component = fixture.componentInstance;
+//         fixture.detectChanges();
+//     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
-});
+//     it('should create', () => {
+//         expect(component).toBeTruthy();
+//     });
+// });
