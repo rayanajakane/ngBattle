@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 
-interface Player {
+export interface Player {
     id: string;
     name: string;
     isAdmin: boolean;
