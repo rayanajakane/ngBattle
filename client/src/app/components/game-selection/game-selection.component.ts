@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { GameJson } from '@app/data-structure/game-structure';
-import { MapPreviewComponent } from '../map-preview/map-preview.component';
 
 @Component({
     selector: 'app-game-selection',
