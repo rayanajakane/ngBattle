@@ -32,7 +32,7 @@ export class ActionGateway implements OnGatewayInit {
         @MessageBody() data: { gameId: string; playerId: string; startPosition: number; endPosition: number },
         @ConnectedSocket() client: Socket,
     ) {
-        this.action.movePlayer(data.playerId, data.gameId, data.startPosition, data.endPosition);
+        client.emit('move', this.action.movePlayer(data.playerId, data.gameId, data.startPosition, data.endPosition));
     }
 
     @SubscribeMessage('scout')
@@ -40,6 +40,6 @@ export class ActionGateway implements OnGatewayInit {
         @MessageBody() data: { gameId: string; playerId: string; startPosition: number; endPosition: number },
         @ConnectedSocket() client: Socket,
     ) {
-        this.action.availablePlayerMoves(data.playerId, data.gameId, data.startPosition, data.endPosition);
+        client.emit('scout', this.action.availablePlayerMoves(data.playerId, data.gameId, data.startPosition, data.endPosition));
     }
 }
