@@ -1,19 +1,20 @@
 import { GameJson, TileJson } from '@app/model/game-structure';
 import { Injectable } from '@nestjs/common';
 //TODO: take a look at the Coord interface and see if it can be moved to a separate file
-import { Coord } from '../map_state_handler/map_state_handler.service';
-
+import { Coord } from '../action/action.service';
+import { Player } from '../match.service';
 //TODO: replace then tile types with enums
 //TODO: test functions in this service
 @Injectable()
 export class MovementService {
     // placeholder for now
-    playermoveSpeed: number = 3;
     private invalidTileTypes: string[] = ['wall', 'doorClosed'];
 
-    isValidPosition(coord: Coord, game: GameJson): boolean {
-        const mapSize: number = Number(game.mapSize);
+    isValidPosition(player: Player, game: GameJson, coord: Coord): boolean {
+        const mapSize: number = parseInt(game.mapSize);
         const mapTile: TileJson = game.map[coord.x * mapSize + coord.y];
+
+        const playerSpeed = parseInt(player.attributes.speed);
 
         // Check if coordinates are within bounds
         if (coord.x < 0 || coord.x >= mapSize || coord.y < 0 || coord.y >= mapSize) {
@@ -26,7 +27,7 @@ export class MovementService {
         }
 
         // Check if the player's move speed is sufficient
-        if (this.playermoveSpeed < coord.distance) {
+        if (playerSpeed < coord.distance) {
             return false;
         }
 
@@ -48,10 +49,19 @@ export class MovementService {
                 return 1;
         }
     }
+    //TODO: verify the validity of the conversion
+    convertToCoord(position: number, mapSize: number): Coord {
+        const x = position % mapSize;
+        const y = position - x;
+        return { x: x, y: y };
+    }
 
-    shortestPath(startCoord: Coord, endCoord: Coord, game: GameJson): number[] {
+    shortestPath(player: Player, game: GameJson, startPosition: number, endPosition: number): number[] {
+        const mapSize = parseInt(game.mapSize);
+        const startCoord = this.convertToCoord(startPosition, mapSize);
+        const endCoord = this.convertToCoord(endPosition, mapSize);
+
         const map = game.map;
-        const mapSize = Number(game.mapSize);
         const visited: boolean[][] = Array.from({ length: mapSize }, () => Array(mapSize).fill(false));
         const queue: Coord[] = [{ ...startCoord, distance: 0, parentNodes: [] }];
         let destinationNode: Coord | undefined;
@@ -79,7 +89,7 @@ export class MovementService {
                 //TODO: replace the tileValue function with enums of tile types holding the values
                 const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
 
-                if (!visited[x][y] && this.isValidPosition({ x, y, distance: totalDistance }, game)) {
+                if (!visited[x][y] && this.isValidPosition(player, game, { x, y, distance: totalDistance } as Coord)) {
                     queue.push({
                         x,
                         y,
@@ -102,9 +112,11 @@ export class MovementService {
             : [];
     }
 
-    availableMoves(startCoord: Coord, game: GameJson): number[] {
+    availableMoves(player: Player, game: GameJson, startPosition: number): number[] {
+        const startCoord = this.convertToCoord(startPosition, parseInt(game.mapSize));
+
         const map = game.map;
-        const mapSize = Number(game.mapSize);
+        const mapSize = parseInt(game.mapSize);
         const coordPath: Coord[] = [];
         const visited: boolean[][] = Array.from({ length: mapSize }, () => Array(mapSize).fill(false));
         const queue: Coord[] = [{ ...startCoord, distance: 0 }];
@@ -125,7 +137,7 @@ export class MovementService {
 
                 const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
 
-                if (!visited[x][y] && this.isValidPosition({ x, y, distance: totalDistance }, game)) {
+                if (!visited[x][y] && this.isValidPosition(player, game, { x, y, distance: totalDistance })) {
                     queue.push({ x, y, distance: totalDistance });
                     coordPath.push({ x, y });
                     visited[x][y] = true;

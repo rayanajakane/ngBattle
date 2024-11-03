@@ -27,12 +27,13 @@ enum TileType {
 interface GameInstance {
     game: GameJson;
     players?: Player[];
+    turn?: number;
 }
 
 @Injectable()
 export class ActionService {
     constructor(
-        movement: MovementService,
+        private movement: MovementService,
         private gameService: GameService,
     ) {}
     activeGames: GameInstance[] = [];
@@ -44,7 +45,7 @@ export class ActionService {
     playermoveSpeed = 3;
 
     async checkGameInstance(gameId: string): Promise<void> {
-        if (this.activeGames.find((game) => game.id === gameId) === undefined) {
+        if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
             const fetchedGame: GameJson = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ game: fetchedGame });
         }
@@ -52,6 +53,16 @@ export class ActionService {
 
     findStartingPositions(game: GameJson): number[] {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
+    }
+
+    nextTurn(gameId: string): void {
+        const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
+        const maxTurn = gameInstance.players.length;
+        let turn = gameInstance.turn;
+
+        turn = (turn + 1) % maxTurn;
+
+        this.activeGames[this.activeGames.findIndex((instance) => instance.game.id === gameId)].turn = turn;
     }
 
     randomizePlayerPosition(game: GameJson, players: Player[]): PlayerCoord[] {
@@ -75,9 +86,26 @@ export class ActionService {
         this.checkGameInstance(gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.game.id === gameId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
-            this.activeGames.push({ game, players });
+            this.activeGames.push({ game, players, turn: 0 });
         });
 
         return playerCoord;
+    }
+
+    //TODO: implement socket response for client
+    movePlayer(playerId: string, gameId: string, startPosition: number, endPosition: number) {
+        const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
+        const game = gameInstance.game;
+        const player = gameInstance.players.find((player) => player.id === playerId);
+
+        this.movement.shortestPath(player, game, startPosition, endPosition);
+    }
+
+    availablePlayerMoves(playerId: string, gameId: string, startPosition: number, endPosition: number) {
+        const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
+        const game = gameInstance.game;
+        const player = gameInstance.players.find((player) => player.id === playerId);
+
+        this.movement.availableMoves(player, game, startPosition);
     }
 }

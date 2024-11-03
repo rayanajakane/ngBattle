@@ -1,33 +1,45 @@
-import { ActionService } from '@app/services/map_state_handler/map_state_handler.service';
+import { ActionService } from '@app/services/action/action.service';
+import { MatchService } from '@app/services/match.service';
 import { Inject } from '@nestjs/common';
-import { 
-  SubscribeMessage, 
-  WebSocketGateway, 
-  WebSocketServer, 
-  ConnectedSocket,
-  MessageBody,
- } from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-
+import { PlayerCoord } from '../../services/action/action.service';
 @WebSocketGateway({ cors: { origin: '*' } })
-export class ActionGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-    @WebSocketServer private server: Server;
+export class ActionGateway implements OnGatewayInit {
+    @WebSocketServer() private server: Server;
 
-    constructor(@Inject() private readonly action: ActionService) {}
+    constructor(
+        @Inject() private readonly action: ActionService,
+        private readonly match: MatchService,
+    ) {}
 
     afterInit(server: Server) {
         this.server = server;
-    }
-
-    @SubscribeMessage('message')
-    handleMessage(client: any, payload: any): string {
-        return 'Hello world!';
+        console.log('ActionGateway initialized');
     }
 
     @SubscribeMessage('gameSetup')
-    handleMessage(
-      @MessageBody() { gameId: string; players: string[]; },
-      @ConnectedSocket() client: Socket): number[] {
-        this.action.gameSetup(gameId, players);
+    handleGameSetup(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
+        const gameId = this.match.rooms.get(roomId).gameId;
+        const players = this.match.rooms.get(roomId).players;
+        const playerCoords: PlayerCoord[] = this.action.gameSetup(gameId, players);
+        console.log(playerCoords);
+        client.emit('gameSetup', playerCoords);
+    }
+
+    @SubscribeMessage('move')
+    handleMove(
+        @MessageBody() data: { gameId: string; playerId: string; startPosition: number; endPosition: number },
+        @ConnectedSocket() client: Socket,
+    ) {
+        this.action.movePlayer(data.playerId, data.gameId, data.startPosition, data.endPosition);
+    }
+
+    @SubscribeMessage('scout')
+    handleScout(
+        @MessageBody() data: { gameId: string; playerId: string; startPosition: number; endPosition: number },
+        @ConnectedSocket() client: Socket,
+    ) {
+        this.action.availablePlayerMoves(data.playerId, data.gameId, data.startPosition, data.endPosition);
     }
 }
