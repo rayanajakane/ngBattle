@@ -3,7 +3,6 @@ import { GameService } from '@app/services/game.service';
 import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { Injectable } from '@nestjs/common';
-
 // TODO: declare the Coord interface interface in a separate file and import it here
 export interface Coord {
     x: number;
@@ -26,7 +25,7 @@ enum TileType {
 
 interface GameInstance {
     game: GameJson;
-    players?: Player[];
+    playersCoord?: PlayerCoord[];
     turn?: number;
 }
 
@@ -44,20 +43,17 @@ export class ActionService {
     // placeholder for now
     playermoveSpeed = 3;
 
+    //TODO: identify games uniquely
     async checkGameInstance(gameId: string): Promise<void> {
         if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
-            const fetchedGame: GameJson = await this.gameService.get(gameId).then((game) => game);
-            this.activeGames.push({ game: fetchedGame });
+            const game: GameJson = await this.gameService.get(gameId).then((game) => game);
+            this.activeGames.push({ game });
         }
-    }
-
-    findStartingPositions(game: GameJson): number[] {
-        return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
     }
 
     nextTurn(gameId: string): void {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
-        const maxTurn = gameInstance.players.length;
+        const maxTurn = gameInstance.playersCoord.length;
         let turn = gameInstance.turn;
 
         turn = (turn + 1) % maxTurn;
@@ -65,19 +61,27 @@ export class ActionService {
         this.activeGames[this.activeGames.findIndex((instance) => instance.game.id === gameId)].turn = turn;
     }
 
+    findStartingPositions(game: GameJson): number[] {
+        return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
+    }
+
     randomizePlayerPosition(game: GameJson, players: Player[]): PlayerCoord[] {
         const startingPositions: number[] = this.findStartingPositions(game);
         const playerCoord: PlayerCoord[] = [];
+
         players.forEach((player) => {
             let randomIndex: number;
             let position: number;
 
             do {
                 randomIndex = Math.floor(Math.random() * startingPositions.length);
-            } while (playerCoord.find((playerCoord) => playerCoord.position === (position = startingPositions[randomIndex])) !== undefined);
+                position = startingPositions[randomIndex];
+                startingPositions.splice(randomIndex, 1);
+            } while (playerCoord.find((playerCoord) => playerCoord.position === position) !== undefined);
 
             playerCoord.push({ player, position });
         });
+
         return playerCoord;
     }
 
@@ -86,7 +90,9 @@ export class ActionService {
         this.checkGameInstance(gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.game.id === gameId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
-            this.activeGames.push({ game, players, turn: 0 });
+            const activeGameIndex = this.activeGames.findIndex((instance) => instance.game.id === gameId);
+            this.activeGames[activeGameIndex].playersCoord = playerCoord;
+            this.activeGames[activeGameIndex].turn = 0;
         });
 
         return playerCoord;
@@ -96,16 +102,17 @@ export class ActionService {
     movePlayer(playerId: string, gameId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
         const game = gameInstance.game;
-        const player = gameInstance.players.find((player) => player.id === playerId);
+        const player = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
 
         this.movement.shortestPath(player, game, startPosition, endPosition);
     }
 
-    availablePlayerMoves(playerId: string, gameId: string, startPosition: number, endPosition: number) {
+    availablePlayerMoves(playerId: string, gameId: string, startPosition: number): { [key: number]: number[] } {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
         const game = gameInstance.game;
-        const player = gameInstance.players.find((player) => player.id === playerId);
 
-        this.movement.availableMoves(player, game, startPosition);
+        const player = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
+
+        return this.movement.availableMoves(player, game, startPosition);
     }
 }

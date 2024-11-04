@@ -36,10 +36,7 @@ export class ActionGateway implements OnGatewayInit {
     }
 
     @SubscribeMessage('scout')
-    handleScout(
-        @MessageBody() data: { gameId: string; playerId: string; startPosition: number; endPosition: number },
-        @ConnectedSocket() client: Socket,
-    ) {
-        client.emit('scout', this.action.availablePlayerMoves(data.playerId, data.gameId, data.startPosition, data.endPosition));
+    handleScout(@MessageBody() data: { gameId: string; playerId: string; startPosition: number }, @ConnectedSocket() client: Socket) {
+        client.emit('scout', this.action.availablePlayerMoves(data.playerId, data.gameId, data.startPosition));
     }
 }

@@ -56,6 +56,10 @@ export class MovementService {
         return { x: x, y: y };
     }
 
+    convertToPosition(coord: Coord, mapSize: number): number {
+        return coord.x * mapSize + coord.y;
+    }
+
     shortestPath(player: Player, game: GameJson, startPosition: number, endPosition: number): number[] {
         const mapSize = parseInt(game.mapSize);
         const startCoord = this.convertToCoord(startPosition, mapSize);
@@ -71,7 +75,6 @@ export class MovementService {
 
         while (queue.length > 0) {
             const current = queue.shift();
-
             if (current.x === endCoord.x && current.y === endCoord.y) {
                 destinationNode = current;
                 found = true;
@@ -103,21 +106,15 @@ export class MovementService {
             queue.sort((a, b) => a.distance - b.distance);
         }
 
-        return found
-            ? [
-                  startCoord.x * mapSize + startCoord.y,
-                  ...destinationNode.parentNodes.map((coord) => coord.x * mapSize + coord.y),
-                  endCoord.x * mapSize + endCoord.y,
-              ]
-            : [];
+        return found ? [startPosition, ...destinationNode.parentNodes.map((coord) => this.convertToPosition(coord, mapSize)), endPosition] : [];
     }
 
-    availableMoves(player: Player, game: GameJson, startPosition: number): number[] {
+    availableMoves(player: Player, game: GameJson, startPosition: number): { [key: number]: number[] } {
         const startCoord = this.convertToCoord(startPosition, parseInt(game.mapSize));
 
         const map = game.map;
         const mapSize = parseInt(game.mapSize);
-        const coordPath: Coord[] = [];
+        const coordPath = [];
         const visited: boolean[][] = Array.from({ length: mapSize }, () => Array(mapSize).fill(false));
         const queue: Coord[] = [{ ...startCoord, distance: 0 }];
 
@@ -147,6 +144,10 @@ export class MovementService {
             queue.sort((a, b) => a.distance - b.distance);
         }
 
-        return coordPath.map((coord) => coord.x * mapSize + coord.y);
+        return coordPath.reduce((structure, coord) => {
+            const endPosition = this.convertToPosition(coord, mapSize);
+            structure[endPosition] = this.shortestPath(player, game, startPosition, endPosition);
+            return structure;
+        }, {});
     }
 }
