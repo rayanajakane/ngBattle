@@ -50,6 +50,8 @@ export class GamePageComponent implements OnInit {
     gameCreated = false;
     roomId: string;
 
+    activePlayer: Player | undefined;
+
     httpService = inject(HttpClientService);
     mapService = inject(MapGameService);
     socketService = inject(SocketService);
@@ -84,5 +86,15 @@ export class GamePageComponent implements OnInit {
 
     quitGame() {
         this.router.navigate(['/home']);
+    }
+
+    setActivePlayerById(id: string): void {
+        this.activePlayer = this.playersList.find((player) => player.id === id);
+    }
+
+    moveActivePlayer(index: number) {
+        if (this.activePlayer) {
+            this.mapService.changePlayerPosition(index, this.activePlayer);
+        }
     }
 }
