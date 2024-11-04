@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { TilePreview } from '@app/data-structure/game-structure';
 import { TileBasicComponent } from './tile-basic.component';
 
 describe('TileBasicComponent', () => {
@@ -39,5 +40,13 @@ describe('TileBasicComponent', () => {
         component.tileType = '';
         component.setTileImage();
         expect(component.imageUrl).toBe('./../../../assets/ground.jpg');
+    });
+
+    it('should choosePreview class based on isAccessible', () => {
+        expect(component.choosePreviewClass()).toBe('');
+        component.isAccessible = TilePreview.PREVIEW;
+        expect(component.choosePreviewClass()).toBe('previsualize');
+        component.isAccessible = TilePreview.SHORTESTPATH;
+        expect(component.choosePreviewClass()).toBe('shortestPath');
     });
 });

@@ -1,9 +1,14 @@
 <div class="tile">
-    @if ( this.transparentImage ) {
-    <img [src]="this.transparentImage" alt="{{ this.itemType }}" style="position: absolute; top: 0; left: 0; opacity: 0.5" draggable="true" />
-    } @if ( this.imageUrl && this.isToolbarTile ) {
+    @if (!this.isToolbarTile) {
+    <img
+        [src]="this.transparentImage"
+        alt="{{ this.itemType }}"
+        style="position: absolute; top: 0; left: 0; opacity: 0.9"
+        [ngClass]="choosePreviewClass()"
+        draggable="true"
+    />
+    @if (this.avatar) {
+    <img class="transparent" [src]="this.avatarUrl" alt="{{ 'Avatar' + this.avatar }}" />
+    } }
     <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false" />
-    } @else{
-    <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false" />
-    }
 </div>
