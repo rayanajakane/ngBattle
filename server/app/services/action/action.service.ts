@@ -11,7 +11,7 @@ export interface Coord {
     parentNodes?: Coord[];
 }
 
-export interface PlayerCoord {
+export interface PlayerInfo {
     player: Player;
     position: number;
 }
@@ -25,7 +25,7 @@ enum TileType {
 
 interface GameInstance {
     game: GameJson;
-    playersCoord?: PlayerCoord[];
+    playersCoord?: PlayerInfo[];
     turn?: number;
     currentPlayerMoveBudget?: number;
 }
@@ -63,9 +63,9 @@ export class ActionService {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
     }
 
-    randomizePlayerPosition(game: GameJson, players: Player[]): PlayerCoord[] {
+    randomizePlayerPosition(game: GameJson, players: Player[]): PlayerInfo[] {
         const startingPositions: number[] = this.findStartingPositions(game);
-        const playerCoord: PlayerCoord[] = [];
+        const playerCoord: PlayerInfo[] = [];
 
         players.forEach((player) => {
             let randomIndex: number;
@@ -77,6 +77,7 @@ export class ActionService {
                 startingPositions.splice(randomIndex, 1);
             } while (playerCoord.find((playerCoord) => playerCoord.position === position) !== undefined);
 
+            player.wins = 0;
             playerCoord.push({ player, position });
         });
 
@@ -89,8 +90,8 @@ export class ActionService {
         return playerCoord;
     }
 
-    gameSetup(gameId: string, players: Player[]): PlayerCoord[] {
-        let playerCoord: PlayerCoord[] = [];
+    gameSetup(gameId: string, players: Player[]): PlayerInfo[] {
+        let playerCoord: PlayerInfo[] = [];
         this.checkGameInstance(gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.game.id === gameId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
