@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { MapBaseService } from './map-base.service';
 
 const player1: Player = {
@@ -20,7 +21,7 @@ const player1: Player = {
 export class MapGameService extends MapBaseService {
     /* eslint-disable */
     tiles: GameTile[];
-    accessibleTiles: number[] = [];
+    availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
 
     constructor() {
@@ -35,6 +36,14 @@ export class MapGameService extends MapBaseService {
         }, 1000);
     }
 
+    setAvailableTiles(availableTiles: number[]): void {
+        this.availableTiles = availableTiles;
+    }
+
+    setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
+        this.shortestPathByTile = shortestPathByTile;
+    }
+
     onRightClick(index: number): void {
         this.changePlayerPosition(index, player1);
     }
@@ -44,14 +53,14 @@ export class MapGameService extends MapBaseService {
 
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
-        this.setAccessibleTiles();
-        this.setShortestPath(index);
+        // this.setAccessibleTiles();
+        this.renderShortestPath(index);
     }
     onExit(): void {
         this.removeAllPreview();
     }
 
-    setPreview(indexes: number[], previewType: TilePreview): void {
+    renderPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {
             this.tiles[index].isAccessible = previewType;
         });
@@ -65,7 +74,7 @@ export class MapGameService extends MapBaseService {
 
     //temp function to test accessible tiles
     fetchAccessibleTiles(): void {
-        this.accessibleTiles = Array.from({ length: 51 }, (_, i) => i);
+        this.availableTiles = Array.from({ length: 51 }, (_, i) => i);
     }
 
     //temp function to test shortest path
@@ -79,14 +88,14 @@ export class MapGameService extends MapBaseService {
         this.shortestPathByTile = {};
     }
 
-    setShortestPath(index: number): void {
+    renderShortestPath(index: number): void {
         if (this.shortestPathByTile[index]) {
-            this.setPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
+            this.renderPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
         }
     }
 
-    setAccessibleTiles(): void {
-        this.setPreview(this.accessibleTiles, TilePreview.PREVIEW);
+    renderAvailableTiles(accessibleTiles: number[]): void {
+        this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
     }
 
     placePlayer(index: number, player: Player): void {

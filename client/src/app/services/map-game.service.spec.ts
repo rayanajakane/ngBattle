@@ -62,8 +62,8 @@ describe('MapGameService', () => {
 
         service.onMouseEnter(index, new MouseEvent('mouseenter'));
 
-        expect(service.setAccessibleTiles).toHaveBeenCalled();
-        expect(service.setShortestPath).toHaveBeenCalledWith(index);
+        expect(service.renderAvailableTiles).toHaveBeenCalled();
+        expect(service.renderShortestPath).toHaveBeenCalledWith(index);
     });
 
     it('should remove all previews on exit', () => {
@@ -77,7 +77,7 @@ describe('MapGameService', () => {
         const indexes = SHORTESTPATHINDEXES1;
         const previewType = TilePreview.PREVIEW;
 
-        service.setPreview(indexes, previewType);
+        service.renderPreview(indexes, previewType);
 
         indexes.forEach((index) => {
             expect(service.tiles[index].isAccessible).toBe(previewType);
@@ -117,7 +117,7 @@ describe('MapGameService', () => {
             1: SHORTESTPATHINDEXES1,
         };
         /* eslint-enable */
-        service.setShortestPath(index);
+        service.renderShortestPath(index);
 
         service.shortestPathByTile[index].forEach((tileIndex) => {
             expect(service.tiles[tileIndex].isAccessible).toBe(TilePreview.SHORTESTPATH);
@@ -125,10 +125,10 @@ describe('MapGameService', () => {
     });
     it('should set accessible tiles', () => {
         spyOn(service, 'setPreview');
-        service.accessibleTiles = SHORTESTPATHINDEXES1;
+        service.availableTiles = SHORTESTPATHINDEXES1;
 
-        service.setAccessibleTiles();
+        service.renderAvailableTiles();
 
-        expect(service.setPreview).toHaveBeenCalledWith(service.accessibleTiles, TilePreview.PREVIEW);
+        expect(service.renderPreview).toHaveBeenCalledWith(service.availableTiles, TilePreview.PREVIEW);
     });
 });

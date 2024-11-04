@@ -20,6 +20,15 @@ import { HttpClientService } from '@app/services/httpclient.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 
+export interface PlayerCoord {
+    player: Player;
+    position: number;
+}
+
+export interface ShortestPathByTile {
+    [key: number]: number[];
+}
+
 @Component({
     selector: 'app-game-page',
     standalone: true,
@@ -47,10 +56,11 @@ export class GamePageComponent implements OnInit {
     game: GameJson;
     player: Player;
     playersList: Player[];
+    playerCoords: PlayerCoord[];
     gameCreated = false;
     roomId: string;
 
-    activePlayer: Player | undefined;
+    activePlayer: Player;
 
     httpService = inject(HttpClientService);
     mapService = inject(MapGameService);
@@ -62,21 +72,53 @@ export class GamePageComponent implements OnInit {
 
     ngOnInit() {
         this.roomId = this.route.snapshot.params['roomId'];
-        this.socketService.once('getPlayers', (roomPlayers: Player[]) => {
-            this.playersList = roomPlayers;
-            roomPlayers.find((player) => {
-                if (player.id === this.route.snapshot.params['playerId']) {
-                    this.player = player;
+        // this.socketService.once('getPlayers', (roomPlayers: Player[]) => {
+        //     this.playersList = roomPlayers;
+        //     roomPlayers.find((player) => {
+        //         if (player.id === this.route.snapshot.params['playerId']) {
+        //             this.player = player;
+        //         }
+        //     });
+        // });
+
+        // this.socketService.emit('getPlayers', this.roomId);
+
+        this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
+            this.initializePlayers(playerCoords);
+
+            playerCoords.find((playerCoord) => {
+                if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
+                    this.player = playerCoord.player;
                 }
             });
+
+            this.activePlayer = playerCoords[0].player; // the array playerCoords is set in order of player turns
         });
 
-        this.socketService.emit('getPlayers', this.roomId);
+        this.socketService.emit('gameSetup', this.roomId);
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
+        });
+    }
+
+    startTurn() {
+        if (this.activePlayer.id === this.player.id) {
+            this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id }); // server needs to emit to all clients. Needs roomId?
+        }
+        this.socketService.once('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+            this.mapService.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
+            this.mapService.setShortestPathByTile(shortestPathByTile);
+            this.mapService.renderAvailableTiles();
+        });
+    }
+
+    initializePlayers(playerCoords: PlayerCoord[]) {
+        this.playerCoords = playerCoords;
+        this.playerCoords.forEach((playerCoord) => {
+            this.mapService.placePlayer(playerCoord.position, playerCoord.player);
         });
     }
 
@@ -88,13 +130,22 @@ export class GamePageComponent implements OnInit {
         this.router.navigate(['/home']);
     }
 
-    setActivePlayerById(id: string): void {
-        this.activePlayer = this.playersList.find((player) => player.id === id);
-    }
+    // setActivePlayerById(id: string): void {
+    //     this.activePlayer = this.playersList.find((player) => player.id === id);
+    // }
 
-    moveActivePlayer(index: number) {
-        if (this.activePlayer) {
-            this.mapService.changePlayerPosition(index, this.activePlayer);
-        }
-    }
+    // moveActivePlayer(index: number) {
+    //     if (this.activePlayer) {
+    //         this.mapService.changePlayerPosition(index, this.activePlayer);
+    //     } else {
+    //         console.error('No active player found');
+    //     }
+    // }
+
+    // movePlayerById(playerId: string, index: number) {
+    //     if (!this.activePlayer || this.activePlayer.id !== playerId) {
+    //         this.setActivePlayerById(playerId);
+    //     }
+    //     this.moveActivePlayer(index);
+    // }
 }
