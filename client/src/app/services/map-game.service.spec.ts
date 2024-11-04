@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { TilePreview } from '@app/data-structure/game-structure';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
-import { TilePreview } from '../data-structure/game-structure';
 import { MapGameService } from './map-game.service';
 
 const player1: Player = {
@@ -12,6 +12,11 @@ const player1: Player = {
     isActive: false,
     abandoned: true,
 };
+
+/* eslint-disable */ // Magic numbers are used for testing purposes
+const SHORTESTPATHINDEXES1 = [0, 1, 2];
+const SHORTESTPATHINDEXES2 = [4, 5, 6];
+/* eslint-enable */
 
 describe('MapGameService', () => {
     let service: MapGameService;
@@ -69,7 +74,7 @@ describe('MapGameService', () => {
         expect(service.removeAllPreview).toHaveBeenCalled();
     });
     it('should set preview for given indexes', () => {
-        const indexes = [0, 1, 2];
+        const indexes = SHORTESTPATHINDEXES1;
         const previewType = TilePreview.PREVIEW;
 
         service.setPreview(indexes, previewType);
@@ -82,9 +87,11 @@ describe('MapGameService', () => {
         service.tiles[0].isAccessible = TilePreview.PREVIEW;
         service.tiles[1].isAccessible = TilePreview.SHORTESTPATH;
         service.tiles[2].isAccessible = TilePreview.PREVIEW;
+        /* eslint-disable */
         service.shortestPathByTile = {
-            1: [0, 1, 2],
+            1: SHORTESTPATHINDEXES1,
         };
+        /* eslint-enable */
 
         service.removeAllPreview();
 
@@ -93,19 +100,23 @@ describe('MapGameService', () => {
         });
     });
     it('should reset shortest path', () => {
+        /* eslint-disable */
+
         service.shortestPathByTile = {
-            1: [1, 2, 3],
-            2: [4, 5, 6],
+            1: SHORTESTPATHINDEXES1,
+            2: SHORTESTPATHINDEXES2,
         };
+        /* eslint-enable */
         service.resetShortestPath();
         expect(service.shortestPathByTile).toEqual({});
     });
     it('should set shortest path for given index', () => {
         const index = 1;
+        /* eslint-disable */
         service.shortestPathByTile = {
-            1: [0, 1, 2],
+            1: SHORTESTPATHINDEXES1,
         };
-
+        /* eslint-enable */
         service.setShortestPath(index);
 
         service.shortestPathByTile[index].forEach((tileIndex) => {
@@ -114,7 +125,7 @@ describe('MapGameService', () => {
     });
     it('should set accessible tiles', () => {
         spyOn(service, 'setPreview');
-        service.accessibleTiles = [0, 1, 2];
+        service.accessibleTiles = SHORTESTPATHINDEXES1;
 
         service.setAccessibleTiles();
 

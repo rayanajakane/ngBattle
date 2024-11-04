@@ -73,7 +73,7 @@ export class GamePageComponent implements OnInit {
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map as GameTile[];
-            this.mapSize = parseInt(this.game.mapSize);
+            this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
         });
     }

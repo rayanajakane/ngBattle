@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { GameTile, TilePreview } from '@app/data-structure/game-structure';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
-import { GameTile, TilePreview } from '../data-structure/game-structure';
 import { MapBaseService } from './map-base.service';
 
 const player1: Player = {
