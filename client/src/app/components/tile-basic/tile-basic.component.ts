@@ -16,9 +16,11 @@ export class TileBasicComponent implements OnChanges {
     @Input() isToolbarTile: boolean = false; // Differentiate between toolbar tiles and map tiles
     @Input() itemType: string = '';
     @Input() isAccessible?: TilePreview = TilePreview.NONE; // Only necessary for game map
+    @Input() avatar?: string = '';
 
     transparentImage: string = '';
     imageUrl: string = '';
+    avatarUrl: string = '';
 
     dragDropService = inject(DragDropService);
     isDropped: boolean = false;
@@ -31,6 +33,7 @@ export class TileBasicComponent implements OnChanges {
         this.setTileImage();
         this.setItemImage();
         this.choosePreviewClass();
+        this.setAvatarImage();
     }
     setItemImage() {
         if (this.itemType) {
@@ -45,6 +48,14 @@ export class TileBasicComponent implements OnChanges {
             this.imageUrl = `./../../../assets/${this.tileType}.jpg`;
         } else {
             this.imageUrl = './../../../assets/ground.jpg';
+        }
+    }
+
+    setAvatarImage() {
+        if (this.avatar) {
+            this.avatarUrl = `./../../../assets/characters/${this.avatar}.png`;
+        } else {
+            this.avatarUrl = '';
         }
     }
 

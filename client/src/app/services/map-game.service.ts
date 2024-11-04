@@ -21,7 +21,6 @@ export class MapGameService extends MapBaseService {
     onMouseUp(index: number, event: MouseEvent): void {}
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
-        event.preventDefault();
         this.setAccessibleTiles();
         this.setShortestPath(index);
     }
