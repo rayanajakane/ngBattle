@@ -27,6 +27,7 @@ interface GameInstance {
     game: GameJson;
     playersCoord?: PlayerCoord[];
     turn?: number;
+    currentPlayerMoveBudget?: number;
 }
 
 @Injectable()
@@ -40,11 +41,8 @@ export class ActionService {
     game: GameJson;
     activeIndex: number = 0;
 
-    // placeholder for now
-    playermoveSpeed = 3;
-
     //TODO: identify games uniquely
-    async checkGameInstance(gameId: string): Promise<void> {
+    private async checkGameInstance(gameId: string): Promise<void> {
         if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
             const game: GameJson = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ game });
@@ -82,6 +80,12 @@ export class ActionService {
             playerCoord.push({ player, position });
         });
 
+        if (startingPositions.length > 0) {
+            startingPositions.forEach((position) => {
+                game.map[position].item = '';
+            });
+        }
+
         return playerCoord;
     }
 
@@ -91,6 +95,17 @@ export class ActionService {
             const game = this.activeGames.find((instance) => instance.game.id === gameId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.game.id === gameId);
+
+            playerCoord.sort((a, b) => {
+                const speedA = parseInt(a.player.attributes.speed);
+                const speedB = parseInt(b.player.attributes.speed);
+
+                if (speedA !== speedB) {
+                    return speedB - speedA;
+                }
+                return Math.random() - 0.5;
+            });
+
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
         });
@@ -103,16 +118,17 @@ export class ActionService {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
         const game = gameInstance.game;
         const player = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
+        const moveBudget = gameInstance.currentPlayerMoveBudget;
 
-        this.movement.shortestPath(player, game, startPosition, endPosition);
+        return this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
     }
 
-    availablePlayerMoves(playerId: string, gameId: string, startPosition: number): { [key: number]: number[] } {
+    availablePlayerMoves(playerId: string, gameId: string): { [key: number]: number[] } {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
         const game = gameInstance.game;
 
-        const player = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
+        const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
-        return this.movement.availableMoves(player, game, startPosition);
+        return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }
 }

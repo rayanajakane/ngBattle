@@ -2,7 +2,6 @@ import { GameJson, TileJson } from '@app/model/game-structure';
 import { Injectable } from '@nestjs/common';
 //TODO: take a look at the Coord interface and see if it can be moved to a separate file
 import { Coord } from '../action/action.service';
-import { Player } from '../match.service';
 //TODO: replace then tile types with enums
 //TODO: test functions in this service
 @Injectable()
@@ -10,11 +9,9 @@ export class MovementService {
     // placeholder for now
     private invalidTileTypes: string[] = ['wall', 'doorClosed'];
 
-    isValidPosition(player: Player, game: GameJson, coord: Coord): boolean {
+    isValidPosition(moveBudget: number, game: GameJson, coord: Coord): boolean {
         const mapSize: number = parseInt(game.mapSize);
         const mapTile: TileJson = game.map[coord.x * mapSize + coord.y];
-
-        const playerSpeed = parseInt(player.attributes.speed);
 
         // Check if coordinates are within bounds
         if (coord.x < 0 || coord.x >= mapSize || coord.y < 0 || coord.y >= mapSize) {
@@ -27,7 +24,7 @@ export class MovementService {
         }
 
         // Check if the player's move speed is sufficient
-        if (playerSpeed < coord.distance) {
+        if (moveBudget < coord.distance) {
             return false;
         }
 
@@ -60,7 +57,7 @@ export class MovementService {
         return coord.x * mapSize + coord.y;
     }
 
-    shortestPath(player: Player, game: GameJson, startPosition: number, endPosition: number): number[] {
+    shortestPath(moveBudget: number, game: GameJson, startPosition: number, endPosition: number) {
         const mapSize = parseInt(game.mapSize);
         const startCoord = this.convertToCoord(startPosition, mapSize);
         const endCoord = this.convertToCoord(endPosition, mapSize);
@@ -92,7 +89,7 @@ export class MovementService {
                 //TODO: replace the tileValue function with enums of tile types holding the values
                 const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
 
-                if (!visited[x][y] && this.isValidPosition(player, game, { x, y, distance: totalDistance } as Coord)) {
+                if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance } as Coord)) {
                     queue.push({
                         x,
                         y,
@@ -109,7 +106,7 @@ export class MovementService {
         return found ? [startPosition, ...destinationNode.parentNodes.map((coord) => this.convertToPosition(coord, mapSize)), endPosition] : [];
     }
 
-    availableMoves(player: Player, game: GameJson, startPosition: number): { [key: number]: number[] } {
+    availableMoves(moveBudget: number, game: GameJson, startPosition: number): { [key: number]: number[] } {
         const startCoord = this.convertToCoord(startPosition, parseInt(game.mapSize));
 
         const map = game.map;
@@ -134,7 +131,7 @@ export class MovementService {
 
                 const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
 
-                if (!visited[x][y] && this.isValidPosition(player, game, { x, y, distance: totalDistance })) {
+                if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance })) {
                     queue.push({ x, y, distance: totalDistance });
                     coordPath.push({ x, y });
                     visited[x][y] = true;
@@ -146,7 +143,7 @@ export class MovementService {
 
         return coordPath.reduce((structure, coord) => {
             const endPosition = this.convertToPosition(coord, mapSize);
-            structure[endPosition] = this.shortestPath(player, game, startPosition, endPosition);
+            structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition);
             return structure;
         }, {});
     }
