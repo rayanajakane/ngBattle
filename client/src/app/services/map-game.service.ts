@@ -8,7 +8,7 @@ import { MapBaseService } from './map-base.service';
 export class MapGameService extends MapBaseService {
     tiles: GameTile[];
     accessibleTiles: number[] = [];
-    tilesShortestPaths: { [key: number]: number[] } = {};
+    shortestPathByTile: { [key: number]: number[] } = {};
 
     constructor() {
         super();
@@ -21,7 +21,6 @@ export class MapGameService extends MapBaseService {
     onMouseUp(index: number, event: MouseEvent): void {}
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
-        event.preventDefault();
         this.setAccessibleTiles();
         this.setShortestPath(index);
     }
@@ -48,18 +47,18 @@ export class MapGameService extends MapBaseService {
 
     //temp function to test shortest path
     fetchShortestPath(): void {
-        this.tilesShortestPaths[1] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        this.tilesShortestPaths[2] = [10, 11, 12, 13, 14, 15, 16, 17, 18];
-        this.tilesShortestPaths[3] = [19, 20, 21, 22, 23, 24, 25, 26, 27];
+        this.shortestPathByTile[1] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        this.shortestPathByTile[2] = [10, 11, 12, 13, 14, 15, 16, 17, 18];
+        this.shortestPathByTile[3] = [19, 20, 21, 22, 23, 24, 25, 26, 27];
     }
 
     resetShortestPath(): void {
-        this.tilesShortestPaths = {};
+        this.shortestPathByTile = {};
     }
 
     setShortestPath(index: number): void {
-        if (this.tilesShortestPaths[index]) {
-            this.setPreview(this.tilesShortestPaths[index], TilePreview.SHORTESTPATH);
+        if (this.shortestPathByTile[index]) {
+            this.setPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
         }
     }
 
