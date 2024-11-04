@@ -57,7 +57,7 @@ export class MovementService {
         return coord.x * mapSize + coord.y;
     }
 
-    shortestPath(moveBudget: number, game: GameJson, startPosition: number, endPosition: number) {
+    shortestPath(moveBudget: number, game: GameJson, startPosition: number, endPosition: number): { moveCost: number; path: number[] } {
         const mapSize = parseInt(game.mapSize);
         const startCoord = this.convertToCoord(startPosition, mapSize);
         const endCoord = this.convertToCoord(endPosition, mapSize);
@@ -102,8 +102,10 @@ export class MovementService {
 
             queue.sort((a, b) => a.distance - b.distance);
         }
+        const moveCost = destinationNode ? destinationNode.distance : 0;
+        const path = found ? [startPosition, ...destinationNode.parentNodes.map((coord) => this.convertToPosition(coord, mapSize)), endPosition] : [];
 
-        return found ? [startPosition, ...destinationNode.parentNodes.map((coord) => this.convertToPosition(coord, mapSize)), endPosition] : [];
+        return { moveCost, path };
     }
 
     availableMoves(moveBudget: number, game: GameJson, startPosition: number): { [key: number]: number[] } {

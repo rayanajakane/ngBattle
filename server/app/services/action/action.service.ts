@@ -117,10 +117,12 @@ export class ActionService {
     movePlayer(playerId: string, gameId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
         const game = gameInstance.game;
-        const player = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
-        return this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
+        const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
+        gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
+
+        return shortestPath.path;
     }
 
     availablePlayerMoves(playerId: string, gameId: string): { [key: number]: number[] } {

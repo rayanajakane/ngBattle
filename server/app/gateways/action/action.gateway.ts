@@ -88,7 +88,6 @@ export class ActionGateway implements OnGatewayInit {
             });
             console.log('endMove');
 
-            this.action.nextTurn(data.gameId);
             console.log('nextTurn: ' + activeGame.turn);
             this.server.emit('endMove', this.action.availablePlayerMoves(data.playerId, data.gameId));
         }
