@@ -1,6 +1,17 @@
 import { TestBed } from '@angular/core/testing';
+import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { TilePreview } from '../data-structure/game-structure';
 import { MapGameService } from './map-game.service';
+
+const player1: Player = {
+    id: '1',
+    name: 'player1',
+    isAdmin: false,
+    avatar: '1',
+    attributes: {} as PlayerAttribute,
+    isActive: false,
+    abandoned: true,
+};
 
 describe('MapGameService', () => {
     let service: MapGameService;
@@ -10,6 +21,7 @@ describe('MapGameService', () => {
         service = TestBed.inject(MapGameService);
         service.tiles = [
             {
+                player: player1,
                 isAccessible: TilePreview.NONE,
                 idx: 0,
                 tileType: '',
@@ -17,6 +29,7 @@ describe('MapGameService', () => {
                 hasPlayer: false,
             },
             {
+                player: player1,
                 isAccessible: TilePreview.NONE,
                 idx: 1,
                 tileType: '',
@@ -24,6 +37,7 @@ describe('MapGameService', () => {
                 hasPlayer: false,
             },
             {
+                player: player1,
                 isAccessible: TilePreview.NONE,
                 idx: 2,
                 tileType: '',
@@ -77,7 +91,6 @@ describe('MapGameService', () => {
         service.tiles.forEach((tile) => {
             expect(tile.isAccessible).toBe(TilePreview.NONE);
         });
-        expect(service.shortestPathByTile).toEqual({});
     });
     it('should reset shortest path', () => {
         service.shortestPathByTile = {

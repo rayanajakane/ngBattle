@@ -1,7 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 
 import { GameTile, TileJson, TilePreview } from '@app/data-structure/game-structure';
+import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { MapBaseService } from './map-base.service';
+
+const player1: Player = {
+    id: '1',
+    name: 'player1',
+    isAdmin: false,
+    avatar: '1',
+    attributes: {} as PlayerAttribute,
+    isActive: false,
+    abandoned: true,
+};
 
 describe('MapBaseService', () => {
     let service: MapBaseService;
@@ -21,6 +32,7 @@ describe('MapBaseService', () => {
             item: '',
             hasPlayer: false,
             isAccessible: TilePreview.NONE,
+            player: player1,
         };
         const tileJson: TileJson = {
             idx: 0,
