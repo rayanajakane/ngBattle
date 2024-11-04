@@ -39,19 +39,21 @@ export class ActionGateway implements OnGatewayInit {
     handleGameSetup(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-        const playerCoords: PlayerInfo[] = this.action.gameSetup(gameId, players);
+
+        const playerCoords: PlayerInfo[] = this.action.gameSetup(roomId, gameId, players);
+
         console.log(playerCoords);
         this.server.emit('gameSetup', playerCoords);
     }
 
     //TODO: check usefulness of this function
     @SubscribeMessage('startTurn')
-    handleStartTurn(@MessageBody() data: { gameId: string; playerId: string }, @ConnectedSocket() client: Socket) {
-        const activeGame = this.action.activeGames.find((game) => game.game.id === data.gameId);
+    handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
+        const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
 
         //TODO: send the move budget to the client
-        client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, data.gameId));
+        client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, activeGame.game.id));
     }
 
     @SubscribeMessage('move')
@@ -63,7 +65,7 @@ export class ActionGateway implements OnGatewayInit {
         const activeGame = this.action.activeGames.find((game) => game.game.id === data.gameId);
 
         if (activeGame.playersCoord[activeGame.turn].player.id !== playerId) {
-            const playerPositions = this.action.movePlayer(data.playerId, data.gameId, data.startPosition, data.endPosition);
+            const playerPositions = this.action.movePlayer(data.gameId, data.startPosition, data.endPosition);
 
             const gameMap = this.action.activeGames.find((game) => game.game.id === data.gameId).game.map;
             let iceSlip = false;

@@ -24,6 +24,7 @@ enum TileType {
 }
 
 interface GameInstance {
+    roomId: string;
     game: GameJson;
     playersCoord?: PlayerInfo[];
     turn?: number;
@@ -41,14 +42,6 @@ export class ActionService {
     game: GameJson;
     activeIndex: number = 0;
 
-    //TODO: identify games uniquely
-    private async checkGameInstance(gameId: string): Promise<void> {
-        if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
-            const game: GameJson = await this.gameService.get(gameId).then((game) => game);
-            this.activeGames.push({ game });
-        }
-    }
-
     nextTurn(gameId: string): void {
         const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
         const maxTurn = gameInstance.playersCoord.length;
@@ -57,6 +50,14 @@ export class ActionService {
         turn = (turn + 1) % maxTurn;
 
         this.activeGames[this.activeGames.findIndex((instance) => instance.game.id === gameId)].turn = turn;
+    }
+
+    //TODO: identify games uniquely
+    private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
+        if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
+            const game: GameJson = await this.gameService.get(gameId).then((game) => game);
+            this.activeGames.push({ roomId, game });
+        }
     }
 
     findStartingPositions(game: GameJson): number[] {
@@ -71,6 +72,7 @@ export class ActionService {
             let randomIndex: number;
             let position: number;
 
+            //TODO: refacor this for simpler version
             do {
                 randomIndex = Math.floor(Math.random() * startingPositions.length);
                 position = startingPositions[randomIndex];
@@ -90,12 +92,12 @@ export class ActionService {
         return playerCoord;
     }
 
-    gameSetup(gameId: string, players: Player[]): PlayerInfo[] {
+    gameSetup(roomId: string, gameId: string, players: Player[]): PlayerInfo[] {
         let playerCoord: PlayerInfo[] = [];
-        this.checkGameInstance(gameId).then(() => {
-            const game = this.activeGames.find((instance) => instance.game.id === gameId).game as GameJson;
+        this.checkGameInstance(roomId, gameId).then(() => {
+            const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
-            const activeGameIndex = this.activeGames.findIndex((instance) => instance.game.id === gameId);
+            const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
 
             playerCoord.sort((a, b) => {
                 const speedA = parseInt(a.player.attributes.speed);
@@ -115,19 +117,20 @@ export class ActionService {
     }
 
     //TODO: implement socket response for client
-    movePlayer(playerId: string, gameId: string, startPosition: number, endPosition: number) {
-        const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
+    movePlayer(roomId: string, startPosition: number, endPosition: number) {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
+
         gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 
         return shortestPath.path;
     }
 
-    availablePlayerMoves(playerId: string, gameId: string): { [key: number]: number[] } {
-        const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
+    availablePlayerMoves(playerId: string, roomId: string): { [key: number]: number[] } {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
 
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
