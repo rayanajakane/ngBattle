@@ -17,4 +17,8 @@ export abstract class MapBaseService {
     isGameTile(tile: TileJson | GameTile): tile is GameTile {
         return (tile as GameTile).isAccessible !== undefined;
     }
+
+    isPlayerTile(tile: TileJson | GameTile): tile is GameTile & { player: { avatar: string } } {
+        return (tile as GameTile).player !== undefined;
+    }
 }

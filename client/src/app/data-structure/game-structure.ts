@@ -1,3 +1,5 @@
+import { Player } from '@app/interfaces/player';
+
 export enum TilePreview {
     NONE,
     PREVIEW,
@@ -13,6 +15,7 @@ export interface TileJson {
 
 export interface GameTile extends TileJson {
     isAccessible: TilePreview;
+    player: Player | undefined;
 }
 
 // TODO: rename 'gameName' to just 'name'

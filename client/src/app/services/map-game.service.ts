@@ -1,6 +1,17 @@
 import { Injectable } from '@angular/core';
+import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { GameTile, TilePreview } from '../data-structure/game-structure';
 import { MapBaseService } from './map-base.service';
+
+const player1: Player = {
+    id: '1',
+    name: 'player1',
+    isAdmin: false,
+    avatar: '1',
+    attributes: {} as PlayerAttribute,
+    isActive: false,
+    abandoned: true,
+};
 
 @Injectable({
     providedIn: 'root',
@@ -14,9 +25,17 @@ export class MapGameService extends MapBaseService {
         super();
         this.fetchAccessibleTiles();
         this.fetchShortestPath();
+
+        //temp function to test player placement
+        setTimeout(() => {
+            //temp function to test player placement
+            this.placePlayer(1, player1);
+        }, 1000);
     }
 
-    onRightClick(index: number): void {}
+    onRightClick(index: number): void {
+        this.changePlayerPosition(index, player1);
+    }
     onMouseDown(index: number, event: MouseEvent): void {}
     onMouseUp(index: number, event: MouseEvent): void {}
     onDrop(index: number): void {}
@@ -64,5 +83,24 @@ export class MapGameService extends MapBaseService {
 
     setAccessibleTiles(): void {
         this.setPreview(this.accessibleTiles, TilePreview.PREVIEW);
+    }
+
+    placePlayer(index: number, player: Player): void {
+        this.tiles[index].player = player;
+        this.tiles[index].hasPlayer = true;
+    }
+
+    removePlayer(index: number): void {
+        this.tiles[index].player = undefined;
+        this.tiles[index].hasPlayer = false;
+    }
+
+    findPlayerIndex(player: Player): number {
+        return this.tiles.findIndex((tile) => tile.player?.id === player.id);
+    }
+
+    changePlayerPosition(newIndex: number, player: Player): void {
+        this.removePlayer(this.findPlayerIndex(player));
+        this.placePlayer(newIndex, player);
     }
 }
