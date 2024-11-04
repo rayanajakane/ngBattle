@@ -53,12 +53,10 @@ export class MapGameService extends MapBaseService {
 
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
-        // this.setAccessibleTiles();
         this.renderShortestPath(index);
     }
-    onExit(): void {
-        this.removeAllPreview();
-    }
+
+    onExit(): void {}
 
     renderPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {
@@ -94,7 +92,7 @@ export class MapGameService extends MapBaseService {
         }
     }
 
-    renderAvailableTiles(accessibleTiles: number[]): void {
+    renderAvailableTiles(): void {
         this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
     }
 

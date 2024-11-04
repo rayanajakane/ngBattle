@@ -101,18 +101,38 @@ export class GamePageComponent implements OnInit {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
+            this.startFirstTurn();
         });
     }
 
-    startTurn() {
+    startFirstTurn() {
         if (this.activePlayer.id === this.player.id) {
-            this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id }); // server needs to emit to all clients. Needs roomId?
+            this.socketService.once('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+                this.initializeMovementPrevisualization(shortestPathByTile);
+            });
+            this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
         }
-        this.socketService.once('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            this.mapService.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
-            this.mapService.setShortestPathByTile(shortestPathByTile);
-            this.mapService.renderAvailableTiles();
+        this.listenMovement();
+    }
+
+    listenMovement() {
+        this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
+            if (data.playerId === this.activePlayer.id) {
+                this.mapService.changePlayerPosition(data.newPlayerPosition, this.activePlayer);
+            } else {
+                throw new Error('Player movement not allowed');
+            }
         });
+    }
+
+    findPlayerCoordById(playerId: string): PlayerCoord | undefined {
+        return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
+    }
+
+    initializeMovementPrevisualization(shortestPathByTile: ShortestPathByTile) {
+        this.mapService.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
+        this.mapService.setShortestPathByTile(shortestPathByTile);
+        this.mapService.renderAvailableTiles();
     }
 
     initializePlayers(playerCoords: PlayerCoord[]) {
