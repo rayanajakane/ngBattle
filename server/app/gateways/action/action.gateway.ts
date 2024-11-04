@@ -107,15 +107,15 @@ export class ActionGateway implements OnGatewayInit {
     }
 
     @SubscribeMessage('endTurn')
-    handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { gameId: string; playerId: string }) {
-        const gameId = data.gameId;
-        const activeGame = this.action.activeGames.find((game) => game.game.id === gameId);
+    handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
+        const roomId = data.roomId;
+        const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
 
         if (activeGame.playersCoord[activeGame.turn].player.id !== data.playerId) {
-            this.action.nextTurn(gameId);
+            this.action.nextTurn(roomId);
 
             //TODO: send the new active player to the client
-            this.server.emit('endTurn', this.action.activeGames.find((game) => game.game.id === gameId).turn);
+            this.server.emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
         }
     }
 

@@ -42,14 +42,14 @@ export class ActionService {
     game: GameJson;
     activeIndex: number = 0;
 
-    nextTurn(gameId: string): void {
-        const gameInstance = this.activeGames.find((instance) => instance.game.id === gameId);
+    nextTurn(roomId: string): void {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const maxTurn = gameInstance.playersCoord.length;
         let turn = gameInstance.turn;
 
         turn = (turn + 1) % maxTurn;
 
-        this.activeGames[this.activeGames.findIndex((instance) => instance.game.id === gameId)].turn = turn;
+        this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].turn = turn;
     }
 
     //TODO: identify games uniquely
