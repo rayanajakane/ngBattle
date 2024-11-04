@@ -1,11 +1,13 @@
-<div class="log-container">
-    <p>Journalisation</p>
-    <div class="logs-container" #logsContainer>
+<mat-card appearance="outlined" class="logs-component-container">
+    <mat-card-header>
+        <mat-card-title> Journalisation </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="logs-container" #logsContainer>
         @for(log of logs; track $index) {
         <div class="message">
-            <span class="message-date">({{ log.date }})</span>
-            <span class="message-content">{{ log.message }}</span>
+            <span class="log-date">({{ log.date }})</span>
+            <span class="log-content"> {{ log.message }}</span>
         </div>
         }
-    </div>
-</div>
+    </mat-card-content>
+</mat-card>

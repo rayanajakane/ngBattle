@@ -1,0 +1,35 @@
+.logs-component-container {
+    background-color: black;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    width: 320px;
+    height: 275px;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    mat-card-header {
+        display: flex;
+        justify-content: center;
+        mat-card-title {
+            color: #fff;
+        }
+    }
+
+    .logs-container {
+        background-color: black;
+        color: #fff;
+        flex: 1; /* Allow the container to grow and fill available space */
+        overflow: auto; /* Make the container scrollable if content overflows */
+
+        .message {
+            color: #fff;
+
+            .log-date,
+            .log-content {
+                color: #fff;
+            }
+        }
+    }
+}
