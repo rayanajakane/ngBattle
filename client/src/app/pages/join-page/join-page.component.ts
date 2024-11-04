@@ -124,7 +124,6 @@ export class JoinPageComponent {
 
     onSubmit() {
         this.sendDataToGamePage();
-        console.log('info sent!');
         this.socketService.once('isRoomLocked', (isRoomLocked) => {
             if (!isRoomLocked) {
                 const errors = this.formChecking();

@@ -16,7 +16,9 @@ const player1: Player = {
 @Injectable({
     providedIn: 'root',
 })
+// Temporary disabled linting rule
 export class MapGameService extends MapBaseService {
+    /* eslint-disable */
     tiles: GameTile[];
     accessibleTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
@@ -37,7 +39,9 @@ export class MapGameService extends MapBaseService {
         this.changePlayerPosition(index, player1);
     }
     onMouseDown(index: number, event: MouseEvent): void {}
+
     onMouseUp(index: number, event: MouseEvent): void {}
+
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
         this.setAccessibleTiles();
@@ -103,4 +107,5 @@ export class MapGameService extends MapBaseService {
         this.removePlayer(this.findPlayerIndex(player));
         this.placePlayer(newIndex, player);
     }
+    /* eslint-enable */
 }

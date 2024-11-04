@@ -35,7 +35,6 @@ export class WaitingPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        console.log(this.socketService.id());
         this.socketService.once('roomLeft', () => {
             this.router.navigate(['/']);
         });
@@ -56,7 +55,7 @@ export class WaitingPageComponent implements OnInit {
 
     gameStartedListener() {
         this.socketService.once('gameStarted', (data: { gameId: string; players: Player[] }) => {
-            //players might not be necessary
+            // players might not be necessary
             // TODO: change the url path
             this.router.navigate([
                 '/game',
@@ -93,7 +92,6 @@ export class WaitingPageComponent implements OnInit {
     lockRoom() {
         this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
             this.isRoomLocked = !isRoomLocked;
-            console.log('isRoomLocked', this.isRoomLocked);
             if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
             } else {

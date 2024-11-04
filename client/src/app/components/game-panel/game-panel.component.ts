@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
     styleUrl: './game-panel.component.scss',
 })
 export class GamePanelComponent {
-    @Input() gameName: any;
+    @Input() gameName: string;
     @Input() mapSize: number;
     @Input() nPlayers: number;
     @Input() activePlayer: string;
