@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LogMessage } from '@app/interfaces/message';
-//import { SocketService } from '@app/services/socket.service';
+// import { SocketService } from '@app/services/socket.service';
 
 @Component({
     selector: 'app-logs',
@@ -14,7 +14,7 @@ import { LogMessage } from '@app/interfaces/message';
     templateUrl: './logs.component.html',
     styleUrl: './logs.component.scss',
 })
-export class LogsComponent {
+export class LogsComponent implements OnInit {
     @ViewChild('logsContainer') logsContainer: ElementRef;
     @Input() roomId: string;
 
@@ -47,10 +47,6 @@ export class LogsComponent {
     // }
 
     scrollToBottom() {
-        try {
-            this.logsContainer.nativeElement.scrollTop = this.logsContainer.nativeElement.scrollHeight;
-        } catch (err) {
-            console.error('Scroll to bottom failed in logsComponent', err);
-        }
+        this.logsContainer.nativeElement.scrollTop = this.logsContainer.nativeElement.scrollHeight;
     }
 }
