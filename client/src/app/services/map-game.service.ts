@@ -77,13 +77,16 @@ export class MapGameService extends MapBaseService {
     }
 
     renderShortestPath(index: number): void {
+        this.renderAvailableTiles();
         if (this.shortestPathByTile[index]) {
             this.renderPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
         }
     }
 
     renderAvailableTiles(): void {
-        this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
+        if (this.availableTiles.length > 0) {
+            this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
+        }
     }
 
     placePlayer(index: number, player: Player): void {

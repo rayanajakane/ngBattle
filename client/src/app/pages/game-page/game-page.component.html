@@ -1,6 +1,6 @@
-@if (gameCreated) {
 <div class="main-container">
     <section class="game-map">
+        @if (playersInitialized) {
         <app-game-panel
             class="game-card"
             [playerCoords]="playerCoords"
@@ -20,8 +20,12 @@
             [bonusDice]="player.attributes.dice"
         >
         </app-player-panel>
+        }
+
         <app-combat-interface class="combat-card"></app-combat-interface>
+        @if (gameCreated) {
         <app-game-map [mapSize]="mapSize"></app-game-map>
+        }
 
         <section class="game-btns">
             <app-inventory class="tools"></app-inventory>
@@ -40,6 +44,7 @@
         </section>
     </section>
 
+    @if (playersInitialized) {
     <mat-card class="tabs" appearance="outlined">
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
             <mat-tab label="Clavardage">
@@ -52,5 +57,5 @@
     </mat-card>
     <app-timer class="timer"></app-timer>
     <app-leaderboard [turn]="turn" [playerCoords]="playerCoords" [activePlayer]="activePlayer" class="leaderboard"></app-leaderboard>
+    }
 </div>
-}

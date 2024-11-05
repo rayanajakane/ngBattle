@@ -137,9 +137,7 @@ export class ActionService {
     availablePlayerMoves(playerId: string, roomId: string): { [key: number]: number[] } {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
-
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
-        console.log('playerPosition', playerPosition);
 
         return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }

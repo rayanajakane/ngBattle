@@ -58,7 +58,10 @@ export class GamePageComponent implements OnInit {
     player: Player;
     playersList: Player[];
     playerCoords: PlayerCoord[];
+
     gameCreated = false;
+    playersInitialized = false;
+
     roomId: string;
 
     activePlayer: Player;
@@ -86,6 +89,7 @@ export class GamePageComponent implements OnInit {
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
+            this.gameCreated = true;
             this.socketService.emit('gameSetup', this.roomId);
         });
     }
@@ -93,16 +97,14 @@ export class GamePageComponent implements OnInit {
     // Need server to send gameSetup to all clients
     listenGameSetup() {
         this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
-            this.gameCreated = true;
             this.initializePlayersPositions(playerCoords);
-
+            this.playersInitialized = true;
             this.startTurn();
         });
     }
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            console.log('shortestPathByTiles', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
             this.subscribeMapService();
         });
@@ -111,6 +113,7 @@ export class GamePageComponent implements OnInit {
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
+            console.log('playerPositionUpdate', data);
         });
         this.socketService.once('endMove', (shortestPathByTile: ShortestPathByTile) => {
             this.endMovement(shortestPathByTile);
