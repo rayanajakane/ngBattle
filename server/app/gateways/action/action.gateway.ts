@@ -25,6 +25,11 @@ export class ActionGateway implements OnGatewayInit {
         this.server = server;
     }
 
+    getCurrentTimeFormatted(): string {
+        const currentTime = new Date();
+        return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
+    }
+
     updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
         this.server.to(roomId).emit('playerPositionUpdate', {
             playerId,
@@ -43,6 +48,7 @@ export class ActionGateway implements OnGatewayInit {
     //TODO: check usefulness of this function
     @SubscribeMessage('startTurn')
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
+        const formattedTime = this.getCurrentTimeFormatted();
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
         console.log('playerId', data.playerId);
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
@@ -53,7 +59,10 @@ export class ActionGateway implements OnGatewayInit {
         //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
-        this.server.to(data.roomId).emit('newLog', { date: '2023-10-01', message: 'Turn started' });
+
+        const playerName = activeGame.playersCoord[activeGame.turn].player.name;
+        const message = `Début de tour de ${playerName}`;
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: message });
     }
 
     @SubscribeMessage('move')
@@ -121,6 +130,7 @@ export class ActionGateway implements OnGatewayInit {
         if (remainingActionPoints > 0) {
             this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', doorPosition);
+            this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été ouverte' });
             console.log('Door interacted');
         }
         console.log('Door not interacted');
