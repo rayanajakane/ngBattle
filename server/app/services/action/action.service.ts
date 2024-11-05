@@ -62,6 +62,7 @@ export class ActionService {
     nextTurn(roomId: string): void {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const maxTurn = gameInstance.playersCoord.length;
+        console.log('maxturn', maxTurn);
         let turn = gameInstance.turn;
 
         turn = (turn + 1) % maxTurn;
