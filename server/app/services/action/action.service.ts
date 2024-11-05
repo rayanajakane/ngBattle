@@ -5,6 +5,7 @@ import { GameService } from '@app/services/game.service';
 import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { Injectable } from '@nestjs/common';
+import { Server } from 'socket.io';
 // TODO: declare the Coord interface interface in a separate file and import it here
 export interface Coord {
     x: number;
@@ -60,7 +61,7 @@ export class ActionService {
     private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
         //TODO: check condition
 
-        if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
+        if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
             const game: GameJson = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ roomId, game });
         }
@@ -98,14 +99,12 @@ export class ActionService {
         return playerCoord;
     }
 
-    gameSetup(roomId: string, gameId: string, players: Player[]): PlayerInfo[] {
+    gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
         let playerCoord: PlayerInfo[] = [];
         this.checkGameInstance(roomId, gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
-
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
-
             playerCoord.sort((a, b) => {
                 const speedA = parseInt(a.player.attributes.speed);
                 const speedB = parseInt(b.player.attributes.speed);
@@ -115,12 +114,11 @@ export class ActionService {
                 }
                 return Math.random() - 0.5;
             });
-
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
-        });
 
-        return playerCoord;
+            server.to(roomId).emit('gameSetup', playerCoord);
+        });
     }
 
     //TODO: implement socket response for client

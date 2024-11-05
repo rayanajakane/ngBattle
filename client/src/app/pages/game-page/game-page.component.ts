@@ -83,13 +83,11 @@ export class GamePageComponent implements OnInit {
         this.listenStartTurn();
         this.listenEndTurn();
 
-        this.socketService.emit('gameSetup', this.roomId);
-
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map as GameTile[];
+            console.log('tiles', this.mapService.tiles);
             this.mapSize = parseInt(this.game.mapSize, 10);
-            this.gameCreated = true;
-            this.startTurn();
+            this.socketService.emit('gameSetup', this.roomId);
         });
     }
 
@@ -98,6 +96,8 @@ export class GamePageComponent implements OnInit {
         this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
             console.log('gameSetup', playerCoords);
             this.initializePlayersPositions(playerCoords);
+            this.gameCreated = true;
+            this.startTurn();
         });
     }
 

@@ -2,7 +2,6 @@ import { ActionService } from '@app/services/action/action.service';
 import { MatchService } from '@app/services/match.service';
 import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { PlayerInfo } from '../../services/action/action.service';
 
 export enum TileTypes {
     BASIC = '',
@@ -39,11 +38,7 @@ export class ActionGateway implements OnGatewayInit {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
 
-        const playerCoords: PlayerInfo[] = this.action.gameSetup(roomId, gameId, players);
-
-        console.log(playerCoords);
-
-        this.server.to(roomId).emit('gameSetup', playerCoords);
+        this.action.gameSetup(this.server, roomId, gameId, players);
     }
 
     //TODO: check usefulness of this function
