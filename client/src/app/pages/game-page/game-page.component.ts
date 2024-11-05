@@ -158,6 +158,7 @@ export class GamePageComponent implements OnInit {
         this.playerCoords.forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
         });
+        this.mapService.removeUnusedStartingPoints();
     }
 
     startTurn() {
