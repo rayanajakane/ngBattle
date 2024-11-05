@@ -139,8 +139,13 @@ export class ActionGateway implements OnGatewayInit {
 
     @SubscribeMessage('quitGame')
     handleQuitGame(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
+        const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
         const roomId = data.roomId;
         const playerId = data.playerId;
+
+        if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
+            this.handleEndTurn(client, data);
+        }
 
         this.action.quitGame(roomId, playerId);
 
