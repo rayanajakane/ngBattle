@@ -19,7 +19,6 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
 
     afterInit(server: Server) {
         this.server = server;
-        console.log('MatchGateway initialized');
     }
 
     handleDisconnect(client: Socket) {

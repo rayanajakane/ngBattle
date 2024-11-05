@@ -186,8 +186,6 @@ export class GamePageComponent implements OnInit {
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
             this.resetMovementPrevisualization();
-            this.mapServiceSubscription.unsubscribe();
-            this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
         }
         this.mapService.isMoving = false;
     }
@@ -222,13 +220,21 @@ export class GamePageComponent implements OnInit {
         });
     }
 
+    endTurn() {
+        this.mapService.removeAllPreview();
+        this.resetMovementPrevisualization();
+        this.mapServiceSubscription.unsubscribe();
+        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
+    }
+
     quitGame() {
+        console.log('quitGame', this.player.id);
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
-        this.socketService.disconnect();
         this.router.navigate(['/home']);
     }
 
     ngOnDestroy() {
         this.mapServiceSubscription.unsubscribe();
+        this.socketService.disconnect();
     }
 }

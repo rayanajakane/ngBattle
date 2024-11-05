@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
-import { ItemTypes } from '@app/data-structure/toolType';
+import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
 import { Player } from '@app/interfaces/player';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { Subject } from 'rxjs';
@@ -116,6 +116,14 @@ export class MapGameService extends MapBaseService {
                 tile.item = '';
             }
         });
+    }
+
+    toggleDoor(index: number): void {
+        if (this.tiles[index].tileType === TileTypes.DOORCLOSED) {
+            this.tiles[index].tileType = TileTypes.DOOROPEN;
+        } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
+            this.tiles[index].tileType = TileTypes.DOORCLOSED;
+        }
     }
     /* eslint-enable */
 }
