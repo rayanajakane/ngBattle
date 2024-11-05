@@ -1,5 +1,6 @@
 import { TileTypes } from '@app/gateways/action/action.gateway';
 import { GameJson } from '@app/model/game-structure';
+import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game.service';
 import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
@@ -38,6 +39,7 @@ export class ActionService {
     constructor(
         private movement: MovementService,
         private gameService: GameService,
+        private combat: CombatService,
     ) {}
     activeGames: GameInstance[] = [];
     turn: number = 0;
@@ -56,6 +58,8 @@ export class ActionService {
 
     //TODO: identify games uniquely
     private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
+        //TODO: check condition
+
         if (this.activeGames.find((instance) => instance.game.id === gameId) === undefined) {
             const game: GameJson = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ roomId, game });
@@ -99,6 +103,7 @@ export class ActionService {
         this.checkGameInstance(roomId, gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameJson;
             playerCoord = this.randomizePlayerPosition(game, players);
+
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
 
             playerCoord.sort((a, b) => {
@@ -165,5 +170,17 @@ export class ActionService {
         }
 
         gameInstance.currentPlayerActionPoint -= 1;
+    }
+
+    startCombat(roomId: string, playerId: string, targetId: string) {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const game = gameInstance.game;
+
+        const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const targetPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === targetId).position;
+
+        if (this.combat.isValidCombatPosition(game, playerPosition, targetPosition)) {
+            // this.combat.Combat(game, playerId, targetId);
+        }
     }
 }
