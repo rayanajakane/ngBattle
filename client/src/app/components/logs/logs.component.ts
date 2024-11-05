@@ -49,7 +49,7 @@ export class LogsComponent implements OnInit {
 
     receiveCombatLog() {
         this.socketService.on('newPlayerLog', (log: LogMessage) => {
-            if (log.receiver === this.player.id || log.sender === 'all') {
+            if (log.receiver === this.player.id || log.sender === this.player.id) {
                 this.logs.push(log);
                 this.playerLogs.push(log);
             }

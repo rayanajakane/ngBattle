@@ -131,10 +131,15 @@ export class ActionGateway implements OnGatewayInit {
             this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', doorPosition);
 
+            const playerName = this.action.activeGames
+                .find((game) => game.roomId === roomId)
+                .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player.name;
             if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOOROPEN) {
-                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été ouverte' });
+                const message = `Porte a été ouverte par ${playerName}`;
+                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
             } else if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOORCLOSED) {
-                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été fermée' });
+                const message = `Porte a été ouverte par ${playerName}`;
+                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
             }
             console.log('Door interacted');
         }
