@@ -126,8 +126,6 @@ export class ActionService {
 
     //TODO: implement socket response for client
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
-        console.log('gameInstance', this.activeGames);
-        console.log('roomId', roomId);
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;

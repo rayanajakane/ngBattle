@@ -63,49 +63,52 @@ export class ActionGateway implements OnGatewayInit {
         console.log('playerId', playerId);
         console.log('expected playerId', activeGame.playersCoord[activeGame.turn].player.id);
 
-        // if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-        const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
+        if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
+            const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
 
-        const gameMap = this.action.activeGames.find((instance) => instance.roomId === roomId).game.map;
-        let iceSlip = false;
+            const gameMap = this.action.activeGames.find((instance) => instance.roomId === roomId).game.map;
+            let iceSlip = false;
 
-        console.log('startMove');
-        let pastPosition = startPosition;
-        playerPositions.forEach((playerPosition) => {
-            if (!iceSlip) {
-                setTimeout(() => {
-                    this.updatePlayerPosition(data.roomId, data.playerId, playerPosition);
-                }, 150);
+            console.log('startMove');
+            let pastPosition = startPosition;
+            playerPositions.forEach((playerPosition) => {
+                if (!iceSlip) {
+                    setTimeout(() => {
+                        this.updatePlayerPosition(data.roomId, data.playerId, playerPosition);
+                    }, 150);
 
-                this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[playerPosition].hasPlayer = true;
-                this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[pastPosition].hasPlayer = false;
+                    this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[playerPosition].hasPlayer = true;
+                    this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[pastPosition].hasPlayer = false;
 
-                activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
+                    activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
-                pastPosition = playerPosition;
+                    pastPosition = playerPosition;
 
-                if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
-                    console.log('iceSlip');
-                    iceSlip = true;
+                    if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
+                        console.log('iceSlip');
+                        iceSlip = true;
+                    }
                 }
-            }
-        });
-        console.log('endMove');
-        console.log('nextTurn: ' + activeGame.turn);
+            });
+            console.log('endMove');
+            console.log('nextTurn: ' + activeGame.turn);
 
-        client.emit('endMove', {
-            availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-            currentMoveBudget: activeGame.currentPlayerMoveBudget,
-        });
-        // }
+            client.emit('endMove', {
+                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                currentMoveBudget: activeGame.currentPlayerMoveBudget,
+            });
+        }
     }
 
     @SubscribeMessage('endTurn')
     handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
         const roomId = data.roomId;
         const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
-        console.log('endTurn', activeGame);
-        if (activeGame.playersCoord[activeGame.turn].player.id !== data.playerId) {
+        console.log('endTurn called');
+
+        console.log('playerId', data.playerId);
+        console.log('expected playerId', activeGame.playersCoord[activeGame.turn].player.id);
+        if (activeGame.playersCoord[activeGame.turn].player.id === data.playerId) {
             this.action.nextTurn(roomId);
 
             //TODO: send the new active player to the client
