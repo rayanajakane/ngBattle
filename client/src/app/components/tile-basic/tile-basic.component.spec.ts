@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { TilePreview } from '@app/data-structure/game-structure';
+import { ItemTypes } from '@app/data-structure/toolType';
 import { TileBasicComponent } from './tile-basic.component';
 
 describe('TileBasicComponent', () => {
@@ -21,9 +21,19 @@ describe('TileBasicComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // TODO: check for random itemType once assets are added
     it('setItemImage should change transparentImage based on itemType', () => {
-        const itemTypes = ['AA1', 'AA2', 'AC1', 'AC2', 'AF1', 'AF2', 'item-aleatoire', 'startingPoint', 'drapeauA', 'drapeauB'];
+        const itemTypes: ItemTypes[] = [
+            ItemTypes.AA1,
+            ItemTypes.AA2,
+            ItemTypes.AC1,
+            ItemTypes.AC2,
+            ItemTypes.AF1,
+            ItemTypes.AF2,
+            ItemTypes.RANDOMITEM,
+            ItemTypes.STARTINGPOINT,
+            ItemTypes.FLAGA,
+            ItemTypes.FLAGB,
+        ];
         component.itemType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
         component.setItemImage();
         expect(component.transparentImage).toBe(`./../../../assets/${component.itemType}_transparent.png`);
@@ -48,5 +58,14 @@ describe('TileBasicComponent', () => {
         expect(component.choosePreviewClass()).toBe('previsualize');
         component.isAccessible = TilePreview.SHORTESTPATH;
         expect(component.choosePreviewClass()).toBe('shortestPath');
+    });
+    it('setAvatarImage should change avatarUrl based on avatar', () => {
+        const avatars = ['hero', 'villain', 'npc'];
+        component.avatar = avatars[Math.floor(Math.random() * avatars.length)];
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe(`./../../../assets/characters/${component.avatar}.png`);
+        component.avatar = '';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
     });
 });

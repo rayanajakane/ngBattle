@@ -16,6 +16,8 @@ export class GamePanelComponent {
     nPlayers: number;
 
     ngOnChanges() {
-        this.nPlayers = this.playerCoords.filter((playerCoord) => !playerCoord.player.abandoned).length;
+        if (this.playerCoords) {
+            this.nPlayers = this.playerCoords.filter((playerCoord) => !playerCoord.player.abandoned).length;
+        }
     }
 }
