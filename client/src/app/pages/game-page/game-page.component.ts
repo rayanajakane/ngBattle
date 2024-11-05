@@ -92,14 +92,17 @@ export class GamePageComponent implements OnInit {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
-            setTimeout(() => {
-                this.socketService.emit('gameSetup', this.roomId);
-            }, 250);
+            if (this.route.snapshot.params['isAdmin'] === 'true') {
+                setTimeout(() => {
+                    this.socketService.emit('gameSetup', this.roomId);
+                }, 250);
+            }
         });
     }
 
     listenGameSetup() {
         this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
+            console.log('gameSetup', data.playerCoords, data.turn);
             this.initializePlayerCoords(data.playerCoords, data.turn);
             this.initializePlayersPositions();
             this.startTurn();
@@ -162,6 +165,7 @@ export class GamePageComponent implements OnInit {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
             console.log('clicked received', index);
             this.mapService.removeAllPreview();
+            console.log('playerId', this.player.id);
             this.socketService.emit('move', { roomId: this.roomId, playerId: this.player?.id, endPosition: index });
         });
     }
