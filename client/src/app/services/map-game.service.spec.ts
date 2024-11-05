@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TilePreview } from '@app/data-structure/game-structure';
+import { ItemTypes } from '@app/data-structure/toolType';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { MapGameService } from './map-game.service';
 
@@ -57,13 +58,6 @@ describe('MapGameService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should remove all previews on exit', () => {
-        spyOn(service, 'removeAllPreview');
-
-        service.onExit();
-
-        expect(service.removeAllPreview).toHaveBeenCalled();
-    });
     it('should set preview for given indexes', () => {
         const indexes = SHORTESTPATHINDEXES1;
         const previewType = TilePreview.PREVIEW;
@@ -114,12 +108,182 @@ describe('MapGameService', () => {
             expect(service.tiles[tileIndex].isAccessible).toBe(TilePreview.SHORTESTPATH);
         });
     });
-    // it('should set accessible tiles', () => {
-    //     spyOn(service, 'setPreview');
-    //     service.availableTiles = SHORTESTPATHINDEXES1;
 
-    //     service.renderAvailableTiles();
+    it('should emit event with the given value', (done) => {
+        const value = 5;
+        service.event$.subscribe((emittedValue) => {
+            expect(emittedValue).toBe(value);
+            done();
+        });
 
-    //     expect(service.renderPreview).toHaveBeenCalledWith(service.availableTiles, TilePreview.PREVIEW);
-    // });
+        service.emitEvent(value);
+    });
+    it('should set available tiles', () => {
+        const availableTiles = [1, 2, 3, 4, 5];
+        service.setAvailableTiles(availableTiles);
+        expect(service.availableTiles).toEqual(availableTiles);
+    });
+    it('should set shortest path by tile', () => {
+        const shortestPathByTile = {
+            1: SHORTESTPATHINDEXES1,
+            2: SHORTESTPATHINDEXES2,
+        };
+        service.setShortestPathByTile(shortestPathByTile);
+        expect(service.shortestPathByTile).toEqual(shortestPathByTile);
+    });
+    it('should handle onMouseDown event correctly', () => {
+        const index = 1;
+        const event = new MouseEvent('mousedown', { button: 0 });
+        service.setAvailableTiles([index]);
+        service.isMoving = false;
+
+        spyOn(service, 'emitEvent');
+
+        service.onMouseDown(index, event);
+
+        expect(service.isMoving).toBe(true);
+        expect(service.emitEvent).toHaveBeenCalledWith(index);
+    });
+
+    it('should not handle onMouseDown event if button is not left click', () => {
+        const index = 1;
+        const event = new MouseEvent('mousedown', { button: 1 });
+        service.setAvailableTiles([index]);
+        service.isMoving = false;
+
+        spyOn(service, 'emitEvent');
+
+        service.onMouseDown(index, event);
+
+        expect(service.isMoving).toBe(false);
+        expect(service.emitEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not handle onMouseDown event if index is not in availableTiles', () => {
+        const index = 1;
+        const event = new MouseEvent('mousedown', { button: 0 });
+        service.setAvailableTiles([]);
+        service.isMoving = false;
+
+        spyOn(service, 'emitEvent');
+
+        service.onMouseDown(index, event);
+
+        expect(service.isMoving).toBe(false);
+        expect(service.emitEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not handle onMouseDown event if already moving', () => {
+        const index = 1;
+        const event = new MouseEvent('mousedown', { button: 0 });
+        service.setAvailableTiles([index]);
+        service.isMoving = true;
+
+        spyOn(service, 'emitEvent');
+
+        service.onMouseDown(index, event);
+
+        expect(service.isMoving).toBe(true);
+        expect(service.emitEvent).not.toHaveBeenCalled();
+    });
+    it('should render shortest path on mouse enter', () => {
+        const index = 1;
+        const event = new MouseEvent('mouseenter');
+        service.setAvailableTiles([index]);
+        service.shortestPathByTile = {
+            1: SHORTESTPATHINDEXES1,
+        };
+
+        spyOn(service, 'renderShortestPath');
+
+        service.onMouseEnter(index, event);
+
+        expect(service.renderShortestPath).toHaveBeenCalledWith(index);
+    });
+    it('should reset shortest path', () => {
+        service.shortestPathByTile = {
+            1: SHORTESTPATHINDEXES1,
+            2: SHORTESTPATHINDEXES2,
+        };
+
+        service.resetShortestPath();
+
+        expect(service.shortestPathByTile).toEqual({});
+    });
+    it('should render available tiles', () => {
+        const availableTiles = [0, 1, 2];
+        service.setAvailableTiles(availableTiles);
+
+        spyOn(service, 'renderPreview');
+
+        service.renderAvailableTiles();
+
+        expect(service.renderPreview).toHaveBeenCalledWith(availableTiles, TilePreview.PREVIEW);
+    });
+    it('should place player on the given index', () => {
+        const index = 1;
+        service.placePlayer(index, player1);
+
+        expect(service.tiles[index].player).toEqual(player1);
+        expect(service.tiles[index].hasPlayer).toBe(true);
+    });
+    it('should remove player from the given index', () => {
+        const index = 1;
+        service.placePlayer(index, player1);
+
+        service.removePlayer(index);
+
+        expect(service.tiles[index].player).toBeUndefined();
+        expect(service.tiles[index].hasPlayer).toBe(false);
+    });
+    it('should find player index', () => {
+        const index = service.findPlayerIndex(player1);
+        expect(index).toBe(0);
+    });
+    it('should change player position from old index to new index', () => {
+        const oldIndex = 0;
+        const newIndex = 1;
+        service.placePlayer(oldIndex, player1);
+
+        service.changePlayerPosition(oldIndex, newIndex, player1);
+
+        expect(service.tiles[oldIndex].player).toBeUndefined();
+        expect(service.tiles[oldIndex].hasPlayer).toBe(false);
+        expect(service.tiles[newIndex].player).toEqual(player1);
+        expect(service.tiles[newIndex].hasPlayer).toBe(true);
+    });
+    it('should remove unused starting points', () => {
+        service.tiles = [
+            {
+                player: undefined,
+                isAccessible: TilePreview.NONE,
+                idx: 0,
+                tileType: '',
+                item: ItemTypes.STARTINGPOINT,
+                hasPlayer: false,
+            },
+            {
+                player: player1,
+                isAccessible: TilePreview.NONE,
+                idx: 1,
+                tileType: '',
+                item: ItemTypes.STARTINGPOINT,
+                hasPlayer: true,
+            },
+            {
+                player: undefined,
+                isAccessible: TilePreview.NONE,
+                idx: 2,
+                tileType: '',
+                item: ItemTypes.STARTINGPOINT,
+                hasPlayer: false,
+            },
+        ];
+
+        service.removeUnusedStartingPoints();
+
+        expect(service.tiles[0].item).toBe('');
+        expect(service.tiles[1].item).toBe(ItemTypes.STARTINGPOINT);
+        expect(service.tiles[2].item).toBe('');
+    });
 });

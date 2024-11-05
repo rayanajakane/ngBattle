@@ -61,19 +61,6 @@ export class MapGameService extends MapBaseService {
             tile.isAccessible = TilePreview.NONE;
         });
     }
-
-    //temp function to test accessible tiles
-    fetchAccessibleTiles(): void {
-        this.availableTiles = Array.from({ length: 51 }, (_, i) => i);
-    }
-
-    //temp function to test shortest path
-    fetchShortestPath(): void {
-        this.shortestPathByTile[1] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        this.shortestPathByTile[2] = [10, 11, 12, 13, 14, 15, 16, 17, 18];
-        this.shortestPathByTile[3] = [19, 20, 21, 22, 23, 24, 25, 26, 27];
-    }
-
     resetShortestPath(): void {
         this.shortestPathByTile = {};
     }
