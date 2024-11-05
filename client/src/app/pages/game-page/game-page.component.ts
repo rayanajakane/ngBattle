@@ -55,13 +55,14 @@ export interface ShortestPathByTile {
 export class GamePageComponent implements OnInit {
     mapSize: number;
     game: GameJson;
-    player: Player | undefined;
+    player: Player;
     playersList: Player[];
     playerCoords: PlayerCoord[];
     gameCreated = false;
     roomId: string;
 
     activePlayer: Player;
+    turn: number = 0;
 
     httpService = inject(HttpClientService);
     mapService = inject(MapGameService);
@@ -95,6 +96,7 @@ export class GamePageComponent implements OnInit {
     // Need server to send gameSetup to all clients
     listenGameSetup() {
         this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
+            console.log('gameSetup', playerCoords);
             this.initializePlayersPositions(playerCoords);
         });
     }
@@ -118,6 +120,7 @@ export class GamePageComponent implements OnInit {
     listenEndTurn() {
         this.socketService.on('endTurn', (turn: number) => {
             this.activePlayer = this.playerCoords[turn].player;
+            this.turn = turn;
             this.startTurn();
         });
     }
@@ -127,7 +130,12 @@ export class GamePageComponent implements OnInit {
         this.playerCoords.forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
         });
-        this.player = playerCoords.find((playerCoord) => playerCoord.player.id === this.route.snapshot.params['playerId'])?.player;
+        for (const playerCoord of playerCoords) {
+            if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
+                this.player = playerCoord.player;
+                break;
+            }
+        }
         this.activePlayer = playerCoords[0].player; // the array playerCoords is set in order of player turns
     }
 
