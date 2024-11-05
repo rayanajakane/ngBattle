@@ -123,9 +123,7 @@ export class MovementService {
         visited[startCoord.x][startCoord.y] = true;
 
         while (queue.length > 0) {
-            console.log('queue entry: ', queue);
             const current = queue.shift();
-            console.log('current: ', current);
 
             for (const [dx, dy] of [
                 [0, 1],
@@ -149,17 +147,12 @@ export class MovementService {
 
             queue.sort((a, b) => a.distance - b.distance);
         }
-        console.log('out of while loop for available moves');
-        console.log('coordPath: ', coordPath);
 
         const temp = coordPath.reduce((structure, coord) => {
             const endPosition = this.convertToPosition(coord, mapSize);
             structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition).path;
             return structure;
         }, {});
-
-        const array = temp[2];
-        console.log('array: ', array);
 
         return temp;
     }

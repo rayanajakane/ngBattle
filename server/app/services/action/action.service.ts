@@ -117,12 +117,17 @@ export class ActionService {
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
 
-            server.to(roomId).emit('gameSetup', playerCoord);
+            server.to(roomId).emit('gameSetup', {
+                playerCoords: playerCoord,
+                turn: this.activeGames[activeGameIndex].turn,
+            });
         });
     }
 
     //TODO: implement socket response for client
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
+        console.log('gameInstance', this.activeGames);
+        console.log('roomId', roomId);
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;

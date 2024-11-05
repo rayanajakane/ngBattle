@@ -34,6 +34,7 @@ export class MapGameService extends MapBaseService {
     onMouseDown(index: number, event: MouseEvent): void {
         if (event.button === 0) {
             if (this.availableTiles.includes(index) && !this.isMoving) {
+                this.isMoving = true;
                 this.emitEvent(index);
             }
         }

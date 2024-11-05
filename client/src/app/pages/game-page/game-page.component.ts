@@ -59,6 +59,8 @@ export class GamePageComponent implements OnInit {
     playersList: Player[];
     playerCoords: PlayerCoord[];
 
+    currentMoveBudget: number;
+
     gameCreated = false;
     playersInitialized = false;
 
@@ -90,15 +92,16 @@ export class GamePageComponent implements OnInit {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
-            this.socketService.emit('gameSetup', this.roomId);
+            setTimeout(() => {
+                this.socketService.emit('gameSetup', this.roomId);
+            }, 250);
         });
     }
 
-    // Need server to send gameSetup to all clients
     listenGameSetup() {
-        this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
-            this.initializePlayersPositions(playerCoords);
-            this.playersInitialized = true;
+        this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
+            this.initializePlayerCoords(data.playerCoords, data.turn);
+            this.initializePlayersPositions();
             this.startTurn();
         });
     }
@@ -115,42 +118,49 @@ export class GamePageComponent implements OnInit {
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
             console.log('playerPositionUpdate', data);
         });
-        this.socketService.once('endMove', (shortestPathByTile: ShortestPathByTile) => {
-            this.endMovement(shortestPathByTile);
+        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
+            this.currentMoveBudget = data.currentMoveBudget;
+            this.endMovement(data.availableMoves);
+            console.log('endMove', this.player.name, data.availableMoves);
         });
     }
 
     listenEndTurn() {
         this.socketService.on('endTurn', (turn: number) => {
+            console.log('endTurn', turn);
             this.activePlayer = this.playerCoords[turn].player;
             this.turn = turn;
             this.startTurn();
         });
     }
 
-    initializePlayersPositions(playerCoords: PlayerCoord[]) {
+    initializePlayerCoords(playerCoords: PlayerCoord[], turn: number) {
         this.playerCoords = playerCoords;
-        this.playerCoords.forEach((playerCoord) => {
-            this.mapService.placePlayer(playerCoord.position, playerCoord.player);
-        });
-        for (const playerCoord of playerCoords) {
+        for (const playerCoord of this.playerCoords) {
             if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
                 this.player = playerCoord.player;
                 break;
             }
         }
-        this.activePlayer = playerCoords[0].player; // the array playerCoords is set in order of player turns
+        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
+        this.playersInitialized = true;
+    }
+
+    initializePlayersPositions() {
+        this.playerCoords.forEach((playerCoord) => {
+            this.mapService.placePlayer(playerCoord.position, playerCoord.player);
+        });
     }
 
     startTurn() {
-        if (this.activePlayer.id === this.player?.id) {
+        if (this.activePlayer.id === this.player.id) {
             this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.activePlayer.id });
         }
     }
 
     subscribeMapService() {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
-            this.mapService.isMoving = true;
+            console.log('clicked received', index);
             this.mapService.removeAllPreview();
             this.socketService.emit('move', { roomId: this.roomId, playerId: this.player?.id, endPosition: index });
         });
@@ -166,14 +176,17 @@ export class GamePageComponent implements OnInit {
 
     // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
+        console.log('endMovement', shortestPathByTile);
         if (Object.keys(shortestPathByTile).length !== 0) {
+            console.log('Im here if Im not empty', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
+            console.log('Im here if Im empty', shortestPathByTile);
             this.resetMovementPrevisualization();
+            this.mapServiceSubscription.unsubscribe();
             this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
         }
         this.mapService.isMoving = false;
-        this.mapServiceSubscription.unsubscribe();
     }
 
     findPlayerCoordById(playerId: string): PlayerCoord | undefined {

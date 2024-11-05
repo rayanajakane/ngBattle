@@ -50,7 +50,6 @@ export class ActionGateway implements OnGatewayInit {
 
         //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
-        console.log('Start turn Response', arrayResponse);
         client.emit('startTurn', arrayResponse);
     }
 
@@ -61,8 +60,11 @@ export class ActionGateway implements OnGatewayInit {
         const activeGame = this.action.activeGames.find((instance) => instance.roomId === roomId);
         const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
+        console.log('playerId', playerId);
+        console.log('expected playerId', activeGame.playersCoord[activeGame.turn].player.id);
+
         if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-            const playerPositions = this.action.movePlayer(activeGame.game.id, startPosition, data.endPosition);
+            const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
 
             const gameMap = this.action.activeGames.find((instance) => instance.roomId === roomId).game.map;
             let iceSlip = false;
@@ -92,7 +94,7 @@ export class ActionGateway implements OnGatewayInit {
             console.log('nextTurn: ' + activeGame.turn);
 
             client.emit('endMove', {
-                availableMoves: this.action.availablePlayerMoves(data.playerId, activeGame.game.id),
+                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
                 currentMoveBudget: activeGame.currentPlayerMoveBudget,
             });
         }
@@ -102,11 +104,12 @@ export class ActionGateway implements OnGatewayInit {
     handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
         const roomId = data.roomId;
         const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
-
+        console.log('endTurn', activeGame);
         if (activeGame.playersCoord[activeGame.turn].player.id !== data.playerId) {
             this.action.nextTurn(roomId);
 
             //TODO: send the new active player to the client
+            console.log('newTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
             this.server.to(roomId).emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
         }
     }
