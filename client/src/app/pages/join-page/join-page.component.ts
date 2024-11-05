@@ -56,7 +56,7 @@ export class JoinPageComponent {
     }
 
     isNameValid(): boolean {
-        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength;
+        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength && this.characterName.trim() !== '';
     }
 
     receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
@@ -161,7 +161,7 @@ export class JoinPageComponent {
         });
         this.socketService.emit('joinRoom', {
             roomId: this.roomId,
-            playerName: this.characterName,
+            playerName: this.characterName.trim(),
             avatar: this.selectedAvatar,
             attributes: this.attributes,
         });

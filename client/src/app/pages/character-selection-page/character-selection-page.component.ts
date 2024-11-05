@@ -60,7 +60,7 @@ export class CharacterSelectionPageComponent {
     }
 
     isNameValid(): boolean {
-        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength;
+        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength && this.characterName.trim() !== '';
     }
 
     async onSubmit(event: Event) {
@@ -99,7 +99,7 @@ export class CharacterSelectionPageComponent {
             });
             this.socketService.emit('createRoom', {
                 gameId: this.route.snapshot.params.id,
-                playerName: this.characterName,
+                playerName: this.characterName.trim(),
                 avatar: this.selectedAvatar?.name,
                 attributes: this.attributes,
             });
