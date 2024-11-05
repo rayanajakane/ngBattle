@@ -36,13 +36,23 @@ export class LogsComponent implements OnInit {
         this.receiveLog();
     }
 
-    // ngAfterViewInit() {
-    //     this.logs.push({ date: '2023-10-01', message: this.player.name });
-    // }
-
     receiveLog() {
         this.socketService.on('newLog', (log: LogMessage) => {
             this.logs.push(log);
+            if (log.receiver === this.player.id) {
+                this.playerLogs.push(log);
+            }
+            this.cdr.detectChanges();
+            this.scrollToBottom();
+        });
+    }
+
+    receiveCombatLog() {
+        this.socketService.on('newPlayerLog', (log: LogMessage) => {
+            if (log.receiver === this.player.id || log.sender === this.player.id) {
+                this.logs.push(log);
+                this.playerLogs.push(log);
+            }
             this.cdr.detectChanges();
             this.scrollToBottom();
         });

@@ -23,7 +23,6 @@ export class ActionGateway implements OnGatewayInit {
 
     afterInit(server: Server) {
         this.server = server;
-        console.log('ActionGateway initialized');
     }
 
     getCurrentTimeFormatted(): string {
@@ -51,13 +50,19 @@ export class ActionGateway implements OnGatewayInit {
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
         const formattedTime = this.getCurrentTimeFormatted();
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
+        console.log('playerId', data.playerId);
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
         activeGame.currentPlayerActionPoint = 1;
+
+        console.log('startTurn', activeGame.playersCoord[activeGame.turn].player.id);
 
         //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
-        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: 'Début de tour' });
+
+        const playerName = activeGame.playersCoord[activeGame.turn].player.name;
+        const message = `Début de tour de ${playerName}`;
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: message, receiver: data.playerId });
     }
 
     @SubscribeMessage('move')
@@ -67,16 +72,12 @@ export class ActionGateway implements OnGatewayInit {
         const activeGame = this.action.activeGames.find((instance) => instance.roomId === roomId);
         const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
-        console.log('playerId', playerId);
-        console.log('expected playerId', activeGame.playersCoord[activeGame.turn].player.id);
-
         if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
             const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
 
             const gameMap = this.action.activeGames.find((instance) => instance.roomId === roomId).game.map;
             let iceSlip = false;
 
-            console.log('startMove');
             let pastPosition = startPosition;
             playerPositions.forEach((playerPosition) => {
                 if (!iceSlip) {
@@ -91,20 +92,12 @@ export class ActionGateway implements OnGatewayInit {
 
                     pastPosition = playerPosition;
 
-                    // if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
-                    //     console.log('iceSlip');
-                    //     iceSlip = true;
-                    // }
-
                     if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() < 0.1) {
-                        console.log('iceSlip');
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
                     }
                 }
             });
-            console.log('endMove');
-            console.log('nextTurn: ' + activeGame.turn);
 
             client.emit('endMove', {
                 availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
@@ -117,15 +110,13 @@ export class ActionGateway implements OnGatewayInit {
     handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
         const roomId = data.roomId;
         const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
-        console.log('endTurn called');
 
-        console.log('playerId', data.playerId);
-        console.log('expected playerId', activeGame.playersCoord[activeGame.turn].player.id);
         if (activeGame.playersCoord[activeGame.turn].player.id === data.playerId) {
+            console.log('endTurn in if ', data.playerId);
+
             this.action.nextTurn(roomId);
 
             //TODO: send the new active player to the client
-            console.log('newTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
             this.server.to(roomId).emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
         }
     }
@@ -139,6 +130,17 @@ export class ActionGateway implements OnGatewayInit {
         if (remainingActionPoints > 0) {
             this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', doorPosition);
+
+            const playerName = this.action.activeGames
+                .find((game) => game.roomId === roomId)
+                .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player.name;
+            if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOOROPEN) {
+                const message = `Porte a été ouverte par ${playerName}`;
+                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
+            } else if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOORCLOSED) {
+                const message = `Porte a été ouverte par ${playerName}`;
+                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
+            }
             console.log('Door interacted');
         }
         console.log('Door not interacted');
