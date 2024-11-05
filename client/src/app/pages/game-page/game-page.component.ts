@@ -19,6 +19,7 @@ import { Player } from '@app/interfaces/player';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
+import { Subscription } from 'rxjs';
 
 export interface PlayerCoord {
     player: Player;
@@ -65,6 +66,9 @@ export class GamePageComponent implements OnInit {
     httpService = inject(HttpClientService);
     mapService = inject(MapGameService);
     socketService = inject(SocketService);
+
+    private mapServiceSubscription: Subscription = new Subscription();
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -109,6 +113,9 @@ export class GamePageComponent implements OnInit {
         if (this.activePlayer.id === this.player.id) {
             this.socketService.once('startTurn', (shortestPathByTile: ShortestPathByTile) => {
                 this.initializeMovementPrevisualization(shortestPathByTile);
+                this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
+                    this.socketService.emit('move', { gameId: this.game.id, playerId: this.player.id, newPlayerPosition: index });
+                });
             });
             this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
         }
@@ -120,7 +127,7 @@ export class GamePageComponent implements OnInit {
             if (data.playerId === this.activePlayer.id) {
                 this.mapService.changePlayerPosition(data.newPlayerPosition, this.activePlayer);
             } else {
-                throw new Error('Player movement not allowed');
+                throw new Error('active player id does not match');
             }
         });
     }
@@ -148,6 +155,11 @@ export class GamePageComponent implements OnInit {
 
     quitGame() {
         this.router.navigate(['/home']);
+    }
+
+    ngOnDestroy() {
+        // Unsubscribe to prevent memory leaks
+        this.mapServiceSubscription.unsubscribe();
     }
 
     // setActivePlayerById(id: string): void {

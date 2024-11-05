@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
+import { Subject } from 'rxjs';
 import { MapBaseService } from './map-base.service';
 
 const player1: Player = {
@@ -23,6 +24,13 @@ export class MapGameService extends MapBaseService {
     tiles: GameTile[];
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
+    isMoving: boolean = false;
+
+    private eventSubject = new Subject<number>();
+    event$ = this.eventSubject.asObservable();
+    emitEvent(value: number) {
+        this.eventSubject.next(value);
+    }
 
     constructor() {
         super();
@@ -47,7 +55,14 @@ export class MapGameService extends MapBaseService {
     onRightClick(index: number): void {
         this.changePlayerPosition(index, player1);
     }
-    onMouseDown(index: number, event: MouseEvent): void {}
+    onMouseDown(index: number, event: MouseEvent): void {
+        if (event.button === 0) {
+            if (this.availableTiles.includes(index) && !this.isMoving) {
+                this.emitEvent(index);
+                this.isMoving = true;
+            }
+        }
+    }
 
     onMouseUp(index: number, event: MouseEvent): void {}
 
