@@ -11,7 +11,7 @@ import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigat
 import { Avatar } from '@app/interfaces/avatar';
 import { HttpClientService } from '@app/services/http-client.service';
 import { SocketService } from '@app/services/socket.service';
-import { PlayerAttribute } from '../../../../../common/player';
+import { PlayerAttribute } from '@common/player';
 import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from './constants';
 
 @Component({
