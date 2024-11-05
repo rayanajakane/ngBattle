@@ -138,6 +138,17 @@ export class ActionGateway implements OnGatewayInit {
         console.log('Door not interacted');
     }
 
+    @SubscribeMessage('startFight')
+    handleStartFight(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; attackerId: string; defenderId: string }) {
+        const roomId = data.roomId;
+        const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
+
+        if (remainingActionPoints > 0) {
+            this.action.startFight(this.server, roomId, data.attackerId, data.defenderId);
+            this.server.to(roomId).emit('Fight', { attackerId: data.attackerId, defenderId: data.defenderId });
+        }
+    }
+
     @SubscribeMessage('quitGame')
     handleQuitGame(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);

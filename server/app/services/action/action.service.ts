@@ -30,6 +30,8 @@ interface GameInstance {
     roomId: string;
     game: GameJson;
     playersCoord?: PlayerInfo[];
+    fightParticipants?: Player[];
+    fightTurns?: number;
     turn?: number;
     currentPlayerMoveBudget?: number;
     currentPlayerActionPoint?: number;
@@ -46,6 +48,16 @@ export class ActionService {
     turn: number = 0;
     game: GameJson;
     activeIndex: number = 0;
+
+    nextFightTurn(roomId: string): void {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const maxTurn = gameInstance.fightParticipants.length;
+        let turn = gameInstance.fightTurns;
+
+        turn = (turn + 1) % maxTurn;
+
+        this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].fightTurns = turn;
+    }
 
     nextTurn(roomId: string): void {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
@@ -173,15 +185,28 @@ export class ActionService {
         gameInstance.currentPlayerActionPoint -= 1;
     }
 
-    startCombat(roomId: string, playerId: string, targetId: string) {
+    startFight(server: Server, roomId: string, playerId: string, targetId: string) {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
 
-        const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
-        const targetPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === targetId).position;
+        const attackerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const defenderPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === targetId).position;
 
-        if (this.combat.isValidCombatPosition(game, playerPosition, targetPosition)) {
-            // this.combat.Combat(game, playerId, targetId);
+        const attacker = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
+        const defender = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === targetId).player;
+
+        let fighterArray: Player[] = [];
+        if (attacker.attributes.speed < defender.attributes.speed) {
+            fighterArray = [defender, attacker];
+        } else if (attacker.attributes.speed >= defender.attributes.speed) {
+            fighterArray = [attacker, defender];
+        }
+
+        gameInstance.fightParticipants = fighterArray;
+        gameInstance.fightTurns = 0;
+
+        if (this.combat.isValidCombatPosition(game, attackerPosition, defenderPosition)) {
+            this.combat.fight(server, roomId, attacker, defender);
         }
     }
 
