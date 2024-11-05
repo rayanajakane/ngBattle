@@ -38,7 +38,9 @@ const SLICE_INDEX = -2;
 @Injectable()
 export class MatchService {
     rooms: Map<string, Room> = new Map();
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly FLOOR_RANDOM_NUMBER: number = 1000;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MAX_VALUE_RANDOM_NUMBER: number = 8999;
 
     constructor(private readonly gameService: GameService) {}

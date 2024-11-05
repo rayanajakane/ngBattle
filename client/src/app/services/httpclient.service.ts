@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment.prod';
     providedIn: 'root',
 })
 export class HttpClientService {
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly BASE_URL = environment.serverUrl + '/api';
 
     constructor(private readonly httpService: HttpClient) {}

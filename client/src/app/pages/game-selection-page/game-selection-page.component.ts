@@ -16,6 +16,7 @@ export class GameSelectionPageComponent {
 
     games: Game[];
 
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly SCROLL_VALUE: number = 300;
 
     constructor(private http: HttpClientService) {

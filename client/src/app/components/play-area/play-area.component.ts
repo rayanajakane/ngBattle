@@ -22,6 +22,7 @@ export enum MouseButton {
 })
 export class PlayAreaComponent {
     buttonPressed = '';
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TIMER = 5;
 
     // Injection de dépendance hors du constructeur

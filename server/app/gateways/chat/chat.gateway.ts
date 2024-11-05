@@ -8,7 +8,7 @@ import { ChatEvents } from './chat.gateway.events';
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
-
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly ROOM = PRIVATE_ROOM_ID;
 
     constructor(private readonly logger: Logger) {}

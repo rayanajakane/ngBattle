@@ -46,7 +46,7 @@ describe('HttpClientService', () => {
         const gameJson = { id: '123' } as Game;
         service.sendGame(gameJson).subscribe();
 
-        const req = httpMock.expectOne(`${service['baseUrl']}/game/upload/`);
+        const req = httpMock.expectOne(`${service['BASE_URL']}/game/upload/`);
         expect(req.request.method).toBe('POST');
         expect(req.request.headers.get('Content-Type')).toBe('application/json');
         req.flush({});
@@ -60,7 +60,7 @@ describe('HttpClientService', () => {
             expect(game).toEqual(mockGame);
         });
 
-        const req = httpMock.expectOne(`${service['baseUrl']}/game/get/${gameId}`);
+        const req = httpMock.expectOne(`${service['BASE_URL']}/game/get/${gameId}`);
         expect(req.request.method).toBe('GET');
         req.flush(mockGame);
     });
@@ -75,7 +75,7 @@ describe('HttpClientService', () => {
             expect(games).toEqual(mockGames);
         });
 
-        const req = httpMock.expectOne(`${service['baseUrl']}/game/getAll/`);
+        const req = httpMock.expectOne(`${service['BASE_URL']}/game/getAll/`);
         expect(req.request.method).toBe('GET');
         req.flush(mockGames);
     });
@@ -84,7 +84,7 @@ describe('HttpClientService', () => {
         const gameId = '123';
         service.deleteGame(gameId).subscribe();
 
-        const req = httpMock.expectOne(`${service['baseUrl']}/game/delete/${gameId}`);
+        const req = httpMock.expectOne(`${service['BASE_URL']}/game/delete/${gameId}`);
         expect(req.request.method).toBe('DELETE');
         expect(req.request.headers.get('Content-Type')).toBe('application/json');
         req.flush({});
@@ -94,7 +94,7 @@ describe('HttpClientService', () => {
         const gameJson = { id: '123' } as Game;
         service.updateGame(gameJson).subscribe();
 
-        const req = httpMock.expectOne(`${service['baseUrl']}/game/update/`);
+        const req = httpMock.expectOne(`${service['BASE_URL']}/game/update/`);
         expect(req.request.method).toBe('PATCH');
         expect(req.request.headers.get('Content-Type')).toBe('application/json');
         req.flush({});
@@ -104,7 +104,7 @@ describe('HttpClientService', () => {
         const gameId = '123';
         service.changeVisibility(gameId).subscribe();
 
-        const req = httpMock.expectOne(`${service['baseUrl']}/game/changeVisibility/${gameId}`);
+        const req = httpMock.expectOne(`${service['BASE_URL']}/game/changeVisibility/${gameId}`);
         expect(req.request.method).toBe('PATCH');
         expect(req.request.headers.get('Content-Type')).toBe('application/json');
         req.flush({});

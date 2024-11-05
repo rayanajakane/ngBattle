@@ -18,10 +18,9 @@ import { SocketService } from '@app/services/socket.service';
 })
 export class JoinPageComponent {
     @ViewChild('roomCheck') roomCheck: ElementRef;
-    private attributes: PlayerAttribute;
-    private selectedAvatar = '';
-    private nonAvailableAvatars: { name: string; img: string }[] = [];
-    private playerList: Player[];
+    attributes: PlayerAttribute;
+    playerList: Player[];
+    selectedAvatar = '';
     dialog = inject(MatDialog);
     characterName = '';
     roomId: string;
@@ -40,7 +39,10 @@ export class JoinPageComponent {
         { name: 'Avatar 11', img: './assets/characters/11.png' },
         { name: 'Avatar 12', img: './assets/characters/12.png' },
     ];
+    private nonAvailableAvatars: { name: string; img: string }[] = [];
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MIN_NAME_LENGTH: number = 3;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MAX_NAME_LENGTH: number = 15;
 
     constructor(

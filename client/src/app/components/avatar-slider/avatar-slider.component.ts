@@ -28,6 +28,7 @@ export class AvatarSliderComponent {
     ];
 
     selectedAvatar: { name: string; img: string } | null = null;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly SCROLL_VALUE: number = 150;
 
     scrollLeft(): void {

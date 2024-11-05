@@ -27,7 +27,9 @@ export class CharacterSelectionPageComponent {
     characterName: string = '';
     attributes: PlayerAttribute;
 
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MIN_NAME_LENGTH: number = 3;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MAX_NAME_LENGTH: number = 15;
 
     // Initialisation dans le constructeur
