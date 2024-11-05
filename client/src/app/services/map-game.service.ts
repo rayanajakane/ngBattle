@@ -57,7 +57,6 @@ export class MapGameService extends MapBaseService {
         if (event.button === 0) {
             if (this.availableTiles.includes(index) && !this.isMoving) {
                 this.emitEvent(index);
-                this.isMoving = true;
             }
         }
     }

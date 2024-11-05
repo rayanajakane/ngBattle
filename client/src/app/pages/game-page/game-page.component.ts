@@ -80,6 +80,7 @@ export class GamePageComponent implements OnInit {
         this.listenGameSetup();
         this.listenMovement();
         this.listenStartTurn();
+        this.listenEndTurn();
 
         this.socketService.emit('gameSetup', this.roomId);
 
@@ -87,11 +88,11 @@ export class GamePageComponent implements OnInit {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
-            this.startFirstTurn();
+            this.startTurn();
         });
     }
 
-    // Need server to send gameSetup to all cliens
+    // Need server to send gameSetup to all clients
     listenGameSetup() {
         this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
             this.initializePlayersPositions(playerCoords);
@@ -101,9 +102,7 @@ export class GamePageComponent implements OnInit {
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
             this.initializeMovementPrevisualization(shortestPathByTile);
-            if (this.activePlayer.id === this.player?.id) {
-                this.subscribeMapService();
-            }
+            this.subscribeMapService();
         });
     }
 
@@ -116,6 +115,13 @@ export class GamePageComponent implements OnInit {
         });
     }
 
+    listenEndTurn() {
+        this.socketService.on('endTurn', (turn: number) => {
+            this.activePlayer = this.playerCoords[turn].player;
+            this.startTurn();
+        });
+    }
+
     initializePlayersPositions(playerCoords: PlayerCoord[]) {
         this.playerCoords = playerCoords;
         this.playerCoords.forEach((playerCoord) => {
@@ -125,7 +131,7 @@ export class GamePageComponent implements OnInit {
         this.activePlayer = playerCoords[0].player; // the array playerCoords is set in order of player turns
     }
 
-    startFirstTurn() {
+    startTurn() {
         if (this.activePlayer.id === this.player?.id) {
             this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
         }
@@ -133,6 +139,8 @@ export class GamePageComponent implements OnInit {
 
     subscribeMapService() {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
+            this.mapService.isMoving = true;
+            this.mapService.removeAllPreview();
             this.socketService.emit('move', { gameId: this.game.id, playerId: this.player?.id, newPlayerPosition: index });
         });
     }
@@ -145,16 +153,16 @@ export class GamePageComponent implements OnInit {
         }
     }
 
+    // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
             this.resetMovementPrevisualization();
+            this.socketService.emit('endTurn');
         }
-        if (this.activePlayer.id === this.player?.id) {
-            this.mapService.isMoving = false;
-            this.mapServiceSubscription.unsubscribe();
-        }
+        this.mapService.isMoving = false;
+        this.mapServiceSubscription.unsubscribe();
     }
 
     findPlayerCoordById(playerId: string): PlayerCoord | undefined {
@@ -183,23 +191,4 @@ export class GamePageComponent implements OnInit {
     ngOnDestroy() {
         this.mapServiceSubscription.unsubscribe();
     }
-
-    // setActivePlayerById(id: string): void {
-    //     this.activePlayer = this.playersList.find((player) => player.id === id);
-    // }
-
-    // moveActivePlayer(index: number) {
-    //     if (this.activePlayer) {
-    //         this.mapService.changePlayerPosition(index, this.activePlayer);
-    //     } else {
-    //         console.error('No active player found');
-    //     }
-    // }
-
-    // movePlayerById(playerId: string, index: number) {
-    //     if (!this.activePlayer || this.activePlayer.id !== playerId) {
-    //         this.setActivePlayerById(playerId);
-    //     }
-    //     this.moveActivePlayer(index);
-    // }
 }
