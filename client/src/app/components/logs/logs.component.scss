@@ -5,13 +5,17 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
+    mat-card-header {
+        display: flex;
+        justify-content: center;
+    }
 }
 
 .logs-container {
     background-color: black;
     color: #fff;
     flex: 1;
-    overflow: auto; /* Make the container scrollable if there are too many logs §*/
+    overflow: auto; /* Make the container scrollable if there are too many logs */
 
     .message {
         color: #fff;

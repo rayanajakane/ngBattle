@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LogMessage } from '@app/interfaces/message';
 // import { SocketService } from '@app/services/socket.service';
@@ -10,7 +12,7 @@ import { LogMessage } from '@app/interfaces/message';
 @Component({
     selector: 'app-logs',
     standalone: true,
-    imports: [MatCardModule, MatChipsModule, MatProgressBarModule, FormsModule, CommonModule],
+    imports: [MatIconModule, MatButtonModule, MatCardModule, MatChipsModule, MatProgressBarModule, FormsModule, CommonModule],
     templateUrl: './logs.component.html',
     styleUrl: './logs.component.scss',
 })
@@ -49,4 +51,6 @@ export class LogsComponent implements OnInit {
     scrollToBottom() {
         this.logsContainer.nativeElement.scrollTop = this.logsContainer.nativeElement.scrollHeight;
     }
+
+    filterLogs(): void {}
 }
