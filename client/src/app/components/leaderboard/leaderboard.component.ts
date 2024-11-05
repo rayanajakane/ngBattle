@@ -18,8 +18,6 @@ export class LeaderboardComponent {
     dataSource: Player[];
 
     ngOnChanges() {
-        // METTRE LE ACTIVE PLAYER EN TOP DE LA LISTE DES JOUEURS
-
         this.dataSource = this.playerCoords.map((playerCoord) => playerCoord.player);
         if (this.activePlayer) {
             this.dataSource = [this.activePlayer, ...this.dataSource.filter((player) => player !== this.activePlayer)];

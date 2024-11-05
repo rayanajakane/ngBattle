@@ -11,6 +11,7 @@ const player1: Player = {
     attributes: {} as PlayerAttribute,
     isActive: false,
     abandoned: true,
+    wins: 0,
 };
 
 describe('MapBaseService', () => {
