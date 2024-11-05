@@ -19,5 +19,4 @@ export enum ItemTypes {
     STARTINGPOINT = 'startingPoint',
     FLAGA = 'drapeauA',
     FLAGB = 'drapeauB',
-    ITEM_ALEATOIRE = 'ITEM_ALEATOIRE',
 }

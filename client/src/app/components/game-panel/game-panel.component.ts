@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { Player } from '@app/interfaces/player';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
@@ -10,7 +10,7 @@ import { PlayerCoord } from '@app/pages/game-page/game-page.component';
     templateUrl: './game-panel.component.html',
     styleUrl: './game-panel.component.scss',
 })
-export class GamePanelComponent {
+export class GamePanelComponent implements OnChanges {
     @Input() playerCoords: PlayerCoord[];
     @Input() game: string;
     @Input() mapSize: number;
