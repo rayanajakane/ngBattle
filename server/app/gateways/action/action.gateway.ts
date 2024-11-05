@@ -26,6 +26,11 @@ export class ActionGateway implements OnGatewayInit {
         console.log('ActionGateway initialized');
     }
 
+    getCurrentTimeFormatted(): string {
+        const currentTime = new Date();
+        return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
+    }
+
     updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
         this.server.to(roomId).emit('playerPositionUpdate', {
             playerId,
@@ -44,6 +49,7 @@ export class ActionGateway implements OnGatewayInit {
     //TODO: check usefulness of this function
     @SubscribeMessage('startTurn')
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
+        const formattedTime = this.getCurrentTimeFormatted();
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
         activeGame.currentPlayerActionPoint = 1;
@@ -51,7 +57,7 @@ export class ActionGateway implements OnGatewayInit {
         //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
-        this.server.to(data.roomId).emit('newLog', { date: '2023-10-01', message: 'Turn started' });
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: 'Début de tour' });
     }
 
     @SubscribeMessage('move')
