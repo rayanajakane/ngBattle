@@ -20,12 +20,6 @@ export class GamePanelComponent {
     nPlayers: number;
 
     ngOnChanges() {
-        if (this.playerCoords) {
-            const afkPlayersLength: number = this.afklist.filter((playerCoord) => playerCoord.player.abandoned).length;
-            if (afkPlayersLength) this.nPlayers = this.playerCoords.length - afkPlayersLength;
-            else this.nPlayers = this.playerCoords.length;
-        } else {
-            this.nPlayers = 0;
-        }
+        this.nPlayers = this.playerCoords.length;
     }
 }
