@@ -22,7 +22,7 @@ export enum MouseButton {
 })
 export class PlayAreaComponent {
     buttonPressed = '';
-    private readonly timer = 5;
+    private readonly TIMER = 5;
 
     // Injection de dépendance hors du constructeur
     // Équivalent à constructor(priate readonly timeService: TimeService)
@@ -40,7 +40,7 @@ export class PlayAreaComponent {
     // TODO : déplacer ceci dans un service de gestion de la souris!
     mouseHitDetect(event: MouseEvent) {
         if (event.button === MouseButton.Left) {
-            this.timeService.startTimer(this.timer);
+            this.timeService.startTimer(this.TIMER);
         }
     }
 }

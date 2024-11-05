@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class TimeService {
     // TODO : Permettre plus qu'une minuterie à la fois
     private interval: number | undefined;
-    private readonly tick = 1000;
+    private readonly TICK = 1000;
 
     private counter = 0;
     get time() {
@@ -25,7 +25,7 @@ export class TimeService {
             } else {
                 this.stopTimer();
             }
-        }, this.tick);
+        }, this.TICK);
     }
 
     stopTimer() {

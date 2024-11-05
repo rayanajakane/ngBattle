@@ -18,14 +18,14 @@ import { SocketService } from '@app/services/socket.service';
 })
 export class JoinPageComponent {
     @ViewChild('roomCheck') roomCheck: ElementRef;
+    private attributes: PlayerAttribute;
+    private selectedAvatar = '';
+    private nonAvailableAvatars: { name: string; img: string }[] = [];
+    private playerList: Player[];
     dialog = inject(MatDialog);
-    attributes: PlayerAttribute;
     characterName = '';
-    selectedAvatar = '';
     roomId: string;
     isRoomCodeValid: boolean = false;
-    playerList: Player[];
-    nonAvailableAvatars: { name: string; img: string }[] = [];
     availableAvatars: { name: string; img: string }[] = [
         { name: 'Avatar 1', img: './assets/characters/1.png' },
         { name: 'Avatar 2', img: './assets/characters/2.png' },
@@ -40,8 +40,8 @@ export class JoinPageComponent {
         { name: 'Avatar 11', img: './assets/characters/11.png' },
         { name: 'Avatar 12', img: './assets/characters/12.png' },
     ];
-    private readonly minNameLength: number = 3;
-    private readonly maxNameLength: number = 15;
+    private readonly MIN_NAME_LENGTH: number = 3;
+    private readonly MAX_NAME_LENGTH: number = 15;
 
     constructor(
         private readonly socketService: SocketService,
@@ -56,7 +56,9 @@ export class JoinPageComponent {
     }
 
     isNameValid(): boolean {
-        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength && this.characterName.trim() !== '';
+        return (
+            this.characterName.length >= this.MIN_NAME_LENGTH && this.characterName.length <= this.MAX_NAME_LENGTH && this.characterName.trim() !== ''
+        );
     }
 
     receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {

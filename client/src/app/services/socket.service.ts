@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment.prod';
     providedIn: 'root',
 })
 export class SocketService {
-    socket: Socket;
+    private socket: Socket;
 
     isSocketAlive() {
         return this.socket && this.socket.connected;

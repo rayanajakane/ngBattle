@@ -28,14 +28,14 @@ export class AvatarSliderComponent {
     ];
 
     selectedAvatar: { name: string; img: string } | null = null;
-    private readonly scrollValue: number = 150;
+    private readonly SCROLL_VALUE: number = 150;
 
     scrollLeft(): void {
-        this.widgetsContent.nativeElement.scrollLeft -= this.scrollValue;
+        this.widgetsContent.nativeElement.scrollLeft -= this.SCROLL_VALUE;
     }
 
     scrollRight(): void {
-        this.widgetsContent.nativeElement.scrollRight += this.scrollValue;
+        this.widgetsContent.nativeElement.scrollRight += this.SCROLL_VALUE;
     }
 
     selectAvatar(avatar: { name: string; img: string }): void {

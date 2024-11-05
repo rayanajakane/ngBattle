@@ -27,8 +27,8 @@ export class CharacterSelectionPageComponent {
     characterName: string = '';
     attributes: PlayerAttribute;
 
-    private readonly minNameLength: number = 3;
-    private readonly maxNameLength: number = 15;
+    private readonly MIN_NAME_LENGTH: number = 3;
+    private readonly MAX_NAME_LENGTH: number = 15;
 
     // Initialisation dans le constructeur
     constructor(
@@ -60,7 +60,9 @@ export class CharacterSelectionPageComponent {
     }
 
     isNameValid(): boolean {
-        return this.characterName.length >= this.minNameLength && this.characterName.length <= this.maxNameLength && this.characterName.trim() !== '';
+        return (
+            this.characterName.length >= this.MIN_NAME_LENGTH && this.characterName.length <= this.MAX_NAME_LENGTH && this.characterName.trim() !== ''
+        );
     }
 
     async onSubmit(event: Event) {

@@ -27,9 +27,9 @@ export class WaitingPageComponent implements OnInit {
     isAdmin: boolean;
     maxPlayers: number;
     constructor(
-        private socketService: SocketService,
-        private router: Router,
-        private route: ActivatedRoute,
+        private readonly socketService: SocketService,
+        private readonly router: Router,
+        private readonly route: ActivatedRoute,
     ) {}
 
     ngOnInit() {
