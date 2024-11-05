@@ -55,7 +55,7 @@ export interface ShortestPathByTile {
 export class GamePageComponent implements OnInit {
     mapSize: number;
     game: GameJson;
-    player: Player;
+    player: Player | undefined;
     playersList: Player[];
     playerCoords: PlayerCoord[];
     gameCreated = false;
@@ -76,28 +76,10 @@ export class GamePageComponent implements OnInit {
 
     ngOnInit() {
         this.roomId = this.route.snapshot.params['roomId'];
-        // this.socketService.once('getPlayers', (roomPlayers: Player[]) => {
-        //     this.playersList = roomPlayers;
-        //     roomPlayers.find((player) => {
-        //         if (player.id === this.route.snapshot.params['playerId']) {
-        //             this.player = player;
-        //         }
-        //     });
-        // });
 
-        // this.socketService.emit('getPlayers', this.roomId);
-
-        this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
-            this.initializePlayers(playerCoords);
-
-            playerCoords.find((playerCoord) => {
-                if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
-                    this.player = playerCoord.player;
-                }
-            });
-
-            this.activePlayer = playerCoords[0].player; // the array playerCoords is set in order of player turns
-        });
+        this.listenGameSetup();
+        this.listenMovement();
+        this.listenStartTurn();
 
         this.socketService.emit('gameSetup', this.roomId);
 
@@ -109,45 +91,70 @@ export class GamePageComponent implements OnInit {
         });
     }
 
-    startFirstTurn() {
-        if (this.activePlayer.id === this.player.id) {
-            this.socketService.once('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-                this.initializeMovementPrevisualization(shortestPathByTile);
-                this.subscribeMapService();
-            });
-            this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
-        }
-        this.listenMovement();
+    // Need server to send gameSetup to all cliens
+    listenGameSetup() {
+        this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
+            this.initializePlayersPositions(playerCoords);
+        });
     }
 
-    subscribeMapService() {
-        this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
-            this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
-                const playerCoord = this.findPlayerCoordById(data.playerId);
-                if (playerCoord) {
-                    this.mapService.changePlayerPosition(playerCoord.position, data.newPlayerPosition, playerCoord.player);
-                    playerCoord.position = data.newPlayerPosition;
-                }
-            });
-            this.socketService.once('endMove', (shortestPathByTile: ShortestPathByTile) => {
-                // this.mapService.setAvailableTiles([]);
-                // this.mapService.setShortestPathByTile({});
-                // this.mapService.renderAvailableTiles();
-                // this.mapService.changePlayerPosition(index, this.activePlayer);
-                this.mapServiceSubscription.unsubscribe();
-            });
-            this.socketService.emit('move', { gameId: this.game.id, playerId: this.player.id, newPlayerPosition: index });
+    listenStartTurn() {
+        this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+            this.initializeMovementPrevisualization(shortestPathByTile);
+            if (this.activePlayer.id === this.player?.id) {
+                this.subscribeMapService();
+            }
         });
     }
 
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
-            if (data.playerId === this.activePlayer.id) {
-                this.mapService.changePlayerPosition(data.newPlayerPosition, this.activePlayer);
-            } else {
-                throw new Error('active player id does not match');
-            }
+            this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
+        this.socketService.once('endMove', (shortestPathByTile: ShortestPathByTile) => {
+            this.endMovement(shortestPathByTile);
+        });
+    }
+
+    initializePlayersPositions(playerCoords: PlayerCoord[]) {
+        this.playerCoords = playerCoords;
+        this.playerCoords.forEach((playerCoord) => {
+            this.mapService.placePlayer(playerCoord.position, playerCoord.player);
+        });
+        this.player = playerCoords.find((playerCoord) => playerCoord.player.id === this.route.snapshot.params['playerId'])?.player;
+        this.activePlayer = playerCoords[0].player; // the array playerCoords is set in order of player turns
+    }
+
+    startFirstTurn() {
+        if (this.activePlayer.id === this.player?.id) {
+            this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
+        }
+    }
+
+    subscribeMapService() {
+        this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
+            this.socketService.emit('move', { gameId: this.game.id, playerId: this.player?.id, newPlayerPosition: index });
+        });
+    }
+
+    updatePlayerPosition(playerId: string, newPlayerPosition: number) {
+        const playerCoord = this.findPlayerCoordById(playerId);
+        if (playerCoord) {
+            this.mapService.changePlayerPosition(playerCoord.position, newPlayerPosition, playerCoord.player);
+            playerCoord.position = newPlayerPosition;
+        }
+    }
+
+    endMovement(shortestPathByTile: ShortestPathByTile) {
+        if (Object.keys(shortestPathByTile).length !== 0) {
+            this.initializeMovementPrevisualization(shortestPathByTile);
+        } else {
+            this.resetMovementPrevisualization();
+        }
+        if (this.activePlayer.id === this.player?.id) {
+            this.mapService.isMoving = false;
+            this.mapServiceSubscription.unsubscribe();
+        }
     }
 
     findPlayerCoordById(playerId: string): PlayerCoord | undefined {
@@ -160,11 +167,9 @@ export class GamePageComponent implements OnInit {
         this.mapService.renderAvailableTiles();
     }
 
-    initializePlayers(playerCoords: PlayerCoord[]) {
-        this.playerCoords = playerCoords;
-        this.playerCoords.forEach((playerCoord) => {
-            this.mapService.placePlayer(playerCoord.position, playerCoord.player);
-        });
+    resetMovementPrevisualization() {
+        this.mapService.setAvailableTiles([]);
+        this.mapService.setShortestPathByTile({});
     }
 
     async getGame(gameId: string) {
@@ -176,7 +181,6 @@ export class GamePageComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        // Unsubscribe to prevent memory leaks
         this.mapServiceSubscription.unsubscribe();
     }
 

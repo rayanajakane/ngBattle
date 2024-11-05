@@ -52,9 +52,7 @@ export class MapGameService extends MapBaseService {
         this.shortestPathByTile = shortestPathByTile;
     }
 
-    onRightClick(index: number): void {
-        this.changePlayerPosition(index, player1);
-    }
+    onRightClick(index: number): void {}
     onMouseDown(index: number, event: MouseEvent): void {
         if (event.button === 0) {
             if (this.availableTiles.includes(index) && !this.isMoving) {
