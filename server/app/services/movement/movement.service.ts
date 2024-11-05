@@ -145,7 +145,7 @@ export class MovementService {
 
         return coordPath.reduce((structure, coord) => {
             const endPosition = this.convertToPosition(coord, mapSize);
-            structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition);
+            structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition).path;
             return structure;
         }, {});
     }
