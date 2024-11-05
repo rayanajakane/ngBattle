@@ -11,6 +11,7 @@ import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
+import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
@@ -50,6 +51,7 @@ export interface ShortestPathByTile {
         CombatInterfaceComponent,
         PlayerPanelComponent,
         GamePanelComponent,
+        LogsComponent,
     ],
 })
 export class GamePageComponent implements OnInit {

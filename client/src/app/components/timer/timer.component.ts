@@ -1,17 +1,15 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { COUNTDOWN_DELAY } from '@app/components/timer/constant';
+import { COUNTDOWN_DELAY, TIME_LEFT } from '@app/components/timer/constant';
 import { interval, Subscription } from 'rxjs';
-
-const TIME_LEFT = 59;
 
 @Component({
     selector: 'app-timer',
     standalone: true,
     imports: [MatButtonModule, MatIconModule],
     templateUrl: './timer.component.html',
-    styleUrl: './timer.component.scss',
+    styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnDestroy {
     timeLeft: number = TIME_LEFT; // Set the initial time in seconds
@@ -20,7 +18,9 @@ export class TimerComponent implements OnDestroy {
     isActive: boolean = false;
 
     startTimer() {
-        if (this.isRunning) return; // Prevent starting multiple timers
+        if (this.isRunning) {
+            this.stopTimer(); // Stop the existing timer if it's running
+        }
         this.isActive = true;
         this.isRunning = true;
 
