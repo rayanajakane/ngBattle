@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LogMessage } from '@app/interfaces/message';
-// import { SocketService } from '@app/services/socket.service';
+import { SocketService } from '@app/services/socket.service';
 
 @Component({
     selector: 'app-logs',
@@ -17,13 +17,18 @@ import { LogMessage } from '@app/interfaces/message';
     styleUrl: './logs.component.scss',
 })
 export class LogsComponent implements OnInit {
-    btnText: string = 'Filtrer messages';
+    btnText: string = 'Show Player Logs';
     @ViewChild('logsContainer') logsContainer: ElementRef;
     @Input() roomId: string;
 
     logs: LogMessage[] = [{ date: '2023-10-01', message: 'Log message 1' }];
+    playerLogs: LogMessage[] = [{ date: '2023-10-01', message: 'Log message 2' }];
+    currentLogs = this.logs;
 
-    constructor() {} // private cdr: ChangeDetectorRef, // private socketService: SocketService,
+    constructor(
+        private socketService: SocketService,
+        private cdr: ChangeDetectorRef,
+    ) {}
 
     ngOnInit(): void {
         //     this.loadLogs();
@@ -41,22 +46,24 @@ export class LogsComponent implements OnInit {
     //     this.socketService.emit('loadAllLogs', { roomId: this.roomId });
     // }
 
-    // receiveLog() {
-    //     this.socketService.on('newLog', (log: LogMessage) => {
-    //         this.logs.push(log);
-    //         this.cdr.detectChanges();
-    //         this.scrollToBottom();
-    //     });
-    // }
+    receiveLog() {
+        this.socketService.on('newLog', (log: LogMessage) => {
+            this.logs.push(log);
+            this.cdr.detectChanges();
+            this.scrollToBottom();
+        });
+    }
 
     scrollToBottom() {
         this.logsContainer.nativeElement.scrollTop = this.logsContainer.nativeElement.scrollHeight;
     }
 
-    filterLogs(): void {
-        if (this.btnText === 'Filtrer messages') {
+    toggleLogs() {
+        if (this.currentLogs === this.logs) {
+            this.currentLogs = this.playerLogs;
             this.btnText = 'Afficher tous les messages';
         } else {
+            this.currentLogs = this.logs;
             this.btnText = 'Filtrer messages';
         }
     }

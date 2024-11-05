@@ -1,7 +1,7 @@
 <mat-card appearance="outlined" class="logs-component-container">
     <mat-card-header>
         <mat-card-title class="title-container">
-            <button mat-stroked-button color="primary" (click)="filterLogs()" style="color: white">
+            <button mat-stroked-button color="primary" (click)="toggleLogs()" style="color: white">
                 {{ this.btnText }}
                 <mat-icon>filter_alt</mat-icon>
             </button>
@@ -9,7 +9,7 @@
     </mat-card-header>
 
     <mat-card-content class="logs-container" #logsContainer>
-        @for(log of logs; track $index) {
+        @for(log of this.currentLogs; track $index) {
         <div class="message">
             <span class="log-date">({{ log.date }})</span>
             <span class="log-content"> {{ log.message }}</span>
