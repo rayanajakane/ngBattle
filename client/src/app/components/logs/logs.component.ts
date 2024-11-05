@@ -17,6 +17,7 @@ import { LogMessage } from '@app/interfaces/message';
     styleUrl: './logs.component.scss',
 })
 export class LogsComponent implements OnInit {
+    btnText: string = 'Filtrer messages';
     @ViewChild('logsContainer') logsContainer: ElementRef;
     @Input() roomId: string;
 
@@ -52,5 +53,11 @@ export class LogsComponent implements OnInit {
         this.logsContainer.nativeElement.scrollTop = this.logsContainer.nativeElement.scrollHeight;
     }
 
-    filterLogs(): void {}
+    filterLogs(): void {
+        if (this.btnText === 'Filtrer messages') {
+            this.btnText = 'Afficher tous les messages';
+        } else {
+            this.btnText = 'Filtrer messages';
+        }
+    }
 }
