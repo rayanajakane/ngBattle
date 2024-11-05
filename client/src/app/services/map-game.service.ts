@@ -1,17 +1,9 @@
 import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
-import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { Player } from '@app/interfaces/player';
+import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
+import { Subject } from 'rxjs';
 import { MapBaseService } from './map-base.service';
-
-const player1: Player = {
-    id: '1',
-    name: 'player1',
-    isAdmin: false,
-    avatar: '1',
-    attributes: {} as PlayerAttribute,
-    isActive: false,
-    abandoned: true,
-};
 
 @Injectable({
     providedIn: 'root',
@@ -20,38 +12,44 @@ const player1: Player = {
 export class MapGameService extends MapBaseService {
     /* eslint-disable */
     tiles: GameTile[];
-    accessibleTiles: number[] = [];
+    availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
+    isMoving: boolean = false;
 
-    constructor() {
-        super();
-        this.fetchAccessibleTiles();
-        this.fetchShortestPath();
-
-        //temp function to test player placement
-        setTimeout(() => {
-            //temp function to test player placement
-            this.placePlayer(1, player1);
-        }, 1000);
+    private eventSubject = new Subject<number>();
+    event$ = this.eventSubject.asObservable();
+    emitEvent(value: number) {
+        this.eventSubject.next(value);
     }
 
-    onRightClick(index: number): void {
-        this.changePlayerPosition(index, player1);
+    setAvailableTiles(availableTiles: number[]): void {
+        this.availableTiles = availableTiles;
     }
-    onMouseDown(index: number, event: MouseEvent): void {}
+
+    setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
+        this.shortestPathByTile = shortestPathByTile;
+    }
+
+    onRightClick(index: number): void {}
+    onMouseDown(index: number, event: MouseEvent): void {
+        if (event.button === 0) {
+            if (this.availableTiles.includes(index) && !this.isMoving) {
+                this.isMoving = true;
+                this.emitEvent(index);
+            }
+        }
+    }
 
     onMouseUp(index: number, event: MouseEvent): void {}
 
     onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
-        this.setAccessibleTiles();
-        this.setShortestPath(index);
-    }
-    onExit(): void {
-        this.removeAllPreview();
+        this.renderShortestPath(index);
     }
 
-    setPreview(indexes: number[], previewType: TilePreview): void {
+    onExit(): void {}
+
+    renderPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {
             this.tiles[index].isAccessible = previewType;
         });
@@ -65,7 +63,7 @@ export class MapGameService extends MapBaseService {
 
     //temp function to test accessible tiles
     fetchAccessibleTiles(): void {
-        this.accessibleTiles = Array.from({ length: 51 }, (_, i) => i);
+        this.availableTiles = Array.from({ length: 51 }, (_, i) => i);
     }
 
     //temp function to test shortest path
@@ -79,14 +77,17 @@ export class MapGameService extends MapBaseService {
         this.shortestPathByTile = {};
     }
 
-    setShortestPath(index: number): void {
+    renderShortestPath(index: number): void {
+        this.renderAvailableTiles();
         if (this.shortestPathByTile[index]) {
-            this.setPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
+            this.renderPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
         }
     }
 
-    setAccessibleTiles(): void {
-        this.setPreview(this.accessibleTiles, TilePreview.PREVIEW);
+    renderAvailableTiles(): void {
+        if (this.availableTiles.length > 0) {
+            this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
+        }
     }
 
     placePlayer(index: number, player: Player): void {
@@ -103,8 +104,8 @@ export class MapGameService extends MapBaseService {
         return this.tiles.findIndex((tile) => tile.player?.id === player.id);
     }
 
-    changePlayerPosition(newIndex: number, player: Player): void {
-        this.removePlayer(this.findPlayerIndex(player));
+    changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
+        this.removePlayer(oldIndex);
         this.placePlayer(newIndex, player);
     }
     /* eslint-enable */

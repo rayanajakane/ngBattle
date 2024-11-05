@@ -40,6 +40,10 @@ describe('PlayerPanelComponent', () => {
     it('should not change bonusDefenseDice if bonusDice is not defense', () => {
         component.bonusDice = 'attack';
         component.ngOnInit();
+    it('should not change bonusAttackDice or bonusDefenseDice if bonusDice is neither attack nor defense', () => {
+        component.bonusDice = 'none';
+        component.ngOnInit();
+        expect(component.bonusAttackDice).toBe('D4');
         expect(component.bonusDefenseDice).toBe('D4');
     });
 });

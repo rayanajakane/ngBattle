@@ -11,7 +11,7 @@ export class MovementService {
 
     isValidPosition(moveBudget: number, game: GameJson, coord: Coord): boolean {
         const mapSize: number = parseInt(game.mapSize);
-        const mapTile: TileJson = game.map[coord.x * mapSize + coord.y];
+        const mapTile: TileJson = game.map[coord.y * mapSize + coord.x];
 
         // Check if coordinates are within bounds
         if (coord.x < 0 || coord.x >= mapSize || coord.y < 0 || coord.y >= mapSize) {
@@ -49,12 +49,12 @@ export class MovementService {
     //TODO: verify the validity of the conversion
     convertToCoord(position: number, mapSize: number): Coord {
         const x = position % mapSize;
-        const y = position - x;
+        const y = Math.floor(position / mapSize);
         return { x: x, y: y };
     }
 
     convertToPosition(coord: Coord, mapSize: number): number {
-        return coord.x * mapSize + coord.y;
+        return coord.y * mapSize + coord.x;
     }
 
     shortestPath(moveBudget: number, game: GameJson, startPosition: number, endPosition: number): { moveCost: number; path: number[] } {
@@ -86,8 +86,11 @@ export class MovementService {
             ]) {
                 const x = current.x + dx;
                 const y = current.y + dy;
+
+                if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) continue;
+
                 //TODO: replace the tileValue function with enums of tile types holding the values
-                const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
+                const totalDistance = current.distance + this.tileValue(map[y * mapSize + x].tileType);
 
                 if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance } as Coord)) {
                     queue.push({
@@ -103,7 +106,7 @@ export class MovementService {
             queue.sort((a, b) => a.distance - b.distance);
         }
         const moveCost = destinationNode ? destinationNode.distance : 0;
-        const path = found ? [startPosition, ...destinationNode.parentNodes.map((coord) => this.convertToPosition(coord, mapSize)), endPosition] : [];
+        const path = found ? [...destinationNode.parentNodes.map((coord) => this.convertToPosition(coord, mapSize)), endPosition] : [];
 
         return { moveCost, path };
     }
@@ -131,7 +134,9 @@ export class MovementService {
                 const x = current.x + dx;
                 const y = current.y + dy;
 
-                const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
+                if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) continue;
+
+                const totalDistance = current.distance + this.tileValue(map[y * mapSize + x].tileType);
 
                 if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance })) {
                     queue.push({ x, y, distance: totalDistance });
@@ -143,10 +148,12 @@ export class MovementService {
             queue.sort((a, b) => a.distance - b.distance);
         }
 
-        return coordPath.reduce((structure, coord) => {
+        const temp = coordPath.reduce((structure, coord) => {
             const endPosition = this.convertToPosition(coord, mapSize);
             structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition).path;
             return structure;
         }, {});
+
+        return temp;
     }
 }

@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { GameTile, TileJson, TilePreview } from '@app/data-structure/game-structure';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { MapBaseService } from './map-base.service';
@@ -43,5 +42,25 @@ describe('MapBaseService', () => {
 
         expect(service.isGameTile(gameTile)).toBeTrue();
         expect(service.isGameTile(tileJson)).toBeFalse();
+    });
+    it('should identify PlayerTile correctly', () => {
+        const playerTile: GameTile & { player: { avatar: string } } = {
+            idx: 0,
+            tileType: '',
+            item: '',
+            hasPlayer: true,
+            isAccessible: TilePreview.NONE,
+            player: { avatar: '1' } as Player,
+        };
+        const nonPlayerTile: GameTile = {
+            idx: 0,
+            tileType: '',
+            item: '',
+            hasPlayer: false,
+            isAccessible: TilePreview.NONE,
+        } as GameTile;
+
+        expect(service.isPlayerTile(playerTile)).toBeTrue();
+        expect(service.isPlayerTile(nonPlayerTile)).toBeFalse();
     });
 });
