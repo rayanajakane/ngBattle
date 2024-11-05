@@ -56,16 +56,6 @@ describe('MapGameService', () => {
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
-    // it('should set accessible tiles and shortest path on mouse enter', () => {
-    //     const index = 1;
-    //     spyOn(service, 'setAccessibleTiles');
-    //     spyOn(service, 'setShortestPath');
-
-    //     service.onMouseEnter(index, new MouseEvent('mouseenter'));
-
-    //     expect(service.renderAvailableTiles).toHaveBeenCalled();
-    //     expect(service.renderShortestPath).toHaveBeenCalledWith(index);
-    // });
 
     it('should remove all previews on exit', () => {
         spyOn(service, 'removeAllPreview');
