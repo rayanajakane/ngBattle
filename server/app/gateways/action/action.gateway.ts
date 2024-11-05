@@ -39,19 +39,21 @@ export class ActionGateway implements OnGatewayInit {
     handleGameSetup(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-        const playerCoords: PlayerInfo[] = this.action.gameSetup(gameId, players);
+
+        const playerCoords: PlayerInfo[] = this.action.gameSetup(roomId, gameId, players);
+
         console.log(playerCoords);
         this.server.emit('gameSetup', playerCoords);
     }
 
     //TODO: check usefulness of this function
     @SubscribeMessage('startTurn')
-    handleStartTurn(@MessageBody() data: { gameId: string; playerId: string }, @ConnectedSocket() client: Socket) {
-        const activeGame = this.action.activeGames.find((game) => game.game.id === data.gameId);
+    handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
+        const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
-
+        activeGame.currentPlayerActionPoint = 1;
         //TODO: send the move budget to the client
-        client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, data.gameId));
+        client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, activeGame.game.id));
     }
 
     @SubscribeMessage('move')
@@ -63,7 +65,7 @@ export class ActionGateway implements OnGatewayInit {
         const activeGame = this.action.activeGames.find((game) => game.game.id === data.gameId);
 
         if (activeGame.playersCoord[activeGame.turn].player.id !== playerId) {
-            const playerPositions = this.action.movePlayer(data.playerId, data.gameId, data.startPosition, data.endPosition);
+            const playerPositions = this.action.movePlayer(data.gameId, data.startPosition, data.endPosition);
 
             const gameMap = this.action.activeGames.find((game) => game.game.id === data.gameId).game.map;
             let iceSlip = false;
@@ -88,11 +90,6 @@ export class ActionGateway implements OnGatewayInit {
                         iceSlip = true;
                     }
                 }
-
-                // if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
-                //     console.log('iceSlip');
-                //     iceSlip = true;
-                // }
             });
             console.log('endMove');
             console.log('nextTurn: ' + activeGame.turn);
@@ -105,18 +102,32 @@ export class ActionGateway implements OnGatewayInit {
     }
 
     @SubscribeMessage('endTurn')
-    handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { gameId: string; playerId: string }) {
-        const gameId = data.gameId;
-        const activeGame = this.action.activeGames.find((game) => game.game.id === gameId);
+    handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
+        const roomId = data.roomId;
+        const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
 
         if (activeGame.playersCoord[activeGame.turn].player.id !== data.playerId) {
-            this.action.nextTurn(gameId);
+            this.action.nextTurn(roomId);
 
             //TODO: send the new active player to the client
-            this.server.emit('endTurn', this.action.activeGames.find((game) => game.game.id === gameId).turn);
+            this.server.emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
         }
     }
 
-    @SubscribeMessage('startCombat')
-    handleStartCombat(@ConnectedSocket() client: Socket, @MessageBody() data: { gameId: string; playerId: string }) {}
+    @SubscribeMessage('interactDoor')
+    handleInteractDoor(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
+        const roomId = data.roomId;
+        const doorPosition = data.doorPosition;
+        const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
+
+        if (remainingActionPoints > 0) {
+            this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
+            this.server.emit('interactDoor', doorPosition);
+            console.log('Door interacted');
+        }
+        console.log('Door not interacted');
+    }
+
+    @SubscribeMessage('attack')
+    handleAttack(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; targetId: string }) {}
 }
