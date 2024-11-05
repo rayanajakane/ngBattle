@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LogMessage } from '@app/interfaces/message';
+import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
 
 @Component({
@@ -20,9 +21,10 @@ export class LogsComponent implements OnInit {
     btnText: string = 'Show Player Logs';
     @ViewChild('logsContainer') logsContainer: ElementRef;
     @Input() roomId: string;
+    @Input() player: Player;
 
-    logs: LogMessage[] = [{ date: '2023-10-01', message: 'Log message 1' }];
-    playerLogs: LogMessage[] = [{ date: '2023-10-01', message: 'Log message 2' }];
+    logs: LogMessage[] = []; // contains all logs
+    playerLogs: LogMessage[] = [];
     currentLogs = this.logs;
 
     constructor(
@@ -31,12 +33,11 @@ export class LogsComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        //     this.loadLogs();
         this.receiveLog();
     }
 
     // ngAfterViewInit() {
-    //     this.scrollToBottom();
+    //     this.logs.push({ date: '2023-10-01', message: this.player.name });
     // }
 
     receiveLog() {
