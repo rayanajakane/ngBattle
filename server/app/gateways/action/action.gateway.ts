@@ -51,7 +51,7 @@ export class ActionGateway implements OnGatewayInit {
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
-
+        activeGame.currentPlayerActionPoint = 1;
         //TODO: send the move budget to the client
         client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, activeGame.game.id));
     }
@@ -119,6 +119,17 @@ export class ActionGateway implements OnGatewayInit {
         }
     }
 
-    @SubscribeMessage('startCombat')
-    handleStartCombat(@ConnectedSocket() client: Socket, @MessageBody() data: { gameId: string; playerId: string }) {}
+    @SubscribeMessage('interactDoor')
+    handleStartCombat(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
+        const roomId = data.roomId;
+        const doorPosition = data.doorPosition;
+        const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
+
+        if (remainingActionPoints > 0) {
+            this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
+            this.server.emit('interactDoor', doorPosition);
+            console.log('Door interacted');
+        }
+        console.log('Door not interacted');
+    }
 }

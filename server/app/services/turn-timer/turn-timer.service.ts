@@ -11,7 +11,7 @@ export class TurnTimerService {
     private readonly COOLDOWN_DURATION = 3;
     private isInCooldown = false;
 
-    startGameTimer(server: Server, gameId: string, playerId: string) {
+    startGameTimer(server: Server, roomId: string, playerId: string) {
         if (this.timer) return;
 
         this.timeLeft = this.TIMER_DURATION;
@@ -24,9 +24,9 @@ export class TurnTimerService {
             } else {
                 this.stopTimer(server);
 
-                this.actionGt.handleEndTurn(null, { gameId, playerId });
+                this.actionGt.handleEndTurn(null, { roomId, playerId });
 
-                this.startCooldown(server, gameId, playerId);
+                this.startCooldown(server, roomId, playerId);
             }
         }, 1000);
     }

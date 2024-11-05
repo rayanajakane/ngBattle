@@ -1,3 +1,4 @@
+import { TileTypes } from '@app/gateways/action/action.gateway';
 import { GameJson } from '@app/model/game-structure';
 import { GameService } from '@app/services/game.service';
 import { Player } from '@app/services/match.service';
@@ -29,6 +30,7 @@ interface GameInstance {
     playersCoord?: PlayerInfo[];
     turn?: number;
     currentPlayerMoveBudget?: number;
+    currentPlayerActionPoint?: number;
 }
 
 @Injectable()
@@ -136,5 +138,32 @@ export class ActionService {
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
         return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
+    }
+
+    interactWithDoor(roomId: string, playerId: string, doorPosition: number) {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+
+        const game = gameInstance.game;
+        const mapSize = parseInt(game.mapSize);
+
+        const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const door = game.map[doorPosition].tileType;
+
+        if (
+            playerPosition === doorPosition + 1 ||
+            playerPosition === doorPosition - 1 ||
+            playerPosition === doorPosition + mapSize ||
+            playerPosition === doorPosition - mapSize
+        ) {
+            return;
+        }
+
+        if (door === TileTypes.DOOROPEN) {
+            game.map[doorPosition].tileType = TileTypes.DOORCLOSED;
+        } else {
+            game.map[doorPosition].tileType = TileTypes.DOOROPEN;
+        }
+
+        gameInstance.currentPlayerActionPoint -= 1;
     }
 }
