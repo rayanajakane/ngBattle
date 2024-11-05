@@ -45,31 +45,30 @@ export class ActionGateway implements OnGatewayInit {
     @SubscribeMessage('startTurn')
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
-
         activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
         activeGame.currentPlayerActionPoint = 1;
 
         //TODO: send the move budget to the client
-        client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, activeGame.game.id));
+        const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
+        console.log('Start turn Response', arrayResponse);
+        client.emit('startTurn', arrayResponse);
     }
 
     @SubscribeMessage('move')
-    handleMove(
-        @MessageBody() data: { roomId: string; playerId: string; startPosition: number; endPosition: number },
-        @ConnectedSocket() client: Socket,
-    ) {
+    handleMove(@MessageBody() data: { roomId: string; playerId: string; endPosition: number }, @ConnectedSocket() client: Socket) {
         const playerId = data.playerId;
         const roomId = data.roomId;
         const activeGame = this.action.activeGames.find((instance) => instance.roomId === roomId);
+        const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
         if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-            const playerPositions = this.action.movePlayer(activeGame.game.id, data.startPosition, data.endPosition);
+            const playerPositions = this.action.movePlayer(activeGame.game.id, startPosition, data.endPosition);
 
             const gameMap = this.action.activeGames.find((instance) => instance.roomId === roomId).game.map;
             let iceSlip = false;
 
             console.log('startMove');
-            let pastPosition = data.startPosition;
+            let pastPosition = startPosition;
             playerPositions.forEach((playerPosition) => {
                 if (!iceSlip) {
                     setTimeout(() => {

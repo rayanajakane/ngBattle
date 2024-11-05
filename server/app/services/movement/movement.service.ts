@@ -120,7 +120,9 @@ export class MovementService {
         visited[startCoord.x][startCoord.y] = true;
 
         while (queue.length > 0) {
+            console.log('queue entry: ', queue);
             const current = queue.shift();
+            console.log('current: ', current);
 
             for (const [dx, dy] of [
                 [0, 1],
@@ -132,6 +134,12 @@ export class MovementService {
                 const y = current.y + dy;
 
                 const totalDistance = current.distance + this.tileValue(map[x * mapSize + y].tileType);
+                console.log('totalDistance: ', totalDistance);
+
+                const vis = visited[x][y];
+                console.log('visited[x][y]: ', vis);
+                const valid = this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance });
+                console.log('valid: ', valid);
 
                 if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance })) {
                     queue.push({ x, y, distance: totalDistance });
@@ -142,6 +150,8 @@ export class MovementService {
 
             queue.sort((a, b) => a.distance - b.distance);
         }
+        console.log('out of while loop for available moves');
+        console.log('coordPath: ', coordPath);
 
         return coordPath.reduce((structure, coord) => {
             const endPosition = this.convertToPosition(coord, mapSize);

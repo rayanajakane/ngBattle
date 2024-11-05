@@ -1,19 +1,9 @@
 import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
-import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { Player } from '@app/interfaces/player';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { Subject } from 'rxjs';
 import { MapBaseService } from './map-base.service';
-
-const player1: Player = {
-    id: '1',
-    name: 'player1',
-    isAdmin: false,
-    avatar: '1',
-    attributes: {} as PlayerAttribute,
-    isActive: false,
-    abandoned: true,
-};
 
 @Injectable({
     providedIn: 'root',
@@ -30,18 +20,6 @@ export class MapGameService extends MapBaseService {
     event$ = this.eventSubject.asObservable();
     emitEvent(value: number) {
         this.eventSubject.next(value);
-    }
-
-    constructor() {
-        super();
-        this.fetchAccessibleTiles();
-        this.fetchShortestPath();
-
-        //temp function to test player placement
-        setTimeout(() => {
-            //temp function to test player placement
-            this.placePlayer(1, player1);
-        }, 1000);
     }
 
     setAvailableTiles(availableTiles: number[]): void {

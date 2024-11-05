@@ -3,8 +3,8 @@
     <section class="game-map">
         <app-game-panel
             class="game-card"
+            [playerCoords]="playerCoords"
             [mapSize]="mapSize"
-            [nPlayers]="this.playerCoords.length"
             [activePlayer]="this.player.name"
             [gameName]="this.game.gameName"
         >
@@ -51,6 +51,6 @@
         </mat-tab-group>
     </mat-card>
     <app-timer class="timer"></app-timer>
-    <app-leaderboard class="leaderboard"></app-leaderboard>
+    <app-leaderboard [turn]="turn" [playerCoords]="playerCoords" [activePlayer]="activePlayer" class="leaderboard"></app-leaderboard>
 </div>
 }

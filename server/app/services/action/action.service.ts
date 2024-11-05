@@ -139,6 +139,7 @@ export class ActionService {
         const game = gameInstance.game;
 
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        console.log('playerPosition', playerPosition);
 
         return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }
