@@ -155,6 +155,7 @@ export class ActionGateway implements OnGatewayInit {
         const roomId = data.roomId;
         const playerId = data.playerId;
 
+        console.log('quitGame', playerId);
         if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
             this.handleEndTurn(client, data);
         }

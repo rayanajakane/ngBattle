@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
+import { ItemTypes } from '@app/data-structure/toolType';
 import { Player } from '@app/interfaces/player';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { Subject } from 'rxjs';
@@ -107,6 +108,14 @@ export class MapGameService extends MapBaseService {
     changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
         this.removePlayer(oldIndex);
         this.placePlayer(newIndex, player);
+    }
+
+    removeUnusedStartingPoints(): void {
+        this.tiles.forEach((tile) => {
+            if (tile.item === ItemTypes.STARTINGPOINT && !tile.hasPlayer) {
+                tile.item = '';
+            }
+        });
     }
     /* eslint-enable */
 }
