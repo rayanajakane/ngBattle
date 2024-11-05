@@ -69,6 +69,8 @@ export class GamePageComponent implements OnInit {
     activePlayer: Player;
     turn: number = 0;
 
+    afklist: PlayerCoord[] = [];
+
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
@@ -87,6 +89,7 @@ export class GamePageComponent implements OnInit {
         this.listenMovement();
         this.listenStartTurn();
         this.listenEndTurn();
+        this.listenQuitGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map as GameTile[];
@@ -212,7 +215,19 @@ export class GamePageComponent implements OnInit {
         this.game = await this.httpService.getGame(gameId);
     }
 
+    listenQuitGame() {
+        this.socketService.on('quitGame', (data: { playerId: string }) => {
+            const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === data.playerId);
+            if (afkPlayer) {
+                afkPlayer.player.abandoned = true;
+                this.afklist.push(afkPlayer);
+                this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== data.playerId);
+            }
+        });
+    }
+
     quitGame() {
+        this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
         this.router.navigate(['/home']);
     }
 

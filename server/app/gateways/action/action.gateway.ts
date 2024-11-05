@@ -84,8 +84,14 @@ export class ActionGateway implements OnGatewayInit {
 
                     pastPosition = playerPosition;
 
-                    if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
+                    // if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
+                    //     console.log('iceSlip');
+                    //     iceSlip = true;
+                    // }
+
+                    if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() < 0.1) {
                         console.log('iceSlip');
+                        activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
                     }
                 }
@@ -129,5 +135,15 @@ export class ActionGateway implements OnGatewayInit {
             console.log('Door interacted');
         }
         console.log('Door not interacted');
+    }
+
+    @SubscribeMessage('quitGame')
+    handleQuitGame(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
+        const roomId = data.roomId;
+        const playerId = data.playerId;
+
+        this.action.quitGame(roomId, playerId);
+
+        this.server.to(roomId).emit('quitGame', playerId);
     }
 }

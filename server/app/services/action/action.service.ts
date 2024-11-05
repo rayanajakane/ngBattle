@@ -87,6 +87,7 @@ export class ActionService {
             } while (playerCoord.find((playerCoord) => playerCoord.position === position) !== undefined);
 
             player.wins = 0;
+            game.map[position].hasPlayer = true;
             playerCoord.push({ player, position });
         });
 
@@ -182,5 +183,13 @@ export class ActionService {
         if (this.combat.isValidCombatPosition(game, playerPosition, targetPosition)) {
             // this.combat.Combat(game, playerId, targetId);
         }
+    }
+
+    quitGame(roomId: string, playerId: string) {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const playerCoord = gameInstance.playersCoord;
+        const playerIndex = playerCoord.findIndex((player) => player.player.id === playerId);
+
+        playerCoord.splice(playerIndex, 1);
     }
 }
