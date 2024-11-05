@@ -15,11 +15,11 @@ import { MapComponent } from '@app/components/map/map.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { ToolbarComponent } from '@app/components/toolbar/toolbar.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { Game } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
+import { GameStructure } from '@common/game-structure';
 
 @Component({
     selector: 'app-edit-page',
@@ -49,7 +49,7 @@ export class EditPageComponent implements OnInit {
     selectedTileType: string = '';
     selectedItem: string = '';
     selectedMode: CurrentMode = CurrentMode.NotSelected;
-    game: Game;
+    game: GameStructure;
     mapSize: number;
     mapService = inject(MapService);
     idService = inject(IDGenerationService);
@@ -129,7 +129,7 @@ export class EditPageComponent implements OnInit {
         this.selectedMode = CurrentMode.ItemTool;
     }
 
-    createGameJSON(): Game {
+    createGameJSON(): GameStructure {
         return {
             id: this.idService.generateID(),
             gameName: 'Sans titre',
@@ -140,7 +140,7 @@ export class EditPageComponent implements OnInit {
             isVisible: true,
             creationDate: '',
             lastModified: '',
-        } as Game;
+        } as GameStructure;
     }
 
     async saveGame() {
