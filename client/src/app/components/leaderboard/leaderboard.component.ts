@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { Player } from '@app/interfaces/player';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
+<<<<<<< HEAD
 
 export interface PlayerBoard {
     role: 'Admin' | 'Joueur';
@@ -9,6 +10,8 @@ export interface PlayerBoard {
     nWins: number;
 }
 
+=======
+>>>>>>> 23df8e5d4a714dbc34d1b9d13d5ad263f57ace44
 @Component({
     selector: 'app-leaderboard',
     standalone: true,

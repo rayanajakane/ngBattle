@@ -6,6 +6,7 @@ import { ActionGateway } from './gateways/action/action.gateway';
 import { MatchGateway } from './gateways/match/match.gateway';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { ActionService } from './services/action/action.service';
+import { CombatService } from './services/combat/combat.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
 import { MapValidationService } from './services/map-validation.service';
@@ -29,6 +30,7 @@ import { MovementService } from './services/movement/movement.service';
         MovementService,
         ActionService,
         ActionGateway,
+        CombatService,
     ],
 })
 export class AppModule {}

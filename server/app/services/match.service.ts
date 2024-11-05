@@ -10,6 +10,7 @@ export interface Player {
     attributes: PlayerAttribute;
     isActive: boolean;
     abandoned: boolean;
+    wins?: number;
 }
 
 export interface PlayerAttribute {

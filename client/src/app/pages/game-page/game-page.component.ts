@@ -64,9 +64,9 @@ export class GamePageComponent implements OnInit {
     activePlayer: Player;
     turn: number = 0;
 
-    httpService = inject(HttpClientService);
-    mapService = inject(MapGameService);
-    socketService = inject(SocketService);
+    private readonly httpService = inject(HttpClientService);
+    private readonly mapService = inject(MapGameService);
+    private readonly socketService = inject(SocketService);
 
     private mapServiceSubscription: Subscription = new Subscription();
 
@@ -83,26 +83,26 @@ export class GamePageComponent implements OnInit {
         this.listenStartTurn();
         this.listenEndTurn();
 
-        this.socketService.emit('gameSetup', this.roomId);
-
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.tiles = this.game.map as GameTile[];
             this.mapSize = parseInt(this.game.mapSize, 10);
-            this.gameCreated = true;
-            this.startTurn();
+            this.socketService.emit('gameSetup', this.roomId);
         });
     }
 
     // Need server to send gameSetup to all clients
     listenGameSetup() {
         this.socketService.once('gameSetup', (playerCoords: PlayerCoord[]) => {
-            console.log('gameSetup', playerCoords);
+            this.gameCreated = true;
             this.initializePlayersPositions(playerCoords);
+
+            this.startTurn();
         });
     }
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+            console.log('shortestPathByTiles', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
             this.subscribeMapService();
         });
@@ -141,7 +141,7 @@ export class GamePageComponent implements OnInit {
 
     startTurn() {
         if (this.activePlayer.id === this.player?.id) {
-            this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
+            this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.activePlayer.id });
         }
     }
 
@@ -149,7 +149,7 @@ export class GamePageComponent implements OnInit {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
             this.mapService.isMoving = true;
             this.mapService.removeAllPreview();
-            this.socketService.emit('move', { gameId: this.game.id, playerId: this.player?.id, newPlayerPosition: index });
+            this.socketService.emit('move', { roomId: this.roomId, playerId: this.player?.id, endPosition: index });
         });
     }
 
@@ -167,7 +167,7 @@ export class GamePageComponent implements OnInit {
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
             this.resetMovementPrevisualization();
-            this.socketService.emit('endTurn');
+            this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
         }
         this.mapService.isMoving = false;
         this.mapServiceSubscription.unsubscribe();
