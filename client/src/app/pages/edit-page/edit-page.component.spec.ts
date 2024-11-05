@@ -7,11 +7,11 @@ import { provideRouter } from '@angular/router';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { Game } from '@app/data-structure/game-structure';
+import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { MapService } from '@app/services/map.service';
 import { of } from 'rxjs';
-import { AdminPageComponent } from '../admin-page/admin-page.component';
 import { EditPageComponent } from './edit-page.component';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 describe('EditPageComponent', () => {
