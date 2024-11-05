@@ -5,8 +5,9 @@
             class="game-card"
             [playerCoords]="playerCoords"
             [mapSize]="mapSize"
-            [activePlayer]="this.activePlayer.name"
-            [gameName]="this.game.gameName"
+            [activePlayer]="activePlayer"
+            [game]="game"
+            [afklist]="afklist"
         >
         </app-game-panel>
         <app-player-panel
@@ -61,6 +62,12 @@
     </mat-card>
 
     <app-timer class="timer"></app-timer>
-    <app-leaderboard [turn]="turn" [playerCoords]="playerCoords" [activePlayer]="activePlayer" class="leaderboard"></app-leaderboard>
+    <app-leaderboard
+        [afklist]="afklist"
+        [turn]="turn"
+        [playerCoords]="playerCoords"
+        [activePlayer]="activePlayer"
+        class="leaderboard"
+    ></app-leaderboard>
     }
 </div>

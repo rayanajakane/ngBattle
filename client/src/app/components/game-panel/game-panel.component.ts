@@ -1,6 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { GameJson } from '@app/data-structure/game-structure';
+import { Player } from '@app/interfaces/player';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
+
 @Component({
     selector: 'app-game-panel',
     standalone: true,
@@ -10,14 +13,19 @@ import { PlayerCoord } from '@app/pages/game-page/game-page.component';
 })
 export class GamePanelComponent {
     @Input() playerCoords: PlayerCoord[];
-    @Input() gameName: string;
+    @Input() game: GameJson;
     @Input() mapSize: number;
-    @Input() activePlayer: string;
+    @Input() activePlayer: Player;
+    @Input() afklist: PlayerCoord[];
     nPlayers: number;
 
     ngOnChanges() {
         if (this.playerCoords) {
-            this.nPlayers = this.playerCoords.filter((playerCoord) => !playerCoord.player.abandoned).length;
+            const afkPlayersLength: number = this.afklist.filter((playerCoord) => playerCoord.player.abandoned).length;
+            if (afkPlayersLength) this.nPlayers = this.playerCoords.length - afkPlayersLength;
+            else this.nPlayers = this.playerCoords.length;
+        } else {
+            this.nPlayers = 0;
         }
     }
 }
