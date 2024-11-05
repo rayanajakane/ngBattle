@@ -36,10 +36,6 @@ export class LogsComponent implements OnInit {
         this.receiveLog();
     }
 
-    // ngAfterViewInit() {
-    //     this.logs.push({ date: '2023-10-01', message: this.player.name });
-    // }
-
     receiveLog() {
         this.socketService.on('newLog', (log: LogMessage) => {
             this.logs.push(log);

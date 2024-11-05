@@ -57,7 +57,10 @@ export class ActionGateway implements OnGatewayInit {
         //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
-        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: 'Début de tour' });
+
+        const playerName = activeGame.playersCoord[activeGame.turn].player.name;
+        const message = `Début de tour de ${playerName}`;
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: message });
     }
 
     @SubscribeMessage('move')
@@ -139,6 +142,7 @@ export class ActionGateway implements OnGatewayInit {
         if (remainingActionPoints > 0) {
             this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', doorPosition);
+            this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été ouverte' });
             console.log('Door interacted');
         }
         console.log('Door not interacted');
