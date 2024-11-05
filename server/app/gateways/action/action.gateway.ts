@@ -60,7 +60,7 @@ export class ActionGateway implements OnGatewayInit {
 
         const playerName = activeGame.playersCoord[activeGame.turn].player.name;
         const message = `Début de tour de ${playerName}`;
-        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: message });
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: message, receiver: data.playerId });
     }
 
     @SubscribeMessage('move')
@@ -142,7 +142,12 @@ export class ActionGateway implements OnGatewayInit {
         if (remainingActionPoints > 0) {
             this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', doorPosition);
-            this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été ouverte' });
+
+            if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOOROPEN) {
+                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été ouverte' });
+            } else if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOORCLOSED) {
+                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: 'Porte a été fermée' });
+            }
             console.log('Door interacted');
         }
         console.log('Door not interacted');
