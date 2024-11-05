@@ -8,6 +8,9 @@
     mat-card-header {
         display: flex;
         justify-content: center;
+        .title-container {
+            border: 2px solid white !important;
+        }
     }
 }
 
