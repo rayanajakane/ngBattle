@@ -10,6 +10,8 @@ export class TurnTimerService {
     private readonly TIMER_DURATION = 30;
     private readonly COOLDOWN_DURATION = 3;
     private isInCooldown = false;
+    private isPaused = false;
+    private pausedTimeLeft: number | null = null;
 
     startGameTimer(server: Server, roomId: string, playerId: string) {
         if (this.timer) return;
@@ -29,6 +31,37 @@ export class TurnTimerService {
                 this.startCooldown(server, roomId, playerId);
             }
         }, 1000);
+    }
+
+    pauseTimer(server: Server) {
+        if (!this.timer || this.isPaused) return;
+
+        this.isPaused = true;
+        this.pausedTimeLeft = this.timeLeft;
+        clearInterval(this.timer);
+        this.timer = null;
+        server.emit('timerPaused', this.timeLeft);
+    }
+
+    resumeTimer(server: Server, roomId: string, playerId: string) {
+        if (!this.isPaused || this.timer) return;
+
+        this.isPaused = false;
+        this.timeLeft = this.pausedTimeLeft ?? this.TIMER_DURATION;
+        this.pausedTimeLeft = null;
+
+        this.timer = setInterval(() => {
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+                this.broadcastTime(server);
+            } else {
+                this.stopTimer(server);
+                this.actionGt.handleEndTurn(null, { roomId, playerId });
+                this.startCooldown(server, roomId, playerId);
+            }
+        }, 1000);
+
+        server.emit('timerResumed', this.timeLeft);
     }
 
     private startCooldown(server: Server, gameId: string, playerId: string) {

@@ -90,11 +90,6 @@ export class ActionGateway implements OnGatewayInit {
                         iceSlip = true;
                     }
                 }
-
-                // if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
-                //     console.log('iceSlip');
-                //     iceSlip = true;
-                // }
             });
             console.log('endMove');
             console.log('nextTurn: ' + activeGame.turn);
@@ -120,7 +115,7 @@ export class ActionGateway implements OnGatewayInit {
     }
 
     @SubscribeMessage('interactDoor')
-    handleStartCombat(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
+    handleInteractDoor(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
         const roomId = data.roomId;
         const doorPosition = data.doorPosition;
         const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
@@ -132,4 +127,7 @@ export class ActionGateway implements OnGatewayInit {
         }
         console.log('Door not interacted');
     }
+
+    @SubscribeMessage('attack')
+    handleAttack(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; targetId: string }) {}
 }
