@@ -27,7 +27,7 @@ export class ActionGateway implements OnGatewayInit {
         console.log('ActionGateway initialized');
     }
 
-    async updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
+    updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
         this.server.to(roomId).emit('playerPositionUpdate', {
             playerId,
             newPlayerPosition,
