@@ -116,7 +116,7 @@ export class ActionService {
             });
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
-
+            console.log(playerCoord);
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,
