@@ -1,20 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
+import { Player } from '@app/interfaces/player';
+import { PlayerCoord } from '@app/pages/game-page/game-page.component';
 
 export interface PlayerBoard {
     role: 'Admin' | 'Joueur';
     playerName: string;
     nWins: number;
 }
-
-const ELEMENT_DATA: PlayerBoard[] = [
-    { role: 'Admin', playerName: 'Ali', nWins: 0 },
-    { role: 'Joueur', playerName: 'Anis', nWins: 1 },
-    { role: 'Joueur', playerName: 'Rayan', nWins: 2 },
-    { role: 'Joueur', playerName: 'Samyar', nWins: 3 },
-    { role: 'Joueur', playerName: 'Yanis', nWins: 4 },
-    { role: 'Joueur', playerName: 'Zack', nWins: 5 },
-];
 
 @Component({
     selector: 'app-leaderboard',
@@ -24,6 +17,13 @@ const ELEMENT_DATA: PlayerBoard[] = [
     styleUrl: './leaderboard.component.scss',
 })
 export class LeaderboardComponent {
+    @Input() playerCoords: PlayerCoord[];
+    @Input() activePlayer: Player;
+    @Input() turn: number;
     displayedColumns: string[] = ['role', 'playerName', 'nWins'];
-    dataSource = ELEMENT_DATA;
+    dataSource: Player[];
+
+    ngOnChanges() {
+        this.dataSource = this.playerCoords.map((playerCoord) => playerCoord.player);
+    }
 }
