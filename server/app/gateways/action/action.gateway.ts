@@ -26,7 +26,7 @@ export class ActionGateway implements OnGatewayInit {
         console.log('ActionGateway initialized');
     }
 
-    async updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
+    updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
         this.server.to(roomId).emit('playerPositionUpdate', {
             playerId,
             newPlayerPosition,
@@ -51,6 +51,7 @@ export class ActionGateway implements OnGatewayInit {
         //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
+        this.server.to(data.roomId).emit('newLog', { date: '2023-10-01', message: 'Turn started' });
     }
 
     @SubscribeMessage('move')
