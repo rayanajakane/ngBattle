@@ -124,18 +124,15 @@ export class GamePageComponent implements OnInit {
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
-            console.log('playerPositionUpdate', data);
         });
         this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
             this.currentMoveBudget = data.currentMoveBudget;
             this.endMovement(data.availableMoves);
-            console.log('endMove', this.player.name, data.availableMoves);
         });
     }
 
     listenEndTurn() {
         this.socketService.on('endTurn', (turn: number) => {
-            console.log('endTurn', turn);
             this.activePlayer = this.playerCoords[turn].player;
             this.turn = turn;
             this.startTurn();
@@ -169,9 +166,7 @@ export class GamePageComponent implements OnInit {
 
     subscribeMapService() {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
-            console.log('clicked received', index);
             this.mapService.removeAllPreview();
-            console.log('playerId', this.player.id);
             this.socketService.emit('move', { roomId: this.roomId, playerId: this.player?.id, endPosition: index });
         });
     }
@@ -188,10 +183,8 @@ export class GamePageComponent implements OnInit {
     endMovement(shortestPathByTile: ShortestPathByTile) {
         console.log('endMovement', shortestPathByTile);
         if (Object.keys(shortestPathByTile).length !== 0) {
-            console.log('Im here if Im not empty', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
-            console.log('Im here if Im empty', shortestPathByTile);
             this.resetMovementPrevisualization();
             this.mapServiceSubscription.unsubscribe();
             this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
@@ -219,18 +212,19 @@ export class GamePageComponent implements OnInit {
     }
 
     listenQuitGame() {
-        this.socketService.on('quitGame', (data: { playerId: string }) => {
-            const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === data.playerId);
+        this.socketService.on('quitGame', (playerId: string) => {
+            const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
             if (afkPlayer) {
                 afkPlayer.player.abandoned = true;
                 this.afklist.push(afkPlayer);
-                this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== data.playerId);
+                this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== playerId);
             }
         });
     }
 
     quitGame() {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
+        this.socketService.disconnect();
         this.router.navigate(['/home']);
     }
 
