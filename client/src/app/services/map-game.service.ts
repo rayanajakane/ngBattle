@@ -125,8 +125,8 @@ export class MapGameService extends MapBaseService {
         return this.tiles.findIndex((tile) => tile.player?.id === player.id);
     }
 
-    changePlayerPosition(newIndex: number, player: Player): void {
-        this.removePlayer(this.findPlayerIndex(player));
+    changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
+        this.removePlayer(oldIndex);
         this.placePlayer(newIndex, player);
     }
     /* eslint-enable */

@@ -113,13 +113,31 @@ export class GamePageComponent implements OnInit {
         if (this.activePlayer.id === this.player.id) {
             this.socketService.once('startTurn', (shortestPathByTile: ShortestPathByTile) => {
                 this.initializeMovementPrevisualization(shortestPathByTile);
-                this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
-                    this.socketService.emit('move', { gameId: this.game.id, playerId: this.player.id, newPlayerPosition: index });
-                });
+                this.subscribeMapService();
             });
             this.socketService.emit('startTurn', { gameId: this.game.id, playerId: this.activePlayer.id });
         }
         this.listenMovement();
+    }
+
+    subscribeMapService() {
+        this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
+            this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
+                const playerCoord = this.findPlayerCoordById(data.playerId);
+                if (playerCoord) {
+                    this.mapService.changePlayerPosition(playerCoord.position, data.newPlayerPosition, playerCoord.player);
+                    playerCoord.position = data.newPlayerPosition;
+                }
+            });
+            this.socketService.once('endMove', (shortestPathByTile: ShortestPathByTile) => {
+                // this.mapService.setAvailableTiles([]);
+                // this.mapService.setShortestPathByTile({});
+                // this.mapService.renderAvailableTiles();
+                // this.mapService.changePlayerPosition(index, this.activePlayer);
+                this.mapServiceSubscription.unsubscribe();
+            });
+            this.socketService.emit('move', { gameId: this.game.id, playerId: this.player.id, newPlayerPosition: index });
+        });
     }
 
     listenMovement() {
