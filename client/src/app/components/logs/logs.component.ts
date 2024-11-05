@@ -32,18 +32,11 @@ export class LogsComponent implements OnInit {
 
     ngOnInit(): void {
         //     this.loadLogs();
-        //     this.receiveLog();
+        this.receiveLog();
     }
 
     // ngAfterViewInit() {
     //     this.scrollToBottom();
-    // }
-
-    // loadLogs() {
-    //     this.socketService.once('loadAllLogs', (data: { logs: LogMessage[] }) => {
-    //         this.logs = data.logs;
-    //     });
-    //     this.socketService.emit('loadAllLogs', { roomId: this.roomId });
     // }
 
     receiveLog() {
