@@ -16,6 +16,7 @@ export class MapGameService extends MapBaseService {
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
     isMoving: boolean = false;
+    actionDoor: boolean = false;
 
     private eventSubject = new Subject<number>();
     event$ = this.eventSubject.asObservable();
@@ -33,9 +34,12 @@ export class MapGameService extends MapBaseService {
 
     onRightClick(index: number): void {}
     onMouseDown(index: number, event: MouseEvent): void {
-        if (event.button === 0) {
-            if (this.availableTiles.includes(index) && !this.isMoving) {
+        if (event.button === 0 && !this.isMoving) {
+            if (this.availableTiles.includes(index)) {
                 this.isMoving = true;
+                this.emitEvent(index);
+            } else if (this.checkIfTileIsDoor(index)) {
+                this.actionDoor = true;
                 this.emitEvent(index);
             }
         }
@@ -49,6 +53,10 @@ export class MapGameService extends MapBaseService {
     }
 
     onExit(): void {}
+
+    checkIfTileIsDoor(index: number): boolean {
+        return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
+    }
 
     renderPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {

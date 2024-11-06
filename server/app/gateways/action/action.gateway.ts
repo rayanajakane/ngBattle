@@ -107,14 +107,14 @@ export class ActionGateway implements OnGatewayInit {
     }
 
     @SubscribeMessage('endTurn')
-    handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
+    handleEndTurn(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; lastTurn: boolean }) {
         const roomId = data.roomId;
         const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
 
         if (activeGame.playersCoord[activeGame.turn].player.id === data.playerId) {
             console.log('endTurn in if ', data.playerId);
 
-            this.action.nextTurn(roomId);
+            this.action.nextTurn(roomId, data.lastTurn);
 
             //TODO: send the new active player to the client
             this.server.to(roomId).emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
@@ -153,13 +153,10 @@ export class ActionGateway implements OnGatewayInit {
         const roomId = data.roomId;
         const playerId = data.playerId;
 
-        console.log('quitGame', playerId);
-        if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-            this.handleEndTurn(client, data);
-        }
-
-        this.action.quitGame(roomId, playerId);
-
         this.server.to(roomId).emit('quitGame', playerId);
+
+        if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
+            this.handleEndTurn(client, { ...data, lastTurn: true });
+        }
     }
 }

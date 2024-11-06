@@ -116,6 +116,7 @@ export class GamePageComponent implements OnInit {
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+            console.log('startTurn', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
             this.subscribeMapService();
         });
@@ -224,7 +225,7 @@ export class GamePageComponent implements OnInit {
         this.mapService.removeAllPreview();
         this.resetMovementPrevisualization();
         this.mapServiceSubscription.unsubscribe();
-        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
+        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id, lastTurn: false });
     }
 
     quitGame() {
