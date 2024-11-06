@@ -97,6 +97,10 @@ export class WaitingPageComponent implements OnInit {
         });
     }
 
+    leaveRoom() {
+        this.socketService.disconnect();
+    }
+
     lockRoom() {
         this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
             if (isRoomLocked) {

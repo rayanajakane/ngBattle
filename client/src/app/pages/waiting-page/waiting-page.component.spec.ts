@@ -16,7 +16,7 @@ describe('WaitingPageComponent', () => {
     let mockDialog: jasmine.SpyObj<MatDialog>;
 
     beforeEach(async () => {
-        mockSocketService = jasmine.createSpyObj('SocketService', ['once', 'on', 'emit']);
+        mockSocketService = jasmine.createSpyObj('SocketService', ['once', 'on', 'emit', 'disconnect']);
         mockRouter = jasmine.createSpyObj('Router', ['navigate']);
         mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
             params: of({ roomId: 'testRoom', playerId: 'testPlayer', characterName: 'testName', selectedAvatar: 'Avatar 1', isAdmin: 'true' }),
@@ -104,6 +104,12 @@ describe('WaitingPageComponent', () => {
         component.updatePlayers();
 
         expect(component.players).toEqual(players);
+    });
+
+    it('should disconnect on leaveRoom call', () => {
+        component.leaveRoom();
+
+        expect(mockSocketService.disconnect).toHaveBeenCalled();
     });
 
     it('should change lock button text on roomLocked event', () => {

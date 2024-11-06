@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { HttpClientService } from '@app/services/http-client.service';
 import { GameStructure } from '@common/game-structure';
 import { GameSelectionPageComponent } from './game-selection-page.component';
@@ -57,10 +58,23 @@ describe('GameSelectionPageComponent', () => {
         getAllGames: jasmine.createSpy('getAllGames').and.returnValue(Promise.resolve(mockGames)),
     };
 
+    const activatedRouteStub = {
+        snapshot: {
+            paramMap: {
+                get: () => 'test-id',
+            },
+        },
+    };
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [GameSelectionPageComponent],
-            providers: [{ provide: HttpClientService, useValue: mockHttpClientService }, provideHttpClient(), provideHttpClientTesting()],
+            providers: [
+                { provide: HttpClientService, useValue: mockHttpClientService },
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                { provide: ActivatedRoute, useValue: activatedRouteStub },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameSelectionPageComponent);

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerAttribute } from '@common/player';
@@ -14,10 +15,19 @@ describe('JoinPageComponent', () => {
     beforeEach(async () => {
         mockSocketService = jasmine.createSpyObj('SocketService', ['isSocketAlive', 'connect', 'disconnect', 'on', 'emit', 'once']);
 
+        const activatedRouteStub = {
+            snapshot: {
+                paramMap: {
+                    get: () => 'test-id',
+                },
+            },
+        };
+
         await TestBed.configureTestingModule({
             imports: [JoinPageComponent],
             providers: [
                 { provide: SocketService, useValue: mockSocketService }, // Use the mock service
+                { provide: ActivatedRoute, useValue: activatedRouteStub },
             ],
         }).compileComponents();
 

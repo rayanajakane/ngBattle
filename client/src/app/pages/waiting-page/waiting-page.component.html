@@ -1,5 +1,5 @@
 <div class="main-container">
-    <button class="button-style" [routerLink]="['/home']">Retourner au menu</button>
+    <button class="button-style" (click)="leaveRoom()" [routerLink]="['/home']">Retourner au menu</button>
     <h1>{{ roomId }}</h1>
     <div id="player-data">
         <app-player-list (deletePlayerAsAdmin)="deletePlayer($event)" [playerList]="players" [isUserAdmin]="isAdmin"></app-player-list>
