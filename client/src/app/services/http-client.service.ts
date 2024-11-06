@@ -26,13 +26,13 @@ export class HttpClientService {
     }
 
     async getGame(id: string): Promise<GameStructure> {
-        return await firstValueFrom(this.httpService.get<GameStructure>(`${this.baseUrl}/game/get/` + id));
+        return await firstValueFrom(this.httpService.get<GameStructure>(`${this.BASE_URL}/game/get/` + id));
     }
 
     async getAllGames(): Promise<GameStructure[]> {
         return await firstValueFrom(
             this.httpService
-                .get<GameStructure[]>(`${this.baseUrl}/game/getAll/`)
+                .get<GameStructure[]>(`${this.BASE_URL}/game/getAll/`)
                 .pipe(map((games: GameStructure[]) => games.sort((a, b) => new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()))),
         );
     }
