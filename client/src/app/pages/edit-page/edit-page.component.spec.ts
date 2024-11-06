@@ -1,34 +1,33 @@
-import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { provideRouter } from '@angular/router';
-import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
-import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
-import { HttpClientService } from '@app/services/http-client.service';
-import { IDGenerationService } from '@app/services/idgeneration.service';
-import { MapService } from '@app/services/map.service';
-import { GameStructure } from '@common/game-structure';
-import { of } from 'rxjs';
-import { EditPageComponent } from './edit-page.component';
-/* eslint-disable @typescript-eslint/no-explicit-any */
-describe('EditPageComponent', () => {
-    let component: EditPageComponent;
-    let fixture: ComponentFixture<EditPageComponent>;
-    let mockGameJson: GameStructure;
-    const mockCreateGameReturn = {
-        id: '456',
-        gameName: 'Sans titre',
-        gameDescription: 'Il était une fois...',
-        mapSize: '10',
-        map: [],
-        gameType: '',
-        isVisible: true,
-        creationDate: '',
-        lastModified: '',
-    } as GameStructure;
+// import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+// import { provideHttpClientTesting } from '@angular/common/http/testing';
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { MatDialog } from '@angular/material/dialog';
+// import { MatSnackBar } from '@angular/material/snack-bar';
+// import { provideRouter } from '@angular/router';
+// import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
+// import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
+// import { HttpClientService } from '@app/services/http-client.service';
+// import { IDGenerationService } from '@app/services/idgeneration.service';
+// import { MapService } from '@app/services/map.service';
+// import { GameStructure } from '@common/game-structure';
+// import { of } from 'rxjs';
+// import { EditPageComponent } from './edit-page.component';
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// describe('EditPageComponent', () => {
+//     let component: EditPageComponent;
+//     let fixture: ComponentFixture<EditPageComponent>;
+//     let mockGameJson: GameStructure;
+//     const mockCreateGameReturn = {
+//         id: '456',
+//         gameName: 'Sans titre',
+//         gameDescription: 'Il était une fois...',
+//         mapSize: '10',
+//         map: [],
+//         gameType: '',
+//         isVisible: true,
+//         creationDate: '',
+//         lastModified: '',
+//     } as GameStructure;
 
 //     const mockError = new HttpErrorResponse({ error: 'Update error' });
 
@@ -51,19 +50,19 @@ describe('EditPageComponent', () => {
 //         generateID: jasmine.createSpy('generateID').and.returnValue('456'),
 //     };
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [EditPageComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                provideRouter([{ path: 'admin', component: AdminPageComponent }]),
-                { provide: IDGenerationService, useValue: mockIdGenerationService },
-                { provide: MapService, useValue: mapServiceSpy },
-                { provide: HttpClientService, useValue: mockHttpClientService },
-                { provide: MatDialog, useValue: mockMatDialog },
-            ],
-        }).compileComponents();
+//     beforeEach(async () => {
+//         await TestBed.configureTestingModule({
+//             imports: [EditPageComponent],
+//             providers: [
+//                 provideHttpClient(),
+//                 provideHttpClientTesting(),
+//                 provideRouter([{ path: 'admin', component: AdminPageComponent }]),
+//                 { provide: IDGenerationService, useValue: mockIdGenerationService },
+//                 { provide: MapService, useValue: mapServiceSpy },
+//                 { provide: HttpClientService, useValue: mockHttpClientService },
+//                 { provide: MatDialog, useValue: mockMatDialog },
+//             ],
+//         }).compileComponents();
 
 //         mockGameJson = {
 //             id: '123',

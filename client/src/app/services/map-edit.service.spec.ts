@@ -2,9 +2,9 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { TileTypes } from '@app/data-structure/toolType';
-import { MapEditService } from './map-edit.service';
+import { TileStructure } from '@common/game-structure';
 import { DragDropService } from './drag-drop.service';
-import { TileJson } from '@app/data-structure/game-structure';
+import { MapEditService } from './map-edit.service';
 
 describe('MapEditService', () => {
     let service: MapEditService;
@@ -43,7 +43,7 @@ describe('MapEditService', () => {
         expect(service.selectedMode).toBe(CurrentMode.ItemTool);
     });
     it('setTiles should set the tiles array correctly', () => {
-        const tiles: TileJson[] = [
+        const tiles: TileStructure[] = [
             { idx: 0, tileType: 'ice', item: 'item-aleatoire', hasPlayer: false },
             { idx: 1, tileType: 'wall', item: 'AC1', hasPlayer: true },
         ];
@@ -100,7 +100,7 @@ describe('MapEditService', () => {
     });
 
     it('setTileType should call deleteItem if the new tile type is wall', () => {
-        const tiles: TileJson[] = [
+        const tiles: TileStructure[] = [
             { idx: 0, tileType: 'ice', item: 'item-aleatoire', hasPlayer: false },
             { idx: 1, tileType: 'wall', item: 'AC1', hasPlayer: true },
         ];
@@ -116,7 +116,7 @@ describe('MapEditService', () => {
     });
 
     it('setTileType should call deleteItem if the new tile type is door', () => {
-        const tiles: TileJson[] = [
+        const tiles: TileStructure[] = [
             { idx: 0, tileType: 'ice', item: 'item-aleatoire', hasPlayer: false },
             { idx: 1, tileType: 'wall', item: 'AC1', hasPlayer: true },
         ];
@@ -132,7 +132,7 @@ describe('MapEditService', () => {
     });
 
     it('setTileType should not call deleteItem if the new tile type is not wall or door', () => {
-        const tiles: TileJson[] = [
+        const tiles: TileStructure[] = [
             { idx: 0, tileType: 'ice', item: 'item-aleatoire', hasPlayer: false },
             { idx: 1, tileType: 'wall', item: 'AC1', hasPlayer: true },
         ];
@@ -145,7 +145,7 @@ describe('MapEditService', () => {
         expect(service.tiles[0].tileType).toBe('water');
     });
     it('deleteTile should set the tile type to BASIC', () => {
-        const tiles: TileJson[] = [
+        const tiles: TileStructure[] = [
             { idx: 0, tileType: 'ice', item: 'item-aleatoire', hasPlayer: false },
             { idx: 1, tileType: 'wall', item: 'AC1', hasPlayer: true },
         ];

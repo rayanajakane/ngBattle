@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { GameTile, TileJson, TilePreview } from '@app/data-structure/game-structure';
-import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { GameTile, TilePreview, TileStructure } from '@common/game-structure';
+import { Player, PlayerAttribute } from '@common/player';
 import { MapBaseService } from './map-base.service';
 
 const player1: Player = {
@@ -34,7 +34,7 @@ describe('MapBaseService', () => {
             isAccessible: TilePreview.NONE,
             player: player1,
         };
-        const tileJson: TileJson = {
+        const tileJson: TileStructure = {
             idx: 0,
             tileType: '',
             item: '',

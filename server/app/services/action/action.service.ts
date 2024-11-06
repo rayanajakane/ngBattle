@@ -1,8 +1,8 @@
 import { TileTypes } from '@app/gateways/action/action.gateway';
-import { GameJson } from '@app/model/game-structure';
 import { GameService } from '@app/services/game.service';
-import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
+import { GameStructure } from '@common/game-structure';
+import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 // TODO: declare the Coord interface interface in a separate file and import it here
@@ -27,7 +27,7 @@ export enum TileType {
 
 export interface GameInstance {
     roomId: string;
-    game: GameJson;
+    game: GameStructure;
     playersCoord?: PlayerInfo[];
     fightParticipants?: Player[];
     fightTurns?: number;
@@ -44,7 +44,7 @@ export class ActionService {
     ) {}
     activeGames: GameInstance[] = [];
     turn: number = 0;
-    game: GameJson;
+    game: GameStructure;
     activeIndex: number = 0;
 
     nextTurn(roomId: string, lastTurn: boolean): void {
@@ -67,16 +67,16 @@ export class ActionService {
 
     private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
         if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
-            const game: GameJson = await this.gameService.get(gameId).then((game) => game);
+            const game: GameStructure = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ roomId, game });
         }
     }
 
-    findStartingPositions(game: GameJson): number[] {
+    findStartingPositions(game: GameStructure): number[] {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
     }
 
-    randomizePlayerPosition(game: GameJson, players: Player[]): PlayerInfo[] {
+    randomizePlayerPosition(game: GameStructure, players: Player[]): PlayerInfo[] {
         const startingPositions: number[] = this.findStartingPositions(game);
         const playerCoord: PlayerInfo[] = [];
 
@@ -107,7 +107,7 @@ export class ActionService {
     gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
         let playerCoord: PlayerInfo[] = [];
         this.checkGameInstance(roomId, gameId).then(() => {
-            const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameJson;
+            const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
             playerCoord = this.randomizePlayerPosition(game, players);
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
             playerCoord.sort((a, b) => {

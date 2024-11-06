@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { PlayerAttribute } from '@app/interfaces/player';
+import { PlayerAttribute } from '@common/player';
 import { PlayerService } from './player.service';
 
 describe('PlayerService', () => {

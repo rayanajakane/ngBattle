@@ -1,21 +1,21 @@
-import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/constants';
 import { TileTypes } from '@app/data-structure/toolType';
-import { MatDialog } from '@angular/material/dialog';
-import { GameJson } from '@app/data-structure/game-structure';
+import { DEFAULT_MAP_SIZE_MEDIUM, DEFAULT_MAP_SIZE_SMALL, DEFAULT_STARTING_COUNTER_TWO } from '@app/services/constants';
+import { GameStructure } from '@common/game-structure';
 import { DragDropService } from './drag-drop.service';
 import { EditGameService } from './edit-game.service';
-import { HttpClientService } from './httpclient.service';
+import { HttpClientService } from './http-client.service';
 import { IDGenerationService } from './idgeneration.service';
 import { MapEditService } from './map-edit.service';
-import { DEFAULT_MAP_SIZE_SMALL, DEFAULT_STARTING_COUNTER_TWO, DEFAULT_MAP_SIZE_MEDIUM } from '@app/services/constants';
 
 describe('EditGameService', () => {
     let service: EditGameService;
-    let mockGameJson: GameJson;
+    let mockGameJson: GameStructure;
 
     const mockIdGenerationService = {
         generateID: jasmine.createSpy('generateID').and.returnValue('456'),

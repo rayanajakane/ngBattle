@@ -1,17 +1,19 @@
-export interface TileStructure {
+import { Player } from '@common/player';
+
 export enum TilePreview {
     NONE,
     PREVIEW,
-}
     SHORTESTPATH,
-import { Player } from '@app/interfaces/player';
+}
+
+export interface TileStructure {
     idx: number;
     tileType: string;
     item: string;
     hasPlayer: boolean;
 }
 
-export interface GameTile extends TileJson {
+export interface GameTile extends TileStructure {
     isAccessible: TilePreview;
     player: Player | undefined;
 }

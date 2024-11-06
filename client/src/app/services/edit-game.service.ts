@@ -3,10 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/constants';
-import { GameJson, TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
+import { GameStructure, TileStructure } from '@common/game-structure';
 import { DragDropService } from './drag-drop.service';
-import { HttpClientService } from './httpclient.service';
+import { HttpClientService } from './http-client.service';
 import { IDGenerationService } from './idgeneration.service';
 import { MapEditService } from './map-edit.service';
 
@@ -15,7 +15,7 @@ import { MapEditService } from './map-edit.service';
 })
 // Handle the creation and modification of a game
 export class EditGameService {
-    game: GameJson;
+    game: GameStructure;
     mapSize: number;
     gameCreated = false;
 
@@ -48,7 +48,7 @@ export class EditGameService {
         }
     }
 
-    createGameJSON(): GameJson {
+    createGameJSON(): GameStructure {
         return {
             id: this.idService.generateID(),
             gameName: 'No title',
@@ -59,7 +59,7 @@ export class EditGameService {
             isVisible: true,
             creationDate: '',
             lastModified: '',
-        } as GameJson;
+        } as GameStructure;
     }
 
     configureGame() {
@@ -88,7 +88,7 @@ export class EditGameService {
     }
 
     // Optionally put a map if we import a map
-    createGrid(mapSize?: number): TileJson[] {
+    createGrid(mapSize?: number): TileStructure[] {
         if (mapSize !== undefined && mapSize <= 0) {
             throw new Error('MapSize must be a positive number.');
         }

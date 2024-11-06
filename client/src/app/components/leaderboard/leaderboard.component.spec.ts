@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Player } from '@app/interfaces/player';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
+import { Player } from '@common/player';
 import { LeaderboardComponent } from './leaderboard.component';
 
 describe('LeaderboardComponent', () => {

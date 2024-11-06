@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TilePreview } from '@app/data-structure/game-structure';
 import { ItemTypes } from '@app/data-structure/toolType';
+import { TilePreview } from '@common/game-structure';
 import { TileBasicComponent } from './tile-basic.component';
 
 describe('TileBasicComponent', () => {

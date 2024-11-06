@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { TileBasicComponent } from '@app/components/tile-basic/tile-basic.component';
-import { TileJson } from '@app/data-structure/game-structure';
+import { TileStructure } from '@common/game-structure';
 
 @Component({
     selector: 'app-map-preview',
@@ -12,5 +12,5 @@ import { TileJson } from '@app/data-structure/game-structure';
 })
 export class MapPreviewComponent {
     @Input() mapSize: number;
-    @Input() tiles: TileJson[];
+    @Input() tiles: TileStructure[];
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PlayerAttribute } from '@app/interfaces/player';
+import { PlayerAttribute } from '@common/player';
 
 @Injectable({
     providedIn: 'root',

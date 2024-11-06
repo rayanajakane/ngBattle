@@ -1,4 +1,4 @@
-import { GameJson, TileJson } from '@app/model/game-structure';
+import { GameStructure, TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
 //TODO: take a look at the Coord interface and see if it can be moved to a separate file
 import { Coord } from '../action/action.service';
@@ -9,9 +9,9 @@ export class MovementService {
     // placeholder for now
     private invalidTileTypes: string[] = ['wall', 'doorClosed'];
 
-    isValidPosition(moveBudget: number, game: GameJson, coord: Coord): boolean {
+    isValidPosition(moveBudget: number, game: GameStructure, coord: Coord): boolean {
         const mapSize: number = parseInt(game.mapSize);
-        const mapTile: TileJson = game.map[coord.y * mapSize + coord.x];
+        const mapTile: TileStructure = game.map[coord.y * mapSize + coord.x];
 
         // Check if coordinates are within bounds
         if (coord.x < 0 || coord.x >= mapSize || coord.y < 0 || coord.y >= mapSize) {
@@ -56,7 +56,7 @@ export class MovementService {
         return coord.y * mapSize + coord.x;
     }
 
-    shortestPath(moveBudget: number, game: GameJson, startPosition: number, endPosition: number): { moveCost: number; path: number[] } {
+    shortestPath(moveBudget: number, game: GameStructure, startPosition: number, endPosition: number): { moveCost: number; path: number[] } {
         const mapSize = parseInt(game.mapSize);
         const startCoord = this.convertToCoord(startPosition, mapSize);
         const endCoord = this.convertToCoord(endPosition, mapSize);
@@ -110,7 +110,7 @@ export class MovementService {
         return { moveCost, path };
     }
 
-    availableMoves(moveBudget: number, game: GameJson, startPosition: number): { [key: number]: number[] } {
+    availableMoves(moveBudget: number, game: GameStructure, startPosition: number): { [key: number]: number[] } {
         const startCoord = this.convertToCoord(startPosition, parseInt(game.mapSize));
 
         const map = game.map;

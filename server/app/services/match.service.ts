@@ -7,38 +7,6 @@ import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
 
 const SLICE_INDEX = -2;
-export interface Player {
-    id: string;
-    name: string;
-    isAdmin: boolean;
-    avatar: string;
-    attributes: PlayerAttribute;
-    isActive: boolean;
-    abandoned: boolean;
-    wins?: number;
-}
-
-export interface PlayerAttribute {
-    health: string;
-    speed: string;
-    attack: string;
-    defense: string;
-}
-
-interface Room {
-    gameId: string;
-    id: string;
-    players: Player[];
-    isLocked: boolean;
-    maxPlayers: number;
-    messages: PlayerMessage[];
-}
-
-interface PlayerMessage {
-    name: string;
-    message: string;
-    date: string;
-}
 
 @Injectable()
 export class MatchService {
@@ -70,6 +38,9 @@ export class MatchService {
             isAdmin: true,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
+            isActive: true,
+            abandoned: true,
+            wins: 0,
         };
         room.players.push(player);
 
@@ -123,6 +94,7 @@ export class MatchService {
             attributes: playerData.attributes,
             isActive: false,
             abandoned: false,
+            wins: 0,
         };
         room.players.push(player);
 

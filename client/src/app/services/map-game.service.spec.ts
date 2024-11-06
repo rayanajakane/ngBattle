@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { TilePreview } from '@app/data-structure/game-structure';
 import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
-import { Player, PlayerAttribute } from '@app/interfaces/player';
+import { TilePreview } from '@common/game-structure';
+import { Player, PlayerAttribute } from '@common/player';
 import { MapGameService } from './map-game.service';
 
 const player1: Player = {

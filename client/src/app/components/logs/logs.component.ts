@@ -7,8 +7,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LogMessage } from '@app/interfaces/message';
-import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-logs',

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { TileJson } from '@app/data-structure/game-structure';
 import {
     DEFAULT_MAP_SIZE_MEDIUM,
     DEFAULT_MAP_SIZE_SMALL,
@@ -7,6 +6,7 @@ import {
     DEFAULT_STARTING_COUNTER_SIX,
     DEFAULT_STARTING_COUNTER_TWO,
 } from '@app/services/constants';
+import { TileStructure } from '@common/game-structure';
 
 @Injectable({
     providedIn: 'root',
@@ -26,7 +26,7 @@ export class DragDropService {
         this.transparentImage = '';
     }
 
-    setMultipleItemCounter(mapSize: number, map: TileJson[]) {
+    setMultipleItemCounter(mapSize: number, map: TileStructure[]) {
         const placedStartingPoints = this.countStartingPoints(map);
         const placedRandomItems = this.countPlacedRandomItems(map);
 
@@ -43,13 +43,13 @@ export class DragDropService {
         this.randomItemCounter = startingCounter - placedRandomItems < 0 ? 0 : startingCounter - placedRandomItems;
     }
 
-    countStartingPoints(map: TileJson[]) {
+    countStartingPoints(map: TileStructure[]) {
         return map.reduce((acc, tile) => {
             return tile.item === 'startingPoint' ? acc + 1 : acc;
         }, 0);
     }
 
-    countPlacedRandomItems(map: TileJson[]) {
+    countPlacedRandomItems(map: TileStructure[]) {
         return map.reduce((acc, tile) => {
             return tile.item === 'item-aleatoire' ? acc + 1 : acc;
         }, 0);

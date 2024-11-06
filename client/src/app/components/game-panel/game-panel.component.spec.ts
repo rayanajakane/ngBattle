@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlayerAttribute } from '@app/interfaces/player';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
+import { PlayerAttribute } from '@common/player';
 import { GamePanelComponent } from './game-panel.component';
 describe('GamePanelComponent', () => {
     let component: GamePanelComponent;

@@ -15,12 +15,12 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { GameJson, GameTile } from '@app/data-structure/game-structure';
-import { Player } from '@app/interfaces/player';
 import { DELAY } from '@app/pages/game-page/constant';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
+import { GameStructure, GameTile } from '@common/game-structure';
+import { Player } from '@common/player';
 import { Subscription } from 'rxjs';
 
 export interface PlayerCoord {
@@ -57,7 +57,7 @@ export interface ShortestPathByTile {
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     mapSize: number;
-    game: GameJson;
+    game: GameStructure;
     player: Player;
     playersList: Player[];
     playerCoords: PlayerCoord[];

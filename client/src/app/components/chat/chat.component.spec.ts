@@ -19,10 +19,10 @@ describe('ChatComponent', () => {
             providers: [{ provide: SocketService, useValue: mockSocketService }, DatePipe, ChangeDetectorRef],
         }).compileComponents();
 
-//         fixture = TestBed.createComponent(ChatComponent);
-//         component = fixture.componentInstance;
-//         fixture.detectChanges();
-//     });
+        fixture = TestBed.createComponent(ChatComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
     it('should create', () => {
         expect(component).toBeTruthy();

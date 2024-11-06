@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, inject } from '@angular/core';
-import { TilePreview } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
+import { TilePreview } from '@common/game-structure';
 
 @Component({
     selector: 'app-tile-basic',

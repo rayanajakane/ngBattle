@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
+import { TileStructure } from '@common/game-structure';
 import { MapBaseService } from './map-base.service';
 
 @Injectable({
@@ -32,7 +33,7 @@ export class MapEditService extends MapBaseService {
         this.selectedMode = CurrentMode.ItemTool;
     }
 
-    setTiles(tiles: TileJson[]) {
+    setTiles(tiles: TileStructure[]) {
         this.tiles = tiles;
     }
 

@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { GameTile, TileJson } from '@app/data-structure/game-structure';
+import { GameTile, TileStructure } from '@common/game-structure';
 
 @Injectable({
     providedIn: 'root',
 })
 export abstract class MapBaseService {
-    tiles: TileJson[];
+    tiles: TileStructure[];
 
-    isGameTile(tile: TileJson | GameTile): tile is GameTile {
+    isGameTile(tile: TileStructure | GameTile): tile is GameTile {
         return (tile as GameTile).isAccessible !== undefined;
     }
 
-    isPlayerTile(tile: TileJson | GameTile): tile is GameTile & { player: { avatar: string } } {
+    isPlayerTile(tile: TileStructure | GameTile): tile is GameTile & { player: { avatar: string } } {
         return (tile as GameTile).player !== undefined;
     }
 

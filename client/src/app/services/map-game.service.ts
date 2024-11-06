@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { GameTile, TilePreview } from '@app/data-structure/game-structure';
 import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
-import { Player } from '@app/interfaces/player';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
+import { GameTile, TilePreview } from '@common/game-structure';
+import { Player } from '@common/player';
 import { Subject } from 'rxjs';
 import { MapBaseService } from './map-base.service';
 
