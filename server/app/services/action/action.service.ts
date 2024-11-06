@@ -1,4 +1,4 @@
-import { TileTypes } from '@app/gateways/action/action.gateway';
+import { ActionGateway, TileTypes } from '@app/gateways/action/action.gateway';
 import { GameJson } from '@app/model/game-structure';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game.service';
@@ -6,6 +6,7 @@ import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { TurnTimerService } from '../turn-timer/turn-timer.service';
 // TODO: declare the Coord interface interface in a separate file and import it here
 export interface Coord {
     x: number;
@@ -35,6 +36,7 @@ interface GameInstance {
     turn?: number;
     currentPlayerMoveBudget?: number;
     currentPlayerActionPoint?: number;
+    turnTimer?: TurnTimerService;
 }
 
 @Injectable()
@@ -43,6 +45,8 @@ export class ActionService {
         private movement: MovementService,
         private gameService: GameService,
         private combat: CombatService,
+        private timer: TurnTimerService,
+        private actionGt: ActionGateway,
     ) {}
     activeGames: GameInstance[] = [];
     turn: number = 0;
@@ -129,7 +133,7 @@ export class ActionService {
             });
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
-            console.log(playerCoord);
+            this.activeGames[activeGameIndex].turnTimer = new TurnTimerService(this.actionGt);
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,

@@ -85,11 +85,6 @@ export class ActionGateway implements OnGatewayInit {
 
                     pastPosition = playerPosition;
 
-                    // if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() * (10 - 1) + 1 === 1) {
-                    //     console.log('iceSlip');
-                    //     iceSlip = true;
-                    // }
-
                     if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() < 0.1) {
                         console.log('iceSlip');
                         activeGame.currentPlayerMoveBudget = 0;
