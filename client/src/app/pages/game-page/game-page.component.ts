@@ -108,7 +108,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenGameSetup() {
         this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            console.log('gameSetup', data.playerCoords, data.turn);
             this.initializePlayerCoords(data.playerCoords, data.turn);
             this.initializePlayersPositions();
             this.startTurn();
@@ -117,7 +116,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            console.log('startTurn', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
             this.subscribeMapService();
         });
@@ -128,7 +126,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (data.isToggable) {
                 this.mapService.toggleDoor(data.doorPosition);
             }
-            console.log('interactDoor', data);
             this.mapService.actionDoor = false;
             this.endMovement(data.availableMoves);
         });
@@ -199,7 +196,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
-        console.log('endMovement', shortestPathByTile);
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
@@ -245,7 +241,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        console.log('quitGame', this.player.id);
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
         this.router.navigate(['/home']);
     }

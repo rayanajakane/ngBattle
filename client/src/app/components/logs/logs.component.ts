@@ -18,11 +18,11 @@ import { SocketService } from '@app/services/socket.service';
     styleUrl: './logs.component.scss',
 })
 export class LogsComponent implements OnInit {
-    btnText: string = 'Show Player Logs';
     @ViewChild('logsContainer') logsContainer: ElementRef;
     @Input() roomId: string;
     @Input() player: Player;
 
+    btnText: string = 'Show Player Logs';
     logs: LogMessage[] = []; // contains all logs
     playerLogs: LogMessage[] = [];
     currentLogs = this.logs;

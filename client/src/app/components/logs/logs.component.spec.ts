@@ -64,11 +64,13 @@ describe('LogsComponent', () => {
 
         component.scrollToBottom();
 
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         expect(component.logsContainer.nativeElement.scrollTop).toBe(100);
     });
 
     it('should receive a new log and update logs array', () => {
         const log: LogMessage = { date: '22:22:22', receiver: 'player1', sender: 'player2', message: 'Test log' };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         socketServiceSpy.on.and.callFake((event: string, callback: (log: any) => void) => {
             if (event === 'newLog') {
                 callback(log);
@@ -111,6 +113,8 @@ describe('LogsComponent', () => {
 
     it('should receive a new player log and update logs array', () => {
         const log: LogMessage = { date: '22:22:22', receiver: 'player1', sender: 'player2', message: 'Test player log' };
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         socketServiceSpy.on.and.callFake((event: string, callback: (log: any) => void) => {
             if (event === 'newPlayerLog') {
                 callback(log);
