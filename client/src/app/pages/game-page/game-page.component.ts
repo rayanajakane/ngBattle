@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -118,6 +118,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
             console.log('startTurn', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
+            this.subscribeMapService();
+        });
+    }
+
+    listenInteractDoor() {
+        this.socketService.on('interactDoor', (data: { isOpenable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
+            if (data.isOpenable) {
+                this.mapService.toggleDoor(data.doorPosition);
+            }
+            console.log('interactDoor', data);
+            this.initializeMovementPrevisualization(data.availableMoves);
             this.subscribeMapService();
         });
     }

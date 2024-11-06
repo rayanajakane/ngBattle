@@ -127,20 +127,29 @@ export class ActionGateway implements OnGatewayInit {
         const doorPosition = data.doorPosition;
         const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
 
+        const map = this.action.activeGames.find((game) => game.roomId === roomId).game.map;
+
         if (remainingActionPoints > 0) {
-            this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
-            this.server.to(roomId).emit('interactDoor', doorPosition);
+            const isOpenable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
+            this.server.to(roomId).emit('interactDoor', {
+                isOpenable: isOpenable,
+                doorPosition: doorPosition,
+                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+            });
 
             const playerName = this.action.activeGames
                 .find((game) => game.roomId === roomId)
                 .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player.name;
-            if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOOROPEN) {
-                const message = `Porte a été ouverte par ${playerName}`;
-                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
-            } else if (this.action.activeGames.find((game) => game.roomId === roomId).game.map[doorPosition].tileType === TileTypes.DOORCLOSED) {
-                const message = `Porte a été ouverte par ${playerName}`;
-                this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
+
+            let message = '';
+            if (map[doorPosition].tileType === TileTypes.DOOROPEN) {
+                message = `Porte a été ouverte par ${playerName}`;
+            } else if (map[doorPosition].tileType === TileTypes.DOORCLOSED) {
+                message = `Porte a été ouverte par ${playerName}`;
             }
+
+            this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
+
             console.log('Door interacted');
         }
         console.log('Door not interacted');

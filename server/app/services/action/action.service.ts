@@ -166,7 +166,7 @@ export class ActionService {
         return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }
 
-    interactWithDoor(roomId: string, playerId: string, doorPosition: number) {
+    interactWithDoor(roomId: string, playerId: string, doorPosition: number): boolean {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
 
         const game = gameInstance.game;
@@ -181,16 +181,16 @@ export class ActionService {
             playerPosition === doorPosition + mapSize ||
             playerPosition === doorPosition - mapSize
         ) {
-            return;
-        }
+            if (door === TileTypes.DOOROPEN) {
+                game.map[doorPosition].tileType = TileTypes.DOORCLOSED;
+            } else {
+                game.map[doorPosition].tileType = TileTypes.DOOROPEN;
+            }
 
-        if (door === TileTypes.DOOROPEN) {
-            game.map[doorPosition].tileType = TileTypes.DOORCLOSED;
-        } else {
-            game.map[doorPosition].tileType = TileTypes.DOOROPEN;
+            gameInstance.currentPlayerActionPoint -= 1;
+            return true;
         }
-
-        gameInstance.currentPlayerActionPoint -= 1;
+        return false;
     }
 
     startFight(server: Server, roomId: string, playerId: string, targetId: string) {
