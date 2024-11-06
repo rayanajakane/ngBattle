@@ -64,7 +64,7 @@ export class TurnTimerService {
         server.emit('timerResumed', this.timeLeft);
     }
 
-    private startCooldown(server: Server, gameId: string, playerId: string) {
+    startCooldown(server: Server, gameId: string, playerId: string) {
         this.isInCooldown = true;
         server.emit('timerCooldown', this.COOLDOWN_DURATION);
 
@@ -80,6 +80,10 @@ export class TurnTimerService {
             this.timer = null;
             server.emit('timerStop');
         }
+    }
+
+    getIsInCooldown(): boolean {
+        return this.isInCooldown;
     }
 
     private broadcastTime(server: Server) {
