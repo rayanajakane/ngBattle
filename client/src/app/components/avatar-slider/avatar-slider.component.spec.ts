@@ -52,6 +52,5 @@ describe('AvatarSliderComponent', () => {
         const avatar = { name: 'Avatar 1', img: '../../test.png' };
         component.selectAvatar(avatar);
         expect(component.selectedAvatar).toEqual(avatar);
-        // expect(component.selectedAvatarEmitter).toHaveBeenCalled();
     });
 });
