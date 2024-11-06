@@ -45,7 +45,6 @@ export class ActionGateway implements OnGatewayInit {
         this.action.gameSetup(this.server, roomId, gameId, players);
     }
 
-    //TODO: check usefulness of this function
     @SubscribeMessage('startTurn')
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
         const formattedTime = this.getCurrentTimeFormatted();
@@ -56,7 +55,6 @@ export class ActionGateway implements OnGatewayInit {
 
         console.log('startTurn', activeGame.playersCoord[activeGame.turn].player.id);
 
-        //TODO: send the move budget to the client
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
 
@@ -116,7 +114,6 @@ export class ActionGateway implements OnGatewayInit {
 
             this.action.nextTurn(roomId, data.lastTurn);
 
-            //TODO: send the new active player to the client
             this.server.to(roomId).emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
         }
     }
