@@ -108,4 +108,46 @@ describe('LogsComponent', () => {
         expect(component.playerLogs[0]).toEqual(log);
         expect(component.logsContainer.nativeElement.scrollTop).toBe(component.logsContainer.nativeElement.scrollHeight);
     });
+
+    it('should receive a new player log and update logs array', () => {
+        const log: LogMessage = { date: '22:22:22', receiver: 'player1', sender: 'player2', message: 'Test player log' };
+        socketServiceSpy.on.and.callFake((event: string, callback: (log: any) => void) => {
+            if (event === 'newPlayerLog') {
+                callback(log);
+            }
+        });
+
+        component.player = {
+            id: 'player1',
+            name: 'Player 1',
+            isAdmin: false,
+            avatar: 'avatar.png',
+            attributes: {
+                health: '100',
+                speed: '10',
+                attack: '20',
+                defense: '30',
+                dice: '6',
+            },
+            isActive: true,
+            abandoned: false,
+            wins: 0,
+        };
+
+        component.logsContainer = {
+            nativeElement: {
+                scrollTop: 0,
+                scrollHeight: 100,
+            },
+        } as ElementRef;
+
+        // Simulate receiving a player log
+        socketServiceSpy.on.calls.mostRecent().args[1](log);
+
+        expect(component.logs.length).toBe(1);
+        expect(component.logs[0]).toEqual(log);
+        expect(component.playerLogs.length).toBe(1);
+        expect(component.playerLogs[0]).toEqual(log);
+        expect(component.logsContainer.nativeElement.scrollTop).toBe(component.logsContainer.nativeElement.scrollHeight);
+    });
 });
