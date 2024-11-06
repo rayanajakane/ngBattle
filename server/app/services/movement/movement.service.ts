@@ -46,7 +46,6 @@ export class MovementService {
                 return 1;
         }
     }
-    //TODO: verify the validity of the conversion
     convertToCoord(position: number, mapSize: number): Coord {
         const x = position % mapSize;
         const y = Math.floor(position / mapSize);
