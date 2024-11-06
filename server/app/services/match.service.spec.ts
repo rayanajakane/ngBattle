@@ -88,6 +88,9 @@ describe('MatchService', () => {
             isAdmin: true,
             avatar,
             attributes,
+            abandoned: true,
+            isActive: true,
+            wins: 0,
         };
 
         const room = {
@@ -222,6 +225,9 @@ describe('MatchService', () => {
                         defense: '100',
                         dice: '6',
                     },
+                    isActive: false,
+                    abandoned: false,
+                    wins: 0,
                 },
             ],
             isLocked: true,
@@ -244,6 +250,9 @@ describe('MatchService', () => {
                     defense: '100',
                     dice: '6',
                 },
+                abandoned: false,
+                isActive: false,
+                wins: 0,
             },
         ]);
     });
@@ -331,6 +340,9 @@ describe('MatchService', () => {
                 isAdmin: false,
                 avatar,
                 attributes,
+                abandoned: false,
+                isActive: false,
+                wins: 0,
             },
         ]);
     });
@@ -363,6 +375,9 @@ describe('MatchService', () => {
                         defense: '100',
                         dice: '6',
                     },
+                    isActive: true,
+                    abandoned: true,
+                    wins: 0,
                 },
             ],
             isLocked: false,

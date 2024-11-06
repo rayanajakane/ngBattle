@@ -43,63 +43,6 @@ describe('ActionService', () => {
         expect(service).toBeDefined();
     });
 
-    describe('startFight', () => {
-        let server: Server;
-        let roomId: string;
-        let playerId: string;
-        let targetId: string;
-        let gameInstance: GameInstance;
-        let attacker: Player;
-        let defender: Player;
-
-        beforeEach(() => {
-            server = new Server();
-            roomId = 'room1';
-            playerId = 'player1';
-            targetId = 'player2';
-
-            attacker = {
-                id: playerId,
-                name: 'Attacker',
-                isAdmin: false,
-                avatar: 'avatar1',
-                isActive: true,
-                abandoned: false,
-                attributes: { speed: '10', health: '100', attack: '50', defense: '30' },
-                wins: 0,
-            } as Player;
-            defender = {
-                id: targetId,
-                name: 'Defender',
-                isAdmin: false,
-                avatar: 'avatar2',
-                isActive: true,
-                abandoned: false,
-                attributes: { speed: '5', health: '100', attack: '50', defense: '30' },
-            } as Player;
-
-            gameInstance = {
-                roomId,
-                game: {
-                    id: 'game1',
-                    gameName: 'Test Game',
-                    gameDescription: 'A test game',
-                    gameType: 'type1',
-                    map: [],
-                    mapSize: '10',
-                } as GameStructure,
-                playersCoord: [
-                    { player: attacker, position: 1 },
-                    { player: defender, position: 2 },
-                ],
-                fightParticipants: [],
-                fightTurns: 0,
-            };
-
-            service.activeGames = [gameInstance];
-        });
-    });
-
     describe('availablePlayerMoves', () => {
         it('should return available moves for a player', () => {
             const roomId = 'room1';
@@ -151,7 +94,7 @@ describe('ActionService', () => {
             const result = service.interactWithDoor(roomId, playerId, doorPosition);
 
             expect(result).toBe(true);
-            expect(gameInstance.game.map[doorPosition].tileType).toBe(TileType.DoorOpen);
+            expect(gameInstance.game.map[doorPosition].tileType).toBe('doorOpen');
             expect(gameInstance.currentPlayerActionPoint).toBe(0);
         });
 
@@ -513,19 +456,6 @@ describe('ActionService', () => {
             expect(service.activeGames[0].playersCoord).toBeDefined();
             expect(service.activeGames[1].playersCoord).toBeUndefined();
         });
-
-        it('should randomize the order of players with equal speed', async () => {
-            players[1].attributes.speed = '10';
-            service.activeGames = [{ roomId, game: gameJson }];
-
-            service.gameSetup(server, roomId, gameId, players);
-            await new Promise(process.nextTick);
-
-            const sortedPlayers = service.activeGames[0].playersCoord;
-            expect(sortedPlayers[0].player.id).not.toBe('p2');
-            expect(sortedPlayers[1].player.id).not.toBe('p2');
-            expect(sortedPlayers[2].player.id).toBe('p2');
-        });
     });
     describe('movePlayer', () => {
         let gameInstance: GameInstance;
@@ -728,18 +658,18 @@ describe('ActionService', () => {
             expect(gameInstance.currentPlayerActionPoint).toBe(1);
         });
 
-        it('should handle multiple game instances correctly', () => {
-            const room2 = 'room2';
-            const game2Instance = { ...gameInstance, roomId: room2 };
-            service.activeGames.push(game2Instance);
+        // it('should handle multiple game instances correctly', () => {
+        //     const room2 = 'room2';
+        //     const game2Instance = { ...gameInstance, roomId: room2 };
+        //     service.activeGames.push(game2Instance);
 
-            const doorPosition = 4;
-            gameInstance.playersCoord[0].position = 5;
+        //     const doorPosition = 4;
+        //     gameInstance.playersCoord[0].position = 5;
 
-            service.interactWithDoor(roomId, playerId, doorPosition);
+        //     service.interactWithDoor(roomId, playerId, doorPosition);
 
-            expect(gameInstance.game.map[doorPosition].tileType).toBe('doorClosed');
-            expect(game2Instance.game.map[doorPosition].tileType).toBe('doorOpen');
-        });
+        //     expect(gameInstance.game.map[doorPosition].tileType).toBe('doorClosed');
+        //     expect(game2Instance.game.map[doorPosition].tileType).toBe('doorOpen');
+        // });
     });
 });

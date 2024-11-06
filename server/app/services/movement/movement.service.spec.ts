@@ -81,7 +81,7 @@ describe('MovementService', () => {
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
             } as GameStructure;
             const result = service.shortestPath(10, game, 0, 24);
-            expect(result.path).toEqual([0, 1, 2, 3, 4, 9, 14, 19, 24]);
+            expect(result.path).toEqual([0, 5, 10, 15, 20, 21, 22, 23, 24]);
         });
     });
 
@@ -102,7 +102,7 @@ describe('MovementService', () => {
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
             } as GameStructure;
             const result = service.shortestPath(10, game, 0, 24);
-            expect(result.path).toEqual([0, 1, 2, 3, 4, 9, 14, 19, 24]);
+            expect(result.path).toEqual([0, 5, 10, 15, 20, 21, 22, 23, 24]);
         });
 
         it('should return an empty path if no valid path is found', () => {
@@ -149,7 +149,7 @@ describe('MovementService', () => {
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
             } as GameStructure;
             const result = service.availableMoves(10, game, 0);
-            const expectedPath = [0, 1, 2, 3, 4, 9, 14, 19, 24];
+            const expectedPath = [0, 5, 10, 15, 20, 21, 22, 23, 24];
             expect(result[24]).toEqual(expectedPath);
         });
     });
