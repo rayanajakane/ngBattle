@@ -12,6 +12,7 @@ import { GameService } from './services/game.service';
 import { MapValidationService } from './services/map-validation.service';
 import { MatchService } from './services/match.service';
 import { MovementService } from './services/movement/movement.service';
+import { TurnTimerService } from './services/turn-timer/turn-timer.service';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { MovementService } from './services/movement/movement.service';
         ActionService,
         ActionGateway,
         CombatService,
+        TurnTimerService,
     ],
 })
 export class AppModule {}
