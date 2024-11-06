@@ -38,6 +38,9 @@ export class MatchService {
             isAdmin: true,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
+            isActive: true,
+            abandoned: true,
+            wins: 0,
         };
         room.players.push(player);
 
@@ -89,6 +92,9 @@ export class MatchService {
             isAdmin: false,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
+            isActive: false,
+            abandoned: false,
+            wins: 0,
         };
         room.players.push(player);
 

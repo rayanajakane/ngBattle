@@ -12,6 +12,10 @@ export class SocketService {
         return this.socket && this.socket.connected;
     }
 
+    id() {
+        return this.socket.id;
+    }
+
     connect() {
         this.socket = io(environment.serverUrl, { path: '/socket.io' });
     }

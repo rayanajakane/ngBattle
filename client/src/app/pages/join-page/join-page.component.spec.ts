@@ -141,6 +141,9 @@ describe('JoinPageComponent', () => {
                 avatar: 'Avatar 1',
                 attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
                 isAdmin: false,
+                isActive: true,
+                abandoned: false,
+                wins: 0,
             },
             {
                 id: '2',
@@ -148,8 +151,11 @@ describe('JoinPageComponent', () => {
                 avatar: 'Avatar 2',
                 attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
                 isAdmin: false,
+                isActive: true,
+                abandoned: false,
+                wins: 0,
             },
-        ];
+        ] as any;
 
         mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
             if (event === 'getPlayers') {

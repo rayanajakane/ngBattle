@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { PlayerService } from '@app/services/player.service';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerAttribute } from '@common/player';
 
@@ -48,6 +49,7 @@ export class JoinPageComponent {
     constructor(
         private readonly socketService: SocketService,
         private router: Router,
+        private playerService: PlayerService,
     ) {}
 
     formChecking(): string[] {
@@ -125,6 +127,7 @@ export class JoinPageComponent {
     }
 
     onSubmit() {
+        this.sendDataToGamePage();
         this.socketService.once('isRoomLocked', (isRoomLocked) => {
             if (!isRoomLocked) {
                 const errors = this.formChecking();
@@ -169,5 +172,11 @@ export class JoinPageComponent {
             avatar: this.selectedAvatar,
             attributes: this.attributes,
         });
+    }
+    sendDataToGamePage() {
+        this.playerService.setAttributes(this.attributes);
+        this.playerService.setCharacterName(this.characterName);
+        this.playerService.setSelectedAvatar(this.selectedAvatar);
+        this.playerService.setRoomId(this.roomId);
     }
 }

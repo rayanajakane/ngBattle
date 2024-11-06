@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
-import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
+import { TileBasicComponent } from '@app/components/tile-basic/tile-basic.component';
 import { ToolbarComponent } from './toolbar.component';
 
 describe('ToolbarComponent', () => {

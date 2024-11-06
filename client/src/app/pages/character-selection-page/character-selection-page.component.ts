@@ -32,7 +32,6 @@ export class CharacterSelectionPageComponent {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MAX_NAME_LENGTH: number = 15;
 
-    // Initialisation dans le constructeur
     constructor(
         private router: Router,
         private http: HttpClientService,
@@ -90,11 +89,11 @@ export class CharacterSelectionPageComponent {
             submitButton?.setAttribute('disabled', 'true');
             let navData;
             this.socketService.connect();
-            this.socketService.once('roomJoined', (data: { roomId: string; playerId: string; playerName: string }) => {
+            this.socketService.once('roomJoined', async (data: { roomId: string; playerId: string; playerName: string }) => {
                 navData = {
                     roomId: data.roomId,
                     playerId: data.playerId,
-                    characterName: this.characterName,
+                    characterName: this.characterName, // shouldn't it be data.playerName instead
                     selectedAvatar: this.selectedAvatar?.name,
                     isAdmin: true,
                 };
