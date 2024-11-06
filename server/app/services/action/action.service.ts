@@ -1,4 +1,4 @@
-import { TileTypes } from '@app/gateways/action/action.gateway';
+import { ActionGateway, TileTypes } from '@app/gateways/action/action.gateway';
 import { GameJson } from '@app/model/game-structure';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game.service';
@@ -6,6 +6,7 @@ import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { TurnTimerService } from '../turn-timer/turn-timer.service';
 // TODO: declare the Coord interface interface in a separate file and import it here
 export interface Coord {
     x: number;
@@ -19,14 +20,14 @@ export interface PlayerInfo {
     position: number;
 }
 
-enum TileType {
+export enum TileType {
     Ice = 0,
     Floor = 1,
     DoorOpen = 1,
     Water = 2,
 }
 
-interface GameInstance {
+export interface GameInstance {
     roomId: string;
     game: GameJson;
     playersCoord?: PlayerInfo[];
@@ -35,6 +36,7 @@ interface GameInstance {
     turn?: number;
     currentPlayerMoveBudget?: number;
     currentPlayerActionPoint?: number;
+    turnTimer?: TurnTimerService;
 }
 
 @Injectable()
@@ -43,6 +45,8 @@ export class ActionService {
         private movement: MovementService,
         private gameService: GameService,
         private combat: CombatService,
+        private timer: TurnTimerService,
+        private actionGt: ActionGateway,
     ) {}
     activeGames: GameInstance[] = [];
     turn: number = 0;
@@ -77,10 +81,7 @@ export class ActionService {
         }
     }
 
-    //TODO: identify games uniquely
     private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
-        //TODO: check condition
-
         if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
             const game: GameJson = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ roomId, game });
@@ -99,7 +100,6 @@ export class ActionService {
             let randomIndex: number;
             let position: number;
 
-            //TODO: refacor this for simpler version
             do {
                 randomIndex = Math.floor(Math.random() * startingPositions.length);
                 position = startingPositions[randomIndex];
@@ -137,7 +137,7 @@ export class ActionService {
             });
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
-            console.log(playerCoord);
+            this.activeGames[activeGameIndex].turnTimer = new TurnTimerService(this.actionGt);
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,
@@ -145,7 +145,6 @@ export class ActionService {
         });
     }
 
-    //TODO: implement socket response for client
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
