@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,7 +54,7 @@ export interface ShortestPathByTile {
         LogsComponent,
     ],
 })
-export class GamePageComponent implements OnInit {
+export class GamePageComponent implements OnInit, OnDestroy {
     mapSize: number;
     game: GameJson;
     player: Player;
@@ -89,6 +89,7 @@ export class GamePageComponent implements OnInit {
 
         this.listenGameSetup();
         this.listenMovement();
+        this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
@@ -116,8 +117,20 @@ export class GamePageComponent implements OnInit {
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+            console.log('startTurn', shortestPathByTile);
             this.initializeMovementPrevisualization(shortestPathByTile);
             this.subscribeMapService();
+        });
+    }
+
+    listenInteractDoor() {
+        this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
+            if (data.isToggable) {
+                this.mapService.toggleDoor(data.doorPosition);
+            }
+            console.log('interactDoor', data);
+            this.mapService.actionDoor = false;
+            this.endMovement(data.availableMoves);
         });
     }
 
@@ -127,6 +140,7 @@ export class GamePageComponent implements OnInit {
         });
         this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
             this.currentMoveBudget = data.currentMoveBudget;
+            this.mapService.isMoving = false;
             this.endMovement(data.availableMoves);
         });
     }
@@ -167,7 +181,11 @@ export class GamePageComponent implements OnInit {
     subscribeMapService() {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
             this.mapService.removeAllPreview();
-            this.socketService.emit('move', { roomId: this.roomId, playerId: this.player?.id, endPosition: index });
+            if (this.mapService.isMoving) {
+                this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition: index });
+            } else if (this.mapService.actionDoor) {
+                this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: index });
+            }
         });
     }
 
@@ -186,10 +204,7 @@ export class GamePageComponent implements OnInit {
             this.initializeMovementPrevisualization(shortestPathByTile);
         } else {
             this.resetMovementPrevisualization();
-            this.mapServiceSubscription.unsubscribe();
-            this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id });
         }
-        this.mapService.isMoving = false;
     }
 
     findPlayerCoordById(playerId: string): PlayerCoord | undefined {
@@ -222,13 +237,21 @@ export class GamePageComponent implements OnInit {
         });
     }
 
+    endTurn() {
+        this.mapService.removeAllPreview();
+        this.resetMovementPrevisualization();
+        this.mapServiceSubscription.unsubscribe();
+        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id, lastTurn: false });
+    }
+
     quitGame() {
+        console.log('quitGame', this.player.id);
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
-        this.socketService.disconnect();
         this.router.navigate(['/home']);
     }
 
     ngOnDestroy() {
         this.mapServiceSubscription.unsubscribe();
+        this.socketService.disconnect();
     }
 }

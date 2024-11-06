@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { Player } from '@app/interfaces/player';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
@@ -9,7 +9,7 @@ import { PlayerCoord } from '@app/pages/game-page/game-page.component';
     templateUrl: './leaderboard.component.html',
     styleUrl: './leaderboard.component.scss',
 })
-export class LeaderboardComponent {
+export class LeaderboardComponent implements OnChanges {
     @Input() playerCoords: PlayerCoord[];
     @Input() activePlayer: Player;
     @Input() turn: number;

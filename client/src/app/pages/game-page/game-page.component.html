@@ -6,7 +6,7 @@
             [playerCoords]="playerCoords"
             [mapSize]="mapSize"
             [activePlayer]="activePlayer"
-            [game]="game"
+            [game]="game.gameName"
             [afklist]="afklist"
         >
         </app-game-panel>
@@ -34,7 +34,7 @@
                 <mat-icon> construction </mat-icon>
                 Action
             </button>
-            <button mat-raised-button color="primary">
+            <button mat-raised-button color="primary" (click)="endTurn()">
                 <mat-icon> check </mat-icon>
                 Fin de tours
             </button>
@@ -55,7 +55,7 @@
             </mat-tab>
             <mat-tab label="Journalisation">
                 <div class="journal-container">
-                    <app-logs></app-logs>
+                    <app-logs [player]="player"></app-logs>
                 </div>
             </mat-tab>
         </mat-tab-group>

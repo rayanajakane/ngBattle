@@ -63,14 +63,22 @@ export class ActionService {
         this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].fightTurns = turn;
     }
 
-    nextTurn(roomId: string): void {
+    nextTurn(roomId: string, lastTurn: boolean): void {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const maxTurn = gameInstance.playersCoord.length;
+        const playerId = gameInstance.playersCoord[gameInstance.turn].player.id;
         let turn = gameInstance.turn;
 
         turn = (turn + 1) % maxTurn;
 
-        this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].turn = turn;
+        if (lastTurn) {
+            const nextPlayerId = this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].playersCoord[turn].player.id;
+            console.log('next player', nextPlayerId);
+            this.quitGame(roomId, playerId);
+            gameInstance.turn = gameInstance.playersCoord.findIndex((player) => player.player.id === nextPlayerId);
+        } else {
+            this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].turn = turn;
+        }
     }
 
     //TODO: identify games uniquely
@@ -162,7 +170,7 @@ export class ActionService {
         return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }
 
-    interactWithDoor(roomId: string, playerId: string, doorPosition: number) {
+    interactWithDoor(roomId: string, playerId: string, doorPosition: number): boolean {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
 
         const game = gameInstance.game;
@@ -177,16 +185,16 @@ export class ActionService {
             playerPosition === doorPosition + mapSize ||
             playerPosition === doorPosition - mapSize
         ) {
-            return;
-        }
+            if (door === TileTypes.DOOROPEN) {
+                game.map[doorPosition].tileType = TileTypes.DOORCLOSED;
+            } else {
+                game.map[doorPosition].tileType = TileTypes.DOOROPEN;
+            }
 
-        if (door === TileTypes.DOOROPEN) {
-            game.map[doorPosition].tileType = TileTypes.DOORCLOSED;
-        } else {
-            game.map[doorPosition].tileType = TileTypes.DOOROPEN;
+            gameInstance.currentPlayerActionPoint -= 1;
+            return true;
         }
-
-        gameInstance.currentPlayerActionPoint -= 1;
+        return false;
     }
 
     startFight(server: Server, roomId: string, playerId: string, targetId: string) {

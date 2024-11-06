@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameTile, TilePreview } from '@app/data-structure/game-structure';
-import { ItemTypes } from '@app/data-structure/toolType';
+import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
 import { Player } from '@app/interfaces/player';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { Subject } from 'rxjs';
@@ -16,6 +16,7 @@ export class MapGameService extends MapBaseService {
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
     isMoving: boolean = false;
+    actionDoor: boolean = false;
 
     private eventSubject = new Subject<number>();
     event$ = this.eventSubject.asObservable();
@@ -33,9 +34,12 @@ export class MapGameService extends MapBaseService {
 
     onRightClick(index: number): void {}
     onMouseDown(index: number, event: MouseEvent): void {
-        if (event.button === 0) {
-            if (this.availableTiles.includes(index) && !this.isMoving) {
+        if (event.button === 0 && !this.isMoving && !this.actionDoor) {
+            if (this.availableTiles.includes(index)) {
                 this.isMoving = true;
+                this.emitEvent(index);
+            } else if (this.checkIfTileIsDoor(index)) {
+                this.actionDoor = true;
                 this.emitEvent(index);
             }
         }
@@ -50,6 +54,10 @@ export class MapGameService extends MapBaseService {
 
     onExit(): void {}
 
+    checkIfTileIsDoor(index: number): boolean {
+        return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
+    }
+
     renderPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {
             this.tiles[index].isAccessible = previewType;
@@ -61,19 +69,6 @@ export class MapGameService extends MapBaseService {
             tile.isAccessible = TilePreview.NONE;
         });
     }
-
-    //temp function to test accessible tiles
-    fetchAccessibleTiles(): void {
-        this.availableTiles = Array.from({ length: 51 }, (_, i) => i);
-    }
-
-    //temp function to test shortest path
-    fetchShortestPath(): void {
-        this.shortestPathByTile[1] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        this.shortestPathByTile[2] = [10, 11, 12, 13, 14, 15, 16, 17, 18];
-        this.shortestPathByTile[3] = [19, 20, 21, 22, 23, 24, 25, 26, 27];
-    }
-
     resetShortestPath(): void {
         this.shortestPathByTile = {};
     }
@@ -116,6 +111,14 @@ export class MapGameService extends MapBaseService {
                 tile.item = '';
             }
         });
+    }
+
+    toggleDoor(index: number): void {
+        if (this.tiles[index].tileType === TileTypes.DOORCLOSED) {
+            this.tiles[index].tileType = TileTypes.DOOROPEN;
+        } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
+            this.tiles[index].tileType = TileTypes.DOORCLOSED;
+        }
     }
     /* eslint-enable */
 }

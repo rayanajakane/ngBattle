@@ -26,7 +26,7 @@ export class TurnTimerService {
             } else {
                 this.stopTimer(server);
 
-                this.actionGt.handleEndTurn(null, { roomId, playerId });
+                this.actionGt.handleEndTurn(null, { roomId, playerId, lastTurn: false });
 
                 this.startCooldown(server, roomId, playerId);
             }
@@ -56,7 +56,7 @@ export class TurnTimerService {
                 this.broadcastTime(server);
             } else {
                 this.stopTimer(server);
-                this.actionGt.handleEndTurn(null, { roomId, playerId });
+                this.actionGt.handleEndTurn(null, { roomId, playerId, lastTurn: false });
                 this.startCooldown(server, roomId, playerId);
             }
         }, 1000);
