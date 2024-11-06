@@ -1,37 +1,10 @@
+import { Room } from '@app/model/room';
+import { Player, PlayerAttribute } from '@common/player';
+import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
-
-interface Player {
-    id: string;
-    name: string;
-    isAdmin: boolean;
-    avatar: string;
-    attributes: PlayerAttribute;
-}
-
-export interface PlayerAttribute {
-    health: string;
-    speed: string;
-    attack: string;
-    defense: string;
-}
-
-interface Room {
-    gameId: string;
-    id: string;
-    players: Player[];
-    isLocked: boolean;
-    maxPlayers: number;
-    messages: PlayerMessage[];
-}
-
-interface PlayerMessage {
-    name: string;
-    message: string;
-    date: string;
-}
 
 const SLICE_INDEX = -2;
 

@@ -9,9 +9,9 @@ import { AttributeSelectionComponent } from '@app/components/attribute-selection
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { Avatar } from '@app/interfaces/avatar';
-import { PlayerAttribute } from '@app/interfaces/player';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
 import { SocketService } from '@app/services/socket.service';
+import { PlayerAttribute } from '@common/player';
 
 @Component({
     selector: 'app-character-selection-page',

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Game } from '@app/data-structure/game-structure';
+import { GameStructure } from '@common/game-structure';
 
 @Component({
     selector: 'app-game-selection',
@@ -10,5 +10,5 @@ import { Game } from '@app/data-structure/game-structure';
     styleUrl: './game-selection.component.scss',
 })
 export class GameSelectionComponent {
-    @Input() game: Game;
+    @Input() game: GameStructure;
 }

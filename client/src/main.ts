@@ -11,7 +11,6 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ImportPageComponent } from '@app/pages/import-page/import-page.component';
 import { JoinPageComponent } from '@app/pages/join-page/join-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
 import { environment } from './environments/environment';
 
@@ -31,7 +30,6 @@ const routes: Routes = [
     { path: 'characterSelection/:id', component: CharacterSelectionPageComponent },
 
     { path: 'gameSelection', component: GameSelectionPageComponent },
-    { path: 'material', component: MaterialPageComponent },
     { path: 'home', component: MainPageComponent },
     { path: 'admin', component: AdminPageComponent },
     { path: 'create', component: CreatePageComponent },

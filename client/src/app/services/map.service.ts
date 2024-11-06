@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
-import { Tile } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
+import { TileStructure } from '@common/game-structure';
 
 @Injectable({
     providedIn: 'root',
 })
 export class MapService {
     // Optionally put a map if we import a map
-    createGrid(mapSize?: number): Tile[] {
-        if (mapSize !== undefined && mapSize <= 0) {
+    createGrid(mapSize?: number): TileStructure[] {
+        if (mapSize && mapSize <= 0) {
             throw new Error('MapSize must be a positive number.');
         }
         const arraySize = mapSize ? mapSize : DEFAULT_MAP_SIZE;

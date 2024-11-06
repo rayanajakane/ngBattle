@@ -71,6 +71,7 @@ describe('MatchService', () => {
             speed: '100',
             attack: '100',
             defense: '100',
+            dice: '6',
         };
 
         const game = {
@@ -219,6 +220,7 @@ describe('MatchService', () => {
                         speed: '100',
                         attack: '100',
                         defense: '100',
+                        dice: '6',
                     },
                 },
             ],
@@ -240,6 +242,7 @@ describe('MatchService', () => {
                     speed: '100',
                     attack: '100',
                     defense: '100',
+                    dice: '6',
                 },
             },
         ]);
@@ -254,6 +257,7 @@ describe('MatchService', () => {
             speed: '100',
             attack: '100',
             defense: '100',
+            dice: '6',
         };
 
         const playerData = { playerName, avatar, attributes };
@@ -271,6 +275,7 @@ describe('MatchService', () => {
             speed: '100',
             attack: '100',
             defense: '100',
+            dice: '6',
         };
 
         const room = {
@@ -299,6 +304,7 @@ describe('MatchService', () => {
             speed: '100',
             attack: '100',
             defense: '100',
+            dice: '6',
         };
 
         const room = {
@@ -338,6 +344,7 @@ describe('MatchService', () => {
             speed: '100',
             attack: '100',
             defense: '100',
+            dice: '6',
         };
 
         const room = {
@@ -354,6 +361,7 @@ describe('MatchService', () => {
                         speed: '100',
                         attack: '100',
                         defense: '100',
+                        dice: '6',
                     },
                 },
             ],

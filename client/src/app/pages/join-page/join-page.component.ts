@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
-import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
+import { Player, PlayerAttribute } from '@common/player';
 
 @Component({
     selector: 'app-join-page',

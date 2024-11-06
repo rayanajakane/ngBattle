@@ -1,4 +1,4 @@
-import { TileJson } from '@app/model/game-structure';
+import { TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
 import {
     DOOR_TILES,
@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class MapValidationService {
-    hasStartingPoints(map: TileJson[], mapSize: number) {
+    hasStartingPoints(map: TileStructure[], mapSize: number) {
         const startingPoints = map.filter((tile) => tile.item === 'startingPoint').length;
         if (mapSize <= SMALL_MAP_SIZE) {
             return startingPoints >= SMALL_STARTING_POINTS;
@@ -24,7 +24,7 @@ export class MapValidationService {
         }
     }
 
-    hasCorrectGroundAmount(map: TileJson[]) {
+    hasCorrectGroundAmount(map: TileStructure[]) {
         const terrainTiles = ['', 'grass', 'water', 'ice'];
         const totalTiles = map.length;
         const emptyTiles = map.filter((tile) => terrainTiles.includes(tile.tileType)).length;
@@ -32,21 +32,21 @@ export class MapValidationService {
         return emptyTiles / totalTiles > threshold;
     }
 
-    areAllTilesAccessible(map: TileJson[], mapSize: number) {
+    areAllTilesAccessible(map: TileStructure[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
         const terrainDoorTiles = this.extractTiles(grid, mapSize, TERRAIN_DOOR_TILES);
 
         return this.allGroundTilesAccessible(grid, terrainDoorTiles, mapSize);
     }
 
-    areAllDoorsValid(map: TileJson[], mapSize: number) {
+    areAllDoorsValid(map: TileStructure[], mapSize: number) {
         const grid = this.createGrid(map, mapSize);
         const doorTiles = this.extractTiles(grid, mapSize, DOOR_TILES);
         return this.allDoorsValid(grid, doorTiles, mapSize);
     }
 
-    createGrid(map: TileJson[], mapSize: number): TileJson[][] {
-        const grid: TileJson[][] = [];
+    createGrid(map: TileStructure[], mapSize: number): TileStructure[][] {
+        const grid: TileStructure[][] = [];
         for (let i = 0; i < map.length; i++) {
             const row = Math.floor(i / mapSize);
             const col = i % mapSize;
@@ -58,7 +58,7 @@ export class MapValidationService {
         return grid;
     }
 
-    extractTiles(grid: TileJson[][], mapSize: number, tileTypes: string[]): [number, number][] {
+    extractTiles(grid: TileStructure[][], mapSize: number, tileTypes: string[]): [number, number][] {
         const tiles: [number, number][] = [];
         for (let i = 0; i < mapSize; i++) {
             for (let j = 0; j < mapSize; j++) {
@@ -70,11 +70,11 @@ export class MapValidationService {
         return tiles;
     }
 
-    isHorizontalDoor(grid: TileJson[][], i: number, j: number, mapSize: number): boolean {
+    isHorizontalDoor(grid: TileStructure[][], i: number, j: number, mapSize: number): boolean {
         return i > 0 && i < mapSize - 1 && grid[i - 1][j].tileType === 'wall' && grid[i + 1][j].tileType === 'wall';
     }
 
-    isInvalidHorizontalDoor(grid: TileJson[][], i: number, j: number, mapSize: number): boolean {
+    isInvalidHorizontalDoor(grid: TileStructure[][], i: number, j: number, mapSize: number): boolean {
         return (
             this.isHorizontalDoor(grid, i, j, mapSize) &&
             !(
@@ -86,11 +86,11 @@ export class MapValidationService {
         );
     }
 
-    isVerticalDoor(grid: TileJson[][], i: number, j: number, mapSize: number): boolean {
+    isVerticalDoor(grid: TileStructure[][], i: number, j: number, mapSize: number): boolean {
         return j > 0 && j < mapSize - 1 && grid[i][j - 1].tileType === 'wall' && grid[i][j + 1].tileType === 'wall';
     }
 
-    isInvalidVerticalDoor(grid: TileJson[][], i: number, j: number, mapSize: number): boolean {
+    isInvalidVerticalDoor(grid: TileStructure[][], i: number, j: number, mapSize: number): boolean {
         return (
             this.isVerticalDoor(grid, i, j, mapSize) &&
             !(
@@ -102,7 +102,7 @@ export class MapValidationService {
         );
     }
 
-    allDoorsValid(grid: TileJson[][], doorTiles: [number, number][], mapSize: number): boolean {
+    allDoorsValid(grid: TileStructure[][], doorTiles: [number, number][], mapSize: number): boolean {
         for (const [i, j] of doorTiles) {
             const isHorizontal = this.isHorizontalDoor(grid, i, j, mapSize);
             const isVertical = this.isVerticalDoor(grid, i, j, mapSize);
@@ -116,7 +116,7 @@ export class MapValidationService {
         return true;
     }
 
-    allGroundTilesAccessible(grid: TileJson[][], terrainDoorTiles: [number, number][], mapSize: number): boolean {
+    allGroundTilesAccessible(grid: TileStructure[][], terrainDoorTiles: [number, number][], mapSize: number): boolean {
         const directions = [
             [0, 1],
             [1, 0],

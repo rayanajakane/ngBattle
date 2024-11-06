@@ -2,10 +2,10 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatGridListModule, MatGridTile } from '@angular/material/grid-list';
 import { TileBasicComponent } from '@app/components/map/tile-basic/tile-basic.component';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { Tile } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { MapService } from '@app/services/map.service';
+import { TileStructure } from '@common/game-structure';
 
 @Component({
     selector: 'app-map',
@@ -19,7 +19,7 @@ export class MapComponent implements OnInit {
     @Input() selectedTileType: string;
     @Input() selectedItem: string;
     @Input() selectedMode: CurrentMode;
-    @Input() tiles: Tile[];
+    @Input() tiles: TileStructure[];
 
     isMouseDown = false;
     isLeftClick = false;
@@ -118,7 +118,7 @@ export class MapComponent implements OnInit {
     }
 
     placeTile(index: number) {
-        if (this.isMouseDown && this.isLeftClick && this.selectedTileType !== '' && this.selectedMode === CurrentMode.TileTool) {
+        if (this.isMouseDown && this.isLeftClick && this.selectedTileType && this.selectedMode === CurrentMode.TileTool) {
             this.setTileType(index, this.selectedTileType);
         }
     }

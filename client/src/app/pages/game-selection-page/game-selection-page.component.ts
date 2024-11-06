@@ -1,8 +1,8 @@
 import { NgFor } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { GameSelectionComponent } from '@app/components/game-selection/game-selection.component';
-import { Game } from '@app/data-structure/game-structure';
-import { HttpClientService } from '@app/services/httpclient.service';
+import { HttpClientService } from '@app/services/http-client.service';
+import { GameStructure } from '@common/game-structure';
 
 @Component({
     selector: 'app-game-selection-page',
@@ -14,7 +14,7 @@ import { HttpClientService } from '@app/services/httpclient.service';
 export class GameSelectionPageComponent {
     @ViewChild('widgetsContent', { static: false }) widgetsContent: ElementRef;
 
-    games: Game[];
+    games: GameStructure[];
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly SCROLL_VALUE: number = 300;

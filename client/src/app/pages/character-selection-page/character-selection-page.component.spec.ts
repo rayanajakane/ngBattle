@@ -3,9 +3,9 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClientService } from '@app/services/httpclient.service';
-import { CharacterSelectionPageComponent } from './character-selection-page.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { HttpClientService } from '@app/services/http-client.service';
+import { CharacterSelectionPageComponent } from './character-selection-page.component';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 describe('CharacterSelectionPageComponent', () => {
     let component: CharacterSelectionPageComponent;

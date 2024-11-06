@@ -1,8 +1,8 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PlayerMessage } from '@app/interfaces/message';
 import { SocketService } from '@app/services/socket.service';
+import { PlayerMessage } from '@common/player-message';
 
 @Component({
     selector: 'app-chat',

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
-import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
+import { Player, PlayerAttribute } from '@common/player';
 import { JoinPageComponent } from './join-page.component';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

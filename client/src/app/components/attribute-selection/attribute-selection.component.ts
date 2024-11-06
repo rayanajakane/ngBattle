@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PlayerAttribute } from '@app/interfaces/player';
+import { PlayerAttribute } from '@common/player';
 import { DEFAULT_ATTRIBUTE_VALUE, DEFAULT_ATTRIBUTE_VALUE_SELECTED, DICE4, DICE6 } from './constants';
 
 @Component({
