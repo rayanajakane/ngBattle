@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TilePreview } from '@app/data-structure/game-structure';
-import { ItemTypes } from '@app/data-structure/toolType';
+import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
 import { Player, PlayerAttribute } from '@app/interfaces/player';
 import { MapGameService } from './map-game.service';
 
@@ -133,11 +133,10 @@ describe('MapGameService', () => {
         service.setShortestPathByTile(shortestPathByTile);
         expect(service.shortestPathByTile).toEqual(shortestPathByTile);
     });
-    it('should handle onMouseDown event correctly', () => {
+    it('should start moving if left button is clicked on an available tile', () => {
         const index = 1;
         const event = new MouseEvent('mousedown', { button: 0 });
         service.setAvailableTiles([index]);
-        service.isMoving = false;
 
         spyOn(service, 'emitEvent');
 
@@ -147,25 +146,10 @@ describe('MapGameService', () => {
         expect(service.emitEvent).toHaveBeenCalledWith(index);
     });
 
-    it('should not handle onMouseDown event if button is not left click', () => {
-        const index = 1;
-        const event = new MouseEvent('mousedown', { button: 1 });
-        service.setAvailableTiles([index]);
-        service.isMoving = false;
-
-        spyOn(service, 'emitEvent');
-
-        service.onMouseDown(index, event);
-
-        expect(service.isMoving).toBe(false);
-        expect(service.emitEvent).not.toHaveBeenCalled();
-    });
-
-    it('should not handle onMouseDown event if index is not in availableTiles', () => {
+    it('should not start moving if left button is clicked on a non-available tile', () => {
         const index = 1;
         const event = new MouseEvent('mousedown', { button: 0 });
         service.setAvailableTiles([]);
-        service.isMoving = false;
 
         spyOn(service, 'emitEvent');
 
@@ -175,17 +159,29 @@ describe('MapGameService', () => {
         expect(service.emitEvent).not.toHaveBeenCalled();
     });
 
-    it('should not handle onMouseDown event if already moving', () => {
+    it('should perform door action if left button is clicked on a door tile', () => {
         const index = 1;
         const event = new MouseEvent('mousedown', { button: 0 });
-        service.setAvailableTiles([index]);
-        service.isMoving = true;
+        service.tiles[index].tileType = TileTypes.DOORCLOSED;
 
         spyOn(service, 'emitEvent');
 
         service.onMouseDown(index, event);
 
-        expect(service.isMoving).toBe(true);
+        expect(service.actionDoor).toBe(true);
+        expect(service.emitEvent).toHaveBeenCalledWith(index);
+    });
+
+    it('should not perform any action if right button is clicked', () => {
+        const index = 1;
+        const event = new MouseEvent('mousedown', { button: 2 });
+
+        spyOn(service, 'emitEvent');
+
+        service.onMouseDown(index, event);
+
+        expect(service.isMoving).toBe(false);
+        expect(service.actionDoor).toBe(false);
         expect(service.emitEvent).not.toHaveBeenCalled();
     });
     it('should render shortest path on mouse enter', () => {
@@ -286,5 +282,15 @@ describe('MapGameService', () => {
         expect(service.tiles[0].item).toBe('');
         expect(service.tiles[1].item).toBe(ItemTypes.STARTINGPOINT);
         expect(service.tiles[2].item).toBe('');
+    });
+    it('should toggle door state from closed to open and vice versa', () => {
+        const index = 1;
+        service.tiles[index].tileType = TileTypes.DOORCLOSED;
+
+        service.toggleDoor(index);
+        expect(service.tiles[index].tileType).toBe(TileTypes.DOOROPEN);
+
+        service.toggleDoor(index);
+        expect(service.tiles[index].tileType).toBe(TileTypes.DOORCLOSED);
     });
 });
