@@ -9,9 +9,7 @@ import { MapBaseService } from './map-base.service';
 @Injectable({
     providedIn: 'root',
 })
-// Temporary disabled linting rule
 export class MapGameService extends MapBaseService {
-    /* eslint-disable */
     tiles: GameTile[];
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
@@ -19,7 +17,17 @@ export class MapGameService extends MapBaseService {
     actionDoor: boolean = false;
 
     private eventSubject = new Subject<number>();
+
+    /* eslint-disable */ // Methods to be implemented in the next sprint
     event$ = this.eventSubject.asObservable();
+    onMouseUp(index: number, event: MouseEvent): void {
+        event.preventDefault();
+    }
+    onRightClick(index: number): void {}
+    onExit(): void {}
+    onDrop(index: number): void {}
+    /* eslint-enable */
+
     emitEvent(value: number) {
         this.eventSubject.next(value);
     }
@@ -32,7 +40,6 @@ export class MapGameService extends MapBaseService {
         this.shortestPathByTile = shortestPathByTile;
     }
 
-    onRightClick(index: number): void {}
     onMouseDown(index: number, event: MouseEvent): void {
         if (event.button === 0 && !this.isMoving && !this.actionDoor) {
             if (this.availableTiles.includes(index)) {
@@ -45,14 +52,10 @@ export class MapGameService extends MapBaseService {
         }
     }
 
-    onMouseUp(index: number, event: MouseEvent): void {}
-
-    onDrop(index: number): void {}
     onMouseEnter(index: number, event: MouseEvent): void {
+        event.preventDefault();
         this.renderShortestPath(index);
     }
-
-    onExit(): void {}
 
     checkIfTileIsDoor(index: number): boolean {
         return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
@@ -120,5 +123,4 @@ export class MapGameService extends MapBaseService {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
     }
-    /* eslint-enable */
 }
