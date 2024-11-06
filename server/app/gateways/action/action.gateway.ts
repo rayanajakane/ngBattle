@@ -174,6 +174,10 @@ export class ActionGateway implements OnGatewayInit {
 
         this.server.to(roomId).emit('quitGame', playerId);
 
+        const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
+        const message = `${playerName} a quitté la partie`;
+        this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: playerId });
+
         if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
             this.handleEndTurn(client, { ...data, lastTurn: true });
         }
