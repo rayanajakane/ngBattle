@@ -20,16 +20,16 @@ p {
     border: 3px solid $border-color;
     border-radius: $border-radius;
     padding: 10px;
-    box-sizing: border-box; /* Assure que les bordures et le padding sont inclus dans la hauteur */
+    box-sizing: border-box;
     background-color: $secondary-color;
 }
 
 .messages-container {
     display: flex;
     flex: 1;
-    overflow-y: scroll; /* Défilement seulement si nécessaire */
+    overflow-y: scroll; 
     flex-direction: column;
-    justify-content: flex-start; /* Messages alignés a la fin */
+    justify-content: flex-start; 
 }
 
 .message {
