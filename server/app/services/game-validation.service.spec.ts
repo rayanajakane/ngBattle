@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Query } from 'mongoose';
 import { GameValidationService } from './game-validation.service';
 import { MapValidationService } from './map-validation.service';
+import { PROPERTIES_TO_CHECK } from './validation-constants';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -134,7 +135,7 @@ describe('GameValidationService', () => {
     it('should add errors for missing properties', () => {
         const game = {};
         service.validateProperties(game as any);
-        expect(service.errors.length).toBe(service.propertiesToCheck.length * 2);
+        expect(service.errors.length).toBe(PROPERTIES_TO_CHECK.length * 2);
     });
 
     it('should add errors for incorrect property types', () => {
@@ -150,7 +151,7 @@ describe('GameValidationService', () => {
             lastModified: 123,
         };
         service.validateProperties(game as any);
-        expect(service.errors.length).toBe(service.propertiesToCheck.length);
+        expect(service.errors.length).toBe(PROPERTIES_TO_CHECK.length);
     });
 
     it('should add errors for empty map', () => {
