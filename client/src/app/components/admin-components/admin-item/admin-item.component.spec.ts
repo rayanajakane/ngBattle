@@ -5,7 +5,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { of } from 'rxjs';
 import { AdminItemComponent } from './admin-item.component';
@@ -74,7 +74,7 @@ describe('AdminItemComponent', () => {
     it('should delete game and show snackbar when game does not exist', async () => {
         const dialogRefSpy = jasmine.createSpyObj({ afterClosed: of(true) });
         dialog.open.and.returnValue(dialogRefSpy);
-        httpClientService.getGame.and.returnValue(Promise.resolve(null as unknown as GameJson));
+        httpClientService.getGame.and.returnValue(Promise.resolve(null as unknown as Game));
         httpClientService.deleteGame.and.returnValue(of({}));
 
         component.deleteGame();

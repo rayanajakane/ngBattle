@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-components/admin-item/admin-item.component';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 
 @Component({
@@ -15,7 +15,7 @@ import { HttpClientService } from '@app/services/httpclient.service';
     styleUrl: './admin-page.component.scss',
 })
 export class AdminPageComponent implements OnInit {
-    games: GameJson[];
+    games: Game[];
 
     constructor(
         private http: HttpClientService,
@@ -27,7 +27,7 @@ export class AdminPageComponent implements OnInit {
     }
 
     loadGames() {
-        this.http.getAllGames().then((data: GameJson[]) => {
+        this.http.getAllGames().then((data: Game[]) => {
             this.games = data;
         });
     }

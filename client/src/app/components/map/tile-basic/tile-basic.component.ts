@@ -30,7 +30,7 @@ export class TileBasicComponent implements OnChanges {
     }
     setItemImage() {
         if (this.itemType) {
-            this.transparentImage = `./../../../assets/${this.itemType}_transparent.png`;
+            this.transparentImage = `./assets/${this.itemType}_transparent.png`;
         } else {
             this.transparentImage = '';
         }
@@ -38,9 +38,9 @@ export class TileBasicComponent implements OnChanges {
 
     setTileImage() {
         if (this.tileType) {
-            this.imageUrl = `./../../../assets/${this.tileType}.jpg`;
+            this.imageUrl = `./assets/${this.tileType}.jpg`;
         } else {
-            this.imageUrl = './../../../assets/ground.jpg';
+            this.imageUrl = './assets/ground.jpg';
         }
     }
 }

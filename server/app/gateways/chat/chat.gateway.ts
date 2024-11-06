@@ -8,8 +8,8 @@ import { ChatEvents } from './chat.gateway.events';
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
-
-    private readonly room = PRIVATE_ROOM_ID;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly ROOM = PRIVATE_ROOM_ID;
 
     constructor(private readonly logger: Logger) {}
 
@@ -30,14 +30,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
     @SubscribeMessage(ChatEvents.JoinRoom)
     joinRoom(socket: Socket) {
-        socket.join(this.room);
+        socket.join(this.ROOM);
     }
 
     @SubscribeMessage(ChatEvents.RoomMessage)
     roomMessage(socket: Socket, message: string) {
         // Seulement un membre de la salle peut envoyer un message aux autres
-        if (socket.rooms.has(this.room)) {
-            this.server.to(this.room).emit(ChatEvents.RoomMessage, `${socket.id} : ${message}`);
+        if (socket.rooms.has(this.ROOM)) {
+            this.server.to(this.ROOM).emit(ChatEvents.RoomMessage, `${socket.id} : ${message}`);
         }
     }
 

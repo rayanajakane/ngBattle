@@ -1,4 +1,13 @@
 <div class="main-container">
-    <h1>Vous êtes dans la salle d'attente</h1>
-    <div>Votre nombre est le : {{ this.randomNumber }}</div>
+    <h1>{{ roomId }}</h1>
+    <div id="player-data">
+        <app-player-list (deletePlayerAsAdmin)="deletePlayer($event)" [playerList]="players" [isUserAdmin]="isAdmin"></app-player-list>
+        <app-chat [roomId]="roomId" [characterName]="characterName"></app-chat>
+    </div>
+    <div id="btn-container">
+        @if(isAdmin){
+        <button id="lock-btn" (click)="lockRoom()">Verrouiller</button>
+        <button (click)="startGame()">Debuter</button>
+        }
+    </div>
 </div>

@@ -1,21 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 
 import { DEFAULT_MAP_SIZE } from '@app/components/map/constants';
-import { TileJson } from '@app/data-structure/game-structure';
+import { Tile } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
 import { MapService } from './map.service';
 
 describe('MapService', () => {
     let service: MapService;
 
-    function randomTileIsBasic(tiles: TileJson[], gridLength: number) {
+    function randomTileIsBasic(tiles: Tile[], gridLength: number) {
         const randomIndex: number = Math.floor(Math.random() * gridLength);
         const singleTile = {
             idx: randomIndex, // Unique ID for each tile
             tileType: TileTypes.BASIC, // Tile type
             item: '',
             hasPlayer: false,
-        } as TileJson;
+        } as Tile;
 
         const tileFromGrid = tiles[randomIndex];
 

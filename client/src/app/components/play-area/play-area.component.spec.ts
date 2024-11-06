@@ -39,7 +39,7 @@ describe('PlayAreaComponent', () => {
         const mockEvent = { button: 0 } as MouseEvent;
         component.mouseHitDetect(mockEvent);
         expect(timeServiceSpy.startTimer).toHaveBeenCalled();
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
+        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['TIMER']);
     });
 
     it('mouseHitDetect should not call startTimer on right click', () => {

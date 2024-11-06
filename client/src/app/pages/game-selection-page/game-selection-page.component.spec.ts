@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { GameJson } from '@app/data-structure/game-structure';
+import { Game } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { GameSelectionPageComponent } from './game-selection-page.component';
 
@@ -17,7 +17,7 @@ describe('GameSelectionPageComponent', () => {
         },
     } as ElementRef;
 
-    const mockGames: GameJson[] = [
+    const mockGames: Game[] = [
         {
             id: '1',
             gameName: 'Game 1',
