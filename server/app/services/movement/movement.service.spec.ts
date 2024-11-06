@@ -1,7 +1,9 @@
-import { GameJson } from '@app/model/game-structure';
+import { Coord } from '@app/services/action/action.service';
+import { GameStructure } from '@common/game-structure';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Coord } from '../action/action.service';
 import { MovementService } from './movement.service';
+
+/* eslint-disable */
 
 describe('MovementService', () => {
     let service: MovementService;
@@ -20,31 +22,31 @@ describe('MovementService', () => {
 
     describe('isValidPosition', () => {
         it('should return false if coordinates are out of bounds', () => {
-            const game: GameJson = { mapSize: '5', map: [] } as GameJson;
+            const game: GameStructure = { mapSize: '5', map: [] } as GameStructure;
             const coord: Coord = { x: 6, y: 6, distance: 0 };
             expect(service.isValidPosition(10, game, coord)).toBe(false);
         });
 
         it('should return false if tile type is invalid', () => {
-            const game: GameJson = { mapSize: '5', map: [{ tileType: 'wall', hasPlayer: false }] } as GameJson;
+            const game: GameStructure = { mapSize: '5', map: [{ tileType: 'wall', hasPlayer: false }] } as GameStructure;
             const coord: Coord = { x: 0, y: 0, distance: 0 };
             expect(service.isValidPosition(10, game, coord)).toBe(false);
         });
 
         it('should return false if tile has a player', () => {
-            const game: GameJson = { mapSize: '5', map: [{ tileType: 'floor', hasPlayer: true }] } as GameJson;
+            const game: GameStructure = { mapSize: '5', map: [{ tileType: 'floor', hasPlayer: true }] } as GameStructure;
             const coord: Coord = { x: 0, y: 0, distance: 0 };
             expect(service.isValidPosition(10, game, coord)).toBe(false);
         });
 
         it('should return false if move budget is insufficient', () => {
-            const game: GameJson = { mapSize: '5', map: [{ tileType: 'floor', hasPlayer: false }] } as GameJson;
+            const game: GameStructure = { mapSize: '5', map: [{ tileType: 'floor', hasPlayer: false }] } as GameStructure;
             const coord: Coord = { x: 0, y: 0, distance: 10 };
             expect(service.isValidPosition(5, game, coord)).toBe(false);
         });
 
         it('should return true for valid position', () => {
-            const game: GameJson = { mapSize: '5', map: [{ tileType: 'floor', hasPlayer: false }] } as GameJson;
+            const game: GameStructure = { mapSize: '5', map: [{ tileType: 'floor', hasPlayer: false }] } as GameStructure;
             const coord: Coord = { x: 0, y: 0, distance: 0 };
             expect(service.isValidPosition(10, game, coord)).toBe(true);
         });
@@ -74,10 +76,10 @@ describe('MovementService', () => {
 
     describe('shortestPath', () => {
         it('should find the shortest path correctly', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.shortestPath(10, game, 0, 24);
             expect(result.path).toEqual([0, 1, 2, 3, 4, 9, 14, 19, 24]);
         });
@@ -85,38 +87,38 @@ describe('MovementService', () => {
 
     describe('availableMoves', () => {
         it('should find all available moves correctly', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.availableMoves(10, game, 0);
             expect(Object.keys(result).length).toBeGreaterThan(0);
         });
     });
     describe('shortestPath', () => {
         it('should find the shortest path correctly', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.shortestPath(10, game, 0, 24);
             expect(result.path).toEqual([0, 1, 2, 3, 4, 9, 14, 19, 24]);
         });
 
         it('should return an empty path if no valid path is found', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'wall', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.shortestPath(10, game, 0, 24);
             expect(result.path).toEqual([]);
         });
 
         it('should return the correct move cost', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.shortestPath(10, game, 0, 24);
             expect(result.moveCost).toBe(8);
         });
@@ -124,28 +126,28 @@ describe('MovementService', () => {
 
     describe('availableMoves', () => {
         it('should find all available moves correctly', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.availableMoves(10, game, 0);
             expect(Object.keys(result).length).toBeGreaterThan(0);
         });
 
         it('should return an empty object if no moves are available', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'wall', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.availableMoves(10, game, 0);
             expect(result).toEqual({});
         });
 
         it('should return the correct paths for available moves', () => {
-            const game: GameJson = {
+            const game: GameStructure = {
                 mapSize: '5',
                 map: Array(25).fill({ tileType: 'floor', hasPlayer: false }),
-            } as GameJson;
+            } as GameStructure;
             const result = service.availableMoves(10, game, 0);
             const expectedPath = [0, 1, 2, 3, 4, 9, 14, 19, 24];
             expect(result[24]).toEqual(expectedPath);

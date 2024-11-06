@@ -15,27 +15,15 @@ export enum TileTypes {
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ActionGateway implements OnGatewayInit {
     @WebSocketServer() private server: Server;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly TEN_POURCENT = 0.1;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly TIME_BETWEEN_MOVES = 150;
 
     constructor(
         private readonly action: ActionService,
         private readonly match: MatchService,
     ) {}
-
-    afterInit(server: Server) {
-        this.server = server;
-    }
-
-    getCurrentTimeFormatted(): string {
-        const currentTime = new Date();
-        return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
-    }
-
-    updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
-        this.server.to(roomId).emit('playerPositionUpdate', {
-            playerId,
-            newPlayerPosition,
-        });
-    }
 
     @SubscribeMessage('gameSetup')
     handleGameSetup(@ConnectedSocket() client: Socket, @MessageBody() roomId: string) {
@@ -49,18 +37,15 @@ export class ActionGateway implements OnGatewayInit {
     handleStartTurn(@MessageBody() data: { roomId: string; playerId: string }, @ConnectedSocket() client: Socket) {
         const formattedTime = this.getCurrentTimeFormatted();
         const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
-        console.log('playerId', data.playerId);
-        activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed);
+        activeGame.currentPlayerMoveBudget = parseInt(activeGame.playersCoord[activeGame.turn].player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
-
-        console.log('startTurn', activeGame.playersCoord[activeGame.turn].player.id);
 
         const arrayResponse = this.action.availablePlayerMoves(data.playerId, data.roomId);
         client.emit('startTurn', arrayResponse);
 
         const playerName = activeGame.playersCoord[activeGame.turn].player.name;
         const message = `Début de tour de ${playerName}`;
-        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: message, receiver: data.playerId });
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
     }
 
     @SubscribeMessage('move')
@@ -81,7 +66,7 @@ export class ActionGateway implements OnGatewayInit {
                 if (!iceSlip) {
                     setTimeout(() => {
                         this.updatePlayerPosition(data.roomId, data.playerId, playerPosition);
-                    }, 150);
+                    }, this.TIME_BETWEEN_MOVES);
 
                     this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[playerPosition].hasPlayer = true;
                     this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[pastPosition].hasPlayer = false;
@@ -90,7 +75,7 @@ export class ActionGateway implements OnGatewayInit {
 
                     pastPosition = playerPosition;
 
-                    if (gameMap[playerPosition].tileType == TileTypes.ICE && Math.random() < 0.1) {
+                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
                     }
@@ -110,8 +95,6 @@ export class ActionGateway implements OnGatewayInit {
         const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
 
         if (activeGame.playersCoord[activeGame.turn].player.id === data.playerId) {
-            console.log('endTurn in if ', data.playerId);
-
             this.action.nextTurn(roomId, data.lastTurn);
 
             this.server.to(roomId).emit('endTurn', this.action.activeGames.find((game) => game.roomId === roomId).turn);
@@ -129,8 +112,8 @@ export class ActionGateway implements OnGatewayInit {
         if (remainingActionPoints > 0) {
             const isToggable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', {
-                isToggable: isToggable,
-                doorPosition: doorPosition,
+                isToggable,
+                doorPosition,
                 availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
             });
 
@@ -145,11 +128,8 @@ export class ActionGateway implements OnGatewayInit {
                 message = `Porte a été ouverte par ${playerName}`;
             }
 
-            this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: data.playerId });
-
-            console.log('Door interacted');
+            this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
         }
-        console.log('Door not interacted');
     }
 
     @SubscribeMessage('quitGame')
@@ -162,10 +142,26 @@ export class ActionGateway implements OnGatewayInit {
 
         const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
         const message = `${playerName} a quitté la partie`;
-        this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: message, receiver: playerId });
+        this.server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
         if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
             this.handleEndTurn(client, { ...data, lastTurn: true });
         }
+    }
+
+    updatePlayerPosition(roomId: string, playerId: string, newPlayerPosition: number) {
+        this.server.to(roomId).emit('playerPositionUpdate', {
+            playerId,
+            newPlayerPosition,
+        });
+    }
+
+    afterInit(server: Server) {
+        this.server = server;
+    }
+
+    private getCurrentTimeFormatted(): string {
+        const currentTime = new Date();
+        return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
     }
 }

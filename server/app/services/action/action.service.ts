@@ -38,14 +38,17 @@ export interface GameInstance {
 
 @Injectable()
 export class ActionService {
-    constructor(
-        private movement: MovementService,
-        private gameService: GameService,
-    ) {}
     activeGames: GameInstance[] = [];
     turn: number = 0;
     game: GameStructure;
     activeIndex: number = 0;
+
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly CHANCES: number = 0.5;
+    constructor(
+        private movement: MovementService,
+        private gameService: GameService,
+    ) {}
 
     nextTurn(roomId: string, lastTurn: boolean): void {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
@@ -57,7 +60,6 @@ export class ActionService {
 
         if (lastTurn) {
             const nextPlayerId = this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].playersCoord[turn].player.id;
-            console.log('next player', nextPlayerId);
             this.quitGame(roomId, playerId);
             gameInstance.turn = gameInstance.playersCoord.findIndex((player) => player.player.id === nextPlayerId);
         } else {
@@ -65,10 +67,10 @@ export class ActionService {
         }
     }
 
-    private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
+    async checkGameInstance(roomId: string, gameId: string): Promise<void> {
         if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
-            const game: GameStructure = await this.gameService.get(gameId).then((game) => game);
-            this.activeGames.push({ roomId, game });
+            const g: GameStructure = await this.gameService.get(gameId).then((game) => game);
+            this.activeGames.push({ roomId, game: g });
         }
     }
 
@@ -78,7 +80,7 @@ export class ActionService {
 
     randomizePlayerPosition(game: GameStructure, players: Player[]): PlayerInfo[] {
         const startingPositions: number[] = this.findStartingPositions(game);
-        const playerCoord: PlayerInfo[] = [];
+        const playerCoords: PlayerInfo[] = [];
 
         players.forEach((player) => {
             let randomIndex: number;
@@ -88,11 +90,11 @@ export class ActionService {
                 randomIndex = Math.floor(Math.random() * startingPositions.length);
                 position = startingPositions[randomIndex];
                 startingPositions.splice(randomIndex, 1);
-            } while (playerCoord.find((playerCoord) => playerCoord.position === position) !== undefined);
+            } while (playerCoords.find((playerCoord) => playerCoord.position === position) !== undefined);
 
             player.wins = 0;
             game.map[position].hasPlayer = true;
-            playerCoord.push({ player, position });
+            playerCoords.push({ player, position });
         });
 
         if (startingPositions.length > 0) {
@@ -101,7 +103,7 @@ export class ActionService {
             });
         }
 
-        return playerCoord;
+        return playerCoords;
     }
 
     gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
@@ -111,13 +113,13 @@ export class ActionService {
             playerCoord = this.randomizePlayerPosition(game, players);
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
             playerCoord.sort((a, b) => {
-                const speedA = parseInt(a.player.attributes.speed);
-                const speedB = parseInt(b.player.attributes.speed);
+                const speedA = parseInt(a.player.attributes.speed, 10);
+                const speedB = parseInt(b.player.attributes.speed, 10);
 
                 if (speedA !== speedB) {
                     return speedB - speedA;
                 }
-                return Math.random() - 0.5;
+                return Math.random() - this.CHANCES;
             });
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
@@ -130,7 +132,7 @@ export class ActionService {
 
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
-        const game = gameInstance.game;
+        const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
@@ -152,7 +154,7 @@ export class ActionService {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
 
         const game = gameInstance.game;
-        const mapSize = parseInt(game.mapSize);
+        const mapSize = parseInt(game.mapSize, 10);
 
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
         const door = game.map[doorPosition].tileType;

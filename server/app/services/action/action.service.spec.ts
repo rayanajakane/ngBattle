@@ -1,11 +1,13 @@
-import { GameJson } from '@app/model/game-structure';
 import { Game } from '@app/model/schema/game.schema';
 import { GameService } from '@app/services/game.service';
-import { Player } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
+import { GameStructure } from '@common/game-structure';
+import { Player } from '@common/player';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
 import { ActionService, GameInstance, PlayerInfo, TileType } from './action.service';
+
+/* eslint-disable */
 
 describe('ActionService', () => {
     let service: ActionService;
@@ -78,7 +80,14 @@ describe('ActionService', () => {
 
             gameInstance = {
                 roomId,
-                game: { id: 'game1', gameName: 'Test Game', gameDescription: 'A test game', gameType: 'type1', map: [], mapSize: '10' } as GameJson,
+                game: {
+                    id: 'game1',
+                    gameName: 'Test Game',
+                    gameDescription: 'A test game',
+                    gameType: 'type1',
+                    map: [],
+                    mapSize: '10',
+                } as GameStructure,
                 playersCoord: [
                     { player: attacker, position: 1 },
                     { player: defender, position: 2 },
@@ -97,7 +106,14 @@ describe('ActionService', () => {
             const playerId = 'player1';
             const gameInstance: GameInstance = {
                 roomId,
-                game: { id: 'game1', gameName: 'Test Game', gameDescription: 'A test game', gameType: 'type1', map: [], mapSize: '10' } as GameJson,
+                game: {
+                    id: 'game1',
+                    gameName: 'Test Game',
+                    gameDescription: 'A test game',
+                    gameType: 'type1',
+                    map: [],
+                    mapSize: '10',
+                } as GameStructure,
                 playersCoord: [{ player: { id: playerId }, position: 1 } as PlayerInfo],
                 currentPlayerMoveBudget: 5,
             };
@@ -126,7 +142,7 @@ describe('ActionService', () => {
                     gameType: 'type1',
                     map: [{}, { tileType: TileType.DoorOpen }, {}],
                     mapSize: '3',
-                } as GameJson,
+                } as GameStructure,
                 playersCoord: [{ player: { id: playerId }, position: 1 } as PlayerInfo],
                 currentPlayerActionPoint: 1,
             };
@@ -152,7 +168,7 @@ describe('ActionService', () => {
                     gameType: 'type1',
                     map: [{}, {}, {}, {}, {}, { tileType: TileType.DoorOpen }],
                     mapSize: '3',
-                } as GameJson,
+                } as GameStructure,
                 playersCoord: [{ player: { id: playerId }, position: 1 } as PlayerInfo],
                 currentPlayerActionPoint: 1,
             };
@@ -172,7 +188,14 @@ describe('ActionService', () => {
             const playerId = 'player1';
             const gameInstance: GameInstance = {
                 roomId,
-                game: { id: 'game1', gameName: 'Test Game', gameDescription: 'A test game', gameType: 'type1', map: [], mapSize: '10' } as GameJson,
+                game: {
+                    id: 'game1',
+                    gameName: 'Test Game',
+                    gameDescription: 'A test game',
+                    gameType: 'type1',
+                    map: [],
+                    mapSize: '10',
+                } as GameStructure,
                 playersCoord: [{ player: { id: playerId }, position: 1 } as PlayerInfo, { player: { id: 'player2' }, position: 2 } as PlayerInfo],
             };
             service.activeGames = [gameInstance];
@@ -190,7 +213,7 @@ describe('ActionService', () => {
         beforeEach(() => {
             gameInstance = {
                 roomId,
-                game: { id: 'game1' } as GameJson,
+                game: { id: 'game1' } as GameStructure,
                 playersCoord: [
                     { player: { id: 'player1' } as Player, position: 1 },
                     { player: { id: 'player2' } as Player, position: 2 },
@@ -226,7 +249,7 @@ describe('ActionService', () => {
         });
     });
     describe('findStartingPositions', () => {
-        let gameJson: GameJson;
+        let gameJson: GameStructure;
 
         beforeEach(() => {
             gameJson = {
@@ -236,7 +259,7 @@ describe('ActionService', () => {
                 gameType: 'test',
                 mapSize: '3',
                 map: [],
-            } as GameJson;
+            } as GameStructure;
         });
 
         it('should return empty array for empty map', () => {
@@ -290,7 +313,7 @@ describe('ActionService', () => {
         });
     });
     describe('randomizePlayerPosition', () => {
-        let gameJson: GameJson;
+        let gameJson: GameStructure;
         let players: Player[];
 
         beforeEach(() => {
@@ -306,7 +329,7 @@ describe('ActionService', () => {
                     { item: 'startingPoint', hasPlayer: false },
                     { item: 'wall', hasPlayer: false },
                 ],
-            } as GameJson;
+            } as GameStructure;
 
             players = [{ id: 'p1', attributes: {}, wins: 5 } as Player, { id: 'p2', attributes: {}, wins: 3 } as Player];
         });
@@ -381,7 +404,7 @@ describe('ActionService', () => {
         let roomId: string;
         let gameId: string;
         let players: Player[];
-        let gameJson: GameJson;
+        let gameJson: GameStructure;
 
         beforeEach(() => {
             server = {
@@ -415,7 +438,7 @@ describe('ActionService', () => {
                     { item: 'startingPoint', hasPlayer: false, idx: 1, tileType: 'floor' },
                     { item: 'startingPoint', hasPlayer: false, idx: 2, tileType: 'floor' },
                 ],
-            } as GameJson;
+            } as GameStructure;
 
             jest.spyOn(gameService, 'get').mockResolvedValue(gameJson as Game);
         });
@@ -525,7 +548,7 @@ describe('ActionService', () => {
                     isVisible: true,
                     creationDate: '2021-01-01',
                     lastModified: '2021-01-01',
-                } as unknown as GameJson,
+                } as unknown as GameStructure,
                 currentPlayerMoveBudget: 5,
             };
             service.activeGames = [gameInstance];
@@ -571,7 +594,7 @@ describe('ActionService', () => {
             const room2 = 'room2';
             const game2Instance = {
                 roomId: room2,
-                game: { id: 'game2', map: [] } as GameJson,
+                game: { id: 'game2', map: [] } as GameStructure,
                 currentPlayerMoveBudget: 3,
             };
             service.activeGames.push(game2Instance);
@@ -610,7 +633,7 @@ describe('ActionService', () => {
                     gameName: 'Test Game',
                     gameDescription: 'Test',
                     gameType: 'test',
-                } as GameJson,
+                } as GameStructure,
                 playersCoord: [{ player: { id: playerId } as Player, position: 4 }],
                 currentPlayerActionPoint: 2,
             };
