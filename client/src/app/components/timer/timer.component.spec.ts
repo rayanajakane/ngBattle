@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { COUNTDOWN_DELAY, TIME_LEFT } from '@app/components/timer/constant';
 import { TimerComponent } from './timer.component';
 
@@ -7,10 +7,6 @@ describe('TimerComponent', () => {
     let fixture: ComponentFixture<TimerComponent>;
 
     beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [TimerComponent],
-        }).compileComponents();
-
         fixture = TestBed.createComponent(TimerComponent);
         component = fixture.componentInstance;
         component.timeLeft = TIME_LEFT; // Reset timeLeft
@@ -30,14 +26,28 @@ describe('TimerComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // it('should start the timer', fakeAsync(() => {
-    //     component.startTimer();
-    //     expect(component.isRunning).toBeTrue();
-    //     expect(component.isActive).toBeTrue();
-    //     tick(COUNTDOWN_DELAY);
-    //     expect(component.timeLeft).toBe(TIME_LEFT - 1);
-    // }));
+    it('should start the timer if it is not running', fakeAsync(() => {
+        component.isRunning = false;
+        component.startTimer();
+        expect(component.isRunning).toBeTrue();
+        expect(component.isActive).toBeTrue();
+        expect(component.timerSubscription).not.toBeNull();
+        tick(COUNTDOWN_DELAY); // Flush any pending timers
+        component.stopTimer();
+        discardPeriodicTasks();
+    }));
 
+    it('should stop the existing timer and start a new one if it is already running', fakeAsync(() => {
+        component.isRunning = true;
+        const stopTimerSpy = spyOn(component, 'stopTimer').and.callThrough();
+        component.startTimer();
+        expect(stopTimerSpy).toHaveBeenCalled();
+        expect(component.isRunning).toBeTrue();
+        expect(component.isActive).toBeTrue();
+        expect(component.timerSubscription).not.toBeNull();
+        component.stopTimer();
+        discardPeriodicTasks();
+    }));
     it('should stop the timer', fakeAsync(() => {
         component.startTimer();
         tick(COUNTDOWN_DELAY);

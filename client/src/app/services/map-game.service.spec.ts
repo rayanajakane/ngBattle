@@ -16,8 +16,11 @@ const player1: Player = {
 };
 
 /* eslint-disable */ // Magic numbers are used for testing purposes
-const SHORTESTPATHINDEXES1 = [0, 1, 2];
-const SHORTESTPATHINDEXES2 = [4, 5, 6];
+const shortestPathIndexes1 = [0, 1, 2];
+const shortestPathIndexes2 = [4, 5, 6];
+const availableTiles = [1, 2, 3, 4, 5];
+const availableTiles2 = [0, 1, 2];
+
 /* eslint-enable */
 
 describe('MapGameService', () => {
@@ -59,7 +62,7 @@ describe('MapGameService', () => {
     });
 
     it('should set preview for given indexes', () => {
-        const indexes = SHORTESTPATHINDEXES1;
+        const indexes = shortestPathIndexes1;
         const previewType = TilePreview.PREVIEW;
 
         service.renderPreview(indexes, previewType);
@@ -74,7 +77,7 @@ describe('MapGameService', () => {
         service.tiles[2].isAccessible = TilePreview.PREVIEW;
         /* eslint-disable */
         service.shortestPathByTile = {
-            1: SHORTESTPATHINDEXES1,
+            1: shortestPathIndexes1,
         };
         /* eslint-enable */
 
@@ -88,8 +91,8 @@ describe('MapGameService', () => {
         /* eslint-disable */
 
         service.shortestPathByTile = {
-            1: SHORTESTPATHINDEXES1,
-            2: SHORTESTPATHINDEXES2,
+            1: shortestPathIndexes1,
+            2: shortestPathIndexes2,
         };
         /* eslint-enable */
         service.resetShortestPath();
@@ -99,7 +102,7 @@ describe('MapGameService', () => {
         const index = 1;
         /* eslint-disable */
         service.shortestPathByTile = {
-            1: SHORTESTPATHINDEXES1,
+            1: shortestPathIndexes1,
         };
         /* eslint-enable */
         service.renderShortestPath(index);
@@ -119,14 +122,13 @@ describe('MapGameService', () => {
         service.emitEvent(value);
     });
     it('should set available tiles', () => {
-        const availableTiles = [1, 2, 3, 4, 5];
         service.setAvailableTiles(availableTiles);
         expect(service.availableTiles).toEqual(availableTiles);
     });
     it('should set shortest path by tile', () => {
         const shortestPathByTile = {
-            1: SHORTESTPATHINDEXES1,
-            2: SHORTESTPATHINDEXES2,
+            1: shortestPathIndexes1,
+            2: shortestPathIndexes2,
         };
         service.setShortestPathByTile(shortestPathByTile);
         expect(service.shortestPathByTile).toEqual(shortestPathByTile);
@@ -191,7 +193,7 @@ describe('MapGameService', () => {
         const event = new MouseEvent('mouseenter');
         service.setAvailableTiles([index]);
         service.shortestPathByTile = {
-            1: SHORTESTPATHINDEXES1,
+            1: shortestPathIndexes1,
         };
 
         spyOn(service, 'renderShortestPath');
@@ -202,8 +204,8 @@ describe('MapGameService', () => {
     });
     it('should reset shortest path', () => {
         service.shortestPathByTile = {
-            1: SHORTESTPATHINDEXES1,
-            2: SHORTESTPATHINDEXES2,
+            1: shortestPathIndexes1,
+            2: shortestPathIndexes2,
         };
 
         service.resetShortestPath();
@@ -211,14 +213,13 @@ describe('MapGameService', () => {
         expect(service.shortestPathByTile).toEqual({});
     });
     it('should render available tiles', () => {
-        const availableTiles = [0, 1, 2];
-        service.setAvailableTiles(availableTiles);
+        service.setAvailableTiles(availableTiles2);
 
         spyOn(service, 'renderPreview');
 
         service.renderAvailableTiles();
 
-        expect(service.renderPreview).toHaveBeenCalledWith(availableTiles, TilePreview.PREVIEW);
+        expect(service.renderPreview).toHaveBeenCalledWith(availableTiles2, TilePreview.PREVIEW);
     });
     it('should place player on the given index', () => {
         const index = 1;
