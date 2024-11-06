@@ -299,4 +299,38 @@ describe('MapGameService', () => {
         service.toggleDoor(index);
         expect(service.tiles[index].tileType).toBe(TileTypes.DOORCLOSED);
     });
+    it('should prevent default action on mouse up', () => {
+        const index = 1;
+        const event = new MouseEvent('mouseup');
+        spyOn(event, 'preventDefault');
+
+        service.onMouseUp(index, event);
+
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('should handle right click', () => {
+        const index = 1;
+        spyOn(service, 'onRightClick').and.callThrough();
+
+        service.onRightClick(index);
+
+        expect(service.onRightClick).toHaveBeenCalledWith(index);
+    });
+
+    it('should handle exit', () => {
+        spyOn(service, 'onExit').and.callThrough();
+
+        service.onExit();
+
+        expect(service.onExit).toHaveBeenCalled();
+    });
+    it('should handle drop', () => {
+        const index = 1;
+        spyOn(service, 'onDrop').and.callThrough();
+
+        service.onDrop(index);
+
+        expect(service.onDrop).toHaveBeenCalledWith(index);
+    });
 });
