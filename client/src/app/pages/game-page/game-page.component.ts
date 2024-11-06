@@ -89,6 +89,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         this.listenGameSetup();
         this.listenMovement();
+        this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
@@ -123,13 +124,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenInteractDoor() {
-        this.socketService.on('interactDoor', (data: { isOpenable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
-            if (data.isOpenable) {
+        this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
+            if (data.isToggable) {
                 this.mapService.toggleDoor(data.doorPosition);
             }
             console.log('interactDoor', data);
-            this.initializeMovementPrevisualization(data.availableMoves);
-            this.subscribeMapService();
+            this.mapService.actionDoor = false;
+            this.endMovement(data.availableMoves);
         });
     }
 
@@ -139,6 +140,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
             this.currentMoveBudget = data.currentMoveBudget;
+            this.mapService.isMoving = false;
             this.endMovement(data.availableMoves);
         });
     }
@@ -179,7 +181,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     subscribeMapService() {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
             this.mapService.removeAllPreview();
-            this.socketService.emit('move', { roomId: this.roomId, playerId: this.player?.id, endPosition: index });
+            if (this.mapService.isMoving) {
+                this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition: index });
+            } else if (this.mapService.actionDoor) {
+                this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: index });
+            }
         });
     }
 
@@ -199,7 +205,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         } else {
             this.resetMovementPrevisualization();
         }
-        this.mapService.isMoving = false;
     }
 
     findPlayerCoordById(playerId: string): PlayerCoord | undefined {
