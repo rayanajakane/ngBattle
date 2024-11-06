@@ -81,10 +81,7 @@ export class ActionService {
         }
     }
 
-    //TODO: identify games uniquely
     private async checkGameInstance(roomId: string, gameId: string): Promise<void> {
-        //TODO: check condition
-
         if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
             const game: GameJson = await this.gameService.get(gameId).then((game) => game);
             this.activeGames.push({ roomId, game });
@@ -103,7 +100,6 @@ export class ActionService {
             let randomIndex: number;
             let position: number;
 
-            //TODO: refacor this for simpler version
             do {
                 randomIndex = Math.floor(Math.random() * startingPositions.length);
                 position = startingPositions[randomIndex];
@@ -149,7 +145,6 @@ export class ActionService {
         });
     }
 
-    //TODO: implement socket response for client
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
         const game = gameInstance.game;
