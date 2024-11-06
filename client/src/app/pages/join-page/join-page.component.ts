@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
@@ -12,7 +12,7 @@ import { Player, PlayerAttribute } from '@common/player';
 @Component({
     selector: 'app-join-page',
     standalone: true,
-    imports: [AvatarSliderComponent, AttributeSelectionComponent, FormsModule, MatButtonModule],
+    imports: [AvatarSliderComponent, AttributeSelectionComponent, FormsModule, MatButtonModule, RouterLink],
     templateUrl: './join-page.component.html',
     styleUrl: './join-page.component.scss',
 })

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
@@ -12,7 +12,7 @@ import { Player } from '@common/player';
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [MatButtonModule, PlayerListComponent, ChatComponent],
+    imports: [MatButtonModule, PlayerListComponent, ChatComponent, RouterLink],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })

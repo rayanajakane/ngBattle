@@ -1,5 +1,6 @@
 import { NgFor } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { GameSelectionComponent } from '@app/components/game-selection/game-selection.component';
 import { HttpClientService } from '@app/services/http-client.service';
 import { GameStructure } from '@common/game-structure';
@@ -7,7 +8,7 @@ import { GameStructure } from '@common/game-structure';
 @Component({
     selector: 'app-game-selection-page',
     standalone: true,
-    imports: [GameSelectionComponent, NgFor],
+    imports: [GameSelectionComponent, NgFor, RouterLink],
     templateUrl: './game-selection-page.component.html',
     styleUrls: ['./game-selection-page.component.scss'],
 })

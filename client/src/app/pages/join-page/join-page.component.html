@@ -1,4 +1,5 @@
 <div class="main-container">
+    <button class="button-style" [routerLink]="['/home']">Retourner au menu</button>
     <h1 class="medievalsharp-regular">Rejoindre une partie</h1>
     <p #roomCheck></p>
     <input class="code-input" type="text" placeholder="Entrez un code à 4 chiffres" [(ngModel)]="roomId" (keyup.enter)="onSubmitCode($event)" />
