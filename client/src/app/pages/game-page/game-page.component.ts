@@ -17,6 +17,7 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { GameJson, GameTile } from '@app/data-structure/game-structure';
 import { Player } from '@app/interfaces/player';
+import { DELAY } from '@app/pages/game-page/constant';
 import { HttpClientService } from '@app/services/httpclient.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
@@ -101,7 +102,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.route.snapshot.params['isAdmin'] === 'true') {
                 setTimeout(() => {
                     this.socketService.emit('gameSetup', this.roomId);
-                }, 250);
+                }, DELAY);
             }
         });
     }

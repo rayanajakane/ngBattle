@@ -127,8 +127,10 @@ describe('MapGameService', () => {
     });
     it('should set shortest path by tile', () => {
         const shortestPathByTile = {
+            /* eslint-disable */
             1: shortestPathIndexes1,
             2: shortestPathIndexes2,
+            /* eslint-enable */
         };
         service.setShortestPathByTile(shortestPathByTile);
         expect(service.shortestPathByTile).toEqual(shortestPathByTile);
@@ -189,7 +191,9 @@ describe('MapGameService', () => {
         const event = new MouseEvent('mouseenter');
         service.setAvailableTiles([index]);
         service.shortestPathByTile = {
+            /* eslint-disable */
             1: shortestPathIndexes1,
+            /* eslint-enable */
         };
 
         spyOn(service, 'renderShortestPath');
@@ -200,8 +204,10 @@ describe('MapGameService', () => {
     });
     it('should reset shortest path', () => {
         service.shortestPathByTile = {
+            /* eslint-disable */
             1: shortestPathIndexes1,
             2: shortestPathIndexes2,
+            /* eslint-enable */
         };
 
         service.resetShortestPath();
