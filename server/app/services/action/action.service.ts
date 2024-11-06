@@ -19,14 +19,14 @@ export interface PlayerInfo {
     position: number;
 }
 
-enum TileType {
+export enum TileType {
     Ice = 0,
     Floor = 1,
     DoorOpen = 1,
     Water = 2,
 }
 
-interface GameInstance {
+export interface GameInstance {
     roomId: string;
     game: GameJson;
     playersCoord?: PlayerInfo[];
