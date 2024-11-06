@@ -11,8 +11,10 @@ const SLICE_INDEX = -2;
 @Injectable()
 export class MatchService {
     rooms: Map<string, Room> = new Map();
-    private readonly floorRandomNumber: number = 1000;
-    private readonly maxValueRandomNumber: number = 8999;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly FLOOR_RANDOM_NUMBER: number = 1000;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly MAX_VALUE_RANDOM_NUMBER: number = 8999;
 
     constructor(private readonly gameService: GameService) {}
 
@@ -201,9 +203,9 @@ export class MatchService {
     }
 
     generateMatchId() {
-        let randomIntInRange: string = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
+        let randomIntInRange: string = Math.floor(this.FLOOR_RANDOM_NUMBER + Math.random() * this.MAX_VALUE_RANDOM_NUMBER).toString();
         while (this.rooms.get(randomIntInRange)) {
-            randomIntInRange = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
+            randomIntInRange = Math.floor(this.FLOOR_RANDOM_NUMBER + Math.random() * this.MAX_VALUE_RANDOM_NUMBER).toString();
         }
         return randomIntInRange;
     }

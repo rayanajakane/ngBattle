@@ -16,7 +16,8 @@ export class GameSelectionPageComponent {
 
     games: GameStructure[];
 
-    private readonly scrollValue: number = 300;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly SCROLL_VALUE: number = 300;
 
     constructor(private http: HttpClientService) {
         this.http.getAllGames().then((games) => {
@@ -25,10 +26,10 @@ export class GameSelectionPageComponent {
     }
 
     scrollLeft() {
-        this.widgetsContent.nativeElement.scrollLeft -= this.scrollValue;
+        this.widgetsContent.nativeElement.scrollLeft -= this.SCROLL_VALUE;
     }
 
     scrollRight() {
-        this.widgetsContent.nativeElement.scrollRight += this.scrollValue;
+        this.widgetsContent.nativeElement.scrollRight += this.SCROLL_VALUE;
     }
 }

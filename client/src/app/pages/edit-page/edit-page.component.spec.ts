@@ -58,7 +58,6 @@ describe('EditPageComponent', () => {
                 provideHttpClient(),
                 provideHttpClientTesting(),
                 provideRouter([{ path: 'admin', component: AdminPageComponent }]),
-                // { provide: Router, useValue: mockRouter },
                 { provide: IDGenerationService, useValue: mockIdGenerationService },
                 { provide: MapService, useValue: mapServiceSpy },
                 { provide: HttpClientService, useValue: mockHttpClientService },

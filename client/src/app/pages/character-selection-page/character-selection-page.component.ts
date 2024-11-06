@@ -12,7 +12,6 @@ import { Avatar } from '@app/interfaces/avatar';
 import { HttpClientService } from '@app/services/http-client.service';
 import { SocketService } from '@app/services/socket.service';
 import { PlayerAttribute } from '@common/player';
-import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from './constants';
 
 @Component({
     selector: 'app-character-selection-page',
@@ -27,6 +26,11 @@ export class CharacterSelectionPageComponent {
     selectedAvatar: Avatar | null = null;
     characterName: string = '';
     attributes: PlayerAttribute;
+
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly MIN_NAME_LENGTH: number = 3;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly MAX_NAME_LENGTH: number = 15;
 
     // Initialisation dans le constructeur
     constructor(
@@ -46,7 +50,6 @@ export class CharacterSelectionPageComponent {
 
     formChecking(): string[] {
         const errors: string[] = [];
-        // Vérification des erreurs
         if (!this.selectedAvatar) errors.push('- Veuillez sélectionner un avatar avant de continuer');
         if (!this.isNameValid()) errors.push('- Veuillez mettre un nom pour le personne entre 3 et 15 charactères');
 
@@ -58,7 +61,9 @@ export class CharacterSelectionPageComponent {
     }
 
     isNameValid(): boolean {
-        return this.characterName.length >= MIN_NAME_LENGTH && this.characterName.length <= MAX_NAME_LENGTH;
+        return (
+            this.characterName.length >= this.MIN_NAME_LENGTH && this.characterName.length <= this.MAX_NAME_LENGTH && this.characterName.trim() !== ''
+        );
     }
 
     async onSubmit(event: Event) {
@@ -97,7 +102,7 @@ export class CharacterSelectionPageComponent {
             });
             this.socketService.emit('createRoom', {
                 gameId: this.route.snapshot.params.id,
-                playerName: this.characterName,
+                playerName: this.characterName.trim(),
                 avatar: this.selectedAvatar?.name,
                 attributes: this.attributes,
             });

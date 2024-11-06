@@ -16,7 +16,7 @@ $transition-duration: 0.3s;
     background-color: $secondary-color;
     border: 3px solid $border-color;
     border-radius: $border-radius;
-    box-sizing: border-box; /* Assure que les bordures et le padding sont inclus dans la hauteur */
+    box-sizing: border-box;
     padding: 10px;
 }
 
