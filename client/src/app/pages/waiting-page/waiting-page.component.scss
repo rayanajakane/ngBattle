@@ -144,6 +144,12 @@ button {
     }
 }
 
+button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+    animation: none;
+}
+
 // Animations
 @keyframes wiggle {
     0%,

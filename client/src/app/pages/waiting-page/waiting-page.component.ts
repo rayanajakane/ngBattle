@@ -1,18 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
-import { Player } from '@app/interfaces/player';
 import { SocketService } from '@app/services/socket.service';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [MatButtonModule, PlayerListComponent, ChatComponent],
+    imports: [MatButtonModule, PlayerListComponent, ChatComponent, RouterLink],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
@@ -25,32 +25,50 @@ export class WaitingPageComponent implements OnInit {
     playerId: string;
     players: Player[] = [];
     isAdmin: boolean;
+    maxPlayers: number;
     isRoomLocked: boolean = false;
     gameId: string;
-
     constructor(
-        private socketService: SocketService,
-        private router: Router,
-        private route: ActivatedRoute,
+        private readonly socketService: SocketService,
+        private readonly router: Router,
+        private readonly route: ActivatedRoute,
     ) {}
 
     ngOnInit() {
+        this.socketService.on('maxPlayers', (maxPlayers: number) => {
+            this.maxPlayers = maxPlayers;
+        });
         this.socketService.once('roomLeft', () => {
             this.router.navigate(['/']);
         });
         this.socketService.once('kicked', () => {
             this.openKickedDialog();
         });
+        this.socketService.on('roomLocked', () => {
+            const lockButton = document.getElementById('lock-btn');
+            if (lockButton) {
+                lockButton.innerHTML = 'Déverrouiller';
+                if (this.players.length === this.maxPlayers) lockButton.setAttribute('disabled', 'true');
+            }
+        });
+        this.socketService.on('roomUnlocked', () => {
+            const lockButton = document.getElementById('lock-btn');
+            if (lockButton) {
+                lockButton.innerHTML = 'Verrouiller';
+                lockButton.removeAttribute('disabled');
+            }
+        });
         this.getPlayers();
         this.updatePlayers();
-
-        this.roomId = this.route.snapshot.params['roomId'];
-        this.playerId = this.route.snapshot.params['playerId'];
-        this.characterName = this.route.snapshot.params['characterName'];
-        this.selectedAvatar = this.route.snapshot.params['selectedAvatar'];
-        this.isAdmin = this.route.snapshot.params['isAdmin'] === 'true' ? true : false;
-
         this.gameStartedListener();
+        this.route.params.subscribe((params) => {
+            this.roomId = params.roomId;
+            this.playerId = params.playerId;
+            this.characterName = params.characterName;
+            this.selectedAvatar = params.selectedAvatar;
+            this.isAdmin = params.isAdmin === 'true';
+            this.socketService.emit('getMaxPlayers', { roomId: this.roomId });
+        });
     }
 
     gameStartedListener() {
@@ -88,6 +106,10 @@ export class WaitingPageComponent implements OnInit {
                 message: 'Vous avez été expulsé de la partie',
             },
         });
+    }
+
+    leaveRoom() {
+        this.socketService.disconnect();
     }
 
     lockRoom() {

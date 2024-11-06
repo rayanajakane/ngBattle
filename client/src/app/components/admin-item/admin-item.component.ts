@@ -8,8 +8,8 @@ import { RouterLink } from '@angular/router';
 import { SNACKBAR_DURATION } from '@app/components/admin-item/constant';
 import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion-dialog/confirm-deletion-dialog.component';
 import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
-import { GameJson } from '@app/data-structure/game-structure';
 import { HttpClientService } from '@app/services/httpclient.service';
+import { GameStructure } from '@common/game-structure';
 @Component({
     selector: 'app-admin-item',
     standalone: true,
@@ -18,7 +18,7 @@ import { HttpClientService } from '@app/services/httpclient.service';
     styleUrl: './admin-item.component.scss',
 })
 export class AdminItemComponent implements OnInit {
-    @Input() game: GameJson;
+    @Input() game: GameStructure;
     @Output() editGameEvent = new EventEmitter<string>();
     mapSize: number;
 

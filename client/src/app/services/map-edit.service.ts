@@ -1,8 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { TileJson } from '@app/data-structure/game-structure';
 import { TileTypes } from '@app/data-structure/toolType';
-import { DragDropService } from './drag-drop.service';
+import { DragDropService } from '@app/services/drag-drop.service';
 import { MapBaseService } from './map-base.service';
 
 @Injectable({
@@ -128,7 +127,7 @@ export class MapEditService extends MapBaseService {
     }
 
     placeTile(index: number) {
-        if (this.isMouseDown && this.isLeftClick && this.selectedTileType !== '' && this.selectedMode === CurrentMode.TileTool) {
+        if (this.isMouseDown && this.isLeftClick && this.selectedTileType && this.selectedMode === CurrentMode.TileTool) {
             this.setTileType(index, this.selectedTileType);
         }
     }

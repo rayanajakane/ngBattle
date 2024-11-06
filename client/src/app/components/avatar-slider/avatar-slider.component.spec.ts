@@ -47,4 +47,10 @@ describe('AvatarSliderComponent', () => {
         // eslint-disable-next-line
         expect(component.widgetsContent.nativeElement.scrollRight).toBe(150);
     });
+
+    it('should select avatar', () => {
+        const avatar = { name: 'Avatar 1', img: '../../test.png' };
+        component.selectAvatar(avatar);
+        expect(component.selectedAvatar).toEqual(avatar);
+    });
 });

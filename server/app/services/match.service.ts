@@ -1,7 +1,12 @@
+import { Room } from '@app/model/room';
+import { Player, PlayerAttribute } from '@common/player';
+import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
+import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
 
+const SLICE_INDEX = -2;
 export interface Player {
     id: string;
     name: string;
@@ -37,13 +42,20 @@ interface PlayerMessage {
 
 @Injectable()
 export class MatchService {
-    public rooms: Map<string, Room> = new Map();
-    private readonly floorRandomNumber: number = 1000;
-    private readonly maxValueRandomNumber: number = 8999;
+    rooms: Map<string, Room> = new Map();
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly FLOOR_RANDOM_NUMBER: number = 1000;
+    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    private readonly MAX_VALUE_RANDOM_NUMBER: number = 8999;
 
     constructor(private readonly gameService: GameService) {}
 
-    async createRoom(server: Server, client: Socket, gameId: string, playerName: string, avatar: string, attributes: PlayerAttribute) {
+    async createRoom(
+        server: Server,
+        client: Socket,
+        gameId: string,
+        playerData: { playerName: string; avatar: string; attributes: PlayerAttribute },
+    ) {
         const game = await this.getGame(client, gameId);
         const mapSize = game.mapSize;
         const maxPlayers = this.setMaxPlayers(mapSize);
@@ -52,20 +64,26 @@ export class MatchService {
         const room = { gameId, id: roomId, players: [], isLocked: false, maxPlayers, messages: [] };
         this.rooms.set(roomId, room);
 
-        const player: Player = { id: client.id, name: playerName, isAdmin: true, avatar, attributes: attributes, isActive: false, abandoned: false };
+        const player: Player = {
+            id: client.id,
+            name: playerData.playerName,
+            isAdmin: true,
+            avatar: playerData.avatar,
+            attributes: playerData.attributes,
+        };
         room.players.push(player);
 
         client.join(roomId);
-        client.emit('roomJoined', { roomId: roomId, playerId: client.id });
+        client.emit('roomJoined', { roomId, playerId: client.id });
         this.updatePlayers(server, room);
     }
 
     setMaxPlayers(mapSize: string) {
-        return mapSize === '10' ? 2 : mapSize === '15' ? 4 : mapSize === '20' ? 6 : 0;
+        return mapSize === '10' ? SMALL_STARTING_POINTS : mapSize === '15' ? MEDIUM_STARTING_POINTS : mapSize === '20' ? LARGE_STARTING_POINTS : 0;
     }
 
     isCodeValid(roomId: string, client: Socket) {
-        let room = this.rooms.get(roomId);
+        const room = this.rooms.get(roomId);
         if (room && !room.isLocked) client.emit('validRoom', true);
         else client.emit('validRoom', false);
     }
@@ -78,11 +96,11 @@ export class MatchService {
     }
 
     getAllPlayersInRoom(roomId: string, client: Socket) {
-        let room = this.rooms.get(roomId);
+        const room = this.rooms.get(roomId);
         if (room) client.emit('getPlayers', room.players);
     }
 
-    joinRoom(server: Server, client: Socket, roomId: string, playerName: string, avatar: string, attributes: PlayerAttribute) {
+    joinRoom(server: Server, client: Socket, roomId: string, playerData: { playerName: string; avatar: string; attributes: PlayerAttribute }) {
         const room = this.rooms.get(roomId);
 
         if (!room) {
@@ -95,14 +113,14 @@ export class MatchService {
             return;
         }
 
-        const checkedPlayerName = this.checkAndSetPlayerName(room, playerName);
+        const checkedPlayerName = this.checkAndSetPlayerName(room, playerData.playerName);
 
         const player: Player = {
             id: client.id,
             name: checkedPlayerName,
             isAdmin: false,
-            avatar,
-            attributes: attributes,
+            avatar: playerData.avatar,
+            attributes: playerData.attributes,
             isActive: false,
             abandoned: false,
         };
@@ -110,10 +128,11 @@ export class MatchService {
 
         if (room.players.length >= room.maxPlayers) {
             room.isLocked = true;
+            server.to(roomId).emit('roomLocked');
         }
 
         client.join(roomId);
-        client.emit('roomJoined', { roomId: roomId, playerId: client.id, playerName: checkedPlayerName });
+        client.emit('roomJoined', { roomId, playerId: client.id, playerName: checkedPlayerName });
         this.updatePlayers(server, room);
     }
 
@@ -123,6 +142,11 @@ export class MatchService {
             roomId: room.id,
             avatars: room.players.map((p) => p.avatar),
         });
+    }
+
+    getMaxPlayers(roomId: string, socket: Socket) {
+        const room = this.rooms.get(roomId);
+        if (room) socket.emit('maxPlayers', room.maxPlayers);
     }
 
     checkAndSetPlayerName(room: Room, playerName: string) {
@@ -137,7 +161,7 @@ export class MatchService {
                 playerName = playerName + '-2';
                 continue;
             }
-            playerName = playerName.slice(0, -2) + '-' + nameExistsCount.toString();
+            playerName = playerName.slice(0, SLICE_INDEX) + '-' + nameExistsCount.toString();
         }
         return playerName;
     }
@@ -213,9 +237,9 @@ export class MatchService {
     }
 
     generateMatchId() {
-        let randomIntInRange: string = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
+        let randomIntInRange: string = Math.floor(this.FLOOR_RANDOM_NUMBER + Math.random() * this.MAX_VALUE_RANDOM_NUMBER).toString();
         while (this.rooms.get(randomIntInRange)) {
-            randomIntInRange = Math.floor(this.floorRandomNumber + Math.random() * this.maxValueRandomNumber).toString();
+            randomIntInRange = Math.floor(this.FLOOR_RANDOM_NUMBER + Math.random() * this.MAX_VALUE_RANDOM_NUMBER).toString();
         }
         return randomIntInRange;
     }
@@ -239,9 +263,9 @@ export class MatchService {
 
     roomMessage(server: Server, client: Socket, roomId: string, messageString: string, date: string) {
         const room = this.rooms.get(roomId);
-        const player = room.players.find((player) => player.id === client.id);
+        const player = room.players.find((p) => p.id === client.id);
 
-        const message: PlayerMessage = { name: player.name, message: messageString, date: date };
+        const message: PlayerMessage = { name: player.name, message: messageString, date };
         room.messages.push(message);
         server.to(roomId).emit('singleMessage', message);
     }

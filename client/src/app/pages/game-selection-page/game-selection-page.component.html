@@ -1,10 +1,10 @@
 <div class="main-container">
+    <button class="button-style" [routerLink]="['/home']">Retourner au menu</button>
     <h1 class="medievalsharp-regular">Choisir un jeu</h1>
 
     <div class="game-selection-container">
         <div class="custom-slider-arrow mt-sm">
-            <img class="arrowImg" src="../../../assets/game-selection-page/left-arrow.png" alt="Left"
-                (click)="scrollLeft()" />
+            <img class="arrowImg" src="./assets/game-selection-page/left-arrow.png" alt="Left" (click)="scrollLeft()" />
         </div>
 
         <div class="game-list-wrapper">
@@ -16,9 +16,7 @@
         </div>
 
         <div class="custom-slider-arrow mt-sm">
-            <img class="arrowImg" src="../../../assets/game-selection-page/right-arrow.png" alt="Right"
-                (click)="scrollRight()" />
+            <img class="arrowImg" src="./assets/game-selection-page/right-arrow.png" alt="Right" (click)="scrollRight()" />
         </div>
     </div>
-
 </div>

@@ -1,12 +1,10 @@
-import { Player } from '@app/interfaces/player';
-
+export interface TileStructure {
 export enum TilePreview {
     NONE,
     PREVIEW,
-    SHORTESTPATH,
 }
-
-export interface TileJson {
+    SHORTESTPATH,
+import { Player } from '@app/interfaces/player';
     idx: number;
     tileType: string;
     item: string;
@@ -17,14 +15,12 @@ export interface GameTile extends TileJson {
     isAccessible: TilePreview;
     player: Player | undefined;
 }
-
-// TODO: rename 'gameName' to just 'name'
-export interface GameJson {
+export interface GameStructure {
     id: string;
     gameName: string;
     gameDescription: string;
     mapSize: string;
-    map: TileJson[];
+    map: TileStructure[];
     gameType: string;
     isVisible: boolean;
     creationDate: string;

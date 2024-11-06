@@ -36,7 +36,7 @@ describe('TileBasicComponent', () => {
         ];
         component.itemType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
         component.setItemImage();
-        expect(component.transparentImage).toBe(`./../../../assets/${component.itemType}_transparent.png`);
+        expect(component.transparentImage).toBe(`./assets/${component.itemType}_transparent.png`);
         component.itemType = '';
         component.setItemImage();
         expect(component.transparentImage).toBe('');
@@ -46,10 +46,10 @@ describe('TileBasicComponent', () => {
         const tileTypes = ['wall', 'doorOpen', 'doorClosed', 'water', 'ice'];
         component.tileType = tileTypes[Math.floor(Math.random() * tileTypes.length)];
         component.setTileImage();
-        expect(component.imageUrl).toBe(`./../../../assets/${component.tileType}.jpg`);
+        expect(component.imageUrl).toBe(`./assets/${component.tileType}.jpg`);
         component.tileType = '';
         component.setTileImage();
-        expect(component.imageUrl).toBe('./../../../assets/ground.jpg');
+        expect(component.imageUrl).toBe('./assets/ground.jpg');
     });
 
     it('should choosePreview class based on isAccessible', () => {

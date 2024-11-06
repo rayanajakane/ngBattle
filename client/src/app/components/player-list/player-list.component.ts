@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Player } from '@app/interfaces/player';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-player-list',
@@ -9,7 +9,7 @@ import { Player } from '@app/interfaces/player';
     styleUrl: './player-list.component.scss',
 })
 export class PlayerListComponent {
-    @Input() playerList: Player[];
+    @Input() playerList: Player[] = []; // Initialize with an empty array
     @Input() isUserAdmin: boolean;
     @Output() deletePlayerAsAdmin = new EventEmitter<string>();
 
