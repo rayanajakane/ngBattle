@@ -130,9 +130,9 @@ export class ActionGateway implements OnGatewayInit {
         const map = this.action.activeGames.find((game) => game.roomId === roomId).game.map;
 
         if (remainingActionPoints > 0) {
-            const isOpenable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
+            const isToggable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
             this.server.to(roomId).emit('interactDoor', {
-                isOpenable: isOpenable,
+                isToggable: isToggable,
                 doorPosition: doorPosition,
                 availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
             });
