@@ -67,6 +67,13 @@ export class ActionService {
         }
     }
 
+    isCurrentPlayersTurn(roomId: string, playerId: string): boolean {
+        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const currentPlayer = gameInstance.playersCoord[gameInstance.turn].player;
+
+        return currentPlayer.id === playerId;
+    }
+
     async checkGameInstance(roomId: string, gameId: string): Promise<void> {
         if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
             const g: GameStructure = await this.gameService.get(gameId).then((game) => game);
