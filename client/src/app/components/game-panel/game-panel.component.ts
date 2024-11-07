@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { PlayerCoord } from '@app/pages/game-page/game-page.component';
-import { Player } from '@common/player';
+import { Player, PlayerCoord } from '@common/player';
 
 @Component({
     selector: 'app-game-panel',

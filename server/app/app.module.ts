@@ -5,6 +5,7 @@ import { GameController } from './controllers/game.controller';
 import { ActionGateway } from './gateways/action/action.gateway';
 import { MatchGateway } from './gateways/match/match.gateway';
 import { Game, gameSchema } from './model/schema/game.schema';
+import { ActionHandlerService } from './services/action-handler/action-handler.service';
 import { ActionService } from './services/action/action.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
@@ -23,6 +24,7 @@ import { MovementService } from './services/movement/movement.service';
         GameService,
         GameValidationService,
         MapValidationService,
+        ActionHandlerService,
         Logger,
         MatchService,
         MatchGateway,

@@ -1,7 +1,7 @@
-import { TileTypes } from '@app/gateways/action/action.gateway';
 import { ActionService } from '@app/services/action/action.service';
 import { MatchService } from '@app/services/match.service';
 import { Player } from '@common/player';
+import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()

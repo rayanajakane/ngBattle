@@ -1,15 +1,6 @@
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
-export enum TileTypes {
-    BASIC = '',
-    WALL = 'wall',
-    DOOR = 'door',
-    DOOROPEN = 'doorOpen',
-    DOORCLOSED = 'doorClosed',
-    WATER = 'water',
-    ICE = 'ice',
-}
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ActionGateway implements OnGatewayInit {
     @WebSocketServer() private server: Server;
