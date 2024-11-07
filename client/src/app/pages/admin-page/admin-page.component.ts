@@ -6,6 +6,7 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-item/admin-item.component';
 import { EditGameService } from '@app/services/edit-game.service';
 import { HttpClientService } from '@app/services/http-client.service';
+import { IDGenerationService } from '@app/services/idgeneration.service';
 import { GameStructure } from '@common/game-structure';
 
 @Component({
@@ -18,6 +19,7 @@ import { GameStructure } from '@common/game-structure';
 export class AdminPageComponent implements OnInit {
     games: GameStructure[];
     editGameService = inject(EditGameService);
+    idGenerationService = inject(IDGenerationService);
 
     constructor(
         private http: HttpClientService,
@@ -59,7 +61,7 @@ export class AdminPageComponent implements OnInit {
 
     loadImportedGame(importedData: Partial<GameStructure>) {
         const game: GameStructure = {
-            id: importedData.id,
+            id: this.idGenerationService.generateID(),
             gameName: importedData.gameName,
             gameDescription: importedData.gameDescription,
             mapSize: importedData.mapSize,
