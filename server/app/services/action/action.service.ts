@@ -1,27 +1,22 @@
-import { GameInstance } from '@app/data-structures/game-instance';
-import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { GameStructure } from '@common/game-structure';
-import { Player, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
-import { Server } from 'socket.io';
+import { ActiveGamesService } from '../active-games/active-games.service';
 
 // TODO: declare the Coord interface interface in a separate file and import it here
 
 @Injectable()
 export class ActionService {
-    activeGames: GameInstance[] = [];
-
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly CHANCES: number = 0.5;
     constructor(
-        private movement: MovementService,
-        private gameService: GameService,
+        private readonly movement: MovementService,
+        private readonly activeGamesService: ActiveGamesService,
     ) {}
 
     nextTurn(roomId: string, lastTurn: boolean): void {
-        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const maxTurn = gameInstance.playersCoord.length;
         const playerId = gameInstance.playersCoord[gameInstance.turn].player.id;
         let turn = gameInstance.turn;
@@ -29,86 +24,23 @@ export class ActionService {
         turn = (turn + 1) % maxTurn;
 
         if (lastTurn) {
-            const nextPlayerId = this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].playersCoord[turn].player.id;
+            const nextPlayerId = gameInstance.playersCoord[turn].player.id;
             this.quitGame(roomId, playerId);
             gameInstance.turn = gameInstance.playersCoord.findIndex((player) => player.player.id === nextPlayerId);
         } else {
-            this.activeGames[this.activeGames.findIndex((instance) => instance.roomId === roomId)].turn = turn;
+            gameInstance.turn = turn;
         }
     }
 
     isCurrentPlayersTurn(roomId: string, playerId: string): boolean {
-        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const currentPlayer = gameInstance.playersCoord[gameInstance.turn].player;
 
         return currentPlayer.id === playerId;
     }
 
-    async checkGameInstance(roomId: string, gameId: string): Promise<void> {
-        if (this.activeGames.find((instance) => instance.roomId === roomId) === undefined) {
-            const g: GameStructure = await this.gameService.get(gameId).then((game) => game);
-            this.activeGames.push({ roomId, game: g });
-        }
-    }
-
-    findStartingPositions(game: GameStructure): number[] {
-        return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
-    }
-
-    randomizePlayerPosition(game: GameStructure, players: Player[]): PlayerCoord[] {
-        const startingPositions: number[] = this.findStartingPositions(game);
-        const playerCoords: PlayerCoord[] = [];
-
-        players.forEach((player) => {
-            let randomIndex: number;
-            let position: number;
-
-            do {
-                randomIndex = Math.floor(Math.random() * startingPositions.length);
-                position = startingPositions[randomIndex];
-                startingPositions.splice(randomIndex, 1);
-            } while (playerCoords.find((playerCoord) => playerCoord.position === position) !== undefined);
-
-            player.wins = 0;
-            game.map[position].hasPlayer = true;
-            playerCoords.push({ player, position });
-        });
-
-        if (startingPositions.length > 0) {
-            startingPositions.forEach((position) => {
-                game.map[position].item = '';
-            });
-        }
-
-        return playerCoords;
-    }
-
-    gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
-        let playerCoord: PlayerCoord[] = [];
-        this.checkGameInstance(roomId, gameId).then(() => {
-            const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
-            playerCoord = this.randomizePlayerPosition(game, players);
-            const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
-            playerCoord.sort((a, b) => {
-                const speedA = parseInt(a.player.attributes.speed, 10);
-                const speedB = parseInt(b.player.attributes.speed, 10);
-
-                if (speedA !== speedB) {
-                    return speedB - speedA;
-                }
-                return Math.random() - this.CHANCES;
-            });
-            this.activeGames[activeGameIndex].playersCoord = playerCoord;
-            this.activeGames[activeGameIndex].turn = 0;
-            server.to(roomId).emit('gameSetup', {
-                playerCoords: playerCoord,
-                turn: this.activeGames[activeGameIndex].turn,
-            });
-        });
-    }
-
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
-        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
@@ -120,7 +52,7 @@ export class ActionService {
     }
 
     availablePlayerMoves(playerId: string, roomId: string): { [key: number]: number[] } {
-        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
@@ -128,7 +60,7 @@ export class ActionService {
     }
 
     interactWithDoor(roomId: string, playerId: string, doorPosition: number): boolean {
-        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
 
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
@@ -155,7 +87,7 @@ export class ActionService {
     }
 
     quitGame(roomId: string, playerId: string) {
-        const gameInstance = this.activeGames.find((instance) => instance.roomId === roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const playerCoord = gameInstance.playersCoord;
         const playerIndex = playerCoord.findIndex((player) => player.player.id === playerId);
 

@@ -1,14 +1,15 @@
 import { ActionService } from '@app/services/action/action.service';
 import { MatchService } from '@app/services/match.service';
-import { Player } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { ActiveGamesService } from '../active-games/active-games.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
-        private action: ActionService,
+        private readonly action: ActionService,
         private readonly match: MatchService,
+        private readonly activeGamesService: ActiveGamesService,
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -19,14 +20,6 @@ export class ActionHandlerService {
     private getCurrentTimeFormatted(): string {
         const currentTime = new Date();
         return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
-    }
-
-    private sendStartTurnLogMessage(server: Server, roomId: string, player: Player) {
-        const formattedTime = this.getCurrentTimeFormatted();
-        const playerName = player.name;
-
-        const message = `Début de tour de ${playerName}`;
-        server.to(roomId).emit('newLog', { date: formattedTime, message });
     }
 
     private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
@@ -40,11 +33,11 @@ export class ActionHandlerService {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
 
-        this.action.gameSetup(server, roomId, gameId, players);
+        this.activeGamesService.gameSetup(server, roomId, gameId, players);
     }
 
     handleStartTurn(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
-        const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
+        const activeGame = this.activeGamesService.getActiveGame(data.roomId);
         const player = activeGame.playersCoord[activeGame.turn].player;
 
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
@@ -52,20 +45,24 @@ export class ActionHandlerService {
 
         client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, data.roomId));
 
-        this.sendStartTurnLogMessage(server, data.roomId, player);
+        const formattedTime = this.getCurrentTimeFormatted();
+        const playerName = player.name;
+
+        const message = `Début de tour de ${playerName}`;
+        server.to(data.roomId).emit('newLog', { date: formattedTime, message });
     }
 
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
         {
             const playerId = data.playerId;
             const roomId = data.roomId;
-            const activeGame = this.action.activeGames.find((instance) => instance.roomId === roomId);
+            const activeGame = this.activeGamesService.getActiveGame(roomId);
             const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
             if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
                 const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
 
-                const gameMap = this.action.activeGames.find((instance) => instance.roomId === roomId).game.map;
+                const gameMap = activeGame.game.map;
                 let iceSlip = false;
 
                 let pastPosition = startPosition;
@@ -75,8 +72,8 @@ export class ActionHandlerService {
                             this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                         }, this.TIME_BETWEEN_MOVES);
 
-                        this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[playerPosition].hasPlayer = true;
-                        this.action.activeGames.find((instance) => instance.roomId === roomId).game.map[pastPosition].hasPlayer = false;
+                        activeGame.game.map[playerPosition].hasPlayer = true;
+                        activeGame.game.map[pastPosition].hasPlayer = false;
 
                         activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
@@ -99,7 +96,7 @@ export class ActionHandlerService {
 
     handleEndTurn(data: { roomId: string; playerId: string; lastTurn: boolean }, server: Server) {
         const roomId = data.roomId;
-        const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
+        const activeGame = this.activeGamesService.getActiveGame(roomId);
 
         if (this.action.isCurrentPlayersTurn(roomId, data.playerId)) {
             this.action.nextTurn(roomId, data.lastTurn);
@@ -111,9 +108,10 @@ export class ActionHandlerService {
     handleInteractDoor(data: { roomId: string; playerId: string; doorPosition: number }, server: Server, client: Socket) {
         const roomId = data.roomId;
         const doorPosition = data.doorPosition;
-        const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
+        const activeGame = this.activeGamesService.getActiveGame(roomId);
 
-        const map = this.action.activeGames.find((game) => game.roomId === roomId).game.map;
+        const remainingActionPoints = activeGame.currentPlayerActionPoint;
+        const map = activeGame.game.map;
 
         if (remainingActionPoints > 0) {
             const isToggable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
@@ -123,8 +121,8 @@ export class ActionHandlerService {
                 availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
             });
 
-            const playerName = this.action.activeGames
-                .find((game) => game.roomId === roomId)
+            const playerName = this.activeGamesService
+                .getActiveGame(roomId)
                 .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player.name;
 
             let message = '';
@@ -139,7 +137,7 @@ export class ActionHandlerService {
     }
 
     handleQuitGame(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
-        const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
+        const activeGame = this.activeGamesService.getActiveGame(data.roomId);
         const roomId = data.roomId;
         const playerId = data.playerId;
 

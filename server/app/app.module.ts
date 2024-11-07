@@ -7,6 +7,7 @@ import { MatchGateway } from './gateways/match/match.gateway';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { ActionHandlerService } from './services/action-handler/action-handler.service';
 import { ActionService } from './services/action/action.service';
+import { ActiveGamesService } from './services/active-games/active-games.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
 import { MapValidationService } from './services/map-validation.service';
@@ -31,6 +32,7 @@ import { MovementService } from './services/movement/movement.service';
         MovementService,
         ActionService,
         ActionGateway,
+        ActiveGamesService,
     ],
 })
 export class AppModule {}
