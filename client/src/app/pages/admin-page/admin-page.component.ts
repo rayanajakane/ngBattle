@@ -1,9 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-item/admin-item.component';
+import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
 import { EditGameService } from '@app/services/edit-game.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
@@ -20,6 +22,7 @@ export class AdminPageComponent implements OnInit {
     games: GameStructure[];
     editGameService = inject(EditGameService);
     idGenerationService = inject(IDGenerationService);
+    dialog = inject(MatDialog);
 
     constructor(
         private http: HttpClientService,
@@ -59,49 +62,7 @@ export class AdminPageComponent implements OnInit {
         URL.revokeObjectURL(url);
     }
 
-    loadImportedGame(importedData: Partial<GameStructure>) {
-        const game: GameStructure = {
-            id: this.idGenerationService.generateID(),
-            gameName: importedData.gameName,
-            gameDescription: importedData.gameDescription,
-            mapSize: importedData.mapSize,
-            map: importedData.map,
-            gameType: importedData.gameType,
-            isVisible: false,
-            creationDate: importedData.creationDate,
-            lastModified: importedData.lastModified,
-        } as GameStructure;
-
-        this.editGameService.game = game;
-        console.log('Game:', this.editGameService.game);
-
-        this.editGameService.saveGame();
-        this.loadGames();
-    }
-
-    async importGame(event: Event) {
-        const input = event.target as HTMLInputElement;
-
-        if (input.files && input.files.length > 0) {
-            const reader = new FileReader();
-            let importedData: Partial<GameStructure> = {};
-
-            reader.onload = () => {
-                try {
-                    importedData = JSON.parse(reader.result as string);
-                    console.log('Imported Data:', importedData);
-
-                    this.loadImportedGame(importedData);
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                }
-            };
-
-            reader.onerror = (error) => {
-                console.error('Error reading file:', error);
-            };
-
-            reader.readAsText(input.files[0]);
-        }
+    openImportDialog() {
+        this.dialog.open(ImportDialogComponent);
     }
 }

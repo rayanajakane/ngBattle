@@ -1,0 +1,10 @@
+<div>
+    <input type="file" (change)="importGame($event)" accept=".json" />
+    <button (click)="readData()">Importer</button>
+    <p id="errors"></p>
+    @if(isNameError){
+    <p>Veuillez changer le nom du jeu</p>
+    <input type="text" [(ngModel)]="gameName" />
+    <button (click)="onSubmit()">Soumettre</button>
+    }
+</div>
