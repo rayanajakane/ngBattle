@@ -17,6 +17,7 @@ export interface GameTile extends TileStructure {
     isAccessible: TilePreview;
     player: Player | undefined;
 }
+
 export interface GameStructure {
     id: string;
     gameName: string;

@@ -13,7 +13,8 @@ export class GameService {
     }
 
     async update(game: GameStructure): Promise<Game> {
-        return await this.gameModel.findOneAndUpdate({ id: game.id }, game).exec();
+        const { creationDate, ...updateData } = game;
+        return await this.gameModel.findOneAndUpdate({ id: game.id }, updateData).exec();
     }
 
     async changeVisibility(gameId: string): Promise<Game> {

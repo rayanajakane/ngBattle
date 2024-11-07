@@ -20,6 +20,7 @@ import { GameStructure } from '@common/game-structure';
 export class AdminItemComponent implements OnInit {
     @Input() game: GameStructure;
     @Output() editGameEvent = new EventEmitter<string>();
+    @Output() exportGameEvent = new EventEmitter<GameStructure>();
     mapSize: number;
 
     constructor(
@@ -31,6 +32,10 @@ export class AdminItemComponent implements OnInit {
 
     ngOnInit() {
         this.mapSize = parseInt(this.game.mapSize, 10);
+    }
+
+    exportGame() {
+        this.exportGameEvent.emit(this.game);
     }
 
     invertVisibility() {
