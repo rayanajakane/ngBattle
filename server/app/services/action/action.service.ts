@@ -1,47 +1,17 @@
-import { TileTypes } from '@app/gateways/action/action.gateway';
+import { GameInstance } from '@app/data-structures/game-instance';
 import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { GameStructure } from '@common/game-structure';
-import { Player } from '@common/player';
+import { Player, PlayerCoord } from '@common/player';
+import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+
 // TODO: declare the Coord interface interface in a separate file and import it here
-export interface Coord {
-    x: number;
-    y: number;
-    distance?: number;
-    parentNodes?: Coord[];
-}
-
-export interface PlayerInfo {
-    player: Player;
-    position: number;
-}
-
-export enum TileType {
-    Ice = 0,
-    Floor = 1,
-    DoorOpen = 1,
-    Water = 2,
-}
-
-export interface GameInstance {
-    roomId: string;
-    game: GameStructure;
-    playersCoord?: PlayerInfo[];
-    fightParticipants?: Player[];
-    fightTurns?: number;
-    turn?: number;
-    currentPlayerMoveBudget?: number;
-    currentPlayerActionPoint?: number;
-}
 
 @Injectable()
 export class ActionService {
     activeGames: GameInstance[] = [];
-    turn: number = 0;
-    game: GameStructure;
-    activeIndex: number = 0;
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly CHANCES: number = 0.5;
@@ -78,9 +48,9 @@ export class ActionService {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
     }
 
-    randomizePlayerPosition(game: GameStructure, players: Player[]): PlayerInfo[] {
+    randomizePlayerPosition(game: GameStructure, players: Player[]): PlayerCoord[] {
         const startingPositions: number[] = this.findStartingPositions(game);
-        const playerCoords: PlayerInfo[] = [];
+        const playerCoords: PlayerCoord[] = [];
 
         players.forEach((player) => {
             let randomIndex: number;
@@ -107,7 +77,7 @@ export class ActionService {
     }
 
     gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
-        let playerCoord: PlayerInfo[] = [];
+        let playerCoord: PlayerCoord[] = [];
         this.checkGameInstance(roomId, gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
             playerCoord = this.randomizePlayerPosition(game, players);

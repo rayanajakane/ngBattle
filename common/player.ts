@@ -16,3 +16,8 @@ export interface PlayerAttribute {
     defense: string;
     dice: string;
 }
+
+export interface PlayerCoord {
+    player: Player;
+    position: number;
+}

@@ -20,13 +20,8 @@ import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameStructure, GameTile } from '@common/game-structure';
-import { Player } from '@common/player';
+import { Player, PlayerCoord } from '@common/player';
 import { Subscription } from 'rxjs';
-
-export interface PlayerCoord {
-    player: Player;
-    position: number;
-}
 
 export interface ShortestPathByTile {
     [key: number]: number[];

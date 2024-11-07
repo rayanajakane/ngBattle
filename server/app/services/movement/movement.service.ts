@@ -1,8 +1,8 @@
+import { Coord } from '@app/data-structures/player';
+import { TileTypes } from '@app/data-structures/tile-types.enum';
 import { GameStructure, TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
-// TODO: take a look at the Coord interface and see if it can be moved to a separate file
-import { Coord } from '@app/services/action/action.service';
-// TODO: replace then tile types with enums
+
 // TODO: test functions in this service
 @Injectable()
 export class MovementService {
@@ -31,20 +31,13 @@ export class MovementService {
         return true;
     }
 
-    // TODO: replace this function with enums in the datastructure of the tile
     tileValue(type: string): number {
-        switch (type) {
-            case 'ice':
-                return 0;
-            case 'floor':
-                return 1;
-            case 'doorOpen':
-                return 1;
-            case 'water':
-                return 2;
-            default:
-                return 1;
-        }
+        const tileTypeMap = {
+            ice: TileTypes.ICE,
+            water: TileTypes.WATER,
+        };
+
+        return tileTypeMap[type] ?? 1; // Default to FLOOR if type not found
     }
     convertToCoord(position: number, mapSize: number): Coord {
         const x = position % mapSize;

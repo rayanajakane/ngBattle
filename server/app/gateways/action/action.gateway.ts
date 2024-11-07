@@ -1,20 +1,13 @@
 import { ActionService } from '@app/services/action/action.service';
 import { MatchService } from '@app/services/match.service';
+import { TileTypes } from '@common/tile-types';
 import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-export enum TileTypes {
-    BASIC = '',
-    WALL = 'wall',
-    DOOR = 'door',
-    DOOROPEN = 'doorOpen',
-    DOORCLOSED = 'doorClosed',
-    WATER = 'water',
-    ICE = 'ice',
-}
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ActionGateway implements OnGatewayInit {
     @WebSocketServer() private server: Server;
+
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TEN_POURCENT = 0.1;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
