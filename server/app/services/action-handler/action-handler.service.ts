@@ -96,4 +96,61 @@ export class ActionHandlerService {
             }
         }
     }
+
+    handleEndTurn(data: { roomId: string; playerId: string; lastTurn: boolean }, server: Server) {
+        const roomId = data.roomId;
+        const activeGame = this.action.activeGames.find((game) => game.roomId === roomId);
+
+        if (this.action.isCurrentPlayersTurn(roomId, data.playerId)) {
+            this.action.nextTurn(roomId, data.lastTurn);
+
+            server.to(roomId).emit('endTurn', activeGame.turn);
+        }
+    }
+
+    handleInteractDoor(data: { roomId: string; playerId: string; doorPosition: number }, server: Server, client: Socket) {
+        const roomId = data.roomId;
+        const doorPosition = data.doorPosition;
+        const remainingActionPoints = this.action.activeGames.find((game) => game.roomId === roomId).currentPlayerActionPoint;
+
+        const map = this.action.activeGames.find((game) => game.roomId === roomId).game.map;
+
+        if (remainingActionPoints > 0) {
+            const isToggable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
+            server.to(roomId).emit('interactDoor', {
+                isToggable,
+                doorPosition,
+                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+            });
+
+            const playerName = this.action.activeGames
+                .find((game) => game.roomId === roomId)
+                .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player.name;
+
+            let message = '';
+            if (map[doorPosition].tileType === TileTypes.DOOROPEN) {
+                message = `Porte a été ouverte par ${playerName}`;
+            } else if (map[doorPosition].tileType === TileTypes.DOORCLOSED) {
+                message = `Porte a été ouverte par ${playerName}`;
+            }
+
+            client.emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
+        }
+    }
+
+    handleQuitGame(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
+        const activeGame = this.action.activeGames.find((game) => game.roomId === data.roomId);
+        const roomId = data.roomId;
+        const playerId = data.playerId;
+
+        server.to(roomId).emit('quitGame', playerId);
+
+        const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
+        const message = `${playerName} a quitté la partie`;
+        server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
+
+        if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
+            this.handleEndTurn({ ...data, lastTurn: true }, server);
+        }
+    }
 }
