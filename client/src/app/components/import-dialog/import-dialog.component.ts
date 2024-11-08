@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { GameStructure } from '@common/game-structure';
@@ -22,7 +23,10 @@ export class ImportDialogComponent {
     gameName: string;
     game: GameStructure;
 
-    constructor(private http: HttpClientService) {}
+    constructor(
+        private http: HttpClientService,
+        private router: Router,
+    ) {}
 
     loadImportedGame(importedData: Partial<GameStructure>) {
         const game: GameStructure = {
@@ -44,12 +48,15 @@ export class ImportDialogComponent {
         this.http.sendGame(game).subscribe({
             next: () => {
                 this.dialog.closeAll(); // Handle successful response
+                this.router.navigateByUrl('/admin', { skipLocationChange: true }).then(() => {
+                    this.router.navigate(['/admin']);
+                });
             },
             error: (error: HttpErrorResponse) => {
                 const errorp = document.getElementById('errors') as HTMLParagraphElement;
                 errorp.textContent = error.error.errors;
                 console.log(error.error.errors);
-                if (error.error.errors.some((error: string) => error.includes('nom'))) {
+                if (error.error.errors.some((err: string) => err.includes('nom'))) {
                     this.isNameError = true;
                     this.game = game;
                 }

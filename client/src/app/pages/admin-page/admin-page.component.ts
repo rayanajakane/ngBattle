@@ -44,7 +44,8 @@ export class AdminPageComponent implements OnInit {
     }
 
     exportGame(game: GameStructure) {
-        const { isVisible, ...gameWithoutVisibility } = game;
+        // Remove the isVisible property from the game object so it is not exported
+        const { isVisible: _, ...gameWithoutVisibility } = game;
 
         const jsonData = JSON.stringify(gameWithoutVisibility, null, 2);
         const blob = new Blob([jsonData], { type: 'application/json' });
