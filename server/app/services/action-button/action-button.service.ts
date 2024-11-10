@@ -1,3 +1,4 @@
+import { Action } from '@common/actions-button';
 import { TileStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
@@ -10,10 +11,10 @@ export class ActionButtonService {
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(ActionService) private readonly actionService: ActionService,
-        @Inject('CombatService') private readonly combatService: CombatService,
+        @Inject(CombatService) private readonly combatService: CombatService,
     ) {}
 
-    fighters: PlayerCoord[] = [];
+    private fighters: PlayerCoord[] = [];
 
     // TODO : Add the logic for the action buttons ( inside the map-game service)
     // returns all the players that are around
@@ -67,11 +68,11 @@ export class ActionButtonService {
     }
 
     // choose to open door or start combat
-    chosenAction(roomId: string, originalPlayer: PlayerCoord, action: string, targetPlayer?: PlayerCoord): void {
-        if (action === 'door') {
+    chosenAction(roomId: string, originalPlayer: PlayerCoord, action: Action, targetPlayer?: PlayerCoord): void {
+        if (action === Action.DOOR) {
             // call the action service to open the door
             this.actionService.interactWithDoor(roomId, originalPlayer.player.id, originalPlayer.position);
-        } else if (action === 'fight') {
+        } else if (action === Action.FIGHT) {
             // add the players to the combat
             this.setFightParticipants(roomId, originalPlayer, targetPlayer);
             this.startCombat(roomId, this.fighters);
@@ -83,8 +84,8 @@ export class ActionButtonService {
         if (this.fighters.length != 0) {
             this.fighters = [];
         }
-        this.fighters.push(originalPlayer);
-        this.fighters.push(targetPlayer);
+        this.fighters.push(originalPlayer); // idx 0
+        this.fighters.push(targetPlayer); // idx 1
     }
 
     // start combat

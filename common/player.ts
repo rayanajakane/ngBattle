@@ -12,9 +12,11 @@ export interface Player {
 export interface PlayerAttribute {
     health: string;
     speed: string;
-    attack: string;
-    defense: string;
+    attack: number;
+    defense: number;
     dice: string;
+    // TO VERIFY
+    escape?: number;
 }
 
 export interface PlayerCoord {
