@@ -1,9 +1,9 @@
 import { ActionService } from '@app/services/action/action.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { MatchService } from '@app/services/match.service';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { ActiveGamesService } from '../active-games/active-games.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(

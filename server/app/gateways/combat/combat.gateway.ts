@@ -2,8 +2,8 @@ import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 
 @WebSocketGateway()
 export class CombatGateway {
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    return 'Hello world!';
-  }
+    @SubscribeMessage('message')
+    handleMessage(client: unknown, payload: unknown): string {
+        return 'Hello world!';
+    }
 }

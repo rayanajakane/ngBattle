@@ -1,26 +1,25 @@
+import { ActionService } from '@app/services/action/action.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { Action } from '@common/actions-button';
 import { TileStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
-import { ActionService } from '../action/action.service';
-import { ActiveGamesService } from '../active-games/active-games.service';
-import { CombatService } from '../combat/combat.service';
 @Injectable()
 export class ActionButtonService {
+    private fighters: PlayerCoord[] = [];
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(ActionService) private readonly actionService: ActionService,
         @Inject(CombatService) private readonly combatService: CombatService,
     ) {}
 
-    private fighters: PlayerCoord[] = [];
-
     // TODO : Add the logic for the action buttons ( inside the map-game service)
     // returns all the players that are around
     getPlayersAround(roomId: string, position: number): PlayerCoord[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
-        const mapSize = parseInt(gameInstance.game.mapSize);
+        const mapSize = parseInt(gameInstance.game.mapSize, 10);
         const right = gameInstance.game.map[position + 1].hasPlayer;
         const left = gameInstance.game.map[position - 1].hasPlayer;
         const up = gameInstance.game.map[position - mapSize].hasPlayer;
@@ -50,7 +49,7 @@ export class ActionButtonService {
     getDoorsAround(roomId: string, player: PlayerCoord): TileStructure[] {
         const doorsFound: TileStructure[] = [];
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
-        const mapSize = parseInt(gameInstance.game.mapSize);
+        const mapSize = parseInt(gameInstance.game.mapSize, 10);
         const doors: TileTypes[] = [TileTypes.DOOR, TileTypes.DOORCLOSED, TileTypes.DOOROPEN];
         if (doors.includes(gameInstance.game.map[player.position + 1].tileType as TileTypes)) {
             doorsFound.push(gameInstance.game.map[player.position + 1]);
@@ -81,7 +80,7 @@ export class ActionButtonService {
 
     // set fight participants in a combat
     setFightParticipants(roomId: string, originalPlayer: PlayerCoord, targetPlayer: PlayerCoord): void {
-        if (this.fighters.length != 0) {
+        if (this.fighters.length !== 0) {
             this.fighters = [];
         }
         this.fighters.push(originalPlayer); // idx 0
