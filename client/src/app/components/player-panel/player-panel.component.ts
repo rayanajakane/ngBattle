@@ -12,8 +12,8 @@ export class PlayerPanelComponent implements OnInit {
     @Input() playerName: string;
     @Input() lifePoints: string;
     @Input() speed: string;
-    @Input() attack: string;
-    @Input() defense: string;
+    @Input() attack: number;
+    @Input() defense: number;
     @Input() movementPoints: number;
     @Input() nActions: number;
     @Input() selectedAvatar: string;

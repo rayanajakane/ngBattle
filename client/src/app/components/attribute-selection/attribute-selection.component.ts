@@ -59,8 +59,8 @@ export class AttributeSelectionComponent implements OnInit {
         const attributes: PlayerAttribute = {
             health: this.life.toString(),
             speed: this.speed.toString(),
-            attack: this.attack.toString(),
-            defense: this.defense.toString(),
+            attack: this.attack,
+            defense: this.defense,
             dice: this.selectedDice.attack === DEFAULT_ATTRIBUTE_VALUE_SELECTED ? 'attack' : 'defense',
         };
         this.attributesEmitter.emit(attributes);
