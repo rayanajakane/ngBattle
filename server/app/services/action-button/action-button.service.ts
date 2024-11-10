@@ -1,16 +1,20 @@
 import { TileStructure } from '@common/game-structure';
-import { Player, PlayerCoord } from '@common/player';
+import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
-import { ActionService } from '../../action/action.service';
-import { ActiveGamesService } from '../../active-games/active-games.service';
-
+import { ActionService } from '../action/action.service';
+import { ActiveGamesService } from '../active-games/active-games.service';
+import { CombatService } from '../combat/combat.service';
 @Injectable()
 export class ActionButtonService {
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(ActionService) private readonly actionService: ActionService,
+        @Inject('CombatService') private readonly combatService: CombatService,
     ) {}
+
+    fighters: PlayerCoord[] = [];
+
     // TODO : Add the logic for the action buttons ( inside the map-game service)
     // returns all the players that are around
     getPlayersAround(roomId: string, position: number): PlayerCoord[] {
@@ -62,21 +66,29 @@ export class ActionButtonService {
     }
 
     // choose to open door or start combat
-    chosenAction(roomId: string, player: PlayerCoord, action: string): void {
+    chosenAction(roomId: string, originalPlayer: PlayerCoord, action: string, targetPlayer?: PlayerCoord): void {
         if (action === 'door') {
             // call the action service to open the door
-            this.actionService.interactWithDoor(roomId, player.player.id, player.position);
+            this.actionService.interactWithDoor(roomId, originalPlayer.player.id, originalPlayer.position);
         } else if (action === 'fight') {
-            this.startCombat(roomId, this.activeGamesService.getActiveGame(roomId).fightParticipants);
+            // add the players to the combat
+            this.setFightParticipants(roomId, originalPlayer, targetPlayer);
+            this.startCombat(roomId, this.fighters);
         }
     }
 
     // set fight participants in a combat
-    setFightParticipants(roomId: string, player: Player): void {}
+    setFightParticipants(roomId: string, originalPlayer: PlayerCoord, targetPlayer: PlayerCoord): void {
+        if (this.fighters.length != 0) {
+            this.fighters = [];
+        }
+        this.fighters.push(originalPlayer);
+        this.fighters.push(targetPlayer);
+    }
 
     // start combat
-    startCombat(roomId: string, fighters: Player[]): void {}
-
-    // choose door to interact with
-    chooseDoor(roomId: string, player: Player): void {}
+    startCombat(roomId: string, fighters: PlayerCoord[]): void {
+        // call the combat service to start the combat
+        this.combatService.startCombat(roomId, fighters);
+    }
 }
