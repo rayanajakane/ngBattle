@@ -28,19 +28,20 @@ export class ActionButtonService {
         if (right) {
             // find the Player
             const player: PlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.position === position + 1);
-            players.push(player);
+            // only push when not undefined
+            if (player) players.push(player);
         }
         if (left) {
             const player: PlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.position === position - 1);
-            players.push(player);
+            if (player) players.push(player);
         }
         if (up) {
             const player: PlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.position === position - mapSize);
-            players.push(player);
+            if (player) players.push(player);
         }
         if (down) {
             const player: PlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.position === position + mapSize);
-            players.push(player);
+            if (player) players.push(player);
         }
         return players;
     }
