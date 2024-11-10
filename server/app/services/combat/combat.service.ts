@@ -1,9 +1,11 @@
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import {
     ATTACKER_INDEX,
+    BOOSTED_BONUS_DICE,
     COMBAT_FIGHTERS_NUMBER,
     COMBAT_ROUND_DURATION,
     COMBAT_ROUND_DURATION_NO_ESCAPE,
+    DEFAULT_BONUS_DICE,
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
     ICE_PENALTY,
@@ -117,9 +119,12 @@ export class CombatService {
 
     // endCombatTurn(player: PlayerCoord)
 
-    // isAttackSuccessful
     isAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): boolean {
-        //Une attaque réussie si (attaque + dé bonus) du combattant – (défense + dé bonus) de l'opposant > 0.
+        let bonusAttackDice: number = DEFAULT_BONUS_DICE;
+        let bonusDefenseDice: number = DEFAULT_BONUS_DICE;
+        if (attacker.player.attributes.dice === 'attack') bonusAttackDice = BOOSTED_BONUS_DICE;
+        else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
+
         return (
             attacker.player.attributes.attack + attacker.player.attributes.dice >=
             defender.player.attributes.defense + defender.player.attributes.dice
