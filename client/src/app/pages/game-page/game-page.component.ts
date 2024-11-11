@@ -7,6 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
+import { CombatTimerComponent } from '@app/components/combat-timer/combat-timer.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
@@ -33,6 +34,7 @@ export interface ShortestPathByTile {
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     imports: [
+        CombatTimerComponent,
         ChatComponent,
         InventoryComponent,
         MatCardModule,
