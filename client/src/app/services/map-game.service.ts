@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Moving } from '@app/classes/moving';
+import { State } from '@app/interfaces/state';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { GameTile, TilePreview } from '@common/game-structure';
 import { Player } from '@common/player';
@@ -16,14 +18,28 @@ export class MapGameService extends MapBaseService {
     isMoving: boolean = false;
     actionDoor: boolean = false;
 
+    private currentState: State;
+
     private eventSubject = new Subject<number>();
 
     /* eslint-disable */ // Methods to be implemented in the next sprint
     event$ = this.eventSubject.asObservable();
+
+    constructor() {
+        super();
+        this.currentState = new Moving();
+    }
+
+    setState(state: State): void {
+        this.currentState = state;
+    }
+
     onMouseUp(index: number, event: MouseEvent): void {
         event.preventDefault();
     }
-    onRightClick(index: number): void {}
+    onRightClick(index: number): void {
+        this.currentState.onRightClick(index);
+    }
     onExit(): void {}
     onDrop(index: number): void {}
     /* eslint-enable */

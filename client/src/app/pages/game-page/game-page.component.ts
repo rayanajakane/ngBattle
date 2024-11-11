@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Combat } from '@app/classes/combat';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
@@ -239,6 +240,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     quitGame() {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
         this.router.navigate(['/home']);
+    }
+
+    startAction() {
+        this.mapService.setState(new Combat());
     }
 
     ngOnDestroy() {
