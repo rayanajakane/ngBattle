@@ -16,7 +16,7 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DELAY } from '@app/pages/game-page/constant';
+import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
@@ -73,6 +73,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
+    private readonly gameController = inject(GameControllerService);
 
     private mapServiceSubscription: Subscription = new Subscription();
 
@@ -82,9 +83,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.roomId = this.route.snapshot.params['roomId'];
+        this.gameController.setRoomId(this.route.snapshot.params['roomId']);
+        this.gameController.setPlayerId(this.route.snapshot.params['playerId']);
+        this.subscribePlayersInitialized();
 
-        this.listenGameSetup();
         this.listenMovement();
         this.listenInteractDoor();
         this.listenStartTurn();
@@ -92,22 +94,20 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenQuitGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
-            this.mapService.tiles = this.game.map as GameTile[];
+            this.mapService.setTiles(this.game.map as GameTile[]);
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
-            if (this.route.snapshot.params['isAdmin'] === 'true') {
-                setTimeout(() => {
-                    this.socketService.emit('gameSetup', this.roomId);
-                }, DELAY);
-            }
+            this.gameController.requestGameSetup(this.route.snapshot.params['isAdmin'] === 'true');
         });
     }
 
-    listenGameSetup() {
-        this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            this.initializePlayerCoords(data.playerCoords, data.turn);
-            this.initializePlayersPositions();
-            this.startTurn();
+    subscribePlayersInitialized() {
+        this.gameController.playersInitializedBool$.subscribe((playersInitialized) => {
+            this.playersInitialized = playersInitialized;
+            if (this.playersInitialized) {
+                this.initializePlayersPositions();
+                this.gameController.requestStartTurn();
+            }
         });
     }
 
@@ -143,34 +143,22 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endTurn', (turn: number) => {
             this.activePlayer = this.playerCoords[turn].player;
             this.turn = turn;
-            this.startTurn();
+            this.gameController.requestStartTurn();
         });
     }
 
-    initializePlayerCoords(playerCoords: PlayerCoord[], turn: number) {
-        this.playerCoords = playerCoords;
-        for (const playerCoord of this.playerCoords) {
-            if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
-                this.player = playerCoord.player;
-                break;
-            }
-        }
-        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
-        this.playersInitialized = true;
-    }
-
     initializePlayersPositions() {
-        this.playerCoords.forEach((playerCoord) => {
+        this.gameController.getPlayerCoords().forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
         });
         this.mapService.removeUnusedStartingPoints();
     }
 
-    startTurn() {
-        if (this.activePlayer.id === this.player.id) {
-            this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.activePlayer.id });
-        }
-    }
+    // startTurn() {
+    //     if (this.activePlayer.id === this.player.id) {
+    //         this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.activePlayer.id });
+    //     }
+    // }
 
     subscribeMapService() {
         this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {

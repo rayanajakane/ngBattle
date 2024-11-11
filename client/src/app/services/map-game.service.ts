@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Moving } from '@app/classes/moving';
+import { None } from '@app/classes/none';
 import { State } from '@app/interfaces/state';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { GameTile, TilePreview } from '@common/game-structure';
@@ -27,11 +27,15 @@ export class MapGameService extends MapBaseService {
 
     constructor() {
         super();
-        this.currentState = new Moving();
+        this.currentState = new None();
     }
 
     setState(state: State): void {
         this.currentState = state;
+    }
+
+    setTiles(tiles: GameTile[]): void {
+        this.tiles = tiles;
     }
 
     onMouseUp(index: number, event: MouseEvent): void {
