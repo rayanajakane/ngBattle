@@ -32,7 +32,6 @@ export class ActionHandlerService {
     handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-
         this.activeGamesService.gameSetup(server, roomId, gameId, players);
     }
 

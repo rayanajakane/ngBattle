@@ -12,10 +12,13 @@ export class GameControllerService {
     player: Player;
 
     playerCoords: PlayerCoord[];
+    afklist: PlayerCoord[] = [];
     playersInitialized: boolean = false;
 
     roomId: string;
     playerId: string;
+
+    turn: number = 0;
 
     private playersInitializedSubject = new BehaviorSubject<boolean>(false); // Initial value of false
     playersInitializedBool$ = this.playersInitializedSubject.asObservable(); // Observable for components to subscribe to
@@ -37,6 +40,7 @@ export class GameControllerService {
     }
 
     requestGameSetup(isAdmin: boolean): void {
+        this.listenGameSetup();
         if (isAdmin) {
             setTimeout(() => {
                 this.socketService.emit('gameSetup', this.roomId);

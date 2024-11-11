@@ -73,7 +73,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
-    private readonly gameController = inject(GameControllerService);
+    readonly gameController = inject(GameControllerService);
 
     private mapServiceSubscription: Subscription = new Subscription();
 
@@ -105,6 +105,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameController.playersInitializedBool$.subscribe((playersInitialized) => {
             this.playersInitialized = playersInitialized;
             if (this.playersInitialized) {
+                console.log('Players initialized', this.playersInitialized);
                 this.initializePlayersPositions();
                 this.gameController.requestStartTurn();
             }
