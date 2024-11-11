@@ -12,3 +12,6 @@ export const ESCAPE_CHANCE = 0.4;
 
 export const DEFAULT_BONUS_DICE = 4;
 export const BOOSTED_BONUS_DICE = 6;
+
+export const FIRST_INVENTORY_SLOT = 0;
+export const SECOND_INVENTORY_SLOT = 1;

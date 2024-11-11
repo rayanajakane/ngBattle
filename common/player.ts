@@ -7,6 +7,7 @@ export interface Player {
     isActive: boolean;
     abandoned: boolean;
     wins: number;
+    inventory?: string[];
 }
 
 export interface PlayerAttribute {

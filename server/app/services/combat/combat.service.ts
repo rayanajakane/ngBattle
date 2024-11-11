@@ -9,7 +9,9 @@ import {
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
     ESCAPE_CHANCE,
+    FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
+    SECOND_INVENTORY_SLOT,
 } from '@app/services/combat/constants';
 import { MovementService } from '@app/services/movement/movement.service';
 import { CombatAction } from '@common/combat-actions';
@@ -21,7 +23,7 @@ import { Inject, Injectable } from '@nestjs/common';
 export class CombatService {
     fighters: PlayerCoord[] = [];
     roomId: string;
-    defaultHealth: number[] = [];
+    initialHealth: string[] = [];
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
@@ -43,7 +45,7 @@ export class CombatService {
             this.roomId = roomId;
             this.setEscapeTokens();
             fighters.forEach((player) => {
-                this.defaultHealth.push(player.player.attributes.health);
+                this.initialHealth.push(player.player.attributes.health);
             });
 
             this.startCombatTurn(this.whoIsFirstPlayer(), CombatAction.ATTACK);
@@ -148,8 +150,10 @@ export class CombatService {
     attack(attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): void {
         if (this.isPlayerInCombat(attackPlayer) && this.isPlayerInCombat(defensePlayer)) {
             if (this.isAttackSuccessful(attackPlayer, defensePlayer)) {
-                defensePlayer.player.attributes.health -= attackPlayer.player.attributes.attack;
-                if (defensePlayer.player.attributes.health <= 0) {
+                defensePlayer.player.attributes.health = (
+                    Number(defensePlayer.player.attributes.health) - attackPlayer.player.attributes.attack
+                ).toString();
+                if (Number(defensePlayer.player.attributes.health) <= 0) {
                     this.endCombat(defensePlayer);
                 }
             }
@@ -160,8 +164,8 @@ export class CombatService {
     }
 
     resetAttributes(): void {
-        this.fighters[ATTACKER_INDEX].player.attributes.health = this.defaultHealth[ATTACKER_INDEX];
-        this.fighters[DEFENDER_INDEX].player.attributes.health = this.defaultHealth[DEFENDER_INDEX];
+        this.fighters[ATTACKER_INDEX].player.attributes.health = this.initialHealth[ATTACKER_INDEX];
+        this.fighters[DEFENDER_INDEX].player.attributes.health = this.initialHealth[DEFENDER_INDEX];
         this.fighters.forEach((fighter) => {
             fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
         });
@@ -173,19 +177,10 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
         const game = gameInstance.game;
         const position = player.position;
-        const possiblePositions = this.verifyPossiblePossiblePositions(position); // [1, -1, game.mapSize, -game.mapSize];
-        // verify which positions are available
-
+        const possiblePositions = this.verifyPossiblePossiblePositions(position);
         const randomIndex = Math.floor(Math.random() * possiblePositions.length);
-
-        game.map[position].item = player.player.inventory[0];
-        game.map[randomIndex].item = player.player.inventory[1];
-        // if (game.map[possiblePositions[randomIndex]].tileType !== TileTypes.WALL && game.map[possiblePositions[randomIndex]].tileType !== TileTypes.WATER) {
-        //     game.map[possiblePositions[randomIndex]].item = player.player.inventory[1];
-        // }
-
-        // }
-        // disperse objects
+        game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
+        game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
     }
 
     verifyPossiblePossiblePositions(position: number): number[] {
