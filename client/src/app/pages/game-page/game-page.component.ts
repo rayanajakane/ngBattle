@@ -5,7 +5,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Combat } from '@app/classes/combat';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
@@ -20,7 +19,7 @@ import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
-import { GameStructure, GameTile } from '@common/game-structure';
+import { GameState, GameStructure, GameTile } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
 import { Subscription } from 'rxjs';
 
@@ -105,7 +104,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameController.playersInitializedBool$.subscribe((playersInitialized) => {
             this.playersInitialized = playersInitialized;
             if (this.playersInitialized) {
-                console.log('Players initialized', this.playersInitialized);
                 this.initializePlayersPositions();
                 this.gameController.requestStartTurn();
             }
@@ -232,7 +230,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     startAction() {
-        this.mapService.setState(new Combat());
+        this.mapService.setState(GameState.ACTION);
     }
 
     ngOnDestroy() {

@@ -1,6 +1,12 @@
+import { Injectable } from '@angular/core';
 import { State } from '@app/interfaces/state';
 
-export class Combat implements State {
+@Injectable({
+    providedIn: 'root',
+})
+export class CombatStateService implements State {
+    constructor() {}
+
     onRightClick(index: number): void {
         console.log('You are in combat', index);
     }

@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
-import { None } from '@app/classes/none';
 import { State } from '@app/interfaces/state';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
-import { GameTile, TilePreview } from '@common/game-structure';
+import { GameState, GameTile, TilePreview } from '@common/game-structure';
 import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Subject } from 'rxjs';
+import { ActionStateService } from './action-state.service';
+import { CombatStateService } from './combat-state.service';
 import { MapBaseService } from './map-base.service';
+import { MovingStateService } from './moving-state.service';
+import { NotPlayingStateService } from './not-playing-state.service';
 
 @Injectable({
     providedIn: 'root',
@@ -25,13 +28,30 @@ export class MapGameService extends MapBaseService {
     /* eslint-disable */ // Methods to be implemented in the next sprint
     event$ = this.eventSubject.asObservable();
 
-    constructor() {
+    constructor(
+        private notPlaying: NotPlayingStateService,
+        private moving: MovingStateService,
+        private action: ActionStateService,
+        private combat: CombatStateService,
+    ) {
         super();
-        this.currentState = new None();
+        this.currentState = this.notPlaying;
     }
 
-    setState(state: State): void {
-        this.currentState = state;
+    setState(state: GameState): void {
+        switch (state) {
+            case GameState.MOVING:
+                this.currentState = this.moving;
+                break;
+            case GameState.ACTION:
+                this.currentState = this.action;
+                break;
+            case GameState.COMBAT:
+                this.currentState = this.combat;
+                break;
+            default:
+                this.currentState = this.notPlaying;
+        }
     }
 
     setTiles(tiles: GameTile[]): void {

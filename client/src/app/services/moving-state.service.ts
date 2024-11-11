@@ -1,6 +1,12 @@
+import { Injectable } from '@angular/core';
 import { State } from '@app/interfaces/state';
 
-export class Moving implements State {
+@Injectable({
+    providedIn: 'root',
+})
+export class MovingStateService implements State {
+    constructor() {}
+
     onRightClick(index: number): void {
         console.log('You are moving', index);
     }

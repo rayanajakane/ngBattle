@@ -25,7 +25,9 @@ export class GameControllerService {
 
     private readonly socketService = inject(SocketService);
 
-    constructor() {}
+    constructor() {
+        this.listenGameSetup();
+    }
 
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;
@@ -40,7 +42,6 @@ export class GameControllerService {
     }
 
     requestGameSetup(isAdmin: boolean): void {
-        this.listenGameSetup();
         if (isAdmin) {
             setTimeout(() => {
                 this.socketService.emit('gameSetup', this.roomId);

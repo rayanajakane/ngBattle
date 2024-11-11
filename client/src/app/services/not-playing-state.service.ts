@@ -1,6 +1,12 @@
+import { Injectable } from '@angular/core';
 import { State } from '@app/interfaces/state';
 
-export class None implements State {
+@Injectable({
+    providedIn: 'root',
+})
+export class NotPlayingStateService implements State {
+    constructor() {}
+
     onRightClick(index: number): void {
         console.log('You are doing nothing', index);
     }
