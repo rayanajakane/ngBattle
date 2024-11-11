@@ -11,6 +11,7 @@ import {
     ESCAPE_CHANCE,
     ICE_PENALTY,
 } from '@app/services/combat/constants';
+import { MovementService } from '@app/services/movement/movement.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
@@ -21,7 +22,10 @@ export class CombatService {
     fighters: PlayerCoord[] = [];
     roomId: string;
     defaultHealth: number[] = [];
-    constructor(@Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService) {}
+    constructor(
+        @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
+        @Inject(MovementService) private readonly movementService: MovementService,
+    ) {}
 
     // check if player is in combat
     isPlayerInCombat(player: PlayerCoord): boolean {
@@ -165,5 +169,43 @@ export class CombatService {
 
     // killPlayer
 
-    // disperseKilledPlayerObjects
+    disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
+        const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
+        const game = gameInstance.game;
+        const position = player.position;
+        const possiblePositions = this.verifyPossiblePossiblePositions(position); // [1, -1, game.mapSize, -game.mapSize];
+        // verify which positions are available
+
+        const randomIndex = Math.floor(Math.random() * possiblePositions.length);
+
+        game.map[position].item = player.player.inventory[0];
+        game.map[randomIndex].item = player.player.inventory[1];
+        // if (game.map[possiblePositions[randomIndex]].tileType !== TileTypes.WALL && game.map[possiblePositions[randomIndex]].tileType !== TileTypes.WATER) {
+        //     game.map[possiblePositions[randomIndex]].item = player.player.inventory[1];
+        // }
+
+        // }
+        // disperse objects
+    }
+
+    verifyPossiblePossiblePositions(position: number): number[] {
+        const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
+        const game = gameInstance.game;
+        const mapSize = parseInt(game.mapSize, 10);
+        const possiblePositions = [1, -1, mapSize, -mapSize];
+        const verifiedPositions = [];
+        possiblePositions.forEach((pos) => {
+            if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.WATER) {
+                verifiedPositions.push(pos);
+            } else {
+                pos *= 2;
+            }
+            if (verifiedPositions.length === 0) {
+                if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.WATER) {
+                    verifiedPositions.push(pos);
+                }
+            }
+        });
+        return verifiedPositions;
+    }
 }
