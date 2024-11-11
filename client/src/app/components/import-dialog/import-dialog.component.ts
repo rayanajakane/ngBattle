@@ -20,6 +20,7 @@ export class ImportDialogComponent {
     input: HTMLInputElement;
     isNameError = false;
     gameName: string;
+    fileName: string;
     game: GameStructure;
 
     constructor(private http: HttpClientService) {}
@@ -43,12 +44,12 @@ export class ImportDialogComponent {
     async saveGame(game: GameStructure) {
         this.http.sendGame(game).subscribe({
             next: () => {
-                this.dialog.closeAll(); // Handle successful response
+                this.dialog.closeAll();
+                window.location.reload();
             },
             error: (error: HttpErrorResponse) => {
                 const errorp = document.getElementById('errors') as HTMLParagraphElement;
-                errorp.textContent = error.error.errors;
-                console.log(error.error.errors);
+                errorp.textContent = error.error.errors.join('\n');
                 if (error.error.errors.some((error: string) => error.includes('nom'))) {
                     this.isNameError = true;
                     this.game = game;
@@ -58,7 +59,14 @@ export class ImportDialogComponent {
     }
 
     async importGame(event: Event) {
-        this.input = event.target as HTMLInputElement;
+        const target = event.target as HTMLInputElement | null;
+        if (target && target.files) {
+            const file = target.files[0];
+            if (file) {
+                this.fileName = file.name;
+                this.input = target;
+            }
+        }
     }
 
     readData() {

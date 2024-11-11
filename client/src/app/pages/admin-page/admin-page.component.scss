@@ -18,8 +18,10 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    height: 100%;
+    background-attachment: scroll;
+    height: auto;
     width: auto;
+    min-height: 100vh;
 }
 
 #games-list {

@@ -1,5 +1,7 @@
 <div>
-    <input type="file" (change)="importGame($event)" accept=".json" />
+    <input type="file" id="fileInput" (change)="importGame($event)" accept=".json" hidden />
+    <label for="fileInput" class="custom-file-input">Choisir Fichier</label>
+    <span>{{ fileName }}</span>
     <button (click)="readData()">Importer</button>
     <p id="errors"></p>
     @if(isNameError){
