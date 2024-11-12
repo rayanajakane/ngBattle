@@ -91,7 +91,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         // this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
-        // this.listenQuitGame();
+        this.listenQuitGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -166,7 +166,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
-    // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.initializePrevisualization(shortestPathByTile);
@@ -179,16 +178,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.game = await this.httpService.getGame(gameId);
     }
 
-    // listenQuitGame() {
-    //     this.socketService.on('quitGame', (playerId: string) => {
-    //         const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
-    //         if (afkPlayer) {
-    //             afkPlayer.player.abandoned = true;
-    //             this.afklist.push(afkPlayer);
-    //             this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== playerId);
-    //         }
-    //     });
-    // }
+    listenQuitGame() {
+        this.socketService.on('quitGame', (playerId: string) => {
+            this.gameController.feedAfkList(playerId);
+            this.mapService.removePlayerById(playerId);
+        });
+    }
 
     // listenStartAction() {
     //     this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
@@ -213,12 +208,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
+        this.gameController.requestQuitGame();
+        this.socketService.disconnect();
         this.router.navigate(['/home']);
     }
 
     startAction() {
-        this.gameController.requestStartAction();
+        // this.gameController.requestStartAction();
     }
 
     ngOnDestroy() {

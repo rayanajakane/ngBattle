@@ -50,6 +50,18 @@ export class GameControllerService {
         return this.activePlayer.id === this.player.id;
     }
 
+    removePlayerFromPlayerCoord(playerId: string): void {
+        this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== playerId);
+    }
+
+    feedAfkList(afkPlayerId: string): void {
+        const afkPlayerCoord = this.findPlayerCoordById(afkPlayerId);
+        if (afkPlayerCoord) {
+            this.afklist.push(afkPlayerCoord);
+            this.removePlayerFromPlayerCoord(afkPlayerId);
+        }
+    }
+
     requestGameSetup(isAdmin: boolean): void {
         if (isAdmin) {
             setTimeout(() => {
@@ -92,10 +104,7 @@ export class GameControllerService {
         this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
 
-    // listenStartTurn() {
-    //     this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-    //         this.initializeMovementPrevisualization(shortestPathByTile);
-    //         this.subscribeMapService();
-    //     });
-    // }
+    requestQuitGame(): void {
+        this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
+    }
 }

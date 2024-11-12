@@ -127,13 +127,17 @@ export class MapGameService extends MapBaseService {
         this.tiles[index].hasPlayer = true;
     }
 
+    removePlayerById(playerId: string): void {
+        const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
+        if (index !== -1) {
+            console.log('removePlayerById', index);
+            this.removePlayer(index);
+        }
+    }
+
     removePlayer(index: number): void {
         this.tiles[index].player = undefined;
         this.tiles[index].hasPlayer = false;
-    }
-
-    findPlayerIndex(player: Player): number {
-        return this.tiles.findIndex((tile) => tile.player?.id === player.id);
     }
 
     changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
