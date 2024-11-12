@@ -16,13 +16,12 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DELAY } from '@app/pages/game-page/constant';
+import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
-import { GameStructure, GameTile } from '@common/game-structure';
+import { GameState, GameStructure, GameTile } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
-import { Subscription } from 'rxjs';
 
 export interface ShortestPathByTile {
     [key: number]: number[];
@@ -74,8 +73,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
-
-    private mapServiceSubscription: Subscription = new Subscription();
+    readonly gameController = inject(GameControllerService);
 
     constructor(
         private route: ActivatedRoute,
@@ -83,7 +81,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.roomId = this.route.snapshot.params['roomId'];
+        this.gameController.setRoomId(this.route.snapshot.params['roomId']);
+        this.gameController.setPlayerId(this.route.snapshot.params['playerId']);
 
         this.listenGameSetup();
         this.listenMovement();
@@ -93,29 +92,27 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenQuitGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
-            this.mapService.tiles = this.game.map as GameTile[];
+            this.mapService.setTiles(this.game.map as GameTile[]);
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
-            if (this.route.snapshot.params['isAdmin'] === 'true') {
-                setTimeout(() => {
-                    this.socketService.emit('gameSetup', this.roomId);
-                }, DELAY);
-            }
+            this.gameController.requestGameSetup(this.route.snapshot.params['isAdmin'] === 'true');
         });
     }
 
     listenGameSetup() {
         this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            this.initializePlayerCoords(data.playerCoords, data.turn);
+            this.gameController.initializePlayers(data.playerCoords, data.turn);
+            this.playersInitialized = true;
             this.initializePlayersPositions();
-            this.startTurn();
+            this.gameController.requestStartTurn();
         });
     }
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            this.initializeMovementPrevisualization(shortestPathByTile);
-            this.subscribeMapService();
+            this.mapService.setState(GameState.MOVING);
+            console.log('startTurn');
+            this.mapService.initializeMovementPrevisualization(shortestPathByTile);
         });
     }
 
@@ -144,44 +141,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endTurn', (turn: number) => {
             this.activePlayer = this.playerCoords[turn].player;
             this.turn = turn;
-            this.startTurn();
+            this.gameController.requestStartTurn();
         });
-    }
-
-    initializePlayerCoords(playerCoords: PlayerCoord[], turn: number) {
-        this.playerCoords = playerCoords;
-        for (const playerCoord of this.playerCoords) {
-            if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
-                this.player = playerCoord.player;
-                break;
-            }
-        }
-        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
-        this.playersInitialized = true;
     }
 
     initializePlayersPositions() {
-        this.playerCoords.forEach((playerCoord) => {
+        this.gameController.getPlayerCoords().forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
         });
         this.mapService.removeUnusedStartingPoints();
-    }
-
-    startTurn() {
-        if (this.activePlayer.id === this.player.id) {
-            this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.activePlayer.id });
-        }
-    }
-
-    subscribeMapService() {
-        this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
-            this.mapService.removeAllPreview();
-            if (this.mapService.isMoving) {
-                this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition: index });
-            } else if (this.mapService.actionDoor) {
-                this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: index });
-            }
-        });
     }
 
     updatePlayerPosition(playerId: string, newPlayerPosition: number) {
@@ -195,25 +163,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
     // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
         if (Object.keys(shortestPathByTile).length !== 0) {
-            this.initializeMovementPrevisualization(shortestPathByTile);
+            this.mapService.initializeMovementPrevisualization(shortestPathByTile);
         } else {
-            this.resetMovementPrevisualization();
+            this.mapService.resetMovementPrevisualization();
         }
     }
 
     findPlayerCoordById(playerId: string): PlayerCoord | undefined {
         return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
-    }
-
-    initializeMovementPrevisualization(shortestPathByTile: ShortestPathByTile) {
-        this.mapService.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
-        this.mapService.setShortestPathByTile(shortestPathByTile);
-        this.mapService.renderAvailableTiles();
-    }
-
-    resetMovementPrevisualization() {
-        this.mapService.setAvailableTiles([]);
-        this.mapService.setShortestPathByTile({});
     }
 
     async getGame(gameId: string) {
@@ -231,10 +188,22 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenStartAction() {
+        this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
+            this.mapService.setState(GameState.ACTION);
+            this.mapService.setAvailableTiles(data.availableTiles);
+        });
+    }
+
+    listenToggleDoor() {
+        this.socketService.on('toggleDoor', (doorPosition: number) => {
+            this.mapService.toggleDoor(doorPosition);
+        });
+    }
+
     endTurn() {
         this.mapService.removeAllPreview();
-        this.resetMovementPrevisualization();
-        this.mapServiceSubscription.unsubscribe();
+        this.mapService.resetMovementPrevisualization();
         this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id, lastTurn: false });
     }
 
@@ -243,8 +212,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.router.navigate(['/home']);
     }
 
+    startAction() {
+        this.gameController.requestStartAction();
+    }
+
     ngOnDestroy() {
-        this.mapServiceSubscription.unsubscribe();
         this.socketService.disconnect();
     }
 }

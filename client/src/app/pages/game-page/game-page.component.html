@@ -3,22 +3,22 @@
         @if (playersInitialized) {
         <app-game-panel
             class="game-card"
-            [playerCoords]="playerCoords"
+            [playerCoords]="gameController.getPlayerCoords()"
             [mapSize]="mapSize"
-            [activePlayer]="activePlayer"
+            [activePlayer]="gameController.activePlayer"
             [game]="game.gameName"
-            [afklist]="afklist"
+            [afklist]="gameController.afklist"
         >
         </app-game-panel>
         <app-player-panel
             class="player-card"
-            [playerName]="player.name"
-            [selectedAvatar]="player.avatar"
-            [lifePoints]="player.attributes.health"
-            [speed]="player.attributes.speed"
-            [attack]="player.attributes.attack"
-            [defense]="player.attributes.defense"
-            [bonusDice]="player.attributes.dice"
+            [playerName]="gameController.player.name"
+            [selectedAvatar]="gameController.player.avatar"
+            [lifePoints]="gameController.player.attributes.health"
+            [speed]="gameController.player.attributes.speed"
+            [attack]="gameController.player.attributes.attack"
+            [defense]="gameController.player.attributes.defense"
+            [bonusDice]="gameController.player.attributes.dice"
         >
         </app-player-panel>
         }
@@ -30,7 +30,7 @@
 
         <section class="game-btns">
             <app-inventory class="tools"></app-inventory>
-            <button mat-raised-button color="primary">
+            <button mat-raised-button color="primary" (click)="startAction()">
                 <mat-icon> construction </mat-icon>
                 Action
             </button>
@@ -50,12 +50,12 @@
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
             <mat-tab label="Clavardage">
                 <div class="chat-container no-scroll">
-                    <app-chat [roomId]="roomId" [characterName]="player.name"></app-chat>
+                    <app-chat [roomId]="gameController.roomId" [characterName]="gameController.player.name"></app-chat>
                 </div>
             </mat-tab>
             <mat-tab label="Journalisation">
                 <div class="journal-container">
-                    <app-logs [player]="player"></app-logs>
+                    <app-logs [player]="gameController.player"></app-logs>
                 </div>
             </mat-tab>
         </mat-tab-group>
@@ -65,10 +65,10 @@
     <app-combat-timer></app-combat-timer>
 
     <app-leaderboard
-        [afklist]="afklist"
-        [turn]="turn"
-        [playerCoords]="playerCoords"
-        [activePlayer]="activePlayer"
+        [afklist]="gameController.afklist"
+        [turn]="gameController.turn"
+        [playerCoords]="gameController.playerCoords"
+        [activePlayer]="gameController.activePlayer"
         class="leaderboard"
     ></app-leaderboard>
     }

@@ -32,7 +32,6 @@ export class ActionHandlerService {
     handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-
         this.activeGamesService.gameSetup(server, roomId, gameId, players);
     }
 
@@ -101,7 +100,7 @@ export class ActionHandlerService {
         if (this.action.isCurrentPlayersTurn(roomId, data.playerId)) {
             this.action.nextTurn(roomId, data.lastTurn);
 
-            server.to(roomId).emit('endTurn', activeGame.turn);
+            server.to(roomId).emit('endTurn', activeGame.playersCoord[activeGame.turn].player);
         }
     }
 
