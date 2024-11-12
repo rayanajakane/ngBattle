@@ -131,8 +131,9 @@ export class MapGameService extends MapBaseService {
     }
 
     renderAvailableTiles(): void {
-        if (this.availableTiles.length > 0) {
-            this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
+        const tiles = this.currentState.getAvailableTiles();
+        if (tiles.length > 0) {
+            this.renderPreview(tiles, TilePreview.PREVIEW);
         }
     }
 

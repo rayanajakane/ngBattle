@@ -109,6 +109,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
             this.mapService.setState(GameState.MOVING);
+            console.log('startTurn');
             this.mapService.initializeMovementPrevisualization(shortestPathByTile);
         });
     }
