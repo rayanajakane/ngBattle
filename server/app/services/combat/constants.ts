@@ -15,3 +15,5 @@ export const BOOSTED_BONUS_DICE = 6;
 
 export const FIRST_INVENTORY_SLOT = 0;
 export const SECOND_INVENTORY_SLOT = 1;
+
+export const SUCCESSFUL_ATTACK_DAMAGE = 1;

@@ -12,6 +12,7 @@ import {
     FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
     SECOND_INVENTORY_SLOT,
+    SUCCESSFUL_ATTACK_DAMAGE,
 } from '@app/services/combat/constants';
 import { MovementService } from '@app/services/movement/movement.service';
 import { CombatAction } from '@common/combat-actions';
@@ -22,8 +23,8 @@ import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class CombatService {
     fighters: PlayerCoord[] = [];
-    roomId: string;
-    initialHealth: string[] = [];
+    private roomId: string;
+    maxHealth: string[] = [];
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
@@ -39,13 +40,20 @@ export class CombatService {
         return [COMBAT_ROUND_DURATION, COMBAT_ROUND_DURATION_NO_ESCAPE].join(' ');
     }
     // BY FRONTEND
+    // TODO : decide whether the first action after the combat starts is attack or escape
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
+        this.fighters.forEach((fighter) => {
+            if(fighter.player.attributes.currentHealth === undefined) {
+                fighter.player.attributes.currentHealth = fighter.player.attributes.health;
+            }
+        });
         this.fighters = fighters;
+
         if (this.fighters.length === COMBAT_FIGHTERS_NUMBER) {
             this.roomId = roomId;
             this.setEscapeTokens();
             fighters.forEach((player) => {
-                this.initialHealth.push(player.player.attributes.health);
+                this.maxHealth.push(player.player.attributes.health);
             });
 
             this.startCombatTurn(this.whoIsFirstPlayer(), CombatAction.ATTACK);
@@ -53,9 +61,6 @@ export class CombatService {
     }
 
     endCombat(player?: PlayerCoord): void {
-        if (player) {
-            this.setWinner(player);
-        }
         if (this.fighters.length === COMBAT_FIGHTERS_NUMBER) {
             this.fighters = [];
             // call other functions
@@ -146,13 +151,11 @@ export class CombatService {
             defender.player.attributes.defense + this.throwDice(bonusDefenseDice)
         );
     }
-    // attack
+
     attack(attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): void {
         if (this.isPlayerInCombat(attackPlayer) && this.isPlayerInCombat(defensePlayer)) {
             if (this.isAttackSuccessful(attackPlayer, defensePlayer)) {
-                defensePlayer.player.attributes.health = (
-                    Number(defensePlayer.player.attributes.health) - attackPlayer.player.attributes.attack
-                ).toString();
+                defensePlayer.player.attributes.health = (Number(defensePlayer.player.attributes.health) - SUCCESSFUL_ATTACK_DAMAGE). ();
                 if (Number(defensePlayer.player.attributes.health) <= 0) {
                     this.endCombat(defensePlayer);
                 }
@@ -172,6 +175,16 @@ export class CombatService {
     }
 
     // killPlayer
+    killPlayer(player: PlayerCoord): void {
+        const playerKilled: PlayerCoord = player;
+        const playerKiller: PlayerCoord = this.fighters.find((fighter) => fighter.player.id !== player.player.id);
+        // killer must go back to home and have his attributes reset and have 1 more win
+        if (playerKiller) {
+            this.setWinner(playerKiller);
+            this.disperseKilledPlayerObjects(this.roomId, playerKilled);
+            this.resetAttributes();
+        }
+    }
 
     disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
