@@ -35,10 +35,6 @@ export class CombatService {
         return this.fighters.some((fighter) => fighter.player.id === player.player.id);
     }
 
-    // temp func
-    test(): string {
-        return [COMBAT_ROUND_DURATION, COMBAT_ROUND_DURATION_NO_ESCAPE].join(' ');
-    }
     // BY FRONTEND
     // TODO : decide whether the first action after the combat starts is attack or escape
     startCombat(roomId: string, fighters: PlayerCoord[]): void {

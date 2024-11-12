@@ -1,7 +1,6 @@
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
-import { Action } from '@common/actions-button';
 import { TileStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
@@ -15,8 +14,18 @@ export class ActionButtonService {
         @Inject(CombatService) private readonly combatService: CombatService,
     ) {}
 
-    // TODO : Add the logic for the action buttons ( inside the map-game service)
-    // returns all the players that are around
+    getAvailableIndexes(roomId: string, activePlayer: PlayerCoord): number[] {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        const availableIndexes: number[] = [];
+        this.getPlayersAround(roomId, activePlayer.position).forEach((opponentPlayer) => {
+            availableIndexes.push(opponentPlayer.position);
+        });
+        this.getDoorsAround(roomId, activePlayer).forEach((door) => {
+            availableIndexes.push(door.idx);
+        });
+        return availableIndexes;
+    }
+
     getPlayersAround(roomId: string, position: number): PlayerCoord[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const mapSize = parseInt(gameInstance.game.mapSize, 10);
@@ -45,7 +54,7 @@ export class ActionButtonService {
         }
         return players;
     }
-    // check if there are any doors around active player
+
     getDoorsAround(roomId: string, player: PlayerCoord): TileStructure[] {
         const doorsFound: TileStructure[] = [];
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
@@ -67,12 +76,12 @@ export class ActionButtonService {
     }
 
     // choose to open door or start combat
-    chosenAction(roomId: string, originalPlayer: PlayerCoord, action: Action, targetPlayer?: PlayerCoord): void {
-        if (action === Action.DOOR) {
-            // call the action service to open the door
+    chosenAction(roomId: string, originalPlayer: PlayerCoord, tileIndex: number): void {
+        const map = this.activeGamesService.getActiveGame(roomId).game.map;
+        if (map[tileIndex].tileType === TileTypes.DOORCLOSED || map[tileIndex].tileType === TileTypes.DOOROPEN) {
             this.actionService.interactWithDoor(roomId, originalPlayer.player.id, originalPlayer.position);
-        } else if (action === Action.FIGHT) {
-            // add the players to the combat
+        } else if (map[tileIndex].hasPlayer) {
+            const targetPlayer = this.activeGamesService.getActiveGame(roomId).playersCoord.find((playerCoord) => playerCoord.position === tileIndex);
             this.setFightParticipants(roomId, originalPlayer, targetPlayer);
             this.startCombat(roomId, this.fighters);
         }
