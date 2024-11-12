@@ -3,8 +3,6 @@ import {
     ATTACKER_INDEX,
     BOOSTED_BONUS_DICE,
     COMBAT_FIGHTERS_NUMBER,
-    COMBAT_ROUND_DURATION,
-    COMBAT_ROUND_DURATION_NO_ESCAPE,
     DEFAULT_BONUS_DICE,
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
@@ -23,23 +21,21 @@ import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class CombatService {
     fighters: PlayerCoord[] = [];
-    private roomId: string;
     maxHealth: string[] = [];
+    private roomId: string;
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
     ) {}
 
-    // check if player is in combat
     isPlayerInCombat(player: PlayerCoord): boolean {
         return this.fighters.some((fighter) => fighter.player.id === player.player.id);
     }
 
-    // BY FRONTEND
     // TODO : decide whether the first action after the combat starts is attack or escape
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
         this.fighters.forEach((fighter) => {
-            if(fighter.player.attributes.currentHealth === undefined) {
+            if (fighter.player.attributes.currentHealth === undefined) {
                 fighter.player.attributes.currentHealth = fighter.player.attributes.health;
             }
         });
@@ -60,6 +56,8 @@ export class CombatService {
         if (this.fighters.length === COMBAT_FIGHTERS_NUMBER) {
             this.fighters = [];
             // call other functions
+        } else {
+            //endCombatTimer();
         }
     }
 
@@ -119,7 +117,6 @@ export class CombatService {
 
     // endCombatTimer
 
-    // BY FRONTEND
     startCombatTurn(player: PlayerCoord, combatAction: CombatAction): void {
         // startCombatTimer();
         // player can choose to attack or to escape
@@ -151,7 +148,7 @@ export class CombatService {
     attack(attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): void {
         if (this.isPlayerInCombat(attackPlayer) && this.isPlayerInCombat(defensePlayer)) {
             if (this.isAttackSuccessful(attackPlayer, defensePlayer)) {
-                defensePlayer.player.attributes.health = (Number(defensePlayer.player.attributes.health) - SUCCESSFUL_ATTACK_DAMAGE). ();
+                defensePlayer.player.attributes.health = (Number(defensePlayer.player.attributes.health) - SUCCESSFUL_ATTACK_DAMAGE).toString();
                 if (Number(defensePlayer.player.attributes.health) <= 0) {
                     this.endCombat(defensePlayer);
                 }
@@ -163,14 +160,13 @@ export class CombatService {
     }
 
     resetAttributes(): void {
-        this.fighters[ATTACKER_INDEX].player.attributes.health = this.initialHealth[ATTACKER_INDEX];
-        this.fighters[DEFENDER_INDEX].player.attributes.health = this.initialHealth[DEFENDER_INDEX];
+        this.fighters[ATTACKER_INDEX].player.attributes.health = this.maxHealth[ATTACKER_INDEX];
+        this.fighters[DEFENDER_INDEX].player.attributes.health = this.maxHealth[DEFENDER_INDEX];
         this.fighters.forEach((fighter) => {
             fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
         });
     }
 
-    // killPlayer
     killPlayer(player: PlayerCoord): void {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fighters.find((fighter) => fighter.player.id !== player.player.id);

@@ -35,9 +35,7 @@ export class ActionButtonService {
         const down = gameInstance.game.map[position + mapSize].hasPlayer;
         const players: PlayerCoord[] = [];
         if (right) {
-            // find the Player
             const player: PlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.position === position + 1);
-            // only push when not undefined
             if (player) players.push(player);
         }
         if (left) {
@@ -75,7 +73,6 @@ export class ActionButtonService {
         return doorsFound;
     }
 
-    // choose to open door or start combat
     chosenAction(roomId: string, originalPlayer: PlayerCoord, tileIndex: number): void {
         const map = this.activeGamesService.getActiveGame(roomId).game.map;
         if (map[tileIndex].tileType === TileTypes.DOORCLOSED || map[tileIndex].tileType === TileTypes.DOOROPEN) {
@@ -87,18 +84,15 @@ export class ActionButtonService {
         }
     }
 
-    // set fight participants in a combat
     setFightParticipants(roomId: string, originalPlayer: PlayerCoord, targetPlayer: PlayerCoord): void {
         if (this.fighters.length !== 0) {
             this.fighters = [];
         }
-        this.fighters.push(originalPlayer); // idx 0
-        this.fighters.push(targetPlayer); // idx 1
+        this.fighters.push(originalPlayer); // fighters[0] <- attacker
+        this.fighters.push(targetPlayer); // fighters[1] <- defender
     }
 
-    // start combat
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
-        // call the combat service to start the combat
         this.combatService.startCombat(roomId, fighters);
     }
 }
