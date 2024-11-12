@@ -1,22 +1,13 @@
 import { Injectable } from '@angular/core';
-import { State } from '@app/interfaces/state';
+import { ShortestPathByTile } from '@common/game-structure';
+import { BaseStateService } from './base-state.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class CombatStateService implements State {
-    availableTiles: number[] = [];
-
-    getAvailableTiles(): number[] {
-        return this.availableTiles;
-    }
-
-    setAvailableTiles(availableTiles: number[]): void {
-        this.availableTiles = availableTiles;
-    }
-
-    availablesTilesIncludes(index: number): boolean {
-        return this.availableTiles.includes(index);
+export class CombatStateService extends BaseStateService {
+    initializePrevizualisation(accessibleTiles: ShortestPathByTile | number[]): void {
+        console.log('You are in combat', accessibleTiles);
     }
 
     onRightClick(index: number): void {

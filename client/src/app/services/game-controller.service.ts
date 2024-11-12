@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -19,9 +18,6 @@ export class GameControllerService {
     playerId: string;
 
     turn: number = 0;
-
-    private playersInitializedSubject = new BehaviorSubject<boolean>(false); // Initial value of false
-    playersInitializedBool$ = this.playersInitializedSubject.asObservable(); // Observable for components to subscribe to
 
     private readonly socketService = inject(SocketService);
 

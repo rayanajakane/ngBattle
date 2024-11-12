@@ -70,6 +70,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     afklist: PlayerCoord[] = [];
 
+    currentState: GameState = GameState.NOTPLAYING;
+
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
@@ -110,9 +112,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            this.mapService.setState(GameState.MOVING);
+            this.setState(GameState.MOVING);
             console.log('startTurn');
-            this.mapService.initializeMovementPrevisualization(shortestPathByTile);
+            this.mapService.initializePrevisualization(shortestPathByTile);
         });
     }
 
@@ -145,6 +147,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    setState(newState: GameState) {
+        this.currentState = newState;
+        this.mapService.setState(this.currentState);
+    }
+
     initializePlayersPositions() {
         this.gameController.getPlayerCoords().forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
@@ -163,7 +170,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
         if (Object.keys(shortestPathByTile).length !== 0) {
-            this.mapService.initializeMovementPrevisualization(shortestPathByTile);
+            this.mapService.initializePrevisualization(shortestPathByTile);
         } else {
             this.mapService.resetMovementPrevisualization();
         }
@@ -190,7 +197,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartAction() {
         this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
-            this.mapService.setState(GameState.ACTION);
+            this.setState(GameState.ACTION);
             this.mapService.setAvailableTiles(data.availableTiles);
         });
     }
