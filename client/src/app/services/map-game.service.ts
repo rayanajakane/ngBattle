@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { State } from '@app/interfaces/state';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { GameState, GameTile, TilePreview } from '@common/game-structure';
 import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
-import { Subject } from 'rxjs';
 import { ActionStateService } from './action-state.service';
+import { BaseStateService } from './base-state.service';
 import { CombatStateService } from './combat-state.service';
 import { MapBaseService } from './map-base.service';
 import { MovingStateService } from './moving-state.service';
@@ -21,12 +20,12 @@ export class MapGameService extends MapBaseService {
     isMoving: boolean = false;
     actionDoor: boolean = false;
 
-    private currentState: State;
+    private currentState: BaseStateService;
 
-    private eventSubject = new Subject<number>();
+    // private eventSubject = new Subject<number>();
 
     /* eslint-disable */ // Methods to be implemented in the next sprint
-    event$ = this.eventSubject.asObservable();
+    // event$ = this.eventSubject.asObservable();
 
     constructor(
         private notPlaying: NotPlayingStateService,
@@ -58,6 +57,10 @@ export class MapGameService extends MapBaseService {
         this.tiles = tiles;
     }
 
+    setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
+        this.shortestPathByTile = shortestPathByTile;
+    }
+
     onMouseUp(index: number, event: MouseEvent): void {
         event.preventDefault();
     }
@@ -66,19 +69,6 @@ export class MapGameService extends MapBaseService {
     }
     onExit(): void {}
     onDrop(index: number): void {}
-    /* eslint-enable */
-
-    emitEvent(value: number) {
-        this.eventSubject.next(value);
-    }
-
-    // setAvailableTiles(availableTiles: number[]): void {
-    //     this.availableTiles = availableTiles;
-    // }
-
-    setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
-        this.shortestPathByTile = shortestPathByTile;
-    }
 
     onMouseDown(index: number, event: MouseEvent): void {
         event.preventDefault();
@@ -87,25 +77,10 @@ export class MapGameService extends MapBaseService {
         }
     }
 
-    // onMouseDown(index: number, event: MouseEvent): void {
-    //     if (event.button === 0 && !this.isMoving && !this.actionDoor) {
-    //         if (this.availableTiles.includes(index)) {
-    //             this.isMoving = true;
-    //             this.emitEvent(index);
-    //         } else if (this.checkIfTileIsDoor(index)) {
-    //             this.actionDoor = true;
-    //             this.emitEvent(index);
-    //         }
-    //     }
-    // }
-
     onMouseEnter(index: number, event: MouseEvent): void {
         event.preventDefault();
-        this.renderShortestPath(index);
-    }
-
-    checkIfTileIsDoor(index: number): boolean {
-        return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
+        this.renderAvailableTiles();
+        this.renderPathToTarget(index);
     }
 
     renderPreview(indexes: number[], previewType: TilePreview): void {
@@ -114,27 +89,39 @@ export class MapGameService extends MapBaseService {
         });
     }
 
-    removeAllPreview(): void {
-        this.tiles.forEach((tile) => {
-            tile.isAccessible = TilePreview.NONE;
-        });
-    }
-    resetShortestPath(): void {
-        this.shortestPathByTile = {};
-    }
-
-    renderShortestPath(index: number): void {
-        this.renderAvailableTiles();
-        if (this.shortestPathByTile[index]) {
-            this.renderPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
-        }
-    }
-
     renderAvailableTiles(): void {
         const tiles = this.currentState.getAvailableTiles();
         if (tiles.length > 0) {
             this.renderPreview(tiles, TilePreview.PREVIEW);
         }
+    }
+
+    renderPathToTarget(index: number): void {
+        const shortestPath = this.currentState.getShortestPathByIndex(index);
+        if (shortestPath) {
+            this.renderPreview(shortestPath, TilePreview.SHORTESTPATH);
+        } else if (this.currentState.availablesTilesIncludes(index)) {
+            this.tiles[index].isAccessible = TilePreview.SHORTESTPATH;
+        }
+    }
+
+    removeAllPreview(): void {
+        this.tiles.forEach((tile) => {
+            tile.isAccessible = TilePreview.NONE;
+        });
+    }
+
+    resetShortestPath(): void {
+        this.shortestPathByTile = {};
+    }
+
+    resetMovementPrevisualization() {
+        this.currentState.setAvailableTiles([]);
+        this.setShortestPathByTile({});
+    }
+
+    setAvailableTiles(availableTiles: number[]): void {
+        this.currentState.setAvailableTiles(availableTiles);
     }
 
     placePlayer(index: number, player: Player): void {
@@ -172,18 +159,12 @@ export class MapGameService extends MapBaseService {
         }
     }
 
-    initializeMovementPrevisualization(shortestPathByTile: ShortestPathByTile) {
-        this.currentState.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
-        this.setShortestPathByTile(shortestPathByTile);
+    initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]) {
+        this.currentState.initializePrevizualisation(accessibleTiles);
         this.renderAvailableTiles();
     }
 
-    resetMovementPrevisualization() {
-        this.currentState.setAvailableTiles([]);
-        this.setShortestPathByTile({});
-    }
-
-    setAvailableTiles(availableTiles: number[]): void {
-        this.currentState.setAvailableTiles(availableTiles);
-    }
+    // checkIfTileIsDoor(index: number): boolean {
+    //     return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
+    // }
 }
