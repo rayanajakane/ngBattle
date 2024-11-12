@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { GameStructure } from '@common/game-structure';
@@ -14,16 +14,16 @@ import { GameStructure } from '@common/game-structure';
     styleUrl: './import-dialog.component.scss',
 })
 export class ImportDialogComponent {
-    data = inject(MAT_DIALOG_DATA);
     idGenerationService = inject(IDGenerationService);
     dialog = inject(MatDialog);
+    http = inject(HttpClientService);
     input: HTMLInputElement;
     isNameError = false;
     gameName: string;
     fileName: string;
     game: GameStructure;
 
-    constructor(private http: HttpClientService) {}
+    constructor() {}
 
     loadImportedGame(importedData: Partial<GameStructure>) {
         const game: GameStructure = {
@@ -45,7 +45,7 @@ export class ImportDialogComponent {
         this.http.sendGame(game).subscribe({
             next: () => {
                 this.dialog.closeAll();
-                window.location.reload();
+                this.reloadPage();
             },
             error: (error: HttpErrorResponse) => {
                 const errorp = document.getElementById('errors') as HTMLParagraphElement;
@@ -56,6 +56,10 @@ export class ImportDialogComponent {
                 }
             },
         });
+    }
+
+    reloadPage() {
+        window.location.reload();
     }
 
     async importGame(event: Event) {
@@ -75,28 +79,12 @@ export class ImportDialogComponent {
             let importedData: Partial<GameStructure> = {};
 
             reader.onload = () => {
-                try {
-                    importedData = JSON.parse(reader.result as string);
-                    console.log('Imported Data:', importedData);
-
-                    this.loadImportedGame(importedData);
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                }
-            };
-
-            reader.onerror = (error) => {
-                console.error('Error reading file:', error);
+                importedData = JSON.parse(reader.result as string);
+                this.loadImportedGame(importedData);
             };
 
             reader.readAsText(this.input.files[0]);
         }
-    }
-
-    openImportDialog() {
-        this.dialog.open(ImportDialogComponent, {
-            data: {},
-        });
     }
 
     async onSubmit() {

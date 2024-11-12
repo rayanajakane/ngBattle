@@ -24,5 +24,7 @@
         <button mat-raised-button color="warn" (click)="deleteGame()">Supprimer</button>
         <button mat-raised-button (click)="invertVisibility()">Inverser la visibilité</button>
     </mat-card-actions>
-    <button mat-raised-button (click)="exportGame()">Exporter</button>
+    <mat-card-actions class="btn-container">
+        <button mat-raised-button (click)="exportGame()">Exporter</button>
+    </mat-card-actions>
 </mat-card>

@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AdminItemComponent } from '@app/components/admin-item/admin-item.component';
+import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
 import { HttpClientService } from '@app/services/http-client.service';
 import { GameStructure } from '@common/game-structure';
 import { AdminPageComponent } from './admin-page.component';
@@ -122,5 +124,11 @@ describe('AdminPageComponent', () => {
         component.editGame('1');
 
         expect(routerSpy).toHaveBeenCalledWith(['/edit'], { queryParams: { gameId: '1' } });
+    });
+
+    it('should open import dialog when openImportDialog is called', () => {
+        const dialogSpy = spyOn(TestBed.inject(MatDialog), 'open');
+        component.openImportDialog();
+        expect(dialogSpy).toHaveBeenCalledWith(ImportDialogComponent);
     });
 });

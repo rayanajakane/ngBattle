@@ -6,7 +6,7 @@
     </div>
     <section id="games-list">
         @for(game of games; track game.id){
-        <app-admin-item [game]="game" (exportGameEvent)="exportGame($event)" (editGameEvent)="editGame($event)"></app-admin-item>
+        <app-admin-item [game]="game" (editGameEvent)="editGame($event)"></app-admin-item>
         }
     </section>
     <p>Importer</p>

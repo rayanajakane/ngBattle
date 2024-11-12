@@ -20,7 +20,6 @@ import { GameStructure } from '@common/game-structure';
 export class AdminItemComponent implements OnInit {
     @Input() game: GameStructure;
     @Output() editGameEvent = new EventEmitter<string>();
-    @Output() exportGameEvent = new EventEmitter<GameStructure>();
     mapSize: number;
 
     constructor(
@@ -35,7 +34,14 @@ export class AdminItemComponent implements OnInit {
     }
 
     exportGame() {
-        this.exportGameEvent.emit(this.game);
+        const { isVisible: _, ...gameWithoutVisibility } = this.game;
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(gameWithoutVisibility));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute('href', dataStr);
+        downloadAnchorNode.setAttribute('download', `${this.game.gameName}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
     }
 
     invertVisibility() {

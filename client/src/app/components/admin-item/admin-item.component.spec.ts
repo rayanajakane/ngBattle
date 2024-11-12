@@ -113,4 +113,31 @@ describe('AdminItemComponent', () => {
         component.editGame();
         expect(component.editGameEvent.emit).toHaveBeenCalledWith('1');
     });
+
+    it('should export game data as JSON file', () => {
+        component.game = {
+            gameName: 'TestGame',
+            isVisible: true,
+        } as any;
+
+        const mockAnchor = {
+            setAttribute: jasmine.createSpy('setAttribute'),
+            click: jasmine.createSpy('click'),
+            remove: jasmine.createSpy('remove'),
+        };
+
+        spyOn(document, 'createElement').and.returnValue(mockAnchor as any);
+        spyOn(document.body, 'appendChild');
+
+        component.exportGame();
+
+        const expectedDataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({ gameName: 'TestGame' }));
+
+        expect(document.createElement).toHaveBeenCalledWith('a');
+        expect(mockAnchor.setAttribute).toHaveBeenCalledWith('href', expectedDataStr);
+        expect(mockAnchor.setAttribute).toHaveBeenCalledWith('download', 'TestGame.json');
+        expect(document.body.appendChild).toHaveBeenCalledWith(mockAnchor as any);
+        expect(mockAnchor.click).toHaveBeenCalled();
+        expect(mockAnchor.remove).toHaveBeenCalled();
+    });
 });
