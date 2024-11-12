@@ -24,7 +24,6 @@ export class VirtualPlayerPageComponent {
     nonAvailableAvatars: Avatar[] = [];
 
     characterProfile: string = '';
-    isVirtualPlayerCreated: boolean = false;
 
     virtualPlayer: Player;
     virtualAvatar: Avatar;
@@ -88,7 +87,6 @@ export class VirtualPlayerPageComponent {
                 dice: dice,
             },
         };
-        this.isVirtualPlayerCreated = true;
     }
 
     getAvailableName(): string {

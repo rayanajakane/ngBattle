@@ -19,10 +19,8 @@
         <button class="randomize-btn" (click)="randomizePlayer()">Cliquer</button>
     </div>
     <div>
-        @if(isVirtualPlayerCreated){
         <div>Voici l'avatar virtuel et son nom</div>
         <p>{{ virtualPlayer.name }}</p>
         <img class="avatar" [src]="virtualAvatar.img" />
-        }
     </div>
 </div>
