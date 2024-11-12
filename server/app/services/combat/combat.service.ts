@@ -20,6 +20,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CombatService {
+    //TODO: include fighters info in activeGamesService or make it so multiple combats on different games can be handled
+    // idea : make a combat object with the fighters and the room id to uniquely identify it
+
     fighters: PlayerCoord[] = [];
     maxHealth: string[] = [];
     private roomId: string;
