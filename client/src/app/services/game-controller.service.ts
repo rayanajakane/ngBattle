@@ -39,6 +39,17 @@ export class GameControllerService {
         this.playerId = playerId;
     }
 
+    setActivePlayer(activePlayerId: string): void {
+        const activePlayer = this.findPlayerCoordById(activePlayerId)?.player;
+        if (activePlayer) {
+            this.activePlayer = activePlayer;
+        }
+    }
+
+    isActivePlayer(): boolean {
+        return this.activePlayer.id === this.player.id;
+    }
+
     requestGameSetup(isAdmin: boolean): void {
         if (isAdmin) {
             setTimeout(() => {
@@ -66,6 +77,10 @@ export class GameControllerService {
 
     requestMove(endPosition: number): void {
         this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition });
+    }
+
+    requestEndTurn(lastTurn: boolean = false): void {
+        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player.id, lastTurn: lastTurn });
     }
 
     requestStartAction(): void {

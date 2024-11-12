@@ -90,7 +90,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenMovement();
         // this.listenInteractDoor();
         this.listenStartTurn();
-        // this.listenEndTurn();
+        this.listenEndTurn();
         // this.listenQuitGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
@@ -139,13 +139,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    // listenEndTurn() {
-    //     this.socketService.on('endTurn', (turn: number) => {
-    //         this.activePlayer = this.playerCoords[turn].player;
-    //         this.turn = turn;
-    //         this.gameController.requestStartTurn();
-    //     });
-    // }
+    listenEndTurn() {
+        this.socketService.on('endTurn', (activePlayerId: string) => {
+            this.gameController.setActivePlayer(activePlayerId);
+            this.gameController.requestStartTurn();
+        });
+    }
 
     setState(newState: GameState) {
         this.currentState = newState;
@@ -205,9 +204,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
     // }
 
     endTurn() {
-        this.mapService.removeAllPreview();
-        this.mapService.resetMovementPrevisualization();
-        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id, lastTurn: false });
+        if (this.gameController.isActivePlayer()) {
+            this.mapService.resetMovementPrevisualization();
+            this.mapService.removeAllPreview();
+            this.setState(GameState.NOTPLAYING);
+            this.gameController.requestEndTurn();
+        }
     }
 
     quitGame() {
