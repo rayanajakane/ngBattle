@@ -25,9 +25,7 @@ export class GameControllerService {
 
     private readonly socketService = inject(SocketService);
 
-    constructor() {
-        this.listenGameSetup();
-    }
+    constructor() {}
 
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;
@@ -49,13 +47,6 @@ export class GameControllerService {
         }
     }
 
-    listenGameSetup() {
-        this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            this.initializePlayers(data.playerCoords, data.turn);
-            this.notifyPlayerInitialized();
-        });
-    }
-
     initializePlayers(playerCoords: PlayerCoord[], turn: number) {
         this.playerCoords = playerCoords;
         for (const playerCoord of this.playerCoords) {
@@ -67,13 +58,29 @@ export class GameControllerService {
         this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
     }
 
-    notifyPlayerInitialized(): void {
-        this.playersInitializedSubject.next(true);
-    }
-
     requestStartTurn(): void {
         if (this.activePlayer.id === this.player.id) {
             this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.player.id });
         }
     }
+
+    requestMove(endPosition: number): void {
+        this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition });
+    }
+
+    requestStartAction(): void {
+        this.socketService.emit('startAction', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    // change back-end
+    requestAction(target: number): void {
+        this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
+    }
+
+    // listenStartTurn() {
+    //     this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+    //         this.initializeMovementPrevisualization(shortestPathByTile);
+    //         this.subscribeMapService();
+    //     });
+    // }
 }

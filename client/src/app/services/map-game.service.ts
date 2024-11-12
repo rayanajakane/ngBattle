@@ -72,25 +72,32 @@ export class MapGameService extends MapBaseService {
         this.eventSubject.next(value);
     }
 
-    setAvailableTiles(availableTiles: number[]): void {
-        this.availableTiles = availableTiles;
-    }
+    // setAvailableTiles(availableTiles: number[]): void {
+    //     this.availableTiles = availableTiles;
+    // }
 
     setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
         this.shortestPathByTile = shortestPathByTile;
     }
 
     onMouseDown(index: number, event: MouseEvent): void {
-        if (event.button === 0 && !this.isMoving && !this.actionDoor) {
-            if (this.availableTiles.includes(index)) {
-                this.isMoving = true;
-                this.emitEvent(index);
-            } else if (this.checkIfTileIsDoor(index)) {
-                this.actionDoor = true;
-                this.emitEvent(index);
-            }
+        event.preventDefault();
+        if (event.button === 0) {
+            this.currentState.onMouseDown(index);
         }
     }
+
+    // onMouseDown(index: number, event: MouseEvent): void {
+    //     if (event.button === 0 && !this.isMoving && !this.actionDoor) {
+    //         if (this.availableTiles.includes(index)) {
+    //             this.isMoving = true;
+    //             this.emitEvent(index);
+    //         } else if (this.checkIfTileIsDoor(index)) {
+    //             this.actionDoor = true;
+    //             this.emitEvent(index);
+    //         }
+    //     }
+    // }
 
     onMouseEnter(index: number, event: MouseEvent): void {
         event.preventDefault();
@@ -162,5 +169,20 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
+    }
+
+    initializeMovementPrevisualization(shortestPathByTile: ShortestPathByTile) {
+        this.currentState.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
+        this.setShortestPathByTile(shortestPathByTile);
+        this.renderAvailableTiles();
+    }
+
+    resetMovementPrevisualization() {
+        this.currentState.setAvailableTiles([]);
+        this.setShortestPathByTile({});
+    }
+
+    setAvailableTiles(availableTiles: number[]): void {
+        this.currentState.setAvailableTiles(availableTiles);
     }
 }
