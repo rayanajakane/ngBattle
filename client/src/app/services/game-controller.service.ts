@@ -27,6 +27,10 @@ export class GameControllerService {
         return this.playerCoords;
     }
 
+    findPlayerCoordById(playerId: string): PlayerCoord | undefined {
+        return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
+    }
+
     setRoomId(roomId: string): void {
         this.roomId = roomId;
     }

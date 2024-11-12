@@ -16,9 +16,8 @@ export class MovingStateService extends BaseStateService {
     }
 
     onMouseDown(index: number): void {
-        if (this.availableTiles.includes(index)) {
-            this.gameController.requestMove(index);
-        }
+        console.log('You are moving', index);
+        this.gameController.requestMove(index);
     }
 
     onMouseEnter(): void {

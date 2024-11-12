@@ -88,10 +88,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         this.listenGameSetup();
         this.listenMovement();
-        this.listenInteractDoor();
+        // this.listenInteractDoor();
         this.listenStartTurn();
-        this.listenEndTurn();
-        this.listenQuitGame();
+        // this.listenEndTurn();
+        // this.listenQuitGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -118,34 +118,34 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    listenInteractDoor() {
-        this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
-            if (data.isToggable) {
-                this.mapService.toggleDoor(data.doorPosition);
-            }
-            this.mapService.actionDoor = false;
-            this.endMovement(data.availableMoves);
-        });
-    }
+    // listenInteractDoor() {
+    //     this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
+    //         if (data.isToggable) {
+    //             this.mapService.toggleDoor(data.doorPosition);
+    //         }
+    //         this.mapService.actionDoor = false;
+    //         this.endMovement(data.availableMoves);
+    //     });
+    // }
 
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
+            console.log('playerPositionUpdate', data.newPlayerPosition);
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
         this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
             this.currentMoveBudget = data.currentMoveBudget;
-            this.mapService.isMoving = false;
             this.endMovement(data.availableMoves);
         });
     }
 
-    listenEndTurn() {
-        this.socketService.on('endTurn', (turn: number) => {
-            this.activePlayer = this.playerCoords[turn].player;
-            this.turn = turn;
-            this.gameController.requestStartTurn();
-        });
-    }
+    // listenEndTurn() {
+    //     this.socketService.on('endTurn', (turn: number) => {
+    //         this.activePlayer = this.playerCoords[turn].player;
+    //         this.turn = turn;
+    //         this.gameController.requestStartTurn();
+    //     });
+    // }
 
     setState(newState: GameState) {
         this.currentState = newState;
@@ -160,7 +160,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     updatePlayerPosition(playerId: string, newPlayerPosition: number) {
-        const playerCoord = this.findPlayerCoordById(playerId);
+        const playerCoord = this.gameController.findPlayerCoordById(playerId);
         if (playerCoord) {
             this.mapService.changePlayerPosition(playerCoord.position, newPlayerPosition, playerCoord.player);
             playerCoord.position = newPlayerPosition;
@@ -176,37 +176,33 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
-    findPlayerCoordById(playerId: string): PlayerCoord | undefined {
-        return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
-    }
-
     async getGame(gameId: string) {
         this.game = await this.httpService.getGame(gameId);
     }
 
-    listenQuitGame() {
-        this.socketService.on('quitGame', (playerId: string) => {
-            const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
-            if (afkPlayer) {
-                afkPlayer.player.abandoned = true;
-                this.afklist.push(afkPlayer);
-                this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== playerId);
-            }
-        });
-    }
+    // listenQuitGame() {
+    //     this.socketService.on('quitGame', (playerId: string) => {
+    //         const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
+    //         if (afkPlayer) {
+    //             afkPlayer.player.abandoned = true;
+    //             this.afklist.push(afkPlayer);
+    //             this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== playerId);
+    //         }
+    //     });
+    // }
 
-    listenStartAction() {
-        this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
-            this.setState(GameState.ACTION);
-            this.mapService.setAvailableTiles(data.availableTiles);
-        });
-    }
+    // listenStartAction() {
+    //     this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
+    //         this.setState(GameState.ACTION);
+    //         this.mapService.setAvailableTiles(data.availableTiles);
+    //     });
+    // }
 
-    listenToggleDoor() {
-        this.socketService.on('toggleDoor', (doorPosition: number) => {
-            this.mapService.toggleDoor(doorPosition);
-        });
-    }
+    // listenToggleDoor() {
+    //     this.socketService.on('toggleDoor', (doorPosition: number) => {
+    //         this.mapService.toggleDoor(doorPosition);
+    //     });
+    // }
 
     endTurn() {
         this.mapService.removeAllPreview();

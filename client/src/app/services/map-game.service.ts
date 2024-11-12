@@ -17,7 +17,6 @@ export class MapGameService extends MapBaseService {
     tiles: GameTile[];
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
-    isMoving: boolean = false;
     actionDoor: boolean = false;
 
     private currentState: BaseStateService;
@@ -57,23 +56,21 @@ export class MapGameService extends MapBaseService {
         this.tiles = tiles;
     }
 
-    setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
-        this.shortestPathByTile = shortestPathByTile;
-    }
-
     onMouseUp(index: number, event: MouseEvent): void {
         event.preventDefault();
     }
     onRightClick(index: number): void {
-        this.currentState.onRightClick(index);
+        // this.currentState.onRightClick(index);
     }
     onExit(): void {}
     onDrop(index: number): void {}
 
     onMouseDown(index: number, event: MouseEvent): void {
         event.preventDefault();
-        if (event.button === 0) {
+        if (event.button === 0 && this.currentState.availableTiles.includes(index)) {
             this.currentState.onMouseDown(index);
+            this.resetMovementPrevisualization();
+            this.removeAllPreview();
         }
     }
 
@@ -111,13 +108,14 @@ export class MapGameService extends MapBaseService {
         });
     }
 
-    resetShortestPath(): void {
-        this.shortestPathByTile = {};
+    initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]) {
+        this.currentState.initializePrevizualisation(accessibleTiles);
+        this.renderAvailableTiles();
     }
 
     resetMovementPrevisualization() {
         this.currentState.setAvailableTiles([]);
-        this.setShortestPathByTile({});
+        this.currentState.setShortestPathByTile({});
     }
 
     setAvailableTiles(availableTiles: number[]): void {
@@ -158,13 +156,4 @@ export class MapGameService extends MapBaseService {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
     }
-
-    initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]) {
-        this.currentState.initializePrevizualisation(accessibleTiles);
-        this.renderAvailableTiles();
-    }
-
-    // checkIfTileIsDoor(index: number): boolean {
-    //     return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
-    // }
 }
