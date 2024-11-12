@@ -9,7 +9,11 @@
                 </button>
             </div>
         </h1>
-        <app-sidebar class="edit-page-sidebar" (selectItemTypeEvent)="mapEditService.changeSelectedItem($event)"></app-sidebar>
+        <app-sidebar
+            [gameType]="editGameService.game.gameType"
+            class="edit-page-sidebar"
+            (selectItemTypeEvent)="mapEditService.changeSelectedItem($event)"
+        ></app-sidebar>
         <app-toolbar
             class="edit-page-toolbar"
             (selectTileTypeEvent)="mapEditService.changeSelectedTile($event)"

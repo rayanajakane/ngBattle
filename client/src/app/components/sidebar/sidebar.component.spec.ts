@@ -30,7 +30,7 @@ describe('SidebarComponent', () => {
 
     it('should call startDragging with correct argument on mousedown for each mat-grid-tile', async () => {
         spyOn(component, 'startDragging');
-
+        component.gameType = 'ctf';
         const tileIds = ['AA1', 'AA2', 'AC1', 'AC2', 'AF1', 'AF2', 'item-aleatoire', 'startingPoint', 'drapeau-A', 'drapeau-B'];
 
         await fixture.whenStable();

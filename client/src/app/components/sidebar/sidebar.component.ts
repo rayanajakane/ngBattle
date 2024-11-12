@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,6 +12,7 @@ import { DragDropService } from '@app/services/drag-drop.service';
 })
 export class SidebarComponent {
     @Output() selectItemTypeEvent = new EventEmitter<string>();
+    @Input() gameType: string = '';
 
     isDragging: boolean = false;
     dragDropService = inject(DragDropService);
