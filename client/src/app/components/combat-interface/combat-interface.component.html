@@ -1,0 +1,21 @@
+<mat-card class="combat-card" appearance="outlined">
+    <mat-card-header>
+        <mat-card-title>Combat!</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <p>{{ diceInfo }}</p>
+        <p>{{ escapeChanceInfo }}</p>
+    </mat-card-content>
+    <mat-card-footer class="card-footer">
+        <section class="combat-btns">
+            <button mat-raised-button color="primary">
+                <mat-icon>sports_kabaddi</mat-icon>
+                Attaque
+            </button>
+            <button mat-raised-button color="primary">
+                <mat-icon>directions_run</mat-icon>
+                Évasion
+            </button>
+        </section>
+    </mat-card-footer>
+</mat-card>

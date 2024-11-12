@@ -1,3 +1,11 @@
+import { Player } from '@common/player';
+
+export enum TilePreview {
+    NONE,
+    PREVIEW,
+    SHORTESTPATH,
+}
+
 export interface TileStructure {
     idx: number;
     tileType: string;
@@ -5,6 +13,10 @@ export interface TileStructure {
     hasPlayer: boolean;
 }
 
+export interface GameTile extends TileStructure {
+    isAccessible: TilePreview;
+    player: Player | undefined;
+}
 export interface GameStructure {
     id: string;
     gameName: string;

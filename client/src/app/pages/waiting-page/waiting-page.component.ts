@@ -26,6 +26,8 @@ export class WaitingPageComponent implements OnInit {
     players: Player[] = [];
     isAdmin: boolean;
     maxPlayers: number;
+    isRoomLocked: boolean = false;
+    gameId: string;
     constructor(
         private readonly socketService: SocketService,
         private readonly router: Router,
@@ -70,9 +72,18 @@ export class WaitingPageComponent implements OnInit {
     }
 
     gameStartedListener() {
-        this.socketService.once('gameStarted', () => {
+        this.socketService.once('gameStarted', (data: { gameId: string; players: Player[] }) => {
+            // players might not be necessary
             // TODO: change the url path
-            this.router.navigate(['/home']);
+            this.router.navigate([
+                '/game',
+                {
+                    playerId: this.playerId,
+                    gameId: data.gameId,
+                    roomId: this.roomId,
+                    isAdmin: this.isAdmin,
+                },
+            ]);
         });
     }
 
@@ -97,8 +108,13 @@ export class WaitingPageComponent implements OnInit {
         });
     }
 
+    leaveRoom() {
+        this.socketService.disconnect();
+    }
+
     lockRoom() {
         this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
+            this.isRoomLocked = !isRoomLocked;
             if (isRoomLocked) {
                 this.socketService.emit('unlockRoom', this.roomId);
             } else {

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerAttribute } from '@common/player';
@@ -14,10 +15,19 @@ describe('JoinPageComponent', () => {
     beforeEach(async () => {
         mockSocketService = jasmine.createSpyObj('SocketService', ['isSocketAlive', 'connect', 'disconnect', 'on', 'emit', 'once']);
 
+        const activatedRouteStub = {
+            snapshot: {
+                paramMap: {
+                    get: () => 'test-id',
+                },
+            },
+        };
+
         await TestBed.configureTestingModule({
             imports: [JoinPageComponent],
             providers: [
                 { provide: SocketService, useValue: mockSocketService }, // Use the mock service
+                { provide: ActivatedRoute, useValue: activatedRouteStub },
             ],
         }).compileComponents();
 
@@ -131,6 +141,9 @@ describe('JoinPageComponent', () => {
                 avatar: 'Avatar 1',
                 attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
                 isAdmin: false,
+                isActive: true,
+                abandoned: false,
+                wins: 0,
             },
             {
                 id: '2',
@@ -138,8 +151,11 @@ describe('JoinPageComponent', () => {
                 avatar: 'Avatar 2',
                 attributes: { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' },
                 isAdmin: false,
+                isActive: true,
+                abandoned: false,
+                wins: 0,
             },
-        ];
+        ] as any;
 
         mockSocketService.on.and.callFake((event: string, action: (data: any) => void) => {
             if (event === 'getPlayers') {
