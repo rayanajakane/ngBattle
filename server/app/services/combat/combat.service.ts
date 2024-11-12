@@ -20,6 +20,9 @@ import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CombatService {
+    //TODO: include fighters info in activeGamesService or make it so multiple combats on different games can be handled
+    // idea : make a combat object with the fighters and the room id to uniquely identify it
+
     fighters: PlayerCoord[] = [];
     maxHealth: string[] = [];
     private roomId: string;
@@ -160,6 +163,7 @@ export class CombatService {
     }
 
     resetAttributes(): void {
+        // TODO: reset attack too
         this.fighters[ATTACKER_INDEX].player.attributes.health = this.maxHealth[ATTACKER_INDEX];
         this.fighters[DEFENDER_INDEX].player.attributes.health = this.maxHealth[DEFENDER_INDEX];
         this.fighters.forEach((fighter) => {
@@ -182,13 +186,13 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
         const game = gameInstance.game;
         const position = player.position;
-        const possiblePositions = this.verifyPossiblePossiblePositions(position);
+        const possiblePositions = this.verifyPossibleObjectsPositions(position);
         const randomIndex = Math.floor(Math.random() * possiblePositions.length);
         game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
         game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
     }
 
-    verifyPossiblePossiblePositions(position: number): number[] {
+    verifyPossibleObjectsPositions(position: number): number[] {
         const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
