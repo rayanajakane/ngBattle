@@ -64,7 +64,7 @@ export class CombatService {
 
     endCombat(roomId: string, player?: PlayerCoord): void {
         if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
-            this.resetAttributes(roomId);
+            this.resetAttributes(roomId, player);
             this.fightersMap.delete(roomId);
             this.currentTurnMap.delete(roomId);
             // call other functions
@@ -247,6 +247,20 @@ export class CombatService {
         const randomIndex = Math.floor(Math.random() * possiblePositions.length);
         game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
         game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
+    }
+
+    teleportPlayerToHome(roomId: string, player: PlayerCoord): void {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        const game = gameInstance.game;
+        const playerHomePosition = player.player.homePosition;
+        if (game.map[playerHomePosition].hasPlayer === false) {
+            player.position = playerHomePosition;
+        } else {
+            // if the home position taken, find a new position near home position
+            const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
+            const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
+            player.position = playerHomePosition + verifiedPositions[randomIndex];
+        }
     }
 
     verifyPossibleObjectsPositions(roomId: string, position: number): number[] {

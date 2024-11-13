@@ -8,6 +8,7 @@ export interface Player {
     abandoned: boolean;
     wins: number;
     inventory?: string[];
+    homePosition?: number;
 }
 
 export interface PlayerAttribute {

@@ -60,6 +60,10 @@ export class ActiveGamesService {
                 const speedA = parseInt(a.player.attributes.speed, 10);
                 const speedB = parseInt(b.player.attributes.speed, 10);
 
+                // used when player is killed and has to respawn back home
+                a.player.homePosition = a.position;
+                b.player.homePosition = b.position;
+
                 if (speedA !== speedB) {
                     return speedB - speedA;
                 }
