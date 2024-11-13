@@ -107,6 +107,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameController.initializePlayers(data.playerCoords, data.turn);
             this.playersInitialized = true;
             this.initializePlayersPositions();
+            this.setState(GameState.NOTPLAYING);
             this.gameController.requestStartTurn();
         });
     }
@@ -188,6 +189,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartAction() {
         this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
+            console.log('startAction', data.availableTiles);
             this.setState(GameState.ACTION);
             this.mapService.initializePrevisualization(data.availableTiles);
         });

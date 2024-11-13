@@ -50,7 +50,6 @@ export class CombatService {
             });
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
-            this.startCombatTurn(this.whoIsFirstPlayer(roomId), CombatAction.ATTACK);
         }
     }
 
