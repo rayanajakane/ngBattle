@@ -15,16 +15,10 @@ export class CombatGateway {
         console.log('Combat Gateway created');
     }
 
-    @SubscribeMessage('message')
-    handleMessage(client: unknown, payload: unknown): string {
-        return 'Hello world!';
-    }
-
     @SubscribeMessage('startAction')
     handleStartAction(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const playerCoord = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.actionButtonService.getAvailableIndexes(data.roomId, playerCoord);
-
+        client.emit('startAction', this.actionButtonService.getAvailableIndexes(data.roomId, playerCoord));
         // TODO: set the socket response to the client or all clients in the room
     }
 
@@ -38,6 +32,7 @@ export class CombatGateway {
 
         //TODO: set the socket response to the client or all clients in the room
     }
+
     // get available indexes start action
 
     // start combat action
