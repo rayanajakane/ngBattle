@@ -17,3 +17,6 @@ export const FIRST_INVENTORY_SLOT = 0;
 export const SECOND_INVENTORY_SLOT = 1;
 
 export const SUCCESSFUL_ATTACK_DAMAGE = 1;
+
+export const LEFT_TILE = -1;
+export const RIGHT_TILE = 1;

@@ -9,6 +9,8 @@ import {
     ESCAPE_CHANCE,
     FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
+    LEFT_TILE,
+    RIGHT_TILE,
     SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
 } from '@app/services/combat/constants';
@@ -63,14 +65,19 @@ export class CombatService {
     }
 
     endCombat(roomId: string, player?: PlayerCoord): void {
-        if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
+        // inc wins if a player leaves game
+        if (this.fightersMap.get(roomId).length === 1) {
+            this.setWinner(roomId, player);
+        }
+
+        if (this.fightersMap.get(roomId).length !== 0) {
             // reset health no matter how combat ended
             this.fightersMap.get(roomId).forEach((fighter) => {
                 this.resetHealth(fighter);
             });
-            this.fightersMap.delete(roomId);
-            this.currentTurnMap.delete(roomId);
         }
+        this.fightersMap.delete(roomId);
+        this.currentTurnMap.delete(roomId);
     }
 
     whoIsFirstPlayer(roomId: string): PlayerCoord {
@@ -260,7 +267,7 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
-        const possiblePositions = [1, -1, mapSize, -mapSize];
+        const possiblePositions = [RIGHT_TILE, LEFT_TILE, mapSize, -mapSize];
         const verifiedPositions = [];
         possiblePositions.forEach((pos) => {
             if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.WATER) {
