@@ -7,7 +7,6 @@ import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class ActionButtonService {
-    private fighters: PlayerCoord[] = [];
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(ActionService) private readonly actionService: ActionService,
@@ -79,17 +78,9 @@ export class ActionButtonService {
             this.actionService.interactWithDoor(roomId, originalPlayer.player.id, originalPlayer.position);
         } else if (map[tileIndex].hasPlayer) {
             const targetPlayer = this.activeGamesService.getActiveGame(roomId).playersCoord.find((playerCoord) => playerCoord.position === tileIndex);
-            this.setFightParticipants(roomId, originalPlayer, targetPlayer);
-            this.startCombat(roomId, this.fighters);
+            const newFighters: PlayerCoord[] = [originalPlayer, targetPlayer];
+            this.startCombat(roomId, newFighters);
         }
-    }
-
-    setFightParticipants(roomId: string, originalPlayer: PlayerCoord, targetPlayer: PlayerCoord): void {
-        if (this.fighters.length !== 0) {
-            this.fighters = [];
-        }
-        this.fighters.push(originalPlayer); // fighters[0] <- attacker
-        this.fighters.push(targetPlayer); // fighters[1] <- defender
     }
 
     startCombat(roomId: string, fighters: PlayerCoord[]): void {

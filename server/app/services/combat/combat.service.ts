@@ -20,69 +20,59 @@ import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CombatService {
-    //TODO: include fighters info in activeGamesService or make it so multiple combats on different games can be handled
-    // idea : make a combat object with the fighters and the room id to uniquely identify it
-
-    fighters: PlayerCoord[] = [];
-    maxHealth: string[] = [];
-    private roomId: string;
+    private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
     ) {}
 
-    isPlayerInCombat(player: PlayerCoord): boolean {
-        return this.fighters.some((fighter) => fighter.player.id === player.player.id);
+    isPlayerInCombat(roomId: string, PlayerCoord): boolean {
+        return this.fightersMap.get(roomId).find((fighter) => fighter.player.id === roomId) !== undefined;
     }
 
     // TODO : decide whether the first action after the combat starts is attack or escape
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
-        this.fighters.forEach((fighter) => {
-            if (fighter.player.attributes.currentHealth === undefined) {
-                fighter.player.attributes.currentHealth = fighter.player.attributes.health;
-            }
-        });
-        this.fighters = fighters;
-
-        if (this.fighters.length === COMBAT_FIGHTERS_NUMBER) {
-            this.roomId = roomId;
-            this.setEscapeTokens();
-            fighters.forEach((player) => {
-                this.maxHealth.push(player.player.attributes.health);
+        if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
+            fighters.forEach((fighter) => {
+                if (fighter.player.attributes.currentHealth === undefined) {
+                    fighter.player.attributes.currentHealth = fighter.player.attributes.health;
+                }
             });
-
-            this.startCombatTurn(this.whoIsFirstPlayer(), CombatAction.ATTACK);
+            this.fightersMap.set(roomId, fighters);
+            this.setEscapeTokens(roomId);
+            this.startCombatTurn(this.whoIsFirstPlayer(roomId), CombatAction.ATTACK);
         }
     }
 
-    endCombat(player?: PlayerCoord): void {
-        if (this.fighters.length === COMBAT_FIGHTERS_NUMBER) {
-            this.fighters = [];
+    endCombat(roomId: string, player?: PlayerCoord): void {
+        if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
+            this.fightersMap.delete(roomId);
             // call other functions
         } else {
             //endCombatTimer();
         }
     }
 
-    whoIsFirstPlayer(): PlayerCoord {
-        return this.fighters[ATTACKER_INDEX].player.attributes.speed >= this.fighters[DEFENDER_INDEX].player.attributes.speed
-            ? this.fighters[ATTACKER_INDEX]
-            : this.fighters[DEFENDER_INDEX];
+    whoIsFirstPlayer(roomId: string): PlayerCoord {
+        const currentFighters = this.fightersMap.get(roomId);
+        return currentFighters[ATTACKER_INDEX].player.attributes.speed >= currentFighters[DEFENDER_INDEX].player.attributes.speed
+            ? currentFighters[ATTACKER_INDEX]
+            : currentFighters[DEFENDER_INDEX];
     }
 
     // -2 sur son attaque et sa défense
-    isPlayerOnIce(player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(player)) {
+    isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
+        if (this.isPlayerInCombat(roomId, player)) {
             const position = player.position;
-            const game = this.activeGamesService.getActiveGame(this.roomId).game;
+            const game = this.activeGamesService.getActiveGame(roomId).game;
             return game.map[position].tileType === TileTypes.ICE;
         }
     }
 
-    applyIceDisadvantage(player: PlayerCoord): void {
-        if (this.isPlayerInCombat(player)) {
-            for (const fighter of this.fighters) {
-                if (this.isPlayerOnIce(player)) {
+    applyIceDisadvantage(roomId: string, player: PlayerCoord): void {
+        if (this.isPlayerInCombat(roomId, player)) {
+            for (const fighter of this.fightersMap.get(roomId)) {
+                if (this.isPlayerOnIce(roomId, player)) {
                     fighter.player.attributes.attack -= ICE_PENALTY;
                     fighter.player.attributes.attack -= ICE_PENALTY;
                 }
@@ -90,9 +80,9 @@ export class CombatService {
         }
     }
 
-    setEscapeTokens(): void {
-        if (this.fighters.length === COMBAT_FIGHTERS_NUMBER) {
-            this.fighters.forEach((fighter) => {
+    setEscapeTokens(roomId: string): void {
+        if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
+            this.fightersMap.get(roomId).forEach((fighter) => {
                 fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
             });
         }
@@ -103,8 +93,8 @@ export class CombatService {
         return randomNumber < ESCAPE_CHANCE;
     }
 
-    escape(player: PlayerCoord): void {
-        if (!this.canEscape() && this.isPlayerInCombat(player)) {
+    escape(roomId: string, player: PlayerCoord): void {
+        if (!this.canEscape() && this.isPlayerInCombat(roomId, player)) {
             player.player.attributes.escape -= 1;
             // endCombatTurn(player: PlayerCoord);
         } else {
@@ -112,8 +102,8 @@ export class CombatService {
         }
     }
 
-    setWinner(player: PlayerCoord): void {
-        if (this.isPlayerInCombat(player)) player.player.wins += 1;
+    setWinner(roomId: string, player: PlayerCoord): void {
+        if (this.isPlayerInCombat(roomId, player)) player.player.wins += 1;
     }
 
     // startCombatTimer
@@ -148,52 +138,58 @@ export class CombatService {
         );
     }
 
-    attack(attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): void {
-        if (this.isPlayerInCombat(attackPlayer) && this.isPlayerInCombat(defensePlayer)) {
+    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): void {
+        if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             if (this.isAttackSuccessful(attackPlayer, defensePlayer)) {
                 defensePlayer.player.attributes.health = (Number(defensePlayer.player.attributes.health) - SUCCESSFUL_ATTACK_DAMAGE).toString();
                 if (Number(defensePlayer.player.attributes.health) <= 0) {
-                    this.endCombat(defensePlayer);
+                    this.endCombat(roomId, defensePlayer);
                 }
             }
         }
     }
-    canPlayerEscape(player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(player)) return player.player.attributes.escape > 0;
+    canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
+        if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
     }
 
-    resetAttributes(): void {
+    resetAttributes(roomId: string): void {
         // TODO: reset attack too
-        this.fighters[ATTACKER_INDEX].player.attributes.health = this.maxHealth[ATTACKER_INDEX];
-        this.fighters[DEFENDER_INDEX].player.attributes.health = this.maxHealth[DEFENDER_INDEX];
-        this.fighters.forEach((fighter) => {
+
+        // reset health
+        this.fightersMap.get(roomId)[ATTACKER_INDEX].player.attributes.currentHealth =
+            this.fightersMap.get(roomId)[ATTACKER_INDEX].player.attributes.health;
+        this.fightersMap.get(roomId)[DEFENDER_INDEX].player.attributes.currentHealth =
+            this.fightersMap.get(roomId)[DEFENDER_INDEX].player.attributes.health;
+
+        // reset escape tokens
+        for (const fighter of this.fightersMap.get(roomId)) {
             fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
-        });
+        }
     }
 
-    killPlayer(player: PlayerCoord): void {
+    killPlayer(roomId: string, player: PlayerCoord): void {
         const playerKilled: PlayerCoord = player;
-        const playerKiller: PlayerCoord = this.fighters.find((fighter) => fighter.player.id !== player.player.id);
+        const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         // killer must go back to home and have his attributes reset and have 1 more win
         if (playerKiller) {
-            this.setWinner(playerKiller);
-            this.disperseKilledPlayerObjects(this.roomId, playerKilled);
-            this.resetAttributes();
+            this.setWinner(roomId, playerKiller);
+            this.disperseKilledPlayerObjects(roomId, playerKilled);
+            this.resetAttributes(roomId);
         }
     }
 
     disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
-        const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const position = player.position;
-        const possiblePositions = this.verifyPossibleObjectsPositions(position);
+        const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
         const randomIndex = Math.floor(Math.random() * possiblePositions.length);
         game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
         game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
     }
 
-    verifyPossibleObjectsPositions(position: number): number[] {
-        const gameInstance = this.activeGamesService.getActiveGame(this.roomId);
+    verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
         const possiblePositions = [1, -1, mapSize, -mapSize];

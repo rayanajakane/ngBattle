@@ -10,7 +10,7 @@ export class CombatGateway {
     constructor(
         private readonly activeGameService: ActiveGamesService,
         private readonly combatService: CombatService,
-        private readonly actionButton: ActionButtonService,
+        private readonly actionButtonService: ActionButtonService,
     ) {
         console.log('Combat Gateway created');
     }
@@ -23,7 +23,7 @@ export class CombatGateway {
     @SubscribeMessage('startAction')
     handleStartAction(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const playerCoord = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.actionButton.getAvailableIndexes(data.roomId, playerCoord);
+        this.actionButtonService.getAvailableIndexes(data.roomId, playerCoord);
 
         // TODO: set the socket response to the client or all clients in the room
     }
