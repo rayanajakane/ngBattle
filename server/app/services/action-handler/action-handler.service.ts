@@ -42,7 +42,10 @@ export class ActionHandlerService {
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
 
-        client.emit('startTurn', this.action.availablePlayerMoves(data.playerId, data.roomId));
+        client.emit('startTurn', {
+            shortestPathByTile: this.action.availablePlayerMoves(data.playerId, data.roomId),
+            currentMoveBudget: activeGame.currentPlayerMoveBudget,
+        });
 
         const formattedTime = this.getCurrentTimeFormatted();
         const playerName = player.name;
@@ -85,10 +88,12 @@ export class ActionHandlerService {
                     }
                 });
 
-                client.emit('endMove', {
-                    availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-                    currentMoveBudget: activeGame.currentPlayerMoveBudget,
-                });
+                setTimeout(() => {
+                    client.emit('endMove', {
+                        availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                        currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                    });
+                }, this.TIME_BETWEEN_MOVES * playerPositions.length);
             }
         }
     }

@@ -58,7 +58,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     playersList: Player[];
     playerCoords: PlayerCoord[];
 
-    currentMoveBudget: number;
+    currentMoveBudget: number | '--' = '--';
+    remainingActions: number | '--' = '--';
 
     gameCreated = false;
     playersInitialized = false;
@@ -113,9 +114,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenStartTurn() {
-        this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            console.log('startTurn', shortestPathByTile);
-            this.mapService.switchToMovingStateRoutine(shortestPathByTile);
+        this.socketService.on('startTurn', (data: { shortestPathByTile: ShortestPathByTile; currentMoveBudget: number }) => {
+            console.log('startTurn', data.shortestPathByTile);
+            this.mapService.switchToMovingStateRoutine(data.shortestPathByTile);
+            this.currentMoveBudget = data.currentMoveBudget;
+            this.remainingActions = 1;
             // this.mapService.setState(GameState.MOVING);
             // this.mapService.initializePrevisualization(shortestPathByTile);
         });
@@ -127,6 +130,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.mapService.toggleDoor(data.doorPosition);
             }
             if (this.gameController.isActivePlayer()) {
+                this.remainingActions = 0;
                 this.endMovement(data.availableMoves);
             }
         });
@@ -150,11 +154,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    // setState(newState: GameState) {
-    //     this.currentState = newState;
-    //     this.mapService.setState(this.currentState);
-    // }
-
     initializePlayersPositions() {
         this.gameController.getPlayerCoords().forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
@@ -171,9 +170,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endMovement(shortestPathByTile: ShortestPathByTile) {
+        const currentPlayerPosition = this.gameController.findPlayerCoordById(this.gameController.playerId)?.position;
+
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.switchToMovingStateRoutine(shortestPathByTile);
-            // this.mapService.initializePrevisualization(shortestPathByTile);
+        } else if (
+            currentPlayerPosition &&
+            (this.remainingActions === 0 || !this.mapService.checkIfTargetAvailable(currentPlayerPosition, this.mapSize))
+        ) {
+            this.endTurn();
         } else {
             this.mapService.resetMovementPrevisualization();
             this.mapService.setState(GameState.MOVING);
@@ -195,22 +200,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('startAction', (availableTiles: number[]) => {
             console.log('startAction', availableTiles);
             this.mapService.switchToActionStateRoutine(availableTiles);
-            // this.mapService.setState(GameState.ACTION);
-            // this.mapService.initializePrevisualization(availableTiles);
         });
     }
-
-    // listenToggleDoor() {
-    //     this.socketService.on('toggleDoor', (doorPosition: number) => {
-    //         this.mapService.toggleDoor(doorPosition);
-    //     });
-    // }
 
     endTurn() {
         if (this.gameController.isActivePlayer()) {
             this.mapService.resetAllMovementPrevisualization();
             this.mapService.removeAllPreview();
             this.mapService.setState(GameState.NOTPLAYING);
+            this.currentMoveBudget = '--';
+            this.remainingActions = '--';
             this.gameController.requestEndTurn();
         }
     }
@@ -228,7 +227,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     startAction() {
         console.log('currentState', this.mapService.currentStateNumber);
-        if (this.mapService.currentStateNumber === GameState.MOVING) {
+        if (this.remainingActions === 1 && this.mapService.currentStateNumber === GameState.MOVING) {
             console.log('Im here');
             this.gameController.requestStartAction();
         }
