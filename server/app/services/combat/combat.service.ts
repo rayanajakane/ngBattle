@@ -33,9 +33,19 @@ export class CombatService {
     // TODO : decide whether the first action after the combat starts is attack or escape
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
+            // setup current attributes for each player in combat
             fighters.forEach((fighter) => {
                 if (fighter.player.attributes.currentHealth === undefined) {
                     fighter.player.attributes.currentHealth = fighter.player.attributes.health;
+                }
+                if (fighter.player.attributes.currentAttack === undefined) {
+                    fighter.player.attributes.currentAttack = fighter.player.attributes.attack;
+                }
+                if (fighter.player.attributes.currentDefense === undefined) {
+                    fighter.player.attributes.currentDefense = fighter.player.attributes.defense;
+                }
+                if (fighter.player.attributes.currentSpeed === undefined) {
+                    fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
                 }
             });
             this.fightersMap.set(roomId, fighters);
@@ -46,7 +56,9 @@ export class CombatService {
 
     endCombat(roomId: string, player?: PlayerCoord): void {
         if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
+            this.resetAttributes(roomId);
             this.fightersMap.delete(roomId);
+
             // call other functions
         } else {
             //endCombatTimer();
@@ -73,8 +85,11 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             for (const fighter of this.fightersMap.get(roomId)) {
                 if (this.isPlayerOnIce(roomId, player)) {
-                    fighter.player.attributes.attack -= ICE_PENALTY;
-                    fighter.player.attributes.attack -= ICE_PENALTY;
+                    fighter.player.attributes.currentAttack -= ICE_PENALTY;
+                    fighter.player.attributes.currentAttack -= ICE_PENALTY;
+
+                    fighter.player.attributes.currentDefense -= ICE_PENALTY;
+                    fighter.player.attributes.currentDefense -= ICE_PENALTY;
                 }
             }
         }
@@ -110,13 +125,13 @@ export class CombatService {
 
     // endCombatTimer
 
-    startCombatTurn(player: PlayerCoord, combatAction: CombatAction): void {
+    startCombatTurn(roomId: string, player: PlayerCoord, combatAction: CombatAction): void {
         // startCombatTimer();
-        // player can choose to attack or to escape
         if (combatAction === CombatAction.ATTACK) {
-            // attack();
+            const defender = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
+            this.attack(roomId, player, defender);
         } else if (combatAction === CombatAction.ESCAPE) {
-            // escape();
+            this.escape(roomId, player);
         }
     }
 
@@ -133,8 +148,8 @@ export class CombatService {
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
 
         return (
-            attacker.player.attributes.attack + this.throwDice(bonusAttackDice) >=
-            defender.player.attributes.defense + this.throwDice(bonusDefenseDice)
+            attacker.player.attributes.currentAttack + this.throwDice(bonusAttackDice) >=
+            defender.player.attributes.currentDefense + this.throwDice(bonusDefenseDice)
         );
     }
 
@@ -152,19 +167,31 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
     }
 
+    // reset health & escape attributes for each player in combat
     resetAttributes(roomId: string): void {
-        // TODO: reset attack too
+        const attacker = this.fightersMap.get(roomId)[ATTACKER_INDEX].player;
+        const defender = this.fightersMap.get(roomId)[DEFENDER_INDEX].player;
 
         // reset health
-        this.fightersMap.get(roomId)[ATTACKER_INDEX].player.attributes.currentHealth =
-            this.fightersMap.get(roomId)[ATTACKER_INDEX].player.attributes.health;
-        this.fightersMap.get(roomId)[DEFENDER_INDEX].player.attributes.currentHealth =
-            this.fightersMap.get(roomId)[DEFENDER_INDEX].player.attributes.health;
+        attacker.attributes.currentHealth = attacker.attributes.health;
+        defender.attributes.currentHealth = defender.attributes.health;
 
         // reset escape tokens
         for (const fighter of this.fightersMap.get(roomId)) {
             fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
         }
+
+        // // reset attack
+        // attacker.attributes.currentAttack = attacker.attributes.attack;
+        // defender.attributes.currentAttack = defender.attributes.attack;
+
+        // // reset defense
+        // attacker.attributes.currentDefense = attacker.attributes.defense;
+        // defender.attributes.currentDefense = defender.attributes.defense;
+
+        // // reset speed
+        // attacker.attributes.currentSpeed = attacker.attributes.speed;
+        // defender.attributes.currentSpeed = defender.attributes.speed;
     }
 
     killPlayer(roomId: string, player: PlayerCoord): void {
