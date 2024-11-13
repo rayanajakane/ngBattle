@@ -20,6 +20,7 @@ describe('GamePanelComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            isVirtual: false,
         };
         fixture.detectChanges();
         component.mapSize = 10;

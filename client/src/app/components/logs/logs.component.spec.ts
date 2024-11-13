@@ -92,6 +92,7 @@ describe('LogsComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            isVirtual: false,
         };
 
         component.logsContainer = {

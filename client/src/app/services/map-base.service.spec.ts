@@ -12,6 +12,7 @@ const player1: Player = {
     isActive: false,
     abandoned: true,
     wins: 0,
+    isVirtual: false,
 };
 
 describe('MapBaseService', () => {
