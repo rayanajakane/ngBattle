@@ -88,6 +88,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         this.listenGameSetup();
         this.listenMovement();
+        this.listenStartAction();
         // this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
@@ -112,8 +113,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
+            console.log('startTurn', shortestPathByTile);
             this.setState(GameState.MOVING);
-            console.log('startTurn');
             this.mapService.initializePrevisualization(shortestPathByTile);
         });
     }
@@ -185,12 +186,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    // listenStartAction() {
-    //     this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
-    //         this.setState(GameState.ACTION);
-    //         this.mapService.setAvailableTiles(data.availableTiles);
-    //     });
-    // }
+    listenStartAction() {
+        this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
+            this.setState(GameState.ACTION);
+            this.mapService.initializePrevisualization(data.availableTiles);
+        });
+    }
 
     // listenToggleDoor() {
     //     this.socketService.on('toggleDoor', (doorPosition: number) => {
@@ -214,10 +215,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     startAction() {
-        // this.gameController.requestStartAction();
+        this.gameController.requestStartAction();
     }
 
     ngOnDestroy() {
+        this.mapService.resetMovementPrevisualization();
         this.socketService.disconnect();
     }
 }
