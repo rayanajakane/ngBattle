@@ -9,6 +9,8 @@ import {
     ESCAPE_CHANCE,
     FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
+    LEFT_TILE,
+    RIGHT_TILE,
     SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
 } from '@app/services/combat/constants';
@@ -63,15 +65,18 @@ export class CombatService {
     }
 
     endCombat(roomId: string, player?: PlayerCoord): void {
-        if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
-            this.resetAttributes(roomId, player);
-            this.fightersMap.delete(roomId);
-            this.currentTurnMap.delete(roomId);
-            // call other functions
-            // endCombatTimer
-        } else {
-            //endCombatTimer();
+        // inc wins if a player leaves game
+        if (this.fightersMap.get(roomId).length === 1) {
+            this.setWinner(roomId, player);
         }
+
+        if (this.fightersMap.get(roomId).length !== 0) {
+            // reset health no matter how combat ended
+            this.fightersMap.get(roomId).forEach((fighter) => {
+                this.resetHealth(fighter);
+            });
+        }
+        this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
     }
 
@@ -123,7 +128,6 @@ export class CombatService {
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
             return;
         }
-
         if (!this.canEscape() && this.isPlayerInCombat(roomId, player)) {
             player.player.attributes.escape -= 1;
             this.endCombatTurn(roomId, player);
@@ -197,10 +201,9 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
     }
 
-    resetAttributes(roomId: string, fighter: PlayerCoord): void {
+    resetAllAttributes(roomId: string, fighter: PlayerCoord): void {
         if (this.isPlayerInCombat(roomId, fighter)) {
             this.resetHealth(fighter);
-            this.resetEscapeTokens(fighter);
             this.resetAttack(fighter);
             this.resetDefense(fighter);
             this.resetSpeed(fighter);
@@ -209,10 +212,6 @@ export class CombatService {
 
     private resetHealth(fighter: PlayerCoord): void {
         fighter.player.attributes.currentHealth = fighter.player.attributes.health;
-    }
-
-    private resetEscapeTokens(fighter: PlayerCoord): void {
-        fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
     }
 
     private resetAttack(fighter: PlayerCoord): void {
@@ -230,12 +229,13 @@ export class CombatService {
     killPlayer(roomId: string, player: PlayerCoord): void {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
-        if (playerKiller) {
+        if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
             this.disperseKilledPlayerObjects(roomId, playerKilled);
-            // TODO: killed player goes back to starting point
-            this.resetAttributes(roomId, playerKilled);
-            this.resetAttributes(roomId, playerKiller);
+            this.resetAllAttributes(roomId, playerKilled);
+            this.teleportPlayerToHome(roomId, playerKilled);
+            this.resetAllAttributes(roomId, playerKiller);
+            this.endCombat(roomId);
         }
     }
 
@@ -267,7 +267,7 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
-        const possiblePositions = [1, -1, mapSize, -mapSize];
+        const possiblePositions = [RIGHT_TILE, LEFT_TILE, mapSize, -mapSize];
         const verifiedPositions = [];
         possiblePositions.forEach((pos) => {
             if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.WATER) {
