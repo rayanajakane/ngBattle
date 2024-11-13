@@ -7,6 +7,7 @@ export interface Player {
     isActive: boolean;
     abandoned: boolean;
     wins: number;
+    isVirtual: boolean;
 }
 
 export interface PlayerAttribute {

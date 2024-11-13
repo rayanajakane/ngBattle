@@ -107,7 +107,10 @@ export class JoinPageComponent {
         this.nonAvailableAvatars = this.playerList.map((player: Player) => {
             return {
                 name: player.avatar,
-                img: `./assets/characters/${player.avatar.slice(-1)}.png`,
+                img:
+                    player.avatar.length > 8
+                        ? `./assets/characters/${player.avatar.slice(-2)}.png`
+                        : `./assets/characters/${player.avatar.slice(-1)}.png`,
             };
         });
         this.availableAvatars = this.availableAvatars.filter(

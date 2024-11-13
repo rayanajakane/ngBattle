@@ -17,7 +17,6 @@ import { environment } from './environments/environment';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { GameSelectionPageComponent } from '@app/pages/game-selection-page/game-selection-page.component';
-import { VirtualPlayerPageComponent } from '@app/pages/virtual-player-page/virtual-player-page.component';
 
 if (environment.production) {
     enableProdMode();
@@ -38,7 +37,6 @@ const routes: Routes = [
     { path: 'edit', component: EditPageComponent },
     { path: 'waitingRoom', component: WaitingPageComponent },
     { path: 'joinRoom', component: JoinPageComponent },
-    { path: 'virtualPlayer', component: VirtualPlayerPageComponent },
 ];
 
 bootstrapApplication(AppComponent, {

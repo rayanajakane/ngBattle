@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { RouterLink } from '@angular/router';
 import { Avatar } from '@app/interfaces/avatar';
 import { DEFAULT_AVATAR_LIST } from '@app/services/constants';
 import { SocketService } from '@app/services/socket.service';
@@ -11,7 +10,7 @@ import { v4 as generateID } from 'uuid';
 @Component({
     selector: 'app-virtual-player-dialog',
     standalone: true,
-    imports: [FormsModule, RouterLink],
+    imports: [FormsModule],
     templateUrl: './virtual-player-dialog.component.html',
     styleUrl: './virtual-player-dialog.component.scss',
 })
@@ -43,7 +42,10 @@ export class VirtualPlayerDialogComponent {
         this.nonAvailableAvatars = this.playerList.map((player: Player) => {
             return {
                 name: player.avatar,
-                img: `./assets/characters/${player.avatar.slice(-1)}.png`,
+                img:
+                    player.avatar.length > 8
+                        ? `./assets/characters/${player.avatar.slice(-2)}.png`
+                        : `./assets/characters/${player.avatar.slice(-1)}.png`,
             };
         });
         this.availableAvatars = this.availableAvatars.filter(
@@ -84,6 +86,7 @@ export class VirtualPlayerDialogComponent {
             isActive: false,
             abandoned: false,
             wins: 0,
+            isVirtual: true,
         };
 
         //this.joinRoom();
@@ -97,8 +100,9 @@ export class VirtualPlayerDialogComponent {
         this.socketService.emit('joinRoom', {
             roomId: this.data.roomId,
             playerName: this.virtualPlayer.name.trim(),
-            avatar: this.virtualAvatar,
+            avatar: this.virtualAvatar.name,
             attributes: this.virtualPlayer.attributes,
+            isVirtual: true,
         });
         console.log(this.virtualPlayer);
     }

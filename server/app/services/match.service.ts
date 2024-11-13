@@ -3,6 +3,7 @@ import { Player, PlayerAttribute } from '@common/player';
 import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { v4 as generateID } from 'uuid';
 import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
 
@@ -41,6 +42,7 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
+            isVirtual: false,
         };
         room.players.push(player);
 
@@ -71,7 +73,13 @@ export class MatchService {
         if (room) client.emit('getPlayers', room.players);
     }
 
-    joinRoom(server: Server, client: Socket, roomId: string, playerData: { playerName: string; avatar: string; attributes: PlayerAttribute }) {
+    joinRoom(
+        server: Server,
+        client: Socket,
+        roomId: string,
+        playerData: { playerName: string; avatar: string; attributes: PlayerAttribute },
+        isVirtual: boolean,
+    ) {
         const room = this.rooms.get(roomId);
 
         if (!room) {
@@ -87,7 +95,7 @@ export class MatchService {
         const checkedPlayerName = this.checkAndSetPlayerName(room, playerData.playerName);
 
         const player: Player = {
-            id: client.id,
+            id: isVirtual ? generateID() : client.id,
             name: checkedPlayerName,
             isAdmin: false,
             avatar: playerData.avatar,
@@ -95,6 +103,7 @@ export class MatchService {
             isActive: false,
             abandoned: false,
             wins: 0,
+            isVirtual,
         };
         room.players.push(player);
 
@@ -103,7 +112,7 @@ export class MatchService {
             server.to(roomId).emit('roomLocked');
         }
 
-        client.join(roomId);
+        if (!isVirtual) client.join(roomId);
         client.emit('roomJoined', { roomId, playerId: client.id, playerName: checkedPlayerName });
         this.updatePlayers(server, room);
     }
@@ -141,6 +150,8 @@ export class MatchService {
     leaveRoom(server: Server, client: Socket, roomId: string) {
         const room = this.rooms.get(roomId);
         if (!room) return;
+
+        if (!client) return;
 
         if (client.id === room.players[0].id) {
             room.players.forEach((p) => {
