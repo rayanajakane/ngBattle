@@ -94,6 +94,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
+        this.listenTimer();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -200,6 +201,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('startAction', (availableTiles: number[]) => {
             console.log('startAction', availableTiles);
             this.mapService.switchToActionStateRoutine(availableTiles);
+        });
+    }
+
+    listenTimer() {
+        this.socketService.on('timeUpdate', (time: number) => {
+            console.log('timer', time);
         });
     }
 
