@@ -1,0 +1,14 @@
+import { Component, Input } from '@angular/core';
+import { GlobalStats } from '@common/global-stats';
+
+@Component({
+    selector: 'app-global-stats',
+    standalone: true,
+    imports: [],
+    templateUrl: './global-stats.component.html',
+    styleUrl: './global-stats.component.scss',
+})
+export class GlobalStatsComponent {
+    @Input() globalStats: GlobalStats;
+    @Input() gameMode: string;
+}

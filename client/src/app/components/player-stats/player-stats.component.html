@@ -1,0 +1,29 @@
+<div>
+    <h2>Statistiques des joueurs</h2>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Nb de combats</th>
+            <th>Nb d'évasions</th>
+            <th>Nb de victoires</th>
+            <th>Nb de defaites</th>
+            <th>Total PDV perdus</th>
+            <th>Total PDV enlevés aux adversaires</th>
+            <th>Nb objets differents ramassés</th>
+            <th>Pourcentage de tuiles visitées</th>
+        </tr>
+        @for(player of playerList; track $index){
+        <tr>
+            <td>{{ player.name }}</td>
+            <td>{{ player.stats.combatCount }}</td>
+            <td>{{ player.stats.escapeCount }}</td>
+            <td>{{ player.stats.victoryCount }}</td>
+            <td>{{ player.stats.defeatCount }}</td>
+            <td>{{ player.stats.totalHealthLost }}</td>
+            <td>{{ player.stats.totalHealthTaken }}</td>
+            <td>{{ player.stats.uniqueItemsCollected }}</td>
+            <td>{{ player.stats.visitedTilesPercent }}</td>
+        </tr>
+        }
+    </table>
+</div>

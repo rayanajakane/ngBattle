@@ -7,6 +7,7 @@ export interface Player {
     isActive: boolean;
     abandoned: boolean;
     wins: number;
+    stats: PlayerStats;
 }
 
 export interface PlayerAttribute {
@@ -15,4 +16,15 @@ export interface PlayerAttribute {
     attack: string;
     defense: string;
     dice: string;
+}
+
+export interface PlayerStats {
+    combatCount: number;
+    escapeCount: number;
+    victoryCount: number;
+    defeatCount: number;
+    totalHealthLost: number;
+    totalHealthTaken: number;
+    uniqueItemsCollected: number;
+    visitedTilesPercent: number;
 }
