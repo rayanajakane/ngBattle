@@ -175,6 +175,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             // this.mapService.initializePrevisualization(shortestPathByTile);
         } else {
             this.mapService.resetMovementPrevisualization();
+            this.mapService.setState(GameState.MOVING);
         }
     }
 
@@ -225,6 +226,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     startAction() {
+        console.log('currentState', this.mapService.currentStateNumber);
         if (this.mapService.currentStateNumber === GameState.MOVING) {
             this.gameController.requestStartAction();
         }
