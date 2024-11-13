@@ -27,10 +27,12 @@ export class CombatService {
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
     ) {}
+
     // You can also replace this.currentTurnMap.set(roomId, index)
     // with a setPlayerTurn method with more verification
-    isPlayerInCombat(roomId: string, PlayerCoord): boolean {
-        return this.fightersMap.get(roomId).find((fighter) => fighter.player.id === roomId) !== undefined;
+    isPlayerInCombat(roomId: string, player: PlayerCoord): boolean {
+        const fighters = this.fightersMap.get(roomId);
+        return fighters ? fighters.some((fighter) => fighter.player.id === player.player.id) : false;
     }
 
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
@@ -62,7 +64,7 @@ export class CombatService {
 
     endCombat(roomId: string, player?: PlayerCoord): void {
         if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
-            this.resetAttributes(roomId);
+            this.resetAttributes(roomId, player);
             this.fightersMap.delete(roomId);
             this.currentTurnMap.delete(roomId);
             // call other functions
@@ -151,7 +153,7 @@ export class CombatService {
     endCombatTurn(roomId: string, player: PlayerCoord): void {
         if (!this.isPlayerInCombat(roomId, player)) return;
         const fighters = this.fightersMap.get(roomId);
-        const currentTurnIndex = this.currentTurnMap.get(roomId) || 0;
+        const currentTurnIndex = this.currentTurnMap.get(roomId) || ATTACKER_INDEX;
 
         // Change the turn to the other fighter
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
@@ -160,8 +162,7 @@ export class CombatService {
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
         const fighters = this.fightersMap.get(roomId);
-        // Get the current turn player of fighters ( if not find then its the first fighter of fighters)
-        const currentTurnIndex = this.currentTurnMap.get(roomId) || 0;
+        const currentTurnIndex = this.currentTurnMap.get(roomId) || ATTACKER_INDEX;
         return fighters?.[currentTurnIndex];
     }
 
@@ -196,41 +197,45 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
     }
 
-    // reset health & escape attributes for each player in combat
-    resetAttributes(roomId: string): void {
-        const attacker = this.fightersMap.get(roomId)[ATTACKER_INDEX].player;
-        const defender = this.fightersMap.get(roomId)[DEFENDER_INDEX].player;
-
-        // reset health
-        attacker.attributes.currentHealth = attacker.attributes.health;
-        defender.attributes.currentHealth = defender.attributes.health;
-
-        // reset escape tokens
-        for (const fighter of this.fightersMap.get(roomId)) {
-            fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
+    resetAttributes(roomId: string, fighter: PlayerCoord): void {
+        if (this.isPlayerInCombat(roomId, fighter)) {
+            this.resetHealth(fighter);
+            this.resetEscapeTokens(fighter);
+            this.resetAttack(fighter);
+            this.resetDefense(fighter);
+            this.resetSpeed(fighter);
         }
+    }
 
-        // // reset attack
-        // attacker.attributes.currentAttack = attacker.attributes.attack;
-        // defender.attributes.currentAttack = defender.attributes.attack;
+    private resetHealth(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentHealth = fighter.player.attributes.health;
+    }
 
-        // // reset defense
-        // attacker.attributes.currentDefense = attacker.attributes.defense;
-        // defender.attributes.currentDefense = defender.attributes.defense;
+    private resetEscapeTokens(fighter: PlayerCoord): void {
+        fighter.player.attributes.escape = DEFAULT_ESCAPE_TOKENS;
+    }
 
-        // // reset speed
-        // attacker.attributes.currentSpeed = attacker.attributes.speed;
-        // defender.attributes.currentSpeed = defender.attributes.speed;
+    private resetAttack(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentAttack = fighter.player.attributes.attack;
+    }
+
+    private resetDefense(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentDefense = fighter.player.attributes.defense;
+    }
+
+    private resetSpeed(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
     }
 
     killPlayer(roomId: string, player: PlayerCoord): void {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
-        // killer must go back to home and have his attributes reset and have 1 more win
         if (playerKiller) {
             this.setWinner(roomId, playerKiller);
             this.disperseKilledPlayerObjects(roomId, playerKilled);
-            this.resetAttributes(roomId);
+            // TODO: killed player goes back to starting point
+            this.resetAttributes(roomId, playerKilled);
+            this.resetAttributes(roomId, playerKiller);
         }
     }
 
@@ -242,6 +247,20 @@ export class CombatService {
         const randomIndex = Math.floor(Math.random() * possiblePositions.length);
         game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
         game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
+    }
+
+    teleportPlayerToHome(roomId: string, player: PlayerCoord): void {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        const game = gameInstance.game;
+        const playerHomePosition = player.player.homePosition;
+        if (game.map[playerHomePosition].hasPlayer === false) {
+            player.position = playerHomePosition;
+        } else {
+            // if the home position taken, find a new position near home position
+            const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
+            const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
+            player.position = playerHomePosition + verifiedPositions[randomIndex];
+        }
     }
 
     verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
