@@ -26,8 +26,9 @@ export class CombatService {
         @Inject(MovementService) private readonly movementService: MovementService,
     ) {}
 
-    isPlayerInCombat(roomId: string, PlayerCoord): boolean {
-        return this.fightersMap.get(roomId).find((fighter) => fighter.player.id === roomId) !== undefined;
+    isPlayerInCombat(roomId: string, player: PlayerCoord): boolean {
+        const fighters = this.fightersMap.get(roomId);
+        return fighters ? fighters.some((fighter) => fighter.player.id === player.player.id) : false;
     }
 
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
