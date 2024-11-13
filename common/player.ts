@@ -13,9 +13,12 @@ export interface Player {
 export interface PlayerAttribute {
     health: string; // maxHealth
     currentHealth?: string;
-    speed: string;
-    attack: number;
-    defense: number;
+    speed: string; // maxSpeed
+    currentSpeed?: string;
+    attack: number; // maxAttack
+    currentAttack?: number;
+    defense: number; // maxDefense
+    currentDefense?: number;
     dice: string;
     // TO VERIFY
     escape?: number;
