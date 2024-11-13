@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ShortestPathByTile } from '@common/game-structure';
+import { GameState, ShortestPathByTile } from '@common/game-structure';
 import { GameControllerService } from './game-controller.service';
 
 @Injectable({
@@ -33,6 +33,10 @@ export abstract class BaseStateService {
         return this.shortestPathByTile[index];
     }
 
+    getShortestPathByTile(): ShortestPathByTile {
+        return this.shortestPathByTile;
+    }
+
     setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
         this.shortestPathByTile = shortestPathByTile;
     }
@@ -41,9 +45,14 @@ export abstract class BaseStateService {
         this.shortestPathByTile = {};
     }
 
-    abstract initializePrevizualisation(accessibleTiles: ShortestPathByTile | number[]): void;
+    resetMovementPrevisualization() {
+        this.resetAvailableTiles();
+        this.resetShortestPathByTile();
+    }
+
+    abstract initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]): void;
 
     abstract onRightClick(index: number): void;
-    abstract onMouseDown(index: number): void;
+    abstract onMouseDown(index: number): GameState;
     abstract onMouseEnter(): void;
 }

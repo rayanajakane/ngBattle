@@ -19,6 +19,7 @@ export class MapGameService extends MapBaseService {
     shortestPathByTile: { [key: number]: number[] } = {};
     actionDoor: boolean = false;
 
+    currentStateNumber: GameState;
     private currentState: BaseStateService;
 
     // private eventSubject = new Subject<number>();
@@ -33,10 +34,11 @@ export class MapGameService extends MapBaseService {
         private combat: CombatStateService,
     ) {
         super();
-        this.currentState = this.notPlaying;
+        this.setState(GameState.NOTPLAYING);
     }
 
     setState(state: GameState): void {
+        this.currentStateNumber = state;
         switch (state) {
             case GameState.MOVING:
                 this.currentState = this.moving;
@@ -67,10 +69,24 @@ export class MapGameService extends MapBaseService {
 
     onMouseDown(index: number, event: MouseEvent): void {
         event.preventDefault();
-        if (event.button === 0 && this.currentState.availableTiles.includes(index)) {
-            this.currentState.onMouseDown(index);
-            this.resetMovementPrevisualization();
-            this.removeAllPreview();
+        if (event.button === 0) {
+            const nextState = this.currentState.onMouseDown(index);
+            if (nextState !== this.currentStateNumber) {
+                if (nextState === GameState.NOTPLAYING) {
+                    this.switchToNotPlayingStateRoutine();
+                } else if (nextState === GameState.MOVING) {
+                    this.switchToMovingStateRoutine();
+                }
+            }
+            // if (this.currentState.onMouseDown(index)) {
+            //     this.removeAllPreview();
+            // }
+
+            // this.removeAllPreview();
+            // this.currentState.onMouseDown(index);
+            // if (true) {
+            //     this.removeAllPreview();
+            // }
         }
     }
 
@@ -78,6 +94,32 @@ export class MapGameService extends MapBaseService {
         event.preventDefault();
         this.renderAvailableTiles();
         this.renderPathToTarget(index);
+    }
+
+    switchToNotPlayingStateRoutine(): void {
+        this.removeAllPreview();
+        this.setState(GameState.NOTPLAYING);
+    }
+
+    switchToMovingStateRoutine(shortestPathByTile?: ShortestPathByTile): void {
+        this.removeAllPreview();
+        this.setState(GameState.MOVING);
+        if (!shortestPathByTile) {
+            // if no parameter is given, reuse old shortestPathByTile
+            shortestPathByTile = this.currentState.getShortestPathByTile();
+        }
+        this.initializePrevisualization(shortestPathByTile);
+    }
+
+    switchToActionStateRoutine(availableTiles: number[]): void {
+        this.removeAllPreview();
+        this.setState(GameState.ACTION);
+        this.initializePrevisualization(availableTiles);
+    }
+
+    resetMap() {
+        this.resetMovementPrevisualization();
+        this.removeAllPreview();
     }
 
     renderPreview(indexes: number[], previewType: TilePreview): void {
@@ -109,13 +151,19 @@ export class MapGameService extends MapBaseService {
     }
 
     initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]) {
-        this.currentState.initializePrevizualisation(accessibleTiles);
+        this.currentState.initializePrevisualization(accessibleTiles);
         this.renderAvailableTiles();
     }
 
     resetMovementPrevisualization() {
-        this.currentState.setAvailableTiles([]);
-        this.currentState.setShortestPathByTile({});
+        this.currentState.resetMovementPrevisualization();
+    }
+
+    resetAllMovementPrevisualization() {
+        this.notPlaying.resetMovementPrevisualization();
+        this.moving.resetMovementPrevisualization();
+        this.action.resetMovementPrevisualization();
+        this.combat.resetMovementPrevisualization();
     }
 
     setAvailableTiles(availableTiles: number[]): void {

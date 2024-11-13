@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ShortestPathByTile } from '@common/game-structure';
+import { GameState, ShortestPathByTile } from '@common/game-structure';
 import { BaseStateService } from './base-state.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class MovingStateService extends BaseStateService {
-    initializePrevizualisation(accessibleTiles: ShortestPathByTile): void {
+    initializePrevisualization(accessibleTiles: ShortestPathByTile): void {
         this.setAvailableTiles(Object.keys(accessibleTiles).map(Number));
         this.setShortestPathByTile(accessibleTiles);
     }
@@ -15,9 +15,14 @@ export class MovingStateService extends BaseStateService {
         console.log('You are moving', index);
     }
 
-    onMouseDown(index: number): void {
+    onMouseDown(index: number): GameState {
         console.log('You are moving', index);
-        this.gameController.requestMove(index);
+        if (this.availablesTilesIncludes(index)) {
+            this.resetMovementPrevisualization();
+            this.gameController.requestMove(index);
+            return GameState.NOTPLAYING;
+        }
+        return GameState.MOVING;
     }
 
     onMouseEnter(): void {

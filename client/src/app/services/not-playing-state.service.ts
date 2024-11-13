@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ShortestPathByTile } from '@common/game-structure';
+import { GameState, ShortestPathByTile } from '@common/game-structure';
 import { BaseStateService } from './base-state.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class NotPlayingStateService extends BaseStateService {
-    initializePrevizualisation(accessibleTiles: ShortestPathByTile | number[]): void {
+    initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]): void {
         console.log('You are doing nothing', accessibleTiles);
     }
 
@@ -14,8 +14,9 @@ export class NotPlayingStateService extends BaseStateService {
         console.log('You are doing nothing', index);
     }
 
-    onMouseDown(): void {
+    onMouseDown(): GameState {
         console.log('You are doing nothing');
+        return GameState.NOTPLAYING;
     }
 
     onMouseEnter(): void {

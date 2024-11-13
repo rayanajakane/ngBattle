@@ -70,7 +70,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     afklist: PlayerCoord[] = [];
 
-    currentState: GameState = GameState.NOTPLAYING;
+    // currentState: GameState = GameState.NOTPLAYING;
 
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
@@ -107,7 +107,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameController.initializePlayers(data.playerCoords, data.turn);
             this.playersInitialized = true;
             this.initializePlayersPositions();
-            this.setState(GameState.NOTPLAYING);
+            this.mapService.setState(GameState.NOTPLAYING);
             this.gameController.requestStartTurn();
         });
     }
@@ -115,8 +115,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     listenStartTurn() {
         this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
             console.log('startTurn', shortestPathByTile);
-            this.setState(GameState.MOVING);
-            this.mapService.initializePrevisualization(shortestPathByTile);
+            this.mapService.switchToMovingStateRoutine(shortestPathByTile);
+            // this.mapService.setState(GameState.MOVING);
+            // this.mapService.initializePrevisualization(shortestPathByTile);
         });
     }
 
@@ -148,10 +149,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    setState(newState: GameState) {
-        this.currentState = newState;
-        this.mapService.setState(this.currentState);
-    }
+    // setState(newState: GameState) {
+    //     this.currentState = newState;
+    //     this.mapService.setState(this.currentState);
+    // }
 
     initializePlayersPositions() {
         this.gameController.getPlayerCoords().forEach((playerCoord) => {
@@ -170,7 +171,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     endMovement(shortestPathByTile: ShortestPathByTile) {
         if (Object.keys(shortestPathByTile).length !== 0) {
-            this.mapService.initializePrevisualization(shortestPathByTile);
+            this.mapService.switchToMovingStateRoutine(shortestPathByTile);
+            // this.mapService.initializePrevisualization(shortestPathByTile);
         } else {
             this.mapService.resetMovementPrevisualization();
         }
@@ -190,8 +192,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     listenStartAction() {
         this.socketService.on('startAction', (availableTiles: number[]) => {
             console.log('startAction', availableTiles);
-            this.setState(GameState.ACTION);
-            this.mapService.initializePrevisualization(availableTiles);
+            this.mapService.switchToActionStateRoutine(availableTiles);
+            // this.mapService.setState(GameState.ACTION);
+            // this.mapService.initializePrevisualization(availableTiles);
         });
     }
 
@@ -203,17 +206,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     endTurn() {
         if (this.gameController.isActivePlayer()) {
-            this.mapService.resetMovementPrevisualization();
+            this.mapService.resetAllMovementPrevisualization();
             this.mapService.removeAllPreview();
-            this.setState(GameState.NOTPLAYING);
+            this.mapService.setState(GameState.NOTPLAYING);
             this.gameController.requestEndTurn();
         }
     }
 
-    resetMap() {
-        this.mapService.resetMovementPrevisualization();
-        this.mapService.removeAllPreview();
-    }
+    // resetMap() {
+    //     this.mapService.resetMovementPrevisualization();
+    //     this.mapService.removeAllPreview();
+    // }
 
     quitGame() {
         this.gameController.requestQuitGame();
@@ -222,8 +225,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     startAction() {
-        this.resetMap();
-        this.gameController.requestStartAction();
+        if (this.mapService.currentStateNumber === GameState.MOVING) {
+            this.gameController.requestStartAction();
+        }
     }
 
     ngOnDestroy() {

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
+import { GameState } from '@common/game-structure';
 import { BaseStateService } from './base-state.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ActionStateService extends BaseStateService {
-    initializePrevizualisation(accessibleTiles: number[]): void {
+    initializePrevisualization(accessibleTiles: number[]): void {
         this.setAvailableTiles(accessibleTiles);
     }
 
@@ -13,10 +14,12 @@ export class ActionStateService extends BaseStateService {
         console.log('You are doing action', index);
     }
 
-    onMouseDown(index: number): void {
-        if (this.availableTiles.includes(index)) {
+    onMouseDown(index: number): GameState {
+        if (this.availablesTilesIncludes(index)) {
             this.gameController.requestAction(index);
+            return GameState.NOTPLAYING;
         }
+        return GameState.MOVING;
     }
 
     onMouseEnter(): void {
