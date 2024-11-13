@@ -60,6 +60,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     currentMoveBudget: number | '--' = '--';
     remainingActions: number | '--' = '--';
+    timeLeft: number = 0;
 
     gameCreated = false;
     playersInitialized = false;
@@ -206,7 +207,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenTimer() {
         this.socketService.on('timeUpdate', (time: number) => {
-            console.log('timer', time);
+            this.timeLeft = time;
         });
     }
 

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { COUNTDOWN_DELAY, TIME_LEFT } from '@app/components/timer/constant';
@@ -12,7 +12,7 @@ import { interval, Subscription } from 'rxjs';
     styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnDestroy {
-    timeLeft: number = TIME_LEFT; // Set the initial time in seconds
+    @Input() timeLeft: number = TIME_LEFT; // Set the initial time in seconds
     timerSubscription: Subscription | null = null;
     isRunning: boolean = false;
     isActive: boolean = false;
