@@ -31,6 +31,10 @@ export class GameControllerService {
         return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
     }
 
+    findPlayerCoordByPosition(position: number): PlayerCoord | undefined {
+        return this.playerCoords.find((playerCoord) => playerCoord.position === position);
+    }
+
     setRoomId(roomId: string): void {
         this.roomId = roomId;
     }
@@ -103,6 +107,15 @@ export class GameControllerService {
 
     // change back-end
     requestAction(target: number): void {
+        const targetPlayer = this.findPlayerCoordByPosition(target);
+        if (targetPlayer) {
+            console.log('begin Combat');
+            this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
+        } else {
+            console.log('begin InteractDoor');
+            this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: target });
+        }
+
         this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
 

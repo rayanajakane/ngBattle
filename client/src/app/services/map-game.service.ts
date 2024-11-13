@@ -17,7 +17,6 @@ export class MapGameService extends MapBaseService {
     tiles: GameTile[];
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
-    actionDoor: boolean = false;
 
     currentStateNumber: GameState;
     private currentState: BaseStateService;

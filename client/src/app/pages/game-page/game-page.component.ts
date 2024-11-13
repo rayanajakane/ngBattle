@@ -89,7 +89,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenGameSetup();
         this.listenMovement();
         this.listenStartAction();
-        // this.listenInteractDoor();
+        this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
@@ -121,15 +121,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    // listenInteractDoor() {
-    //     this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
-    //         if (data.isToggable) {
-    //             this.mapService.toggleDoor(data.doorPosition);
-    //         }
-    //         this.mapService.actionDoor = false;
-    //         this.endMovement(data.availableMoves);
-    //     });
-    // }
+    listenInteractDoor() {
+        this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
+            if (data.isToggable) {
+                this.mapService.toggleDoor(data.doorPosition);
+            }
+            if (this.gameController.isActivePlayer()) {
+                this.endMovement(data.availableMoves);
+            }
+        });
+    }
 
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
@@ -228,6 +229,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     startAction() {
         console.log('currentState', this.mapService.currentStateNumber);
         if (this.mapService.currentStateNumber === GameState.MOVING) {
+            console.log('Im here');
             this.gameController.requestStartAction();
         }
     }
