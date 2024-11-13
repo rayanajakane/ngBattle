@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { ActionHandlerService } from '../action-handler/action-handler.service';
 
 @Injectable()
 export class TimerService {
@@ -11,8 +12,20 @@ export class TimerService {
     private server: Server;
     private roomId: string;
     private isCooldown: boolean = false;
+    private playerId: string;
 
-    startTimer(): void {
+    constructor(
+        server: Server,
+        roomId: string,
+        private actionHandler: ActionHandlerService,
+    ) {
+        this.server = server;
+        this.roomId = roomId;
+    }
+
+    startTimer(playerId: string): void {
+        this.playerId = playerId;
+
         if (this.intervalId) {
             this.clearTimer();
         }
@@ -37,25 +50,33 @@ export class TimerService {
         this.intervalId = setInterval(() => {
             if (this.currentTime > 0) {
                 this.currentTime--;
-                if (this.isCooldown) {
-                    this.server.to(this.roomId).emit('cooldownUpdate', this.currentTime);
-                } else {
-                    this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
-                }
+                this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
+                // if (this.isCooldown) {
+                //     this.server.to(this.roomId).emit('cooldownUpdate', this.currentTime);
+                // } else {
+                //     this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
+                // }
             } else {
                 if (this.isCooldown) {
                     this.clearTimer();
+                    this.server.to(this.roomId).emit('endCooldown');
                     this.startMainTimer();
                 } else {
                     this.clearTimer();
                     //TODO: execute the endTurn logic
-                    this.server.to(this.roomId).emit('endTurn');
+                    this.actionHandler.handleEndTurn(
+                        {
+                            roomId: this.roomId,
+                            playerId: this.playerId,
+                            lastTurn: false,
+                        },
+                        this.server,
+                    );
                 }
             }
         }, 1000);
     }
 
-    // Autres méthodes inchangées...
     pauseTimer(): void {
         if (this.intervalId && !this.isPaused) {
             clearInterval(this.intervalId);
