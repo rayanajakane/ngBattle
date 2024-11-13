@@ -6,6 +6,7 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
+import { VirtualPlayerDialogComponent } from '@app/components/virtual-player-dialog/virtual-player-dialog.component';
 import { SocketService } from '@app/services/socket.service';
 import { Player } from '@common/player';
 
@@ -65,7 +66,6 @@ export class WaitingPageComponent implements OnInit {
             this.roomId = params.roomId;
             this.playerId = params.playerId;
             this.characterName = params.characterName;
-            this.selectedAvatar = params.selectedAvatar;
             this.isAdmin = params.isAdmin === 'true';
             this.socketService.emit('getMaxPlayers', { roomId: this.roomId });
         });
@@ -90,6 +90,7 @@ export class WaitingPageComponent implements OnInit {
     getPlayers() {
         this.socketService.once('getPlayers', (players: Player[]) => {
             this.players = players;
+            console.log(this.players);
         });
         this.socketService.emit('getPlayers', this.roomId);
     }
@@ -137,5 +138,9 @@ export class WaitingPageComponent implements OnInit {
             });
         });
         this.socketService.emit('startGame', { roomId: this.roomId });
+    }
+
+    addVirtualPlayer() {
+        this.dialog.open(VirtualPlayerDialogComponent, { data: { roomId: this.roomId } });
     }
 }

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { RouterLink } from '@angular/router';
 import { Avatar } from '@app/interfaces/avatar';
 import { DEFAULT_AVATAR_LIST } from '@app/services/constants';
 import { SocketService } from '@app/services/socket.service';
@@ -8,43 +9,26 @@ import { Player } from '@common/player';
 import { v4 as generateID } from 'uuid';
 
 @Component({
-    selector: 'app-virtual-player-page',
+    selector: 'app-virtual-player-dialog',
     standalone: true,
     imports: [FormsModule, RouterLink],
-    templateUrl: './virtual-player-page.component.html',
-    styleUrl: './virtual-player-page.component.scss',
+    templateUrl: './virtual-player-dialog.component.html',
+    styleUrl: './virtual-player-dialog.component.scss',
 })
-export class VirtualPlayerPageComponent {
-    roomId: string;
-
+export class VirtualPlayerDialogComponent {
+    dialog = inject(MatDialog);
+    data = inject(MAT_DIALOG_DATA);
     playerList: Player[] = [];
-
     availableAvatars: Avatar[] = DEFAULT_AVATAR_LIST;
     nonAvailableAvatars: Avatar[] = [];
-
     characterProfile: string = '';
-
     virtualPlayer: Player;
     virtualAvatar: Avatar;
-
-    adminPlayerId: string;
-    adminCharacterName: string;
-
     availableNames: string[] = ['Kiki', 'Kuku', 'Koko', 'Kaka', 'Kiko'];
 
-    constructor(
-        private socketService: SocketService,
-        private readonly router: Router,
-        private readonly route: ActivatedRoute,
-    ) {}
+    constructor(private socketService: SocketService) {}
 
     ngOnInit() {
-        this.route.params.subscribe((params) => {
-            console.log(params);
-            this.roomId = params.roomId;
-            this.adminPlayerId = params.playerId;
-            this.adminCharacterName = params.characterName;
-        });
         this.getAllPlayers();
     }
 
@@ -52,7 +36,7 @@ export class VirtualPlayerPageComponent {
         this.socketService.on('getPlayers', (players: Player[]) => {
             this.playerList = players;
         });
-        this.socketService.emit('getPlayers', this.roomId);
+        this.socketService.emit('getPlayers', this.data.roomId);
     }
 
     setAvailableAvatars() {
@@ -70,10 +54,12 @@ export class VirtualPlayerPageComponent {
     randomizePlayer() {
         this.socketService.on('getPlayers', (players: Player[]) => {
             this.playerList = players;
+            console.log(this.playerList);
             this.setAvailableAvatars();
             this.createPlayer();
         });
-        this.socketService.emit('getPlayers', this.roomId);
+        console.log(this.data.roomId);
+        this.socketService.emit('getPlayers', this.data.roomId);
     }
 
     createPlayer() {
@@ -104,20 +90,12 @@ export class VirtualPlayerPageComponent {
     }
 
     addVirtualPlayer() {
-        this.socketService.on('roomJoined', (data: { roomId: string; playerId: string; playerName: string }) => {
-            this.router.navigate([
-                '/waitingRoom',
-                {
-                    roomId: data.roomId,
-                    playerId: this.adminPlayerId,
-                    characterName: this.adminCharacterName,
-                    isAdmin: true,
-                },
-            ]);
+        this.socketService.on('roomJoined', async (data: { roomId: string; playerId: string; playerName: string }) => {
+            this.dialog.closeAll();
         });
 
         this.socketService.emit('joinRoom', {
-            roomId: this.roomId,
+            roomId: this.data.roomId,
             playerName: this.virtualPlayer.name.trim(),
             avatar: this.virtualAvatar,
             attributes: this.virtualPlayer.attributes,
