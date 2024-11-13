@@ -10,7 +10,7 @@
         <span class="player-name">{{ player.name }}</span>
         @if(player.isVirtual){
         <span>(Virtuel)</span>
-        } @else if(player.isAdmin){
+        } @if(player.isAdmin){
         <span>(Admin)</span>
         } @else if(!player.isAdmin && isUserAdmin) {
         <button (click)="deletePlayerEmitter(player.id)">Expulser</button>

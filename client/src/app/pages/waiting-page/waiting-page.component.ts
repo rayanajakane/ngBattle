@@ -49,14 +49,20 @@ export class WaitingPageComponent implements OnInit {
             const lockButton = document.getElementById('lock-btn');
             if (lockButton) {
                 lockButton.innerHTML = 'Déverrouiller';
-                if (this.players.length === this.maxPlayers) lockButton.setAttribute('disabled', 'true');
+            }
+            const virtualPlayerButton = document.getElementById('virtual-btn');
+            if (virtualPlayerButton) {
+                virtualPlayerButton.setAttribute('disabled', 'true');
             }
         });
         this.socketService.on('roomUnlocked', () => {
             const lockButton = document.getElementById('lock-btn');
             if (lockButton) {
                 lockButton.innerHTML = 'Verrouiller';
-                lockButton.removeAttribute('disabled');
+            }
+            const virtualPlayerButton = document.getElementById('virtual-btn');
+            if (virtualPlayerButton) {
+                virtualPlayerButton.removeAttribute('disabled');
             }
         });
         this.getPlayers();
@@ -90,7 +96,6 @@ export class WaitingPageComponent implements OnInit {
     getPlayers() {
         this.socketService.once('getPlayers', (players: Player[]) => {
             this.players = players;
-            console.log(this.players);
         });
         this.socketService.emit('getPlayers', this.roomId);
     }
@@ -98,6 +103,17 @@ export class WaitingPageComponent implements OnInit {
     updatePlayers() {
         this.socketService.on('updatePlayers', (players: Player[]) => {
             this.players = players;
+            if (players.length === this.maxPlayers) {
+                const lockButton = document.getElementById('lock-btn');
+                if (lockButton) {
+                    lockButton.setAttribute('disabled', 'true');
+                }
+            } else {
+                const lockButton = document.getElementById('lock-btn');
+                if (lockButton) {
+                    lockButton.removeAttribute('disabled');
+                }
+            }
         });
     }
 
@@ -114,6 +130,7 @@ export class WaitingPageComponent implements OnInit {
     }
 
     lockRoom() {
+        console.log('clicked');
         this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
             this.isRoomLocked = !isRoomLocked;
             if (isRoomLocked) {

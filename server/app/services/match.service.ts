@@ -204,9 +204,12 @@ export class MatchService {
         const player = room.players.find((p) => p.id === client.id);
         if (player && player.isAdmin) {
             const playerToKick = room.players.find((p) => p.id === playerId);
-            if (playerToKick) {
+            if (playerToKick && !playerToKick.isVirtual) {
                 server.sockets.sockets.get(playerToKick.id).emit('kicked');
                 this.leaveRoom(server, server.sockets.sockets.get(playerId), roomId);
+            } else if (playerToKick.isVirtual) {
+                room.players = room.players.filter((p) => p.id !== playerId);
+                server.to(roomId).emit('updatePlayers', room.players);
             }
         }
     }

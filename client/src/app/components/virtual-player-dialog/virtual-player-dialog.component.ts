@@ -56,11 +56,9 @@ export class VirtualPlayerDialogComponent {
     randomizePlayer() {
         this.socketService.on('getPlayers', (players: Player[]) => {
             this.playerList = players;
-            console.log(this.playerList);
             this.setAvailableAvatars();
             this.createPlayer();
         });
-        console.log(this.data.roomId);
         this.socketService.emit('getPlayers', this.data.roomId);
     }
 
@@ -104,7 +102,6 @@ export class VirtualPlayerDialogComponent {
             attributes: this.virtualPlayer.attributes,
             isVirtual: true,
         });
-        console.log(this.virtualPlayer);
     }
 
     getAvailableName(): string {
