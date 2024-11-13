@@ -24,13 +24,13 @@ export class CombatGateway {
 
     @SubscribeMessage('action')
     handleAction(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; target: number }) {
-        //TODO: identify the target player in the front end to send a start action message instead of interpreting the target here (cant know if an item is targeted or a player)
+        // TODO: identify the target player in the front end to send a start action message instead of interpreting the target here (cant know if an item is targeted or a player)
         const playerCoord = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
 
         this.combatService.startCombat(data.roomId, [playerCoord, targetPlayer]);
 
-        //TODO: set the socket response to the client or all clients in the room
+        // TODO: set the socket response to the client or all clients in the room
     }
 
     // get available indexes start action

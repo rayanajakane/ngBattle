@@ -156,7 +156,6 @@ export class CombatService {
 
     endCombatTurn(roomId: string, player: PlayerCoord): void {
         if (!this.isPlayerInCombat(roomId, player)) return;
-        const fighters = this.fightersMap.get(roomId);
         const currentTurnIndex = this.currentTurnMap.get(roomId) || ATTACKER_INDEX;
 
         // Change the turn to the other fighter
@@ -208,22 +207,6 @@ export class CombatService {
             this.resetDefense(fighter);
             this.resetSpeed(fighter);
         }
-    }
-
-    private resetHealth(fighter: PlayerCoord): void {
-        fighter.player.attributes.currentHealth = fighter.player.attributes.health;
-    }
-
-    private resetAttack(fighter: PlayerCoord): void {
-        fighter.player.attributes.currentAttack = fighter.player.attributes.attack;
-    }
-
-    private resetDefense(fighter: PlayerCoord): void {
-        fighter.player.attributes.currentDefense = fighter.player.attributes.defense;
-    }
-
-    private resetSpeed(fighter: PlayerCoord): void {
-        fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
     }
 
     killPlayer(roomId: string, player: PlayerCoord): void {
@@ -282,5 +265,21 @@ export class CombatService {
             }
         });
         return verifiedPositions;
+    }
+
+    private resetHealth(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentHealth = fighter.player.attributes.health;
+    }
+
+    private resetAttack(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentAttack = fighter.player.attributes.attack;
+    }
+
+    private resetDefense(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentDefense = fighter.player.attributes.defense;
+    }
+
+    private resetSpeed(fighter: PlayerCoord): void {
+        fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
     }
 }
