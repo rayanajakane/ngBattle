@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EndGameViewComponent } from './end-game-view.component';
+import { GameEndPageComponent } from './game-end-page.component';
 
-describe('EndGameViewComponent', () => {
-  let component: EndGameViewComponent;
-  let fixture: ComponentFixture<EndGameViewComponent>;
+describe('GameEndPageComponent', () => {
+  let component: GameEndPageComponent;
+  let fixture: ComponentFixture<GameEndPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EndGameViewComponent]
+      imports: [GameEndPageComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EndGameViewComponent);
+    fixture = TestBed.createComponent(GameEndPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
