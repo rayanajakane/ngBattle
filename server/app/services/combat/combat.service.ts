@@ -21,11 +21,15 @@ import { Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class CombatService {
     private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
+    private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
+
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
     ) {}
 
+    // You can also replace this.currentTurnMap.set(roomId, index)
+    // with a setPlayerTurn method with more verification
     isPlayerInCombat(roomId: string, player: PlayerCoord): boolean {
         const fighters = this.fightersMap.get(roomId);
         return fighters ? fighters.some((fighter) => fighter.player.id === player.player.id) : false;
@@ -50,6 +54,11 @@ export class CombatService {
             });
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
+
+            // Initialize turn to first player
+            const firstPlayer = this.whoIsFirstPlayer(roomId);
+            const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
+            this.currentTurnMap.set(roomId, firstPlayerIndex);
         }
     }
 
@@ -57,11 +66,13 @@ export class CombatService {
         if (this.fightersMap.get(roomId).length === COMBAT_FIGHTERS_NUMBER) {
             this.resetAttributes(roomId);
             this.fightersMap.delete(roomId);
-
+            this.currentTurnMap.delete(roomId);
             // call other functions
+            // endCombatTimer
         } else {
             //endCombatTimer();
         }
+        this.currentTurnMap.delete(roomId);
     }
 
     whoIsFirstPlayer(roomId: string): PlayerCoord {
@@ -108,11 +119,16 @@ export class CombatService {
     }
 
     escape(roomId: string, player: PlayerCoord): void {
+        // only the player's turn can escape
+        if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
+            return;
+        }
+
         if (!this.canEscape() && this.isPlayerInCombat(roomId, player)) {
             player.player.attributes.escape -= 1;
-            // endCombatTurn(player: PlayerCoord);
+            this.endCombatTurn(roomId, player);
         } else {
-            // endCombat();
+            this.endCombat(roomId);
         }
     }
 
@@ -134,7 +150,22 @@ export class CombatService {
         }
     }
 
-    // endCombatTurn(player: PlayerCoord)
+    endCombatTurn(roomId: string, player: PlayerCoord): void {
+        if (!this.isPlayerInCombat(roomId, player)) return;
+        const fighters = this.fightersMap.get(roomId);
+        const currentTurnIndex = this.currentTurnMap.get(roomId) || 0;
+
+        // Change the turn to the other fighter
+        const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
+        this.currentTurnMap.set(roomId, newTurnIndex);
+    }
+
+    getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
+        const fighters = this.fightersMap.get(roomId);
+        // Get the current turn player of fighters ( if not find then its the first fighter of fighters)
+        const currentTurnIndex = this.currentTurnMap.get(roomId) || 0;
+        return fighters?.[currentTurnIndex];
+    }
 
     throwDice(diceSize: number): number {
         return Math.floor(Math.random() * diceSize) + 1;
@@ -160,6 +191,7 @@ export class CombatService {
                     this.endCombat(roomId, defensePlayer);
                 }
             }
+            this.endCombatTurn(roomId, attackPlayer);
         }
     }
     canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
