@@ -90,6 +90,8 @@ export class ActionService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const playerCoord = gameInstance.playersCoord;
         const playerIndex = playerCoord.findIndex((player) => player.player.id === playerId);
+        const playerPosition = playerCoord.find((player) => player.player.id === playerId).position;
+        gameInstance.game.map[playerPosition].hasPlayer = false;
 
         playerCoord.splice(playerIndex, 1);
     }

@@ -30,7 +30,6 @@ export class CombatService {
         return this.fightersMap.get(roomId).find((fighter) => fighter.player.id === roomId) !== undefined;
     }
 
-    // TODO : decide whether the first action after the combat starts is attack or escape
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
             // setup current attributes for each player in combat
@@ -50,7 +49,6 @@ export class CombatService {
             });
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
-            this.startCombatTurn(this.whoIsFirstPlayer(roomId), CombatAction.ATTACK);
         }
     }
 

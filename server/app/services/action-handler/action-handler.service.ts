@@ -100,7 +100,9 @@ export class ActionHandlerService {
         if (this.action.isCurrentPlayersTurn(roomId, data.playerId)) {
             this.action.nextTurn(roomId, data.lastTurn);
 
-            server.to(roomId).emit('endTurn', activeGame.playersCoord[activeGame.turn].player.id);
+            if (activeGame.playersCoord.length > 0) {
+                server.to(roomId).emit('endTurn', activeGame.playersCoord[activeGame.turn].player.id);
+            }
         }
     }
 
