@@ -96,7 +96,9 @@ export class GameControllerService {
     }
 
     requestStartAction(): void {
-        this.socketService.emit('startAction', { roomId: this.roomId, playerId: this.player.id });
+        if (this.activePlayer.id === this.player.id) {
+            this.socketService.emit('startAction', { roomId: this.roomId, playerId: this.player.id });
+        }
     }
 
     // change back-end
