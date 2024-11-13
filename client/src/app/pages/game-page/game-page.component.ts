@@ -188,10 +188,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenStartAction() {
-        this.socketService.on('startAction', (data: { availableTiles: number[] }) => {
-            console.log('startAction', data.availableTiles);
+        this.socketService.on('startAction', (availableTiles: number[]) => {
+            console.log('startAction', availableTiles);
             this.setState(GameState.ACTION);
-            this.mapService.initializePrevisualization(data.availableTiles);
+            this.mapService.initializePrevisualization(availableTiles);
         });
     }
 
@@ -210,6 +210,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
+    resetMap() {
+        this.mapService.resetMovementPrevisualization();
+        this.mapService.removeAllPreview();
+    }
+
     quitGame() {
         this.gameController.requestQuitGame();
         this.socketService.disconnect();
@@ -217,6 +222,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     startAction() {
+        this.resetMap();
         this.gameController.requestStartAction();
     }
 
