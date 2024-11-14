@@ -55,52 +55,53 @@ export class ActionHandlerService {
     }
 
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
-        {
-            const playerId = data.playerId;
-            const roomId = data.roomId;
-            const activeGame = this.activeGamesService.getActiveGame(roomId);
-            const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const playerId = data.playerId;
+        const roomId = data.roomId;
+        const activeGame = this.activeGamesService.getActiveGame(roomId);
+        const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
 
-            if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
-                const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
+        if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
+            const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
 
-                const gameMap = activeGame.game.map;
-                let iceSlip = false;
+            const gameMap = activeGame.game.map;
+            let iceSlip = false;
 
-                let pastPosition = startPosition;
-                playerPositions.forEach((playerPosition) => {
-                    if (!iceSlip) {
-                        setTimeout(() => {
-                            this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
-                        }, this.TIME_BETWEEN_MOVES);
+            let pastPosition = startPosition;
+            playerPositions.forEach((playerPosition) => {
+                if (!iceSlip) {
+                    setTimeout(() => {
+                        this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
+                    }, this.TIME_BETWEEN_MOVES);
 
-                        activeGame.game.map[playerPosition].hasPlayer = true;
-                        activeGame.game.map[pastPosition].hasPlayer = false;
+                    activeGame.game.map[playerPosition].hasPlayer = true;
+                    activeGame.game.map[pastPosition].hasPlayer = false;
 
-                        activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
+                    activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
-                        pastPosition = playerPosition;
+                    pastPosition = playerPosition;
 
-                        if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
-                            activeGame.currentPlayerMoveBudget = 0;
-                            iceSlip = true;
-                        }
+                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
+                        activeGame.currentPlayerMoveBudget = 0;
+                        iceSlip = true;
                     }
-                });
+                }
+            });
 
-                setTimeout(() => {
-                    client.emit('endMove', {
-                        availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-                        currentMoveBudget: activeGame.currentPlayerMoveBudget,
-                    });
-                }, this.TIME_BETWEEN_MOVES * playerPositions.length);
-            }
+            setTimeout(() => {
+                client.emit('endMove', {
+                    availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                    currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                });
+            }, this.TIME_BETWEEN_MOVES * playerPositions.length);
         }
     }
 
     handleEndTurn(data: { roomId: string; playerId: string; lastTurn: boolean }, server: Server) {
         const roomId = data.roomId;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
+
+        activeGame.turnTimer.resetTimer();
+        activeGame.turnTimer.startTimer();
 
         if (this.action.isCurrentPlayersTurn(roomId, data.playerId)) {
             this.action.nextTurn(roomId, data.lastTurn);
