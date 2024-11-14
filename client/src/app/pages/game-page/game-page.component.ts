@@ -191,6 +191,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenQuitGame() {
         this.socketService.on('quitGame', (playerId: string) => {
+            if (this.gameController.isActivePlayer()) {
+                this.gameController.requestEndTurn(true);
+                this.socketService.disconnect();
+                this.router.navigate(['/home']);
+            }
             this.gameController.feedAfkList(playerId);
             this.mapService.removePlayerById(playerId);
         });
@@ -239,8 +244,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     quitGame() {
         this.gameController.requestQuitGame();
-        this.socketService.disconnect();
-        this.router.navigate(['/home']);
+        // this.socketService.disconnect();
+        // this.router.navigate(['/home']);
     }
 
     startAction() {

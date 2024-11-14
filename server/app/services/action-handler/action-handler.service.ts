@@ -154,8 +154,8 @@ export class ActionHandlerService {
         const message = `${playerName} a quitté la partie`;
         server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
-        if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-            this.handleEndTurn({ ...data, lastTurn: true }, server);
-        }
+        // if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
+        //     this.handleEndTurn({ ...data, lastTurn: true }, server);
+        // }
     }
 }
