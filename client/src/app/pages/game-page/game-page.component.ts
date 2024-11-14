@@ -60,7 +60,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     currentMoveBudget: number | '--' = '--';
     remainingActions: number | '--' = '--';
-    timeLeft: number = 0;
+    timeLeft: number | '--' = '--';
 
     gameCreated = false;
     playersInitialized = false;
@@ -151,6 +151,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenEndTurn() {
         this.socketService.on('endTurn', (activePlayerId: string) => {
+            this.timeLeft = '--';
             this.gameController.setActivePlayer(activePlayerId);
             this.gameController.requestStartTurn();
         });
@@ -211,15 +212,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenEndTimer() {
+        this.socketService.on('endTimer', () => {
+            this.resetPlayerView();
+        });
+    }
+
     endTurn() {
         if (this.gameController.isActivePlayer()) {
-            this.mapService.resetAllMovementPrevisualization();
-            this.mapService.removeAllPreview();
-            this.mapService.setState(GameState.NOTPLAYING);
-            this.currentMoveBudget = '--';
-            this.remainingActions = '--';
+            this.resetPlayerView();
             this.gameController.requestEndTurn();
         }
+    }
+
+    resetPlayerView() {
+        this.mapService.resetAllMovementPrevisualization();
+        this.mapService.removeAllPreview();
+        this.mapService.setState(GameState.NOTPLAYING);
+        this.currentMoveBudget = '--';
+        this.remainingActions = '--';
     }
 
     // resetMap() {
