@@ -42,6 +42,8 @@ export class ActionHandlerService {
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
 
+        activeGame.turnTimer.startTimer(client);
+
         client.emit('startTurn', {
             shortestPathByTile: this.action.availablePlayerMoves(data.playerId, data.roomId),
             currentMoveBudget: activeGame.currentPlayerMoveBudget,
@@ -99,6 +101,8 @@ export class ActionHandlerService {
     handleEndTurn(data: { roomId: string; playerId: string; lastTurn: boolean }, server: Server) {
         const roomId = data.roomId;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
+
+        activeGame.turnTimer.resetTimer();
 
         if (this.action.isCurrentPlayersTurn(roomId, data.playerId)) {
             this.action.nextTurn(roomId, data.lastTurn);

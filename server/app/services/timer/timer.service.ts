@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'Socket.io';
 import { Server } from 'socket.io';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
 
 @Injectable()
 export class TimerService {
@@ -12,20 +12,15 @@ export class TimerService {
     private server: Server;
     private roomId: string;
     private isCooldown: boolean = false;
-    private playerId: string;
+    private client: Socket;
 
-    constructor(
-        server: Server,
-        roomId: string,
-        private actionHandler: ActionHandlerService,
-    ) {
+    constructor(server: Server, roomId: string) {
         this.server = server;
         this.roomId = roomId;
     }
 
-    startTimer(playerId: string): void {
-        this.playerId = playerId;
-
+    startTimer(client: Socket): void {
+        this.client = client;
         if (this.intervalId) {
             this.clearTimer();
         }
@@ -54,12 +49,12 @@ export class TimerService {
             } else {
                 if (this.isCooldown) {
                     this.clearTimer();
-                    this.server.to(this.roomId).emit('endCooldown');
+                    this.client.emit('endCooldown');
                     this.startMainTimer();
                 } else {
                     this.clearTimer();
                     this.server.to(this.roomId).emit('timerUpdate', 0);
-                    this.server.to(this.roomId).emit('endTimer');
+                    this.client.emit('endTimer');
                 }
             }
         }, 1000);
@@ -84,14 +79,6 @@ export class TimerService {
         this.clearTimer();
         this.isCooldown = false;
         this.currentTime = TimerService.INITIAL_TIME;
-    }
-
-    getCurrentTime(): number {
-        return this.currentTime;
-    }
-
-    isPausedState(): boolean {
-        return this.isPaused;
     }
 
     private clearTimer(): void {
