@@ -62,7 +62,7 @@ export class CombatGateway {
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const escapeResult = this.combatService.escape(data.roomId, player);
-        client.emit('didEscape', { roomId: data.roomId, playerId: data.playerId });
+        client.emit('didEscape', { roomId: data.roomId, playerId: data.playerId, result: escapeResult });
     }
 
     // startCombatTurn
@@ -70,6 +70,7 @@ export class CombatGateway {
     handleStartCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; combatAction: CombatAction }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         this.combatService.startCombatTurn(data.roomId, player, data.combatAction);
+        client.emit('startCombatTurn', { roomId: data.roomId, playerId: data.playerId, combatAction: data.combatAction });
     }
 
     // endCombatTurn
@@ -77,20 +78,25 @@ export class CombatGateway {
     handleEndCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         this.combatService.endCombatTurn(data.roomId, player);
+        client.emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
     }
 
     // endCombat
     @SubscribeMessage('endCombat')
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.combatService.endCombat(data.roomId, player);
+        const fighters = this.combatService.endCombat(data.roomId, player);
+        client.emit('endCombat', { roomId: data.roomId, playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
     }
 
     // killedPlayer + KilledPlayerHomePosition
     @SubscribeMessage('killedPlayer')
     handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.combatService.killPlayer(data.roomId, player);
+        const fighters = this.combatService.killPlayer(data.roomId, player);
+        const playerKiller = fighters[0];
+        const playerKilled = fighters[1];
+        client.emit('killedPlayer', { roomId: data.roomId, playerId: data.playerId, killer: playerKiller, killed: playerKilled });
     }
 
     // winnerPlayer
@@ -98,6 +104,7 @@ export class CombatGateway {
     handleWinnerPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         this.combatService.setWinner(data.roomId, player);
+        client.emit('winnerPlayer', { roomId: data.roomId, playerId: data.playerId });
     }
 
     // disperseKilledPlayerObjects (sprint 3)
