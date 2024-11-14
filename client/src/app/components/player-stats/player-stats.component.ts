@@ -1,24 +1,18 @@
-import { Component } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
+import { Component, ViewChild } from '@angular/core';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Player } from '@common/player';
-
-enum SortState {
-    NONE,
-    ASCENDING,
-    DESCENDING,
-}
 
 @Component({
     selector: 'app-player-stats',
     standalone: true,
-    imports: [MatTableModule],
+    imports: [MatTableModule, MatSortModule],
     templateUrl: './player-stats.component.html',
     styleUrl: './player-stats.component.scss',
 })
 export class PlayerStatsComponent {
     // @Input() playerList: Player[];
-
-    sortStates: Map<string, SortState> = new Map<string, SortState>();
+    @ViewChild(MatSort) sort: MatSort;
 
     columnsToDisplay: string[] = [
         'name',
@@ -32,7 +26,7 @@ export class PlayerStatsComponent {
         'visitedTilesPercent',
     ];
 
-    dataSource: Player[] = [
+    playerList: Player[] = [
         {
             id: '1',
             name: 'Alice',
@@ -113,42 +107,23 @@ export class PlayerStatsComponent {
         },
     ];
 
-    constructor() {
-        this.sortStates = new Map(this.columnsToDisplay.map((column) => [column, SortState.None]));
-    }
+    adaptedPlayerList = this.playerList.map((player) => {
+        return {
+            name: player.name,
+            combatCount: player.stats.combatCount,
+            escapeCount: player.stats.escapeCount,
+            victoryCount: player.stats.victoryCount,
+            defeatCount: player.stats.defeatCount,
+            totalHealthLost: player.stats.totalHealthLost,
+            totalHealthTaken: player.stats.totalHealthTaken,
+            uniqueItemsCollected: player.stats.uniqueItemsCollected,
+            visitedTilesPercent: player.stats.visitedTilesPercent,
+        };
+    });
 
-    changeState(event: Event) {
-        const target = event.target as HTMLElement;
-        const key = target.getAttribute('value') || 'name';
-        const valueState = this.sortStates.get(key);
+    dataSource = new MatTableDataSource(this.adaptedPlayerList);
 
-        switch (valueState) {
-            case SortState.NONE:
-                this.sortStates.set(key, SortState.ASCENDING);
-                break;
-            case SortState.ASCENDING:
-                this.sortStates.set(key, SortState.DESCENDING);
-                break;
-            case SortState.DESCENDING:
-                this.sortStates.set(key, SortState.ASCENDING);
-                break;
-            default:
-                this.sortStates.set(key, SortState.NONE);
-                break;
-        }
-
-        this.setOtherStatesToNone(key);
-    }
-
-    setOtherStatesToNone(modifiedKey: string) {
-        this.sortStates.forEach((state, key) => {
-            if (key !== modifiedKey) {
-                this.sortStates.set(key, SortState.NONE);
-            }
-        });
-    }
-
-    sortByName() {
-        console.log('sortByName');
+    ngAfterViewInit() {
+        this.dataSource.sort = this.sort;
     }
 }
