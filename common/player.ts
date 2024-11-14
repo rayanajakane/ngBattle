@@ -21,7 +21,6 @@ export interface PlayerAttribute {
     defense: number; // maxDefense
     currentDefense?: number;
     dice: string;
-    // TO VERIFY
     escape?: number;
 }
 
