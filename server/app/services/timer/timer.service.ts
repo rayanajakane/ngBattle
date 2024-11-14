@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'Socket.io';
 import { Server } from 'socket.io';
 
 @Injectable()
@@ -11,8 +12,15 @@ export class TimerService {
     private server: Server;
     private roomId: string;
     private isCooldown: boolean = false;
+    private client: Socket;
 
-    startTimer(): void {
+    constructor(server: Server, roomId: string) {
+        this.server = server;
+        this.roomId = roomId;
+    }
+
+    startTimer(client: Socket): void {
+        this.client = client;
         if (this.intervalId) {
             this.clearTimer();
         }
@@ -37,25 +45,21 @@ export class TimerService {
         this.intervalId = setInterval(() => {
             if (this.currentTime > 0) {
                 this.currentTime--;
-                if (this.isCooldown) {
-                    this.server.to(this.roomId).emit('cooldownUpdate', this.currentTime);
-                } else {
-                    this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
-                }
+                this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
             } else {
                 if (this.isCooldown) {
                     this.clearTimer();
+                    this.client.emit('endCooldown');
                     this.startMainTimer();
                 } else {
                     this.clearTimer();
-                    //TODO: execute the endTurn logic
-                    this.server.to(this.roomId).emit('endTurn');
+                    this.server.to(this.roomId).emit('timerUpdate', 0);
+                    this.client.emit('endTimer');
                 }
             }
         }, 1000);
     }
 
-    // Autres méthodes inchangées...
     pauseTimer(): void {
         if (this.intervalId && !this.isPaused) {
             clearInterval(this.intervalId);
@@ -75,14 +79,6 @@ export class TimerService {
         this.clearTimer();
         this.isCooldown = false;
         this.currentTime = TimerService.INITIAL_TIME;
-    }
-
-    getCurrentTime(): number {
-        return this.currentTime;
-    }
-
-    isPausedState(): boolean {
-        return this.isPaused;
     }
 
     private clearTimer(): void {
