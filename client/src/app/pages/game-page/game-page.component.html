@@ -24,7 +24,7 @@
         >
         </app-player-panel>
         } @if (gameController.isInCombat()) {
-        <app-combat-interface class="combat-card"></app-combat-interface>
+        <app-combat-interface class="combat-card" (selectCombatActionEvent)="handleSelectCombatAction($event)"></app-combat-interface>
         } @if (gameCreated) {
         <app-game-map [mapSize]="mapSize"></app-game-map>
         }

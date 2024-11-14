@@ -42,18 +42,25 @@ export class CombatGateway {
     }
 
     @SubscribeMessage('attack')
-    handleAttack(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; target: number }) {
-        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
-        const dices = this.combatService.attack(data.roomId, player, targetPlayer).slice(0, 1);
-        const combatStatus = this.combatService.attack(data.roomId, player, targetPlayer)[2];
-        if (combatStatus === 'combatEnd') {
-            client.emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
+    handleAttack(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        if (this.combatService.getCurrentTurnPlayer(data.roomId).player.id === data.playerId) {
+            const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+            const targetPlayer = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
+
+            const beginAttack = this.combatService.attack(data.roomId, player, targetPlayer);
+            const dices = [beginAttack[0], beginAttack[1]];
+            const combatStatus = beginAttack[2];
+            console.log('combatStatus', combatStatus);
+            this.server
+                .to(data.roomId)
+                .emit('attacked', { attacker: player, attackerDice: dices[0], defender: targetPlayer, defenderDice: dices[1] });
+
+            if (combatStatus === 'combatEnd') {
+                this.server.to(data.roomId).emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
+            } else if (combatStatus === 'combatTurnEnd') {
+                this.server.to(data.roomId).emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
+            }
         }
-        if (combatStatus === 'combatTurnEnd') {
-            client.emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
-        }
-        client.emit('attacked', { attacker: player, attackerDice: dices[0], defender: targetPlayer, defenderDice: dices[1] });
     }
 
     // escape

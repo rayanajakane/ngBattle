@@ -89,6 +89,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenEndCooldown();
         this.listenStartCombat();
         this.listenCombatTimer();
+        this.listenAttacked();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -238,6 +239,24 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.timeLeft = time;
             }
         });
+    }
+
+    listenAttacked() {
+        this.socketService.on('attacked', (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number }) => {
+            if (this.gameController.isInCombat()) {
+                console.log('attacked', data);
+
+                // this.gameController.updateAttacker();
+                // this.mapService.showCombatResult(data.attacker, data.attackerDice, data.defender, data.defenderDice);
+            }
+        });
+    }
+
+    handleSelectCombatAction(combatAction: string) {
+        if (this.gameController.isActivePlayer()) {
+            console.log('combatAction', combatAction);
+            this.gameController.requestCombatAction(combatAction);
+        }
     }
 
     endTurn() {

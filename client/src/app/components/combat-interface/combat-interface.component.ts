@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -19,8 +19,20 @@ export class CombatInterfaceComponent implements OnInit {
     diceInfo: string = '';
     escapeChanceInfo: string = '';
 
+    @Output() selectCombatActionEvent = new EventEmitter<string>();
+
     ngOnInit() {
         this.diceInfo = 'Résultats des dés : ' + this.diceResult;
         this.escapeChanceInfo = "Nombre d'évasion : " + this.escapeChance;
+    }
+
+    attack() {
+        console.log('Attaque');
+        this.selectCombatActionEvent.emit('attack');
+    }
+
+    escape() {
+        console.log('Evasion');
+        this.selectCombatActionEvent.emit('escape');
     }
 }

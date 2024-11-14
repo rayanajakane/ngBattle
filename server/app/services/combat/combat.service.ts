@@ -37,6 +37,10 @@ export class CombatService {
         return fighters ? fighters.some((fighter) => fighter.player.id === player.player.id) : false;
     }
 
+    getFighters(roomId: string): PlayerCoord[] {
+        return this.fightersMap.get(roomId);
+    }
+
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
             // setup current attributes for each player in combat

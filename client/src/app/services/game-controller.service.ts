@@ -136,6 +136,10 @@ export class GameControllerService {
         this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
 
+    requestCombatAction(combatAction: string): void {
+        this.socketService.emit(combatAction, { roomId: this.roomId, playerId: this.player.id });
+    }
+
     requestQuitGame(): void {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
     }
