@@ -1,29 +1,52 @@
 <div>
     <h2>Statistiques des joueurs</h2>
-    <table>
-        <tr>
-            <th>Nom</th>
-            <th>Nb de combats</th>
-            <th>Nb d'évasions</th>
-            <th>Nb de victoires</th>
-            <th>Nb de defaites</th>
-            <th>Total PDV perdus</th>
-            <th>Total PDV enlevés aux adversaires</th>
-            <th>Nb objets differents ramassés</th>
-            <th>Pourcentage de tuiles visitées</th>
-        </tr>
-        @for(player of playerList; track $index){
-        <tr>
-            <td>{{ player.name }}</td>
-            <td>{{ player.stats.combatCount }}</td>
-            <td>{{ player.stats.escapeCount }}</td>
-            <td>{{ player.stats.victoryCount }}</td>
-            <td>{{ player.stats.defeatCount }}</td>
-            <td>{{ player.stats.totalHealthLost }}</td>
-            <td>{{ player.stats.totalHealthTaken }}</td>
-            <td>{{ player.stats.uniqueItemsCollected }}</td>
-            <td>{{ player.stats.visitedTilesPercent }}</td>
-        </tr>
-        }
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let player">{{ player.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="combatCount">
+            <th mat-header-cell *matHeaderCellDef>Nombre de combats</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.combatCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="escapeCount">
+            <th mat-header-cell *matHeaderCellDef>Nombre d'évasion</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.escapeCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="victoryCount">
+            <th mat-header-cell *matHeaderCellDef>Nombre de victoire</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.victoryCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="defeatCount">
+            <th mat-header-cell *matHeaderCellDef>Nombre de défaites</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.defeatCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="totalHealthLost">
+            <th mat-header-cell *matHeaderCellDef>Points de vie perdus</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.totalHealthLost }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="totalHealthTaken">
+            <th mat-header-cell *matHeaderCellDef>Points de vie enlevés aux adversaires</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.totalHealthTaken }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="uniqueItemsCollected">
+            <th mat-header-cell *matHeaderCellDef>Objets différents ramassés</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.uniqueItemsCollected }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="visitedTilesPercent">
+            <th mat-header-cell *matHeaderCellDef>% de tuiles visités</th>
+            <td mat-cell *matCellDef="let player">{{ player.stats.visitedTilesPercent }}%</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+        <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
     </table>
 </div>

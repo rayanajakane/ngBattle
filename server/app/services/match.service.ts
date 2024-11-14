@@ -3,6 +3,7 @@ import { Player, PlayerAttribute } from '@common/player';
 import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { BASE_STATS } from './constants';
 import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
 
@@ -41,6 +42,7 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
+            stats: BASE_STATS,
         };
         room.players.push(player);
 
@@ -95,6 +97,7 @@ export class MatchService {
             isActive: false,
             abandoned: false,
             wins: 0,
+            stats: BASE_STATS,
         };
         room.players.push(player);
 
