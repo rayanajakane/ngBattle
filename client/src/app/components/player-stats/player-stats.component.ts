@@ -2,6 +2,12 @@ import { Component } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { Player } from '@common/player';
 
+enum SortState {
+    NONE,
+    ASCENDING,
+    DESCENDING,
+}
+
 @Component({
     selector: 'app-player-stats',
     standalone: true,
@@ -11,6 +17,9 @@ import { Player } from '@common/player';
 })
 export class PlayerStatsComponent {
     // @Input() playerList: Player[];
+
+    sortStates: Map<string, SortState> = new Map<string, SortState>();
+
     columnsToDisplay: string[] = [
         'name',
         'combatCount',
@@ -22,6 +31,7 @@ export class PlayerStatsComponent {
         'uniqueItemsCollected',
         'visitedTilesPercent',
     ];
+
     dataSource: Player[] = [
         {
             id: '1',
@@ -102,6 +112,41 @@ export class PlayerStatsComponent {
             },
         },
     ];
+
+    constructor() {
+        this.sortStates = new Map(this.columnsToDisplay.map((column) => [column, SortState.None]));
+    }
+
+    changeState(event: Event) {
+        const target = event.target as HTMLElement;
+        const key = target.getAttribute('value') || 'name';
+        const valueState = this.sortStates.get(key);
+
+        switch (valueState) {
+            case SortState.NONE:
+                this.sortStates.set(key, SortState.ASCENDING);
+                break;
+            case SortState.ASCENDING:
+                this.sortStates.set(key, SortState.DESCENDING);
+                break;
+            case SortState.DESCENDING:
+                this.sortStates.set(key, SortState.ASCENDING);
+                break;
+            default:
+                this.sortStates.set(key, SortState.NONE);
+                break;
+        }
+
+        this.setOtherStatesToNone(key);
+    }
+
+    setOtherStatesToNone(modifiedKey: string) {
+        this.sortStates.forEach((state, key) => {
+            if (key !== modifiedKey) {
+                this.sortStates.set(key, SortState.NONE);
+            }
+        });
+    }
 
     sortByName() {
         console.log('sortByName');

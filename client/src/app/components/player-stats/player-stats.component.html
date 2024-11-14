@@ -2,47 +2,47 @@
     <h2>Statistiques des joueurs</h2>
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
         <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <th mat-header-cell value="name" (click)="changeState($event)" *matHeaderCellDef>Nom</th>
             <td mat-cell *matCellDef="let player">{{ player.name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="combatCount">
-            <th mat-header-cell *matHeaderCellDef>Nombre de combats</th>
+            <th mat-header-cell value="combatCount" (click)="changeState($event)" *matHeaderCellDef>Nombre de combats</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.combatCount }}</td>
         </ng-container>
 
         <ng-container matColumnDef="escapeCount">
-            <th mat-header-cell *matHeaderCellDef>Nombre d'évasion</th>
+            <th mat-header-cell value="escapeCount" (click)="changeState($event)" *matHeaderCellDef>Nombre d'évasion</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.escapeCount }}</td>
         </ng-container>
 
         <ng-container matColumnDef="victoryCount">
-            <th mat-header-cell *matHeaderCellDef>Nombre de victoire</th>
+            <th mat-header-cell value="victoryCount" (click)="changeState($event)" *matHeaderCellDef>Nombre de victoire</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.victoryCount }}</td>
         </ng-container>
 
         <ng-container matColumnDef="defeatCount">
-            <th mat-header-cell *matHeaderCellDef>Nombre de défaites</th>
+            <th mat-header-cell value="defeatCount" (click)="changeState($event)" *matHeaderCellDef>Nombre de défaites</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.defeatCount }}</td>
         </ng-container>
 
         <ng-container matColumnDef="totalHealthLost">
-            <th mat-header-cell *matHeaderCellDef>Points de vie perdus</th>
+            <th mat-header-cell value="totalHealthLost" (click)="changeState($event)" *matHeaderCellDef>Points de vie perdus</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.totalHealthLost }}</td>
         </ng-container>
 
         <ng-container matColumnDef="totalHealthTaken">
-            <th mat-header-cell *matHeaderCellDef>Points de vie enlevés aux adversaires</th>
+            <th mat-header-cell value="totalHealthTaken" (click)="changeState($event)" *matHeaderCellDef>Points de vie enlevés aux adversaires</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.totalHealthTaken }}</td>
         </ng-container>
 
         <ng-container matColumnDef="uniqueItemsCollected">
-            <th mat-header-cell *matHeaderCellDef>Objets différents ramassés</th>
+            <th mat-header-cell value="uniqueItemsCollected" (click)="changeState($event)" *matHeaderCellDef>Objets différents ramassés</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.uniqueItemsCollected }}</td>
         </ng-container>
 
         <ng-container matColumnDef="visitedTilesPercent">
-            <th mat-header-cell *matHeaderCellDef>% de tuiles visités</th>
+            <th mat-header-cell value="visitedTilesPercent" (click)="changeState($event)" *matHeaderCellDef>% de tuiles visités</th>
             <td mat-cell *matCellDef="let player">{{ player.stats.visitedTilesPercent }}%</td>
         </ng-container>
 
