@@ -39,3 +39,10 @@ export enum GameState {
     ACTION,
     COMBAT,
 }
+
+export enum TimerState {
+    NONE,
+    REGULAR,
+    COOLDOWN,
+    COMBAT,
+}

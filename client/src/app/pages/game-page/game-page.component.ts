@@ -20,7 +20,7 @@ import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
-import { GameState, GameStructure, GameTile } from '@common/game-structure';
+import { GameState, GameStructure, GameTile, TimerState } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
 
 export interface ShortestPathByTile {
@@ -61,6 +61,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     currentMoveBudget: number | '--' = '--';
     remainingActions: number | '--' = '--';
     timeLeft: number | '--' = '--';
+    timerState: TimerState = TimerState.COOLDOWN;
 
     gameCreated = false;
     playersInitialized = false;
@@ -111,7 +112,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.playersInitialized = true;
             this.initializePlayersPositions();
             this.mapService.setState(GameState.NOTPLAYING);
-            this.gameController.requestStartTurn();
+            //this.gameController.requestStartTurn();
         });
     }
 
@@ -151,9 +152,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenEndTurn() {
         this.socketService.on('endTurn', (activePlayerId: string) => {
-            this.timeLeft = '--';
             this.gameController.setActivePlayer(activePlayerId);
-            this.gameController.requestStartTurn();
+            //this.gameController.requestStartTurn();
         });
     }
 
@@ -214,7 +214,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenEndTimer() {
         this.socketService.on('endTimer', () => {
-            this.resetPlayerView();
+            this.timerState = TimerState.COOLDOWN;
+            this.endTurn();
+        });
+    }
+
+    listenEndCooldown() {
+        this.socketService.on('endCooldown', () => {
+            this.timerState = TimerState.REGULAR;
+            this.gameController.requestStartTurn();
         });
     }
 

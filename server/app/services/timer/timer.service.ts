@@ -49,12 +49,12 @@ export class TimerService {
             } else {
                 if (this.isCooldown) {
                     this.clearTimer();
-                    this.client.emit('endCooldown');
+                    this.server.to(this.roomId).emit('endCooldown');
                     this.startMainTimer();
                 } else {
                     this.clearTimer();
                     this.server.to(this.roomId).emit('timerUpdate', 0);
-                    this.client.emit('endTimer');
+                    this.server.to(this.roomId).emit('endTimer');
                 }
             }
         }, 1000);
