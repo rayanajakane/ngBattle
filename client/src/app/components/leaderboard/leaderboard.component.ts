@@ -15,11 +15,18 @@ export class LeaderboardComponent implements OnChanges {
     @Input() afklist: PlayerCoord[];
     displayedColumns: string[] = ['role', 'playerName', 'nWins'];
     dataSource: Player[];
-
+    afkPlayerIds: string[];
     ngOnChanges() {
-        this.dataSource = this.playerCoords.map((playerCoord) => playerCoord.player);
+        //     this.dataSource = this.playerCoords.map((playerCoord) => playerCoord.player);
+        //     if (this.activePlayer) {
+        //         this.dataSource = [this.activePlayer, ...this.dataSource.filter((player) => player !== this.activePlayer)];
+        //     }
+        // }
+
+        this.dataSource = [...this.playerCoords.map((playerCoord) => playerCoord.player), ...this.afklist.map((playerCoord) => playerCoord.player)];
         if (this.activePlayer) {
             this.dataSource = [this.activePlayer, ...this.dataSource.filter((player) => player !== this.activePlayer)];
         }
+        this.afkPlayerIds = this.afklist.map((playerCoord) => playerCoord.player.id);
     }
 }
