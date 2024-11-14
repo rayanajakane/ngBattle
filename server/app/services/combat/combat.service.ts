@@ -89,15 +89,6 @@ export class CombatService {
             : currentFighters[DEFENDER_INDEX];
     }
 
-    // -2 sur son attaque et sa défense
-    isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player)) {
-            const position = player.position;
-            const game = this.activeGamesService.getActiveGame(roomId).game;
-            return game.map[position].tileType === TileTypes.ICE;
-        }
-    }
-
     applyIceDisadvantage(roomId: string, player: PlayerCoord): void {
         if (this.isPlayerInCombat(roomId, player)) {
             for (const fighter of this.fightersMap.get(roomId)) {
@@ -268,6 +259,14 @@ export class CombatService {
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
+    }
+
+    private isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
+        if (this.isPlayerInCombat(roomId, player)) {
+            const position = player.position;
+            const game = this.activeGamesService.getActiveGame(roomId).game;
+            return game.map[position].tileType === TileTypes.ICE;
+        }
     }
 
     private resetHealth(fighter: PlayerCoord): void {
