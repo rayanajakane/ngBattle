@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Socket } from 'Socket.io';
 import { Server } from 'socket.io';
 
 @Injectable()
@@ -12,15 +11,13 @@ export class TimerService {
     private server: Server;
     private roomId: string;
     private isCooldown: boolean = false;
-    private client: Socket;
 
     constructor(server: Server, roomId: string) {
         this.server = server;
         this.roomId = roomId;
     }
 
-    startTimer(client: Socket): void {
-        this.client = client;
+    startTimer(): void {
         if (this.intervalId) {
             this.clearTimer();
         }

@@ -75,6 +75,8 @@ export class ActiveGamesService {
             this.activeGames[activeGameIndex].turn = 0;
             this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
 
+            this.activeGames[activeGameIndex].turnTimer.startTimer();
+
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,

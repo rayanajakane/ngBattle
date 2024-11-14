@@ -115,8 +115,6 @@ export class GameControllerService {
             console.log('begin InteractDoor');
             this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: target });
         }
-
-        this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
 
     requestQuitGame(): void {
