@@ -10,10 +10,6 @@ export class NotPlayingStateService extends BaseStateService {
         console.log('You are doing nothing', accessibleTiles);
     }
 
-    onRightClick(index: number): void {
-        console.log('You are doing nothing', index);
-    }
-
     onMouseDown(): GameState {
         console.log('You are doing nothing');
         return GameState.NOTPLAYING;

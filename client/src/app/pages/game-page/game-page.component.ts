@@ -21,7 +21,7 @@ import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, TimerState } from '@common/game-structure';
-import { Player, PlayerCoord } from '@common/player';
+import { PlayerCoord } from '@common/player';
 
 export interface ShortestPathByTile {
     [key: number]: number[];
@@ -54,9 +54,6 @@ export interface ShortestPathByTile {
 export class GamePageComponent implements OnInit, OnDestroy {
     mapSize: number;
     game: GameStructure;
-    player: Player;
-    playersList: Player[];
-    playerCoords: PlayerCoord[];
 
     currentMoveBudget: number | '--' = '--';
     remainingActions: number | '--' = '--';
@@ -65,13 +62,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     gameCreated = false;
     playersInitialized = false;
-
-    roomId: string;
-
-    activePlayer: Player;
-    turn: number = 0;
-
-    afklist: PlayerCoord[] = [];
 
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);

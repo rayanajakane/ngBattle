@@ -10,10 +10,6 @@ export class ActionStateService extends BaseStateService {
         this.setAvailableTiles(accessibleTiles);
     }
 
-    onRightClick(index: number): void {
-        console.log('You are doing action', index);
-    }
-
     onMouseDown(index: number): GameState {
         if (this.availablesTilesIncludes(index)) {
             this.gameController.requestAction(index);

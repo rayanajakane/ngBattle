@@ -90,14 +90,14 @@ export class CombatGateway {
     @SubscribeMessage('killedPlayer')
     handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.combatService.killedPlayer(data.roomId, player);
+        this.combatService.killPlayer(data.roomId, player);
     }
 
     // winnerPlayer
     @SubscribeMessage('winnerPlayer')
     handleWinnerPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.combatService.winnerPlayer(data.roomId, player);
+        this.combatService.setWinner(data.roomId, player);
     }
 
     // disperseKilledPlayerObjects (sprint 3)

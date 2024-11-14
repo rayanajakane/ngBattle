@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { TileInfoModalComponent } from '@app/components/tile-info-modal/tile-info-modal.component';
 import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
 import { GameState, GameTile, TilePreview } from '@common/game-structure';
 import { Player } from '@common/player';
@@ -32,7 +30,6 @@ export class MapGameService extends MapBaseService {
         private moving: MovingStateService,
         private action: ActionStateService,
         private combat: CombatStateService,
-        private dialog: MatDialog,
     ) {
         super();
         this.setState(GameState.NOTPLAYING);
@@ -63,12 +60,7 @@ export class MapGameService extends MapBaseService {
         event.preventDefault();
     }
     onRightClick(index: number): void {
-        //this.currentState.onRightClick(index);
-        //ADD modal popup here
-        this.dialog.open(TileInfoModalComponent, {
-            data: { tile: this.tiles[index] },
-        });
-        console.log('CLIKE DROIT DE LA SOURIS', index);
+        this.currentState.onRightClick(this.tiles[index]);
     }
     onExit(): void {}
     onDrop(index: number): void {}

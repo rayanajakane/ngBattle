@@ -11,10 +11,6 @@ export class MovingStateService extends BaseStateService {
         this.setShortestPathByTile(accessibleTiles);
     }
 
-    onRightClick(index: number): void {
-        console.log('You are moving', index);
-    }
-
     onMouseDown(index: number): GameState {
         console.log('You are moving', index);
         if (this.availablesTilesIncludes(index)) {

@@ -10,10 +10,6 @@ export class CombatStateService extends BaseStateService {
         console.log('You are in combat', accessibleTiles);
     }
 
-    onRightClick(index: number): void {
-        console.log('You are in combat', index);
-    }
-
     onMouseDown(): GameState {
         console.log('You are in combat');
         return GameState.COMBAT;

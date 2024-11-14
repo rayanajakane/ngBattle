@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { GameState, ShortestPathByTile } from '@common/game-structure';
+import { MatDialog } from '@angular/material/dialog';
+import { TileInfoModalComponent } from '@app/components/tile-info-modal/tile-info-modal.component';
+import { GameState, GameTile, ShortestPathByTile } from '@common/game-structure';
 import { GameControllerService } from './game-controller.service';
 
 @Injectable({
@@ -11,7 +13,7 @@ export abstract class BaseStateService {
 
     gameController = inject(GameControllerService);
 
-    constructor() {}
+    constructor(private dialog: MatDialog) {}
 
     getAvailableTiles(): number[] {
         return this.availableTiles;
@@ -52,7 +54,13 @@ export abstract class BaseStateService {
 
     abstract initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]): void;
 
-    abstract onRightClick(index: number): void;
+    onRightClick(tile: GameTile): void {
+        if (this.gameController.isActivePlayer()) {
+            this.dialog.open(TileInfoModalComponent, {
+                data: { tile: tile },
+            });
+        }
+    }
     abstract onMouseDown(index: number): GameState;
     abstract onMouseEnter(): void;
 }
