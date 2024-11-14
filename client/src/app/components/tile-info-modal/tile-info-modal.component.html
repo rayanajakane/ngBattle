@@ -1,0 +1,9 @@
+<h2>Information sur la tuile</h2>
+
+@if (data.tile) {
+<div>
+    <p>Type de tuile: {{ data.tile.tileType }}</p>
+    <p>La tuile est accessible: {{ data.tile.isAccessible ? 'Oui !' : 'Non !' }}</p>
+    <p>Un joueur est present : {{ data.tile.hasPlayer ? 'Oui' : 'Non' }}</p>
+</div>
+}
