@@ -66,20 +66,22 @@ export class CombatService {
         }
     }
 
-    endCombat(roomId: string, player?: PlayerCoord): void {
+    endCombat(roomId: string, player?: PlayerCoord): PlayerCoord[] {
         // inc wins if a player leaves game
         if (this.fightersMap.get(roomId).length === 1) {
             this.setWinner(roomId, player);
         }
 
-        if (this.fightersMap.get(roomId).length !== 0) {
+        const fighters = this.fightersMap.get(roomId);
+        if (fighters.length !== 0) {
             // reset health no matter how combat ended
-            this.fightersMap.get(roomId).forEach((fighter) => {
+            fighters.forEach((fighter) => {
                 this.resetHealth(fighter);
             });
         }
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
+        return fighters;
     }
 
     whoIsFirstPlayer(roomId: string): PlayerCoord {
@@ -151,6 +153,7 @@ export class CombatService {
         // Change the turn to the other fighter
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
+        this.startCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), CombatAction.ATTACK);
     }
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
@@ -196,7 +199,7 @@ export class CombatService {
         }
     }
 
-    killPlayer(roomId: string, player: PlayerCoord): void {
+    killPlayer(roomId: string, player: PlayerCoord): PlayerCoord[] {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         if (playerKiller && playerKilled) {
@@ -206,7 +209,9 @@ export class CombatService {
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
             this.endCombat(roomId);
+            return [playerKiller, playerKilled];
         }
+        return [];
     }
 
     disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
