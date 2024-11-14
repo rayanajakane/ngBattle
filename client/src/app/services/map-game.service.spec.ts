@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
 import { TilePreview } from '@common/game-structure';
-import { Player, PlayerAttribute } from '@common/player';
+import { Player, PlayerAttribute, PlayerStats } from '@common/player';
 import { MapGameService } from './map-game.service';
 
 const player1: Player = {
@@ -13,6 +13,7 @@ const player1: Player = {
     isActive: false,
     abandoned: true,
     wins: 0,
+    stats: {} as PlayerStats,
 };
 
 /* eslint-disable */ // Magic numbers are used for testing purposes

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { GameTile, TilePreview, TileStructure } from '@common/game-structure';
-import { Player, PlayerAttribute } from '@common/player';
+import { Player, PlayerAttribute, PlayerStats } from '@common/player';
 import { MapBaseService } from './map-base.service';
 
 const player1: Player = {
@@ -12,6 +12,7 @@ const player1: Player = {
     isActive: false,
     abandoned: true,
     wins: 0,
+    stats: {} as PlayerStats,
 };
 
 describe('MapBaseService', () => {

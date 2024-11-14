@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlayerCoord } from '@app/pages/game-page/game-page.component';
-import { Player } from '@common/player';
+import { Player, PlayerStats } from '@common/player';
 import { LeaderboardComponent } from './leaderboard.component';
 
 describe('LeaderboardComponent', () => {
@@ -30,6 +30,7 @@ describe('LeaderboardComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 5,
+            stats: {} as PlayerStats,
         };
 
         const player2: Player = {
@@ -41,6 +42,7 @@ describe('LeaderboardComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 3,
+            stats: {} as PlayerStats,
         };
 
         const playerCoord1: PlayerCoord = { player: player1, position: 1 };
