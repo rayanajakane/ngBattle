@@ -2,6 +2,7 @@ import { ActionButtonService } from '@app/services/action-button/action-button.s
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
@@ -14,9 +15,7 @@ export class CombatGateway {
         private readonly combatService: CombatService,
         private readonly actionButtonService: ActionButtonService,
         private readonly actionHandlerService: ActionHandlerService,
-    ) {
-        console.log('Combat Gateway created');
-    }
+    ) {}
 
     @SubscribeMessage('startAction')
     handleStartAction(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
@@ -32,6 +31,7 @@ export class CombatGateway {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
             const fighters = [player, targetPlayer];
             this.combatService.startCombat(data.roomId, fighters);
+            client.emit('startCombat', { attacker: fighters[0], defender: fighters[1] });
         }
         if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
@@ -40,10 +40,65 @@ export class CombatGateway {
             const newData = { roomId: data.roomId, playerId: data.playerId, doorPosition: data.target };
             this.actionHandlerService.handleInteractDoor(newData, this.server, client);
         }
-        // TODO: set the socket response to the client or all clients in the room
     }
 
-    // get available indexes start action
+    @SubscribeMessage('attack')
+    handleAttack(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; target: number }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
+        const dices = this.combatService.attack(data.roomId, player, targetPlayer).slice(0, 1);
+        const combatStatus = this.combatService.attack(data.roomId, player, targetPlayer)[2];
+        if (combatStatus === 'combatEnd') {
+            client.emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
+        }
+        if (combatStatus === 'combatTurnEnd') {
+            client.emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
+        }
+        client.emit('attacked', { attacker: player, attackerDice: dices[0], defender: targetPlayer, defenderDice: dices[1] });
+    }
 
-    // start combat action
+    // escape
+    @SubscribeMessage('escape')
+    handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        const escapeResult = this.combatService.escape(data.roomId, player);
+        client.emit('didEscape', { roomId: data.roomId, playerId: data.playerId });
+    }
+
+    // startCombatTurn
+    @SubscribeMessage('startCombatTurn')
+    handleStartCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; combatAction: CombatAction }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        this.combatService.startCombatTurn(data.roomId, player, data.combatAction);
+    }
+
+    // endCombatTurn
+    @SubscribeMessage('endCombatTurn')
+    handleEndCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        this.combatService.endCombatTurn(data.roomId, player);
+    }
+
+    // endCombat
+    @SubscribeMessage('endCombat')
+    handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        this.combatService.endCombat(data.roomId, player);
+    }
+
+    // killedPlayer + KilledPlayerHomePosition
+    @SubscribeMessage('killedPlayer')
+    handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        this.combatService.killedPlayer(data.roomId, player);
+    }
+
+    // winnerPlayer
+    @SubscribeMessage('winnerPlayer')
+    handleWinnerPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        this.combatService.winnerPlayer(data.roomId, player);
+    }
+
+    // disperseKilledPlayerObjects (sprint 3)
 }

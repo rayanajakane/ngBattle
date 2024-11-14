@@ -16,7 +16,7 @@ import {
 } from '@app/services/combat/constants';
 import { MovementService } from '@app/services/movement/movement.service';
 import { CombatAction } from '@common/combat-actions';
-import { PlayerCoord } from '@common/player';
+import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -111,16 +111,18 @@ export class CombatService {
         }
     }
 
-    escape(roomId: string, player: PlayerCoord): void {
+    escape(roomId: string, player: PlayerCoord): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
             return;
         }
-        if (!this.canEscape() && this.isPlayerInCombat(roomId, player) && this.canPlayerEscape(roomId, player)) {
+        if (this.isPlayerInCombat(roomId, player) && !this.canPlayerEscape(roomId, player)) {
             player.player.attributes.escape -= 1;
             this.endCombatTurn(roomId, player);
-        } else {
+            return [player.player.attributes.escape, false];
+        } else if (this.isPlayerInCombat(roomId, player) && this.canPlayerEscape(roomId, player)) {
             this.endCombat(roomId);
+            return [player.player.attributes.escape, true];
         }
     }
 
@@ -157,28 +159,32 @@ export class CombatService {
         return fighters?.[currentTurnIndex];
     }
 
-    isAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): boolean {
+    checkAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): [boolean, number[]] {
         let bonusAttackDice: number = DEFAULT_BONUS_DICE;
         let bonusDefenseDice: number = DEFAULT_BONUS_DICE;
         if (attacker.player.attributes.dice === 'attack') bonusAttackDice = BOOSTED_BONUS_DICE;
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
-
-        return (
-            attacker.player.attributes.currentAttack + this.throwDice(bonusAttackDice) >=
-            defender.player.attributes.currentDefense + this.throwDice(bonusDefenseDice)
-        );
+        const attackerRoll = this.throwDice(bonusAttackDice);
+        const defenderRoll = this.throwDice(bonusDefenseDice);
+        const isAttackSuccessful =
+            attacker.player.attributes.currentAttack + attackerRoll >= defender.player.attributes.currentDefense + defenderRoll;
+        return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
-    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): void {
+    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
-            if (this.isAttackSuccessful(attackPlayer, defensePlayer)) {
+            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
+            if (checkAttack[0]) {
                 defensePlayer.player.attributes.health = (Number(defensePlayer.player.attributes.health) - SUCCESSFUL_ATTACK_DAMAGE).toString();
                 if (Number(defensePlayer.player.attributes.health) <= 0) {
                     this.endCombat(roomId, defensePlayer);
+                    return [checkAttack[1][0], checkAttack[1][1], 'combatEnd'];
                 }
             }
             this.endCombatTurn(roomId, attackPlayer);
+            return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd'];
         }
+        return [-1, -1, 'playerNotInCombat'];
     }
 
     resetAllAttributes(roomId: string, fighter: PlayerCoord): void {
@@ -227,6 +233,10 @@ export class CombatService {
         }
     }
 
+    private throwDice(diceSize: number): number {
+        return Math.floor(Math.random() * diceSize) + 1;
+    }
+
     private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
@@ -248,17 +258,11 @@ export class CombatService {
         return verifiedPositions;
     }
 
-    private throwDice(diceSize: number): number {
-        return Math.floor(Math.random() * diceSize) + 1;
-    }
-
-    private canEscape(): boolean {
-        const randomNumber = Math.floor(Math.random());
-        return randomNumber < ESCAPE_CHANCE;
-    }
-
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
+        if (this.isPlayerInCombat(roomId, player) && player.player.attributes.escape > 0) {
+            const randomNumber = Math.floor(Math.random());
+            return randomNumber < ESCAPE_CHANCE;
+        }
     }
 
     private isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
