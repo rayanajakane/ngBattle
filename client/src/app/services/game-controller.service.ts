@@ -19,9 +19,35 @@ export class GameControllerService {
 
     turn: number = 0;
 
+    fighters: PlayerCoord[] = [];
+
     private readonly socketService = inject(SocketService);
 
     constructor() {}
+
+    setFighters(fighters: PlayerCoord[]): void {
+        this.fighters = fighters;
+    }
+
+    getFighters(): PlayerCoord[] {
+        return this.fighters;
+    }
+
+    resetFighters(): void {
+        this.fighters = [];
+    }
+
+    isFighter(fighters: PlayerCoord[]): boolean {
+        return fighters.some((fighter) => fighter.player.id === this.player.id);
+    }
+
+    isInCombat(): boolean {
+        return this.fighters.length > 0;
+    }
+
+    // setActiveFighter(index: number): void {
+    //     this.activePlayer = this.fighters[index].player;
+    // }
 
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;
@@ -107,14 +133,7 @@ export class GameControllerService {
 
     // change back-end
     requestAction(target: number): void {
-        const targetPlayer = this.findPlayerCoordByPosition(target);
-        if (targetPlayer) {
-            console.log('begin Combat');
-            this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
-        } else {
-            console.log('begin InteractDoor');
-            this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: target });
-        }
+        this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
 
     requestQuitGame(): void {

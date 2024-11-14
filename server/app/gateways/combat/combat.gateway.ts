@@ -31,9 +31,8 @@ export class CombatGateway {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
             const fighters = [player, targetPlayer];
             this.combatService.startCombat(data.roomId, fighters);
-            client.emit('startCombat', { attacker: fighters[0], defender: fighters[1] });
-        }
-        if (
+            this.server.to(data.roomId).emit('startCombat', { attacker: fighters[0], defender: fighters[1] });
+        } else if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOOROPEN
         ) {

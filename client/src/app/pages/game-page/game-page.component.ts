@@ -87,6 +87,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenTimer();
         this.listenEndTimer();
         this.listenEndCooldown();
+        this.listenStartCombat();
+        this.listenCombatTimer();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -214,6 +216,27 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endCooldown', () => {
             this.timerState = TimerState.REGULAR;
             this.gameController.requestStartTurn();
+        });
+    }
+
+    listenStartCombat() {
+        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord }) => {
+            if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
+                this.gameController.setFighters([combatData.attacker, combatData.defender]);
+                this.gameController.setActivePlayer(combatData.attacker.player.id);
+                this.mapService.setState(GameState.COMBAT);
+            } else {
+                this.timeLeft = '--';
+            }
+            console.log('GameState', this.mapService.currentStateNumber);
+        });
+    }
+
+    listenCombatTimer() {
+        this.socketService.on('combatTimerUpdate', (time: number) => {
+            if (this.gameController.isInCombat()) {
+                this.timeLeft = time;
+            }
         });
     }
 

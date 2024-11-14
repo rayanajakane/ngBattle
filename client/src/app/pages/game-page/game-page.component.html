@@ -23,10 +23,9 @@
             [nActions]="remainingActions"
         >
         </app-player-panel>
-        }
-
+        } @if (gameController.isInCombat()) {
         <app-combat-interface class="combat-card"></app-combat-interface>
-        @if (gameCreated) {
+        } @if (gameCreated) {
         <app-game-map [mapSize]="mapSize"></app-game-map>
         }
 
