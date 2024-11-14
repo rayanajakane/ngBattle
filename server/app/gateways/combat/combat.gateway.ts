@@ -20,8 +20,8 @@ export class CombatGateway {
 
     @SubscribeMessage('startAction')
     handleStartAction(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
-        const playerCoord = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        client.emit('startAction', this.actionButtonService.getAvailableIndexes(data.roomId, playerCoord));
+        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        client.emit('startAction', this.actionButtonService.getAvailableIndexes(data.roomId, player));
     }
 
     @SubscribeMessage('action')
@@ -30,6 +30,8 @@ export class CombatGateway {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         if (this.activeGameService.getActiveGame(data.roomId).game.map[data.target].hasPlayer) {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
+            const fighters = [player, targetPlayer];
+            this.combatService.startCombat(data.roomId, fighters);
         }
         if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
