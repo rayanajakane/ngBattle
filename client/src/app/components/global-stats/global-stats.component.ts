@@ -9,6 +9,8 @@ import { GlobalStats } from '@common/global-stats';
     styleUrl: './global-stats.component.scss',
 })
 export class GlobalStatsComponent {
-    @Input() globalStats: GlobalStats;
+    //@Input() globalStats: GlobalStats;
+    globalStats: GlobalStats = { matchLength: '', nbTurns: 0, visitedTilesPercent: 0, usedDoorsPercent: 0, nbPlayersHeldFlag: 0 };
+
     @Input() gameMode: string;
 }
