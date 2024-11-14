@@ -42,8 +42,6 @@ export class ActionHandlerService {
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
 
-        // activeGame.turnTimer.startTimer(client);
-
         client.emit('startTurn', {
             shortestPathByTile: this.action.availablePlayerMoves(data.playerId, data.roomId),
             currentMoveBudget: activeGame.currentPlayerMoveBudget,

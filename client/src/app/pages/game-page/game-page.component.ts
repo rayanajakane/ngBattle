@@ -73,8 +73,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     afklist: PlayerCoord[] = [];
 
-    // currentState: GameState = GameState.NOTPLAYING;
-
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
@@ -114,18 +112,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.playersInitialized = true;
             this.initializePlayersPositions();
             this.mapService.setState(GameState.NOTPLAYING);
-            //this.gameController.requestStartTurn();
         });
     }
 
     listenStartTurn() {
         this.socketService.on('startTurn', (data: { shortestPathByTile: ShortestPathByTile; currentMoveBudget: number }) => {
-            console.log('startTurn', data.shortestPathByTile);
             this.mapService.switchToMovingStateRoutine(data.shortestPathByTile);
             this.currentMoveBudget = data.currentMoveBudget;
             this.remainingActions = 1;
-            // this.mapService.setState(GameState.MOVING);
-            // this.mapService.initializePrevisualization(shortestPathByTile);
         });
     }
 
@@ -154,6 +148,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenEndTurn() {
         this.socketService.on('endTurn', (activePlayerId: string) => {
+            this.timerState = TimerState.COOLDOWN;
             this.gameController.setActivePlayer(activePlayerId);
             //this.gameController.requestStartTurn();
         });
@@ -209,15 +204,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenTimer() {
-        this.socketService.on('timeUpdate', (time: number) => {
-            console.log('timeUpdate', time);
+        this.socketService.on('timerUpdate', (time: number) => {
             this.timeLeft = time;
         });
     }
 
     listenEndTimer() {
         this.socketService.on('endTimer', () => {
-            this.timerState = TimerState.COOLDOWN;
             this.endTurn();
         });
     }
@@ -244,11 +237,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.remainingActions = '--';
     }
 
-    // resetMap() {
-    //     this.mapService.resetMovementPrevisualization();
-    //     this.mapService.removeAllPreview();
-    // }
-
     quitGame() {
         this.gameController.requestQuitGame();
         this.socketService.disconnect();
@@ -258,7 +246,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     startAction() {
         console.log('currentState', this.mapService.currentStateNumber);
         if (this.remainingActions === 1 && this.mapService.currentStateNumber === GameState.MOVING) {
-            console.log('Im here');
             this.gameController.requestStartAction();
         }
     }

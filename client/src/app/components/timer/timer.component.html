@@ -2,7 +2,7 @@
     <!-- @if (this.isActive) { -->
     <button mat-fab extended color="warn">
         <mat-icon>hourglass_bottom</mat-icon>
-        {{ this.timeLeft }} sec.
+        {{ this.timerStateEnum }} {{ this.timeLeft }} sec.
     </button>
     <!-- } @else {
     <button mat-fab extended color="primary" disabled="">
