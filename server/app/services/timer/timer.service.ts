@@ -51,11 +51,6 @@ export class TimerService {
             if (this.currentTime > 0) {
                 this.currentTime--;
                 this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
-                // if (this.isCooldown) {
-                //     this.server.to(this.roomId).emit('cooldownUpdate', this.currentTime);
-                // } else {
-                //     this.server.to(this.roomId).emit('timerUpdate', this.currentTime);
-                // }
             } else {
                 if (this.isCooldown) {
                     this.clearTimer();
@@ -63,15 +58,8 @@ export class TimerService {
                     this.startMainTimer();
                 } else {
                     this.clearTimer();
-                    //TODO: execute the endTurn logic
-                    this.actionHandler.handleEndTurn(
-                        {
-                            roomId: this.roomId,
-                            playerId: this.playerId,
-                            lastTurn: false,
-                        },
-                        this.server,
-                    );
+                    this.server.to(this.roomId).emit('timerUpdate', 0);
+                    this.server.to(this.roomId).emit('endTimer');
                 }
             }
         }, 1000);
