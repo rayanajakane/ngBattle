@@ -53,6 +53,8 @@ export class CombatService {
                 if (fighter.player.attributes.currentSpeed === undefined) {
                     fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
                 }
+                // verifies if player is on ice
+                this.applyIceDisadvantage(roomId, fighter);
             });
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
@@ -87,15 +89,6 @@ export class CombatService {
             : currentFighters[DEFENDER_INDEX];
     }
 
-    // -2 sur son attaque et sa défense
-    isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player)) {
-            const position = player.position;
-            const game = this.activeGamesService.getActiveGame(roomId).game;
-            return game.map[position].tileType === TileTypes.ICE;
-        }
-    }
-
     applyIceDisadvantage(roomId: string, player: PlayerCoord): void {
         if (this.isPlayerInCombat(roomId, player)) {
             for (const fighter of this.fightersMap.get(roomId)) {
@@ -118,17 +111,12 @@ export class CombatService {
         }
     }
 
-    canEscape(): boolean {
-        const randomNumber = Math.floor(Math.random());
-        return randomNumber < ESCAPE_CHANCE;
-    }
-
     escape(roomId: string, player: PlayerCoord): void {
         // only the player's turn can escape
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
             return;
         }
-        if (!this.canEscape() && this.isPlayerInCombat(roomId, player)) {
+        if (!this.canEscape() && this.isPlayerInCombat(roomId, player) && this.canPlayerEscape(roomId, player)) {
             player.player.attributes.escape -= 1;
             this.endCombatTurn(roomId, player);
         } else {
@@ -169,10 +157,6 @@ export class CombatService {
         return fighters?.[currentTurnIndex];
     }
 
-    throwDice(diceSize: number): number {
-        return Math.floor(Math.random() * diceSize) + 1;
-    }
-
     isAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): boolean {
         let bonusAttackDice: number = DEFAULT_BONUS_DICE;
         let bonusDefenseDice: number = DEFAULT_BONUS_DICE;
@@ -195,9 +179,6 @@ export class CombatService {
             }
             this.endCombatTurn(roomId, attackPlayer);
         }
-    }
-    canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
     }
 
     resetAllAttributes(roomId: string, fighter: PlayerCoord): void {
@@ -246,7 +227,7 @@ export class CombatService {
         }
     }
 
-    verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
+    private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
@@ -265,6 +246,27 @@ export class CombatService {
             }
         });
         return verifiedPositions;
+    }
+
+    private throwDice(diceSize: number): number {
+        return Math.floor(Math.random() * diceSize) + 1;
+    }
+
+    private canEscape(): boolean {
+        const randomNumber = Math.floor(Math.random());
+        return randomNumber < ESCAPE_CHANCE;
+    }
+
+    private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
+        if (this.isPlayerInCombat(roomId, player)) return player.player.attributes.escape > 0;
+    }
+
+    private isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
+        if (this.isPlayerInCombat(roomId, player)) {
+            const position = player.position;
+            const game = this.activeGamesService.getActiveGame(roomId).game;
+            return game.map[position].tileType === TileTypes.ICE;
+        }
     }
 
     private resetHealth(fighter: PlayerCoord): void {
