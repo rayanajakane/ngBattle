@@ -119,14 +119,14 @@ export class CombatService {
         }
     }
 
-    escape(roomId: string, player: PlayerCoord): [PlayerAttribute['escape'], boolean] {
+    escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
             return;
         }
         if (this.isPlayerInCombat(roomId, player) && !this.canPlayerEscape(roomId, player)) {
             player.player.attributes.escape -= 1;
-            this.endCombatTurn(roomId, player);
+            this.endCombatTurn(roomId, player, server);
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && this.canPlayerEscape(roomId, player)) {
             this.endCombat(roomId);
@@ -149,36 +149,35 @@ export class CombatService {
                 } else {
                     server.to(roomId).emit('endCombatTimer');
                     clearInterval(this.combatTimerMap.get(roomId));
-                    this.endCombatTurn(roomId, this.getCurrentTurnPlayer(roomId));
+                    this.endCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), server);
                 }
             }, 1000),
         );
     }
 
-    starCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
+    startCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
         const hasEscape = this.canPlayerEscape(roomId, player);
         this.startCombatTimer(roomId, hasEscape, server);
     }
 
-    startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction): void {
+    startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction, server: Server): void {
         if (combatAction === CombatAction.ATTACK) {
             const defender = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
-            this.attack(roomId, player, defender);
+            this.attack(roomId, player, defender, server);
         } else if (combatAction === CombatAction.ESCAPE) {
-            this.escape(roomId, player);
+            this.escape(roomId, player, server);
         }
     }
 
-    endCombatTurn(roomId: string, player: PlayerCoord): void {
+    endCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
         if (!this.isPlayerInCombat(roomId, player)) return;
-        const currentTurnIndex = this.currentTurnMap.get(roomId) || ATTACKER_INDEX;
+        const currentTurnIndex = this.currentTurnMap.get(roomId);
 
-        // Change the turn to the other fighter
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
-        // start other player's timer
+        this.startCombatTimer(roomId, this.canPlayerEscape(roomId, this.getCurrentTurnPlayer(roomId)), server);
     }
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
@@ -199,7 +198,7 @@ export class CombatService {
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
-    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string, PlayerCoord] {
+    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {
@@ -209,7 +208,7 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer];
                 }
             }
-            this.endCombatTurn(roomId, attackPlayer);
+            this.endCombatTurn(roomId, attackPlayer, server);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer];
         }
         return [-1, -1, 'playerNotInCombat', defensePlayer];
