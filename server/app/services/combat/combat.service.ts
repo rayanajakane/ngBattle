@@ -179,6 +179,7 @@ export class CombatService {
     }
 
     attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string, PlayerCoord] {
+        console.log('attack', attackPlayer, defensePlayer);
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {

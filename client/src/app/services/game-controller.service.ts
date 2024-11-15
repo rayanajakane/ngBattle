@@ -45,6 +45,26 @@ export class GameControllerService {
         return this.fighters.length > 0;
     }
 
+    updatePlayerCoords(playerCoord: PlayerCoord): void {
+        const index = this.playerCoords.findIndex((coord) => coord.player.id === playerCoord.player.id);
+        if (index !== -1) {
+            this.playerCoords[index] = playerCoord;
+        }
+    }
+
+    updatePlayer(playerCoord: PlayerCoord): void {
+        if (this.player.id === playerCoord.player.id) {
+            this.player = playerCoord.player;
+        }
+    }
+
+    updatePlayerCoordsList(playerCoords: PlayerCoord[]): void {
+        playerCoords.forEach((playerCoord) => {
+            this.updatePlayerCoords(playerCoord);
+            this.updatePlayer(playerCoord);
+        });
+    }
+
     // setActiveFighter(index: number): void {
     //     this.activePlayer = this.fighters[index].player;
     // }
@@ -74,6 +94,10 @@ export class GameControllerService {
         if (activePlayer) {
             this.activePlayer = activePlayer;
         }
+    }
+
+    setPlayer(player: Player): void {
+        this.player = player;
     }
 
     isActivePlayer(): boolean {
@@ -139,6 +163,8 @@ export class GameControllerService {
     requestCombatAction(combatAction: string): void {
         this.socketService.emit(combatAction, { roomId: this.roomId, playerId: this.player.id });
     }
+
+    requestEndCombatTurn(): void {}
 
     requestQuitGame(): void {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });

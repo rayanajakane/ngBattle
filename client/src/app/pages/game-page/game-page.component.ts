@@ -60,6 +60,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timeLeft: number | '--' = '--';
     timerState: TimerState = TimerState.COOLDOWN;
 
+    attackerDiceResult: number = 0;
+    defenderDiceResult: number = 0;
+
     gameCreated = false;
     playersInitialized = false;
 
@@ -90,6 +93,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenStartCombat();
         this.listenCombatTimer();
         this.listenAttacked();
+        this.listenChangeCombatTurn();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -222,9 +226,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartCombat() {
         this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord }) => {
+            this.gameController.setActivePlayer(combatData.attacker.player.id);
             if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
                 this.gameController.setFighters([combatData.attacker, combatData.defender]);
-                this.gameController.setActivePlayer(combatData.attacker.player.id);
                 this.mapService.setState(GameState.COMBAT);
             } else {
                 this.timeLeft = '--';
@@ -244,10 +248,34 @@ export class GamePageComponent implements OnInit, OnDestroy {
     listenAttacked() {
         this.socketService.on('attacked', (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number }) => {
             if (this.gameController.isInCombat()) {
-                console.log('attacked', data);
+                this.attackerDiceResult = data.attackerDice;
+                this.defenderDiceResult = data.defenderDice;
+                this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
+            }
+        });
+    }
 
-                // this.gameController.updateAttacker();
-                // this.mapService.showCombatResult(data.attacker, data.attackerDice, data.defender, data.defenderDice);
+    listenChangeCombatTurn() {
+        this.socketService.on('changeCombatTurn', (attackerId: string) => {
+            this.gameController.setActivePlayer(attackerId);
+            if (this.gameController.isInCombat()) {
+                if (this.gameController.isActivePlayer()) {
+                    this.mapService.setState(GameState.COMBAT);
+                } else {
+                    this.mapService.setState(GameState.NOTPLAYING);
+                }
+            }
+        });
+    }
+
+    listenKilledPlayer() {
+        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; newPosition: number }) => {});
+    }
+
+    listenEscaped() {
+        this.socketService.on('didEscape', (data: { result: boolean }) => {
+            if (this.gameController.isInCombat()) {
+                console.log('escaped', data);
             }
         });
     }
