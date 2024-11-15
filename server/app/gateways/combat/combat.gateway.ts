@@ -51,9 +51,7 @@ export class CombatGateway {
             const defender = beginAttack[3];
             const dices = [beginAttack[0], beginAttack[1]];
             const combatStatus = beginAttack[2];
-            console.log('combatStatus', combatStatus);
             this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender, defenderDice: dices[1] });
-
             if (combatStatus === 'combatEnd') {
                 this.server.to(data.roomId).emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
             } else if (combatStatus === 'combatTurnEnd') {

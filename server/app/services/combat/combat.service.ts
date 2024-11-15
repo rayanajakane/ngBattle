@@ -141,7 +141,6 @@ export class CombatService {
     // endCombatTimer
 
     startCombatTurn(roomId: string, player: PlayerCoord, combatAction: CombatAction): void {
-        // startCombatTimer();
         if (combatAction === CombatAction.ATTACK) {
             const defender = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
             this.attack(roomId, player, defender);
@@ -157,7 +156,7 @@ export class CombatService {
         // Change the turn to the other fighter
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
-        this.startCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), CombatAction.ATTACK);
+        // start other player's timer
     }
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
@@ -179,7 +178,6 @@ export class CombatService {
     }
 
     attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string, PlayerCoord] {
-        console.log('attack', attackPlayer, defensePlayer);
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {
