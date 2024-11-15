@@ -65,7 +65,7 @@ export class CombatGateway {
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const escapeResult = this.combatService.escape(data.roomId, player);
-        client.emit('didEscape', { roomId: data.roomId, playerId: data.playerId, result: escapeResult });
+        this.server.to(data.roomId).emit('didEscape', { roomId: data.roomId, playerId: data.playerId, result: escapeResult });
     }
 
     // startCombatTurn
@@ -73,7 +73,7 @@ export class CombatGateway {
     handleStartCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; combatAction: CombatAction }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         this.combatService.startCombatTurn(data.roomId, player, data.combatAction);
-        client.emit('startCombatTurn', { roomId: data.roomId, playerId: data.playerId, combatAction: data.combatAction });
+        this.server.to(data.roomId).emit('startCombatTurn', { roomId: data.roomId, playerId: data.playerId, combatAction: data.combatAction });
     }
 
     // endCombatTurn
@@ -81,7 +81,7 @@ export class CombatGateway {
     handleEndCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         this.combatService.endCombatTurn(data.roomId, player);
-        client.emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
+        this.server.to(data.roomId).emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
     }
 
     // endCombat
@@ -89,7 +89,7 @@ export class CombatGateway {
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const fighters = this.combatService.endCombat(data.roomId, player);
-        client.emit('endCombat', { roomId: data.roomId, playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
+        this.server.to(data.roomId).emit('endCombat', { roomId: data.roomId, playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
     }
 
     // killedPlayer + KilledPlayerHomePosition
