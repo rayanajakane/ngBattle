@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { GameStructure } from '@common/game-structure';
+import { EventEmitter, Output } from '@angular/core';
 
 @Component({
     selector: 'app-import-dialog',
@@ -14,6 +15,8 @@ import { GameStructure } from '@common/game-structure';
     styleUrl: './import-dialog.component.scss',
 })
 export class ImportDialogComponent {
+    @Output() gameSaved = new EventEmitter<void>();
+
     idGenerationService = inject(IDGenerationService);
     dialog = inject(MatDialog);
     http = inject(HttpClientService);
@@ -45,7 +48,7 @@ export class ImportDialogComponent {
         this.http.sendGame(game).subscribe({
             next: () => {
                 this.dialog.closeAll();
-                this.reloadPage();
+                this.gameSaved.emit(); // Emit the event
             },
             error: (error: HttpErrorResponse) => {
                 const errorp = document.getElementById('errors') as HTMLParagraphElement;
@@ -56,10 +59,6 @@ export class ImportDialogComponent {
                 }
             },
         });
-    }
-
-    reloadPage() {
-        window.location.reload();
     }
 
     async importGame(event: Event) {

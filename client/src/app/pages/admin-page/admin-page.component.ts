@@ -44,6 +44,9 @@ export class AdminPageComponent implements OnInit {
     }
 
     openImportDialog() {
-        this.dialog.open(ImportDialogComponent);
+        const dialogRef = this.dialog.open(ImportDialogComponent);
+        dialogRef.componentInstance.gameSaved.subscribe(() => {
+            this.loadGames();
+        });
     }
 }
