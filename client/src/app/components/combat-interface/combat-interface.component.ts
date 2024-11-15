@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -13,16 +13,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     styleUrls: ['./combat-interface.component.scss'],
 })
 export class CombatInterfaceComponent implements OnInit {
-    diceResult: number = 0;
+    @Input() attackerDiceResult: number = 0;
+    @Input() defenderDiceResult: number = 0;
+
     escapeChance: number = 0;
     combatInfo: string = '';
-    diceInfo: string = '';
+    attackerDiceInfo: string = '';
+    defenderDiceInfo: string = '';
     escapeChanceInfo: string = '';
 
     @Output() selectCombatActionEvent = new EventEmitter<string>();
 
     ngOnInit() {
-        this.diceInfo = 'Résultats des dés : ' + this.diceResult;
+        this.attackerDiceInfo = 'Résultats des dés attaquant : ' + this.attackerDiceResult;
+        this.defenderDiceInfo = 'Résultats des dés défenseur : ' + this.attackerDiceResult;
         this.escapeChanceInfo = "Nombre d'évasion : " + this.escapeChance;
     }
 
