@@ -178,20 +178,20 @@ export class CombatService {
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
-    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string] {
+    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string, PlayerCoord] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {
-                defensePlayer.player.attributes.health = (Number(defensePlayer.player.attributes.health) - SUCCESSFUL_ATTACK_DAMAGE).toString();
-                if (Number(defensePlayer.player.attributes.health) <= 0) {
+                defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
+                if (defensePlayer.player.attributes.currentHealth <= 0) {
                     this.endCombat(roomId, defensePlayer);
-                    return [checkAttack[1][0], checkAttack[1][1], 'combatEnd'];
+                    return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer];
                 }
             }
             this.endCombatTurn(roomId, attackPlayer);
-            return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd'];
+            return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer];
         }
-        return [-1, -1, 'playerNotInCombat'];
+        return [-1, -1, 'playerNotInCombat', defensePlayer];
     }
 
     resetAllAttributes(roomId: string, fighter: PlayerCoord): void {

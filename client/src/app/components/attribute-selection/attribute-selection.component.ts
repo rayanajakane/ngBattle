@@ -57,7 +57,7 @@ export class AttributeSelectionComponent implements OnInit {
 
     changeAttributes() {
         const attributes: PlayerAttribute = {
-            health: this.life.toString(),
+            health: this.life,
             speed: this.speed.toString(),
             attack: this.attack,
             defense: this.defense,

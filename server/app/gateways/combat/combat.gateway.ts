@@ -48,12 +48,11 @@ export class CombatGateway {
             const targetPlayer = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
 
             const beginAttack = this.combatService.attack(data.roomId, player, targetPlayer);
+            const defender = beginAttack[3];
             const dices = [beginAttack[0], beginAttack[1]];
             const combatStatus = beginAttack[2];
             console.log('combatStatus', combatStatus);
-            this.server
-                .to(data.roomId)
-                .emit('attacked', { attacker: player, attackerDice: dices[0], defender: targetPlayer, defenderDice: dices[1] });
+            this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender: defender, defenderDice: dices[1] });
 
             if (combatStatus === 'combatEnd') {
                 this.server.to(data.roomId).emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });

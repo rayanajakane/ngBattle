@@ -12,8 +12,8 @@ export interface Player {
 }
 
 export interface PlayerAttribute {
-    health: string; // maxHealth
-    currentHealth?: string;
+    health: number; // maxHealth
+    currentHealth?: number;
     speed: string; // maxSpeed
     currentSpeed?: string;
     attack: number; // maxAttack
