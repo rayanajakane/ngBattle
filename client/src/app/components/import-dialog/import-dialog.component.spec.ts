@@ -12,7 +12,7 @@ describe('ImportDialogComponent', () => {
     const mockIdGenerationService = {
         generateID: jasmine.createSpy('generateID').and.returnValue('456'),
     };
-    const mockWindow = { window: jasmine.createSpyObj('location', ['reload']) };
+    const mockReader = jasmine.createSpyObj('FileReader', ['readAsText', 'onload']);
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -20,7 +20,7 @@ describe('ImportDialogComponent', () => {
             providers: [
                 { provide: HttpClientService, useValue: mockHttpClientService },
                 { provide: IDGenerationService, useValue: mockIdGenerationService },
-                { provide: Window, useValue: mockWindow },
+                { provide: FileReader, useValue: mockReader },
             ],
         }).compileComponents();
 
@@ -70,10 +70,8 @@ describe('ImportDialogComponent', () => {
         });
 
         spyOn(component.dialog, 'closeAll');
-        spyOn(component, 'reloadPage');
         component.saveGame(game);
         expect(component.dialog.closeAll).toHaveBeenCalled();
-        expect(component.reloadPage).toHaveBeenCalled();
     });
 
     it('should display error message on failed save', () => {
@@ -96,21 +94,46 @@ describe('ImportDialogComponent', () => {
         });
 
         spyOn(component.dialog, 'closeAll');
-        spyOn(component, 'reloadPage');
         component.saveGame(game);
         expect(component.isNameError).toBe(true);
         expect(component.game).toBe(game);
         expect(component.dialog.closeAll).not.toHaveBeenCalled();
-        expect(component.reloadPage).not.toHaveBeenCalled();
         const errorElement = document.getElementById('errors');
         expect(errorElement?.textContent).toBe('nom');
     });
 
-    // it('should reload the page', () => {
-    //     spyOn(window.location, 'reload');
-    //     component.reloadPage();
-    //     expect(window.location.reload).toHaveBeenCalled();
-    // });
+    it('should read data after import', () => {
+        component.input = document.createElement('input');
+        const file = new File(['test'], 'test.txt');
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        component.input.type = 'file';
+        component.input.files = dataTransfer.files;
+
+        let mockFileReader = {
+            result: '',
+            readAsText: () => {
+                console.log('readAsText');
+            },
+            onload: () => {
+                component.loadImportedGame({});
+            },
+        };
+
+        spyOn<any>(window, 'FileReader').and.returnValue(mockFileReader);
+        spyOn<any>(mockFileReader, 'readAsText').and.callFake(() => {
+            mockFileReader.onload();
+        });
+        spyOn<any>(mockFileReader, 'onload').and.callFake(() => {});
+
+        mockReader.onload.and.callFake(() => {});
+        const loadImportedGameSpy = spyOn(component, 'loadImportedGame');
+
+        component.readData();
+        expect(mockFileReader.readAsText).toHaveBeenCalled();
+        expect(mockFileReader.onload).toHaveBeenCalled();
+        expect(loadImportedGameSpy).toHaveBeenCalled();
+    });
 
     it('should import game', () => {
         const event = { target: { files: [{ name: 'test' }] } } as any;

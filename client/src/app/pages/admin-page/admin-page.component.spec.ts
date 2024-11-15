@@ -127,8 +127,14 @@ describe('AdminPageComponent', () => {
     });
 
     it('should open import dialog when openImportDialog is called', () => {
-        const dialogSpy = spyOn(TestBed.inject(MatDialog), 'open');
+        const dialogSpy = spyOn(TestBed.inject(MatDialog), 'open').and.callThrough();
+        const loadGamesSpy = spyOn(component, 'loadGames');
+
         component.openImportDialog();
+
         expect(dialogSpy).toHaveBeenCalledWith(ImportDialogComponent);
+        const dialogRef = dialogSpy.calls.mostRecent().returnValue;
+        (dialogRef.componentInstance as ImportDialogComponent).gameSaved.emit();
+        expect(loadGamesSpy).toHaveBeenCalled();
     });
 });

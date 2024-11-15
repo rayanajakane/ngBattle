@@ -1,11 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClientService } from '@app/services/http-client.service';
 import { IDGenerationService } from '@app/services/idgeneration.service';
 import { GameStructure } from '@common/game-structure';
-import { EventEmitter, Output } from '@angular/core';
 
 @Component({
     selector: 'app-import-dialog',
@@ -25,6 +24,7 @@ export class ImportDialogComponent {
     gameName: string;
     fileName: string;
     game: GameStructure;
+    reader: FileReader;
 
     constructor() {}
 
@@ -74,15 +74,14 @@ export class ImportDialogComponent {
 
     readData() {
         if (this.input.files && this.input.files.length > 0) {
-            const reader = new FileReader();
             let importedData: Partial<GameStructure> = {};
 
-            reader.onload = () => {
-                importedData = JSON.parse(reader.result as string);
+            this.reader.onload = () => {
+                importedData = JSON.parse(this.reader.result as string);
                 this.loadImportedGame(importedData);
             };
 
-            reader.readAsText(this.input.files[0]);
+            this.reader.readAsText(this.input.files[0]);
         }
     }
 
