@@ -52,7 +52,7 @@ export class CombatGateway {
             const dices = [beginAttack[0], beginAttack[1]];
             const combatStatus = beginAttack[2];
             console.log('combatStatus', combatStatus);
-            this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender: defender, defenderDice: dices[1] });
+            this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender, defenderDice: dices[1] });
 
             if (combatStatus === 'combatEnd') {
                 this.server.to(data.roomId).emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
@@ -98,10 +98,19 @@ export class CombatGateway {
     @SubscribeMessage('killedPlayer')
     handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+        const killedPlayerOldPosition = this.activeGameService
+            .getActiveGame(data.roomId)
+            .playersCoord.find((player) => player.player.id !== data.playerId).position;
         const fighters = this.combatService.killPlayer(data.roomId, player);
         const playerKiller = fighters[0];
         const playerKilled = fighters[1];
-        client.emit('killedPlayer', { roomId: data.roomId, playerId: data.playerId, killer: playerKiller, killed: playerKilled });
+        this.server.to(data.roomId).emit('killedPlayer', {
+            roomId: data.roomId,
+            playerId: data.playerId,
+            killer: playerKiller,
+            killed: playerKilled,
+            killedOldPosition: killedPlayerOldPosition,
+        });
     }
 
     // winnerPlayer
