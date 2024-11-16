@@ -142,9 +142,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             console.log('playerPositionUpdate', data.newPlayerPosition);
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
-        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
+        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number; hasSlipped: boolean }) => {
+            console.log('endMove', data);
             this.currentMoveBudget = data.currentMoveBudget;
-            this.endMovement(data.availableMoves);
+            if (data.hasSlipped) {
+                this.endTurn();
+            } else {
+                this.endMovement(data.availableMoves);
+            }
         });
     }
 

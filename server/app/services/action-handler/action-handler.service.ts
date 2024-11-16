@@ -67,6 +67,7 @@ export class ActionHandlerService {
             let iceSlip = false;
 
             let pastPosition = startPosition;
+            let tileCounter = 0;
             playerPositions.forEach((playerPosition) => {
                 if (!iceSlip) {
                     setTimeout(() => {
@@ -79,6 +80,7 @@ export class ActionHandlerService {
                     activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
                     pastPosition = playerPosition;
+                    tileCounter++;
 
                     if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
                         activeGame.currentPlayerMoveBudget = 0;
@@ -91,8 +93,9 @@ export class ActionHandlerService {
                 client.emit('endMove', {
                     availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
                     currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                    hasSlipped: iceSlip,
                 });
-            }, this.TIME_BETWEEN_MOVES * playerPositions.length);
+            }, this.TIME_BETWEEN_MOVES * tileCounter);
         }
     }
 
