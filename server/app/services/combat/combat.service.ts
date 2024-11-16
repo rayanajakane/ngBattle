@@ -285,7 +285,7 @@ export class CombatService {
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player) && player.player.attributes.escape > 0) {
-            const randomNumber = Math.floor(Math.random());
+            const randomNumber = Math.random();
             return randomNumber < ESCAPE_PROBABILITY;
         }
     }

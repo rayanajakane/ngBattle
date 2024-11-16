@@ -69,7 +69,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     remainingEscapeChances: number | '--' = '--';
 
-    combatInitiatorId?: string;
+    combatInitiatorId: string = '';
 
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
@@ -330,7 +330,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 }
             }
             this.gameController.resetFighters();
-            this.combatInitiatorId = undefined;
+            this.combatInitiatorId = '';
         });
     }
 

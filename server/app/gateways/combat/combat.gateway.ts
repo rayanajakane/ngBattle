@@ -31,7 +31,9 @@ export class CombatGateway {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
             const fighters = [player, targetPlayer];
             const [firstTurnPlayer, secondTurnPlayer] = this.combatService.startCombat(data.roomId, fighters);
-            this.server.to(data.roomId).emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer });
+            this.server
+                .to(data.roomId)
+                .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: player.player.id });
         } else if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOOROPEN
