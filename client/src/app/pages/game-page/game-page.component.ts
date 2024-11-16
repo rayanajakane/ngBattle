@@ -67,6 +67,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     gameCreated = false;
     playersInitialized = false;
 
+    remainingEscapeChances: number | '--' = '--';
+
+    combatInitiatorId?: string;
+
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
@@ -236,8 +240,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenStartCombat() {
-        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord }) => {
+        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
             console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
+            this.combatInitiatorId = combatData.combatInitiatorId;
             this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
             this.gameController.setActivePlayer(combatData.attacker.player.id);
             if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
@@ -300,9 +305,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenEscaped() {
-        this.socketService.on('didEscape', (data: { result: boolean }) => {
+        this.socketService.on('didEscape', (data: { playerId: string; remainingEscapeChances: number; hasEscaped: boolean }) => {
             if (this.gameController.isInCombat()) {
-                console.log('escaped', data);
+                console.log('escaped', data.remainingEscapeChances, data.hasEscaped);
+                if (data.hasEscaped) {
+                    this.gameController.setActivePlayer(this.combatInitiatorId);
+                    this.remainingEscapeChances = '--';
+                } else if (this.gameController.isActivePlayer()) {
+                    this.remainingEscapeChances = data.remainingEscapeChances;
+                }
             }
         });
     }
@@ -311,7 +322,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endCombat', (playerId: string) => {
             console.log('endCombat', playerId);
             this.mapService.setState(GameState.NOTPLAYING);
-            if (this.gameController.fighters[0].player.id === this.gameController.playerId) {
+            if (this.gameController.isActivePlayer()) {
                 if (this.currentMoveBudget === 0) {
                     this.gameController.requestEndTurn();
                 } else {
@@ -319,6 +330,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 }
             }
             this.gameController.resetFighters();
+            this.combatInitiatorId = undefined;
         });
     }
 
