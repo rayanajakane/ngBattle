@@ -8,7 +8,7 @@ export const ATTACKER_INDEX = 0;
 export const DEFENDER_INDEX = 1;
 
 export const DEFAULT_ESCAPE_TOKENS = 2;
-export const ESCAPE_CHANCE = 0.4;
+export const ESCAPE_PROBABILITY = 0.4;
 
 export const DEFAULT_BONUS_DICE = 4;
 export const BOOSTED_BONUS_DICE = 6;

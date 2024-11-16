@@ -10,10 +10,10 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class PlayerPanelComponent implements OnInit {
     @Input() playerName: string;
-    @Input() lifePoints: string;
-    @Input() speed: string;
-    @Input() attack: number;
-    @Input() defense: number;
+    @Input() lifePoints?: number;
+    @Input() speed?: string;
+    @Input() attack?: number;
+    @Input() defense?: number;
     @Input() movementPoints: number | '--';
     @Input() nActions: number | '--';
     @Input() selectedAvatar: string;

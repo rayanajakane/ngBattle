@@ -1,4 +1,5 @@
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatTimerService } from '@app/services/combat-timer/combat-timer.service';
 import {
     ATTACKER_INDEX,
     BOOSTED_BONUS_DICE,
@@ -6,7 +7,7 @@ import {
     DEFAULT_BONUS_DICE,
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
-    ESCAPE_CHANCE,
+    ESCAPE_PROBABILITY,
     FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
     LEFT_TILE,
@@ -20,12 +21,11 @@ import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-
 @Injectable()
 export class CombatService {
     private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
-    // private combatTimerMap: Map<string, NodeJS.Timeout> = new Map(); // Track current timer by roomId
+    private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
@@ -43,7 +43,8 @@ export class CombatService {
     }
 
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
-        this.activeGamesService.getActiveGame(roomId).turnTimer.pauseTimer();
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        gameInstance.turnTimer.pauseTimer();
 
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
             // setup current attributes for each player in combat
@@ -77,6 +78,8 @@ export class CombatService {
 
     endCombat(roomId: string, player?: PlayerCoord): PlayerCoord[] {
         // inc wins if a player leaves game
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        gameInstance.combatTimer.resetTimer();
 
         if (this.fightersMap.get(roomId).length === 1) {
             this.setWinner(roomId, player);
@@ -92,7 +95,7 @@ export class CombatService {
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
 
-        this.activeGamesService.getActiveGame(roomId).turnTimer.resumeTimer();
+        gameInstance.turnTimer.resumeTimer();
 
         return fighters;
     }
@@ -108,10 +111,8 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             for (const fighter of this.fightersMap.get(roomId)) {
                 if (this.isPlayerOnIce(roomId, player)) {
+                    // verify if attributes are > 0
                     fighter.player.attributes.currentAttack -= ICE_PENALTY;
-                    fighter.player.attributes.currentAttack -= ICE_PENALTY;
-
-                    fighter.player.attributes.currentDefense -= ICE_PENALTY;
                     fighter.player.attributes.currentDefense -= ICE_PENALTY;
                 }
             }
@@ -142,31 +143,16 @@ export class CombatService {
     }
 
     setWinner(roomId: string, player: PlayerCoord): void {
-        if (this.isPlayerInCombat(roomId, player)) player.player.wins += 1;
+        if (this.isPlayerInCombat(roomId, player)) player.player.wins++;
     }
 
-    // startCombatTimer(roomId: string, hasEscape: boolean, server: Server): void {
-    //     let countDown = hasEscape ? 5 : 3;
-    //     this.combatTimerMap.set(
-    //         roomId,
-    //         setInterval(() => {
-    //             if (countDown > 0) {
-    //                 countDown--;
-    //                 server.to(roomId).emit('CombatTimerUpdate', countDown);
-    //             } else {
-    //                 server.to(roomId).emit('endCombatTimer');
-    //                 clearInterval(this.combatTimerMap.get(roomId));
-    //                 this.endCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), server);
-    //             }
-    //         }, 1000),
-    //     );
-    // }
+    startCombatTurn(roomId: string, player: PlayerCoord): void {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        const hasEscape = player.player.attributes.escape > 0;
+        gameInstance.combatTimer.startTimer(hasEscape);
 
-    startCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
-        const hasEscape = this.canPlayerEscape(roomId, player);
-        // this.startCombatTimer(roomId, hasEscape, server);
     }
 
     startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction, server: Server): void {
@@ -179,12 +165,14 @@ export class CombatService {
     }
 
     endCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        gameInstance.combatTimer.resetTimer();
+
         if (!this.isPlayerInCombat(roomId, player)) return;
         const currentTurnIndex = this.currentTurnMap.get(roomId);
 
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
-        //this.startCombatTimer(roomId, this.canPlayerEscape(roomId, this.getCurrentTurnPlayer(roomId)), server);
     }
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
@@ -200,8 +188,7 @@ export class CombatService {
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
         const attackerRoll = this.throwDice(bonusAttackDice);
         const defenderRoll = this.throwDice(bonusDefenseDice);
-        const isAttackSuccessful =
-            attacker.player.attributes.currentAttack + attackerRoll >= defender.player.attributes.currentDefense + defenderRoll;
+        const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
@@ -215,6 +202,7 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer];
                 }
             }
+            console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer, server);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer];
         }
@@ -297,7 +285,7 @@ export class CombatService {
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player) && player.player.attributes.escape > 0) {
             const randomNumber = Math.floor(Math.random());
-            return randomNumber < ESCAPE_CHANCE;
+            return randomNumber < ESCAPE_PROBABILITY;
         }
     }
 

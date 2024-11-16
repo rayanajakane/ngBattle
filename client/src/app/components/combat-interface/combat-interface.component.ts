@@ -27,7 +27,7 @@ export class CombatInterfaceComponent implements OnChanges {
 
     ngOnChanges() {
         this.attackerDiceInfo = 'Résultats des dés attaquant : ' + this.attackerDiceResult;
-        this.defenderDiceInfo = 'Résultats des dés défenseur : ' + this.attackerDiceResult;
+        this.defenderDiceInfo = 'Résultats des dés défenseur : ' + this.defenderDiceResult;
         this.escapeChanceInfo = "Nombre d'évasion : " + this.escapeChance;
     }
 
