@@ -15,10 +15,12 @@
                 <mat-icon>sports_kabaddi</mat-icon>
                 Attaque
             </button>
+            @if (escapeChance !== 0) {
             <button mat-raised-button color="primary" (click)="escape()">
                 <mat-icon>directions_run</mat-icon>
                 Évasion
             </button>
+            }
         </section>
         }
     </mat-card-footer>

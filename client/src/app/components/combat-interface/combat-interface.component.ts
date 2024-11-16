@@ -19,7 +19,7 @@ export class CombatInterfaceComponent implements OnChanges {
     @Input() currentAtttack: number;
     @Input() currentDefense: number;
     @Input() attackSuccessful: boolean;
-    escapeChance: number = 0;
+    @Input() escapeChance: number | '--' = '--';
     combatInfo: string = '';
     attackerDiceInfo: string = '';
     defenderDiceInfo: string = '';

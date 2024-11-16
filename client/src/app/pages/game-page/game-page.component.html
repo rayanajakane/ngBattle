@@ -55,6 +55,7 @@
             [attackerDiceResult]="attackerDiceResult"
             [defenderDiceResult]="defenderDiceResult"
             [isActivePlayer]="gameController.isActivePlayer()"
+            [escapeChance]="remainingEscapeChances"
         ></app-combat-interface>
         } @if (gameCreated) {
         <app-game-map [mapSize]="mapSize"></app-game-map>

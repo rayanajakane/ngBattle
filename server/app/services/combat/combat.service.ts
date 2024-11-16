@@ -132,11 +132,12 @@ export class CombatService {
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
             return;
         }
-        if (this.isPlayerInCombat(roomId, player) && !this.canPlayerEscape(roomId, player)) {
+        const canPlayerEscape = this.canPlayerEscape(roomId, player);
+        if (this.isPlayerInCombat(roomId, player) && !canPlayerEscape) {
             player.player.attributes.escape--;
             this.endCombatTurn(roomId, player, server);
             return [player.player.attributes.escape, false];
-        } else if (this.isPlayerInCombat(roomId, player) && this.canPlayerEscape(roomId, player)) {
+        } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
             this.endCombat(roomId);
             return [player.player.attributes.escape, true];
@@ -286,7 +287,7 @@ export class CombatService {
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player) && player.player.attributes.escape > 0) {
             const randomNumber = Math.random();
-            return randomNumber < ESCAPE_PROBABILITY;
+            return 10 < ESCAPE_PROBABILITY;
         }
     }
 

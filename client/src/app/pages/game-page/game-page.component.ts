@@ -242,6 +242,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     listenStartCombat() {
         this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
             console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
+            this.remainingEscapeChances = 2;
             this.combatInitiatorId = combatData.combatInitiatorId;
             this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
             this.gameController.setActivePlayer(combatData.attacker.player.id);
