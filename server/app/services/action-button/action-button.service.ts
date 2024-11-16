@@ -29,10 +29,17 @@ export class ActionButtonService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const mapSize = parseInt(gameInstance.game.mapSize, 10);
         const mapLength = gameInstance.game.map.length;
-        const right = position + 1 < mapLength ? gameInstance.game.map[position + 1].hasPlayer : false;
-        const left = position - 1 >= 0 ? gameInstance.game.map[position - 1].hasPlayer : false;
-        const up = position - mapSize >= 0 ? gameInstance.game.map[position - mapSize].hasPlayer : false;
-        const down = position + mapSize < mapLength ? gameInstance.game.map[position + mapSize].hasPlayer : false;
+
+        const isRightValid = position % mapSize !== mapSize - 1;
+        const isLeftValid = position % mapSize !== 0;
+        const isUpValid = position - mapSize >= 0;
+        const isDownValid = position + mapSize < mapLength;
+
+        // Check adjacent cells for players
+        const right = isRightValid ? gameInstance.game.map[position + 1].hasPlayer : false;
+        const left = isLeftValid ? gameInstance.game.map[position - 1].hasPlayer : false;
+        const up = isUpValid ? gameInstance.game.map[position - mapSize].hasPlayer : false;
+        const down = isDownValid ? gameInstance.game.map[position + mapSize].hasPlayer : false;
 
         const players: PlayerCoord[] = [];
         if (right) {
