@@ -72,7 +72,7 @@ export class CombatService {
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
-            //this.currentTurnMap.set(roomId, firstPlayerIndex);
+            this.currentTurnMap.set(roomId, firstPlayerIndex);
         }
     }
 
