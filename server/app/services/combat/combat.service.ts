@@ -19,12 +19,13 @@ import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
+import { Server } from 'socket.io';
 
 @Injectable()
 export class CombatService {
     private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
-
+    private combatTimerMap: Map<string, NodeJS.Timeout> = new Map(); // Track current timer by roomId
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
@@ -62,6 +63,7 @@ export class CombatService {
             });
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
+            this.combatTimerMap.set(roomId, new NodeJS.Timeout());
 
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
@@ -117,14 +119,14 @@ export class CombatService {
         }
     }
 
-    escape(roomId: string, player: PlayerCoord): [PlayerAttribute['escape'], boolean] {
+    escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
             return;
         }
         if (this.isPlayerInCombat(roomId, player) && !this.canPlayerEscape(roomId, player)) {
             player.player.attributes.escape -= 1;
-            this.endCombatTurn(roomId, player);
+            this.endCombatTurn(roomId, player, server);
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && this.canPlayerEscape(roomId, player)) {
             this.endCombat(roomId);
@@ -136,28 +138,46 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) player.player.wins += 1;
     }
 
-    // startCombatTimer
+    startCombatTimer(roomId: string, hasEscape: boolean, server: Server): void {
+        let countDown = hasEscape ? 5 : 3;
+        this.combatTimerMap.set(
+            roomId,
+            setInterval(() => {
+                if (countDown > 0) {
+                    countDown--;
+                    server.to(roomId).emit('CombatTimerUpdate', countDown);
+                } else {
+                    server.to(roomId).emit('endCombatTimer');
+                    clearInterval(this.combatTimerMap.get(roomId));
+                    this.endCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), server);
+                }
+            }, 1000),
+        );
+    }
 
-    // endCombatTimer
+    startCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
+        const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
+        this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
+        const hasEscape = this.canPlayerEscape(roomId, player);
+        this.startCombatTimer(roomId, hasEscape, server);
+    }
 
-    startCombatTurn(roomId: string, player: PlayerCoord, combatAction: CombatAction): void {
-        // startCombatTimer();
+    startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction, server: Server): void {
         if (combatAction === CombatAction.ATTACK) {
             const defender = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
-            this.attack(roomId, player, defender);
+            this.attack(roomId, player, defender, server);
         } else if (combatAction === CombatAction.ESCAPE) {
-            this.escape(roomId, player);
+            this.escape(roomId, player, server);
         }
     }
 
-    endCombatTurn(roomId: string, player: PlayerCoord): void {
+    endCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
         if (!this.isPlayerInCombat(roomId, player)) return;
-        const currentTurnIndex = this.currentTurnMap.get(roomId) || ATTACKER_INDEX;
+        const currentTurnIndex = this.currentTurnMap.get(roomId);
 
-        // Change the turn to the other fighter
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
-        this.startCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), CombatAction.ATTACK);
+        this.startCombatTimer(roomId, this.canPlayerEscape(roomId, this.getCurrentTurnPlayer(roomId)), server);
     }
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {
@@ -178,8 +198,7 @@ export class CombatService {
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
-    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord): [number, number, string, PlayerCoord] {
-        console.log('attack', attackPlayer, defensePlayer);
+    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {
@@ -189,7 +208,7 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer];
                 }
             }
-            this.endCombatTurn(roomId, attackPlayer);
+            this.endCombatTurn(roomId, attackPlayer, server);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer];
         }
         return [-1, -1, 'playerNotInCombat', defensePlayer];
