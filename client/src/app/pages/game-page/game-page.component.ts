@@ -269,11 +269,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenKilledPlayer() {
-        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; oldPosition: number; newPosition: number }) => {
+        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
             this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
-            this.mapService.changePlayerPosition(data.oldPosition, data.newPosition, data.killed.player);
+            this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
         });
     }
+
+    listenEndCombat() {}
 
     listenEscaped() {
         this.socketService.on('didEscape', (data: { result: boolean }) => {
