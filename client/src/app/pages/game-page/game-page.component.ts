@@ -285,6 +285,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenEndCombat() {
+        this.socketService.on('endCombat', (fighters: PlayerCoord[]) => {
+            this.gameController.resetFighters();
+            this.mapService.setState(GameState.NOTPLAYING);
+        });
+    }
+
     handleSelectCombatAction(combatAction: string) {
         if (this.gameController.isActivePlayer()) {
             console.log('combatAction', combatAction);
