@@ -35,7 +35,6 @@ export class ActionButtonService {
         const isUpValid = position - mapSize >= 0;
         const isDownValid = position + mapSize < mapLength;
 
-        // Check adjacent cells for players
         const right = isRightValid ? gameInstance.game.map[position + 1].hasPlayer : false;
         const left = isLeftValid ? gameInstance.game.map[position - 1].hasPlayer : false;
         const up = isUpValid ? gameInstance.game.map[position - mapSize].hasPlayer : false;
@@ -68,20 +67,28 @@ export class ActionButtonService {
         const doors: TileTypes[] = [TileTypes.DOOR, TileTypes.DOORCLOSED, TileTypes.DOOROPEN];
         const mapLength = gameInstance.game.map.length;
 
-        if (player.position + 1 < mapLength && doors.includes(gameInstance.game.map[player.position + 1].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position + 1]);
+        if (player.position + 1 < mapLength && player.position % mapSize !== mapSize - 1) {
+            if (doors.includes(gameInstance.game.map[player.position + 1].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position + 1]);
+            }
         }
 
-        if (player.position - 1 >= 0 && doors.includes(gameInstance.game.map[player.position - 1].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position - 1]);
+        if (player.position - 1 >= 0 && player.position % mapSize !== 0) {
+            if (doors.includes(gameInstance.game.map[player.position - 1].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position - 1]);
+            }
         }
 
-        if (player.position - mapSize >= 0 && doors.includes(gameInstance.game.map[player.position - mapSize].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position - mapSize]);
+        if (player.position - mapSize >= 0) {
+            if (doors.includes(gameInstance.game.map[player.position - mapSize].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position - mapSize]);
+            }
         }
 
-        if (player.position + mapSize < mapLength && doors.includes(gameInstance.game.map[player.position + mapSize].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position + mapSize]);
+        if (player.position + mapSize < mapLength) {
+            if (doors.includes(gameInstance.game.map[player.position + mapSize].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position + mapSize]);
+            }
         }
 
         return doorsFound;
