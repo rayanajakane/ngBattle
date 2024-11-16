@@ -29,6 +29,7 @@
             (selectCombatActionEvent)="handleSelectCombatAction($event)"
             [attackerDiceResult]="attackerDiceResult"
             [defenderDiceResult]="defenderDiceResult"
+            [isActivePlayer]="gameController.isActivePlayer()"
         ></app-combat-interface>
         } @if (gameCreated) {
         <app-game-map [mapSize]="mapSize"></app-game-map>
@@ -36,6 +37,7 @@
 
         <section class="game-btns">
             <app-inventory class="tools"></app-inventory>
+            @if (!gameController.isInCombat()) {
             <button mat-raised-button color="primary" (click)="startAction()">
                 <mat-icon> construction </mat-icon>
                 Action
@@ -44,6 +46,7 @@
                 <mat-icon> check </mat-icon>
                 Fin de tours
             </button>
+            }
             <button mat-raised-button color="warn" (click)="quitGame()">
                 <mat-icon>exit_to_app</mat-icon>
                 Abandon

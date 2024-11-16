@@ -30,6 +30,7 @@ export class CombatGateway {
         if (this.activeGameService.getActiveGame(data.roomId).game.map[data.target].hasPlayer) {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
             const fighters = [player, targetPlayer];
+
             this.combatService.startCombat(data.roomId, fighters);
             this.server.to(data.roomId).emit('startCombat', { attacker: fighters[0], defender: fighters[1] });
         } else if (
@@ -52,10 +53,12 @@ export class CombatGateway {
             const dices = [beginAttack[0], beginAttack[1]];
             const combatStatus = beginAttack[2];
             this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender, defenderDice: dices[1] });
+            console.log(beginAttack[3].player.attributes);
             if (combatStatus === 'combatEnd') {
-                this.server.to(data.roomId).emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
+                this.server.to(data.roomId).emit('combatEnd', { playerId: data.playerId });
             } else if (combatStatus === 'combatTurnEnd') {
-                this.server.to(data.roomId).emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
+                this.combatService.startCombatTurn(data.roomId, defender, this.server);
+                this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
             }
         }
     }
@@ -65,7 +68,7 @@ export class CombatGateway {
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const escapeResult = this.combatService.escape(data.roomId, player, this.server);
-        this.server.to(data.roomId).emit('didEscape', { roomId: data.roomId, playerId: data.playerId, result: escapeResult });
+        this.server.to(data.roomId).emit('didEscape', { playerId: data.playerId, result: escapeResult });
     }
 
     // startCombatTurn
@@ -73,7 +76,7 @@ export class CombatGateway {
     handleStartCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; combatAction: CombatAction }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         this.combatService.startCombatTurn(data.roomId, player, this.server);
-        this.server.to(data.roomId).emit('startCombatTurn', { roomId: data.roomId, playerId: data.playerId, combatAction: data.combatAction });
+        this.server.to(data.roomId).emit('changeCombatTurn', { playerId: data.playerId, combatAction: data.combatAction });
     }
 
     // endCombat
@@ -81,7 +84,7 @@ export class CombatGateway {
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const fighters = this.combatService.endCombat(data.roomId, player);
-        this.server.to(data.roomId).emit('endCombat', { roomId: data.roomId, playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
+        this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
     }
 
     // killedPlayer + KilledPlayerHomePosition

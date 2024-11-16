@@ -87,13 +87,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
-        this.listenTimer();
-        this.listenEndTimer();
-        this.listenEndCooldown();
+        // this.listenTimer();
+        // this.listenEndTimer();
+        // this.listenEndCooldown();
         this.listenStartCombat();
         this.listenCombatTimer();
         this.listenAttacked();
         this.listenChangeCombatTurn();
+        this.listenKilledPlayer();
+        this.listenEscaped();
+        this.listenEndCombat();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -109,6 +112,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.playersInitialized = true;
             this.initializePlayersPositions();
             this.mapService.setState(GameState.NOTPLAYING);
+            this.gameController.requestStartTurn(); //
         });
     }
 
@@ -147,7 +151,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endTurn', (activePlayerId: string) => {
             this.timerState = TimerState.COOLDOWN;
             this.gameController.setActivePlayer(activePlayerId);
-            //this.gameController.requestStartTurn();
+            this.gameController.requestStartTurn(); //
         });
     }
 
@@ -200,7 +204,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartAction() {
         this.socketService.on('startAction', (availableTiles: number[]) => {
-            console.log('startAction', availableTiles);
             this.mapService.switchToActionStateRoutine(availableTiles);
         });
     }
@@ -229,7 +232,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameController.setActivePlayer(combatData.attacker.player.id);
             if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
                 this.gameController.setFighters([combatData.attacker, combatData.defender]);
-                this.mapService.setState(GameState.COMBAT);
+                if (this.gameController.isActivePlayer()) {
+                    this.mapService.setState(GameState.COMBAT);
+                }
             } else {
                 this.timeLeft = '--';
             }
@@ -250,14 +255,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.gameController.isInCombat()) {
                 this.attackerDiceResult = data.attackerDice;
                 this.defenderDiceResult = data.defenderDice;
+                console.log('attacked', this.attackerDiceResult, this.defenderDiceResult);
                 this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
             }
         });
     }
 
     listenChangeCombatTurn() {
-        this.socketService.on('changeCombatTurn', (attackerId: string) => {
-            this.gameController.setActivePlayer(attackerId);
+        this.socketService.on('changeCombatTurn', (newAttackerId: string) => {
+            this.gameController.setActivePlayer(newAttackerId);
             if (this.gameController.isInCombat()) {
                 if (this.gameController.isActivePlayer()) {
                     this.mapService.setState(GameState.COMBAT);
@@ -272,10 +278,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
             this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
             this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
+            if (this.gameController.fighters[0].player.id === this.gameController.playerId) {
+                this.currentMoveBudget = 0;
+            }
         });
     }
-
-    listenEndCombat() {}
 
     listenEscaped() {
         this.socketService.on('didEscape', (data: { result: boolean }) => {
@@ -286,15 +293,21 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenEndCombat() {
-        this.socketService.on('endCombat', (fighters: PlayerCoord[]) => {
-            this.gameController.resetFighters();
+        this.socketService.on('endCombat', () => {
             this.mapService.setState(GameState.NOTPLAYING);
+            if (this.gameController.fighters[0].player.id === this.gameController.playerId) {
+                if (this.currentMoveBudget === 0) {
+                    this.gameController.requestEndTurn();
+                } else {
+                    this.mapService.switchToMovingStateRoutine();
+                }
+            }
+            this.gameController.resetFighters();
         });
     }
 
     handleSelectCombatAction(combatAction: string) {
         if (this.gameController.isActivePlayer()) {
-            console.log('combatAction', combatAction);
             this.gameController.requestCombatAction(combatAction);
         }
     }

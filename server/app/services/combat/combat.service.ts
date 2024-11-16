@@ -25,7 +25,7 @@ import { Server } from 'socket.io';
 export class CombatService {
     private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
-    private combatTimerMap: Map<string, NodeJS.Timeout> = new Map(); // Track current timer by roomId
+    // private combatTimerMap: Map<string, NodeJS.Timeout> = new Map(); // Track current timer by roomId
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(MovementService) private readonly movementService: MovementService,
@@ -43,6 +43,8 @@ export class CombatService {
     }
 
     startCombat(roomId: string, fighters: PlayerCoord[]): void {
+        this.activeGamesService.getActiveGame(roomId).turnTimer.pauseTimer();
+
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
             // setup current attributes for each player in combat
             fighters.forEach((fighter) => {
@@ -61,19 +63,21 @@ export class CombatService {
                 // verifies if player is on ice
                 this.applyIceDisadvantage(roomId, fighter);
             });
+
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
-            this.combatTimerMap.set(roomId, new NodeJS.Timeout());
+            // this.startCombatTtimer(roomId, true, server); // start combat timer
 
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
-            this.currentTurnMap.set(roomId, firstPlayerIndex);
+            //this.currentTurnMap.set(roomId, firstPlayerIndex);
         }
     }
 
     endCombat(roomId: string, player?: PlayerCoord): PlayerCoord[] {
         // inc wins if a player leaves game
+
         if (this.fightersMap.get(roomId).length === 1) {
             this.setWinner(roomId, player);
         }
@@ -87,6 +91,9 @@ export class CombatService {
         }
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
+
+        this.activeGamesService.getActiveGame(roomId).turnTimer.resumeTimer();
+
         return fighters;
     }
 
@@ -138,28 +145,28 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) player.player.wins += 1;
     }
 
-    startCombatTimer(roomId: string, hasEscape: boolean, server: Server): void {
-        let countDown = hasEscape ? 5 : 3;
-        this.combatTimerMap.set(
-            roomId,
-            setInterval(() => {
-                if (countDown > 0) {
-                    countDown--;
-                    server.to(roomId).emit('CombatTimerUpdate', countDown);
-                } else {
-                    server.to(roomId).emit('endCombatTimer');
-                    clearInterval(this.combatTimerMap.get(roomId));
-                    this.endCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), server);
-                }
-            }, 1000),
-        );
-    }
+    // startCombatTimer(roomId: string, hasEscape: boolean, server: Server): void {
+    //     let countDown = hasEscape ? 5 : 3;
+    //     this.combatTimerMap.set(
+    //         roomId,
+    //         setInterval(() => {
+    //             if (countDown > 0) {
+    //                 countDown--;
+    //                 server.to(roomId).emit('CombatTimerUpdate', countDown);
+    //             } else {
+    //                 server.to(roomId).emit('endCombatTimer');
+    //                 clearInterval(this.combatTimerMap.get(roomId));
+    //                 this.endCombatTurn(roomId, this.getCurrentTurnPlayer(roomId), server);
+    //             }
+    //         }, 1000),
+    //     );
+    // }
 
     startCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
         const hasEscape = this.canPlayerEscape(roomId, player);
-        this.startCombatTimer(roomId, hasEscape, server);
+        // this.startCombatTimer(roomId, hasEscape, server);
     }
 
     startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction, server: Server): void {
@@ -177,7 +184,7 @@ export class CombatService {
 
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
-        this.startCombatTimer(roomId, this.canPlayerEscape(roomId, this.getCurrentTurnPlayer(roomId)), server);
+        //this.startCombatTimer(roomId, this.canPlayerEscape(roomId, this.getCurrentTurnPlayer(roomId)), server);
     }
 
     getCurrentTurnPlayer(roomId: string): PlayerCoord | undefined {

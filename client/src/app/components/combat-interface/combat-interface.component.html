@@ -8,6 +8,7 @@
         <p>{{ escapeChanceInfo }}</p>
     </mat-card-content>
     <mat-card-footer class="card-footer">
+        @if (isActivePlayer) {
         <section class="combat-btns">
             <button mat-raised-button color="primary" (click)="attack()">
                 <mat-icon>sports_kabaddi</mat-icon>
@@ -18,5 +19,6 @@
                 Évasion
             </button>
         </section>
+        }
     </mat-card-footer>
 </mat-card>
