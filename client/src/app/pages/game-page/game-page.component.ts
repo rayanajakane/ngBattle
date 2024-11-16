@@ -210,7 +210,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartAction() {
         this.socketService.on('startAction', (availableTiles: number[]) => {
-            this.mapService.switchToActionStateRoutine(availableTiles);
+            if (availableTiles.length > 0) {
+                this.mapService.switchToActionStateRoutine(availableTiles);
+            }
         });
     }
 
