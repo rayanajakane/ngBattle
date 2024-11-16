@@ -14,10 +14,24 @@
             class="player-card"
             [playerName]="gameController.player.name"
             [selectedAvatar]="gameController.player.avatar"
-            [lifePoints]="gameController.player.attributes.currentHealth"
-            [speed]="gameController.player.attributes.currentSpeed"
-            [attack]="gameController.player.attributes.currentAttack"
-            [defense]="gameController.player.attributes.currentDefense"
+            [lifePoints]="
+                gameController.player.attributes.currentHealth
+                    ? gameController.player.attributes.currentHealth
+                    : gameController.player.attributes.health
+            "
+            [speed]="
+                gameController.player.attributes.currentSpeed ? gameController.player.attributes.currentSpeed : gameController.player.attributes.speed
+            "
+            [attack]="
+                gameController.player.attributes.currentAttack
+                    ? gameController.player.attributes.currentAttack
+                    : gameController.player.attributes.attack
+            "
+            [defense]="
+                gameController.player.attributes.currentDefense
+                    ? gameController.player.attributes.currentDefense
+                    : gameController.player.attributes.defense
+            "
             [bonusDice]="gameController.player.attributes.dice"
             [movementPoints]="currentMoveBudget"
             [nActions]="remainingActions"
@@ -27,6 +41,17 @@
         <app-combat-interface
             class="combat-card"
             (selectCombatActionEvent)="handleSelectCombatAction($event)"
+            [currentAtttack]="
+                gameController.player.attributes.currentAttack
+                    ? gameController.player.attributes.currentAttack
+                    : gameController.player.attributes.attack
+            "
+            [currentDefense]="
+                gameController.player.attributes.currentDefense
+                    ? gameController.player.attributes.currentDefense
+                    : gameController.player.attributes.defense
+            "
+            [attackSuccessful]="attackSuccessful"
             [attackerDiceResult]="attackerDiceResult"
             [defenderDiceResult]="defenderDiceResult"
             [isActivePlayer]="gameController.isActivePlayer()"

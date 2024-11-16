@@ -62,6 +62,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     attackerDiceResult: number = 0;
     defenderDiceResult: number = 0;
+    attackSuccessful: boolean;
 
     gameCreated = false;
     playersInitialized = false;
@@ -229,11 +230,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartCombat() {
         this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord }) => {
+            console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
+            this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
             this.gameController.setActivePlayer(combatData.attacker.player.id);
             if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
                 this.gameController.setFighters([combatData.attacker, combatData.defender]);
                 if (this.gameController.isActivePlayer()) {
-                    this.mapService.setState(GameState.COMBAT);
+                    this.mapService.setState(GameState.COMBAT); // fighter[0] <- initier combat ; fighter[1] <- recevoir combat
                     this.remainingActions = 0;
                 }
             } else {
@@ -252,14 +255,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenAttacked() {
-        this.socketService.on('attacked', (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number }) => {
-            if (this.gameController.isInCombat()) {
-                this.attackerDiceResult = data.attackerDice;
-                this.defenderDiceResult = data.defenderDice;
-                console.log('lifePoints', data.defender.player.attributes.health);
-                this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
-            }
-        });
+        this.socketService.on(
+            'attacked',
+            (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number; isAttackSuccessful: boolean }) => {
+                if (this.gameController.isInCombat()) {
+                    this.attackerDiceResult = data.attackerDice;
+                    this.defenderDiceResult = data.defenderDice;
+                    this.attackSuccessful = data.isAttackSuccessful;
+                    console.log('lifePoints', data.defender.player.attributes.health);
+                    this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
+                }
+            },
+        );
     }
 
     listenChangeCombatTurn() {

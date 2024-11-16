@@ -6,6 +6,7 @@
         <p>{{ attackerDiceInfo }}</p>
         <p>{{ defenderDiceInfo }}</p>
         <p>{{ escapeChanceInfo }}</p>
+        <p>L'attaque est valide: {{ attackSuccessful ? 'Oui!' : 'Non !' }}</p>
     </mat-card-content>
     <mat-card-footer class="card-footer">
         @if (isActivePlayer) {

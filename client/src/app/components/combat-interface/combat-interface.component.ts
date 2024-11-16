@@ -16,13 +16,14 @@ export class CombatInterfaceComponent implements OnChanges {
     @Input() attackerDiceResult: number;
     @Input() defenderDiceResult: number;
     @Input() isActivePlayer: boolean;
-
+    @Input() currentAtttack: number;
+    @Input() currentDefense: number;
+    @Input() attackSuccessful: boolean;
     escapeChance: number = 0;
     combatInfo: string = '';
     attackerDiceInfo: string = '';
     defenderDiceInfo: string = '';
     escapeChanceInfo: string = '';
-
     @Output() selectCombatActionEvent = new EventEmitter<string>();
 
     ngOnChanges() {

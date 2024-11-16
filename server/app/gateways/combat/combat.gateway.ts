@@ -30,10 +30,7 @@ export class CombatGateway {
         if (this.activeGameService.getActiveGame(data.roomId).game.map[data.target].hasPlayer) {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
             const fighters = [player, targetPlayer];
-
-            this.combatService.startCombat(data.roomId, fighters);
-            const firstTurnPlayer = this.combatService.whoIsFirstPlayer(data.roomId);
-            const secondTurnPlayer = fighters.find((player) => player.player.id !== firstTurnPlayer.player.id);
+            const [firstTurnPlayer, secondTurnPlayer] = this.combatService.startCombat(data.roomId, fighters);
             this.server.to(data.roomId).emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer });
         } else if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
@@ -52,12 +49,21 @@ export class CombatGateway {
             const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
             const targetPlayer = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
 
-            const beginAttack = this.combatService.attack(data.roomId, player, targetPlayer, this.server);
-            const defender = beginAttack[3];
-            const dices = [beginAttack[0], beginAttack[1]];
-            const combatStatus = beginAttack[2];
-            this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender, defenderDice: dices[1] });
-            console.log(beginAttack[3].player.attributes);
+            const [attackerDice, defenderDice, combatStatus, defender, isAttackSuccessful] = this.combatService.attack(
+                data.roomId,
+                player,
+                targetPlayer,
+                this.server,
+            );
+
+            this.server.to(data.roomId).emit('attacked', {
+                attacker: player,
+                attackerDice: attackerDice,
+                defender: defender,
+                defenderDice: defenderDice,
+                isAttackSuccessful: isAttackSuccessful,
+            });
+
             if (combatStatus === 'combatEnd') {
                 this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId });
             } else if (combatStatus === 'combatTurnEnd') {

@@ -42,7 +42,7 @@ export class CombatService {
         return this.fightersMap.get(roomId);
     }
 
-    startCombat(roomId: string, fighters: PlayerCoord[]): void {
+    startCombat(roomId: string, fighters: PlayerCoord[]): PlayerCoord[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.turnTimer.pauseTimer();
 
@@ -71,8 +71,11 @@ export class CombatService {
 
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
+            const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
+
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
             this.currentTurnMap.set(roomId, firstPlayerIndex);
+            return [firstPlayer, secondPlayer];
         }
     }
 
@@ -108,14 +111,11 @@ export class CombatService {
     }
 
     applyIceDisadvantage(roomId: string, player: PlayerCoord): void {
-        if (this.isPlayerInCombat(roomId, player)) {
-            for (const fighter of this.fightersMap.get(roomId)) {
-                if (this.isPlayerOnIce(roomId, player)) {
-                    // verify if attributes are > 0
-                    fighter.player.attributes.currentAttack -= ICE_PENALTY;
-                    fighter.player.attributes.currentDefense -= ICE_PENALTY;
-                }
-            }
+        if (this.isPlayerOnIce(roomId, player)) {
+            // verify if attributes are > 0
+            player.player.attributes.currentAttack -= ICE_PENALTY;
+            player.player.attributes.currentDefense -= ICE_PENALTY;
+            console.log('ice penalty', player.player.attributes.currentAttack, player.player.attributes.currentDefense);
         }
     }
 
@@ -192,21 +192,21 @@ export class CombatService {
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
-    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord] {
+    attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord, boolean] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     this.endCombat(roomId, defensePlayer);
-                    return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer];
+                    return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
             console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer, server);
-            return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer];
+            return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }
-        return [-1, -1, 'playerNotInCombat', defensePlayer];
+        return [-1, -1, 'playerNotInCombat', defensePlayer, false];
     }
 
     resetAllAttributes(roomId: string, fighter: PlayerCoord): void {
@@ -290,11 +290,9 @@ export class CombatService {
     }
 
     private isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player)) {
-            const position = player.position;
-            const game = this.activeGamesService.getActiveGame(roomId).game;
-            return game.map[position].tileType === TileTypes.ICE;
-        }
+        const position = player.position;
+        const game = this.activeGamesService.getActiveGame(roomId).game;
+        return game.map[position].tileType === TileTypes.ICE;
     }
 
     private resetHealth(fighter: PlayerCoord): void {
