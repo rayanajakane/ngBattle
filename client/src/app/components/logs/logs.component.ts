@@ -38,8 +38,9 @@ export class LogsComponent implements OnInit {
 
     receiveLog() {
         this.socketService.on('newLog', (log: LogMessage) => {
-            this.logs.push(log);
+            if (!log.exclusive) this.logs.push(log);
             if (log.receiver === this.player.id || log.sender === this.player.id) {
+                if (log.exclusive) this.logs.push(log);
                 this.playerLogs.push(log);
             }
             this.cdr.detectChanges();

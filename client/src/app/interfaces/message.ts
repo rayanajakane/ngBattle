@@ -4,5 +4,6 @@ export interface LogMessage {
 
     // the following 2 are player ids
     receiver: string;
-    sender?: string; // only for combat logs
+    sender?: string;
+    exclusive?: boolean;
 }
