@@ -103,6 +103,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenEscaped();
         this.listenEndCombat();
         this.listenAvailableMovesOnBudget();
+        this.listenEnCombatTimer();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -242,9 +243,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenCombatTimer() {
-        this.socketService.on('combatTimerUpdate', (time: number) => {
+        this.socketService.on('CombatTimerUpdate', (time: number) => {
             if (this.gameController.isInCombat()) {
                 this.timeLeft = time;
+            }
+        });
+    }
+
+    listenEnCombatTimer() {
+        this.socketService.on('endCombatTimer', () => {
+            if (this.gameController.isActivePlayer()) {
+                this.gameController.requestCombatAction('attack');
             }
         });
     }
@@ -257,12 +266,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
             this.gameController.setActivePlayer(combatData.attacker.player.id);
             if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
+                this.timerState = TimerState.COMBAT;
                 this.gameController.setFighters([combatData.attacker, combatData.defender]);
                 if (this.gameController.isActivePlayer()) {
                     this.mapService.setState(GameState.COMBAT); // fighter[0] <- initier combat ; fighter[1] <- recevoir combat
                     this.remainingActions = 0;
                 }
             } else {
+                this.timerState = TimerState.NONE;
                 this.timeLeft = '--';
             }
             console.log('GameState', this.mapService.currentStateNumber);
@@ -340,6 +351,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
             this.gameController.updatePlayerCoordsList(newFighters);
             this.mapService.setState(GameState.NOTPLAYING);
+            this.timerState = TimerState.REGULAR;
             if (this.gameController.isActivePlayer()) {
                 if (this.currentMoveBudget === 0) {
                     this.gameController.requestEndTurn();
