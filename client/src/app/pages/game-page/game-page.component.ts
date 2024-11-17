@@ -92,9 +92,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
-        // this.listenTimer();
-        // this.listenEndTimer();
-        // this.listenEndCooldown();
+        this.listenTimer();
+        this.listenEndTimer();
+        this.listenEndCooldown();
         this.listenStartCombat();
         this.listenCombatTimer();
         this.listenAttacked();
@@ -118,7 +118,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.playersInitialized = true;
             this.initializePlayersPositions();
             this.mapService.setState(GameState.NOTPLAYING);
-            this.gameController.requestStartTurn(); //
+            this.timerState = TimerState.COOLDOWN;
+            // this.gameController.requestStartTurn(); //
         });
     }
 
@@ -162,7 +163,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endTurn', (activePlayerId: string) => {
             this.timerState = TimerState.COOLDOWN;
             this.gameController.setActivePlayer(activePlayerId);
-            this.gameController.requestStartTurn(); //
+            // this.gameController.requestStartTurn(); //
         });
     }
 
@@ -240,6 +241,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenCombatTimer() {
+        this.socketService.on('combatTimerUpdate', (time: number) => {
+            if (this.gameController.isInCombat()) {
+                this.timeLeft = time;
+            }
+        });
+    }
+
     listenStartCombat() {
         this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
             console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
@@ -257,14 +266,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.timeLeft = '--';
             }
             console.log('GameState', this.mapService.currentStateNumber);
-        });
-    }
-
-    listenCombatTimer() {
-        this.socketService.on('combatTimerUpdate', (time: number) => {
-            if (this.gameController.isInCombat()) {
-                this.timeLeft = time;
-            }
         });
     }
 
@@ -373,7 +374,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        this.gameController.requestQuitGame();
+        // this.gameController.requestQuitGame();
         // this.socketService.disconnect();
         // this.router.navigate(['/home']);
     }
