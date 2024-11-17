@@ -19,7 +19,7 @@ export class ActionHandlerService {
 
     private getCurrentTimeFormatted(): string {
         const currentTime = new Date();
-        return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
+        return currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }); // HH:MM:SS in EST
     }
 
     private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
@@ -51,7 +51,7 @@ export class ActionHandlerService {
         const playerName = player.name;
 
         const message = `Début de tour de ${playerName}`;
-        server.to(data.roomId).emit('newLog', { date: formattedTime, message });
+        server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
     }
 
     handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {
