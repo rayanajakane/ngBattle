@@ -71,9 +71,15 @@ export class CombatGateway {
                 isAttackSuccessful: isAttackSuccessful,
             });
 
-            // if (combatStatus === 'combatEnd') {
-            //     this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId });
-            // } else
+            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+            const attackResult = isAttackSuccessful ? 'réussi' : 'échoué';
+            const message = `${player.player.name} attaque ${defender.player.name}. \n L'attaque a ${attackResult}. \n
+            Jet de dé attaquant: ${attackerDice}.\n Jet de dé défenseur: ${defenderDice}\n
+            calcul: ${player.player.attributes.attack + attackerDice} vs ${defender.player.attributes.defense + defenderDice}`;
+            this.server
+                .to(data.roomId)
+                .emit('newLog', { date: formattedTime, message: message, sender: player.player.id, receiver: defender.player.id });
+
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(data.roomId, defender);
                 this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
