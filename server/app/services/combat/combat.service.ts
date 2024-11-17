@@ -67,6 +67,7 @@ export class CombatService {
 
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
+            gameInstance.combatTimer.startTimer(true);
             // this.startCombatTtimer(roomId, true, server); // start combat timer
 
             // Initialize turn to first player

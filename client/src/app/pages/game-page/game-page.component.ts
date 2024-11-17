@@ -92,9 +92,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
-        // this.listenTimer();
-        // this.listenEndTimer();
-        // this.listenEndCooldown();
+        this.listenTimer();
+        this.listenEndTimer();
+        this.listenEndCooldown();
         this.listenStartCombat();
         this.listenCombatTimer();
         this.listenAttacked();
@@ -103,6 +103,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenEscaped();
         this.listenEndCombat();
         this.listenAvailableMovesOnBudget();
+        this.listenEnCombatTimer();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -118,7 +119,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.playersInitialized = true;
             this.initializePlayersPositions();
             this.mapService.setState(GameState.NOTPLAYING);
-            this.gameController.requestStartTurn(); //
+            this.timerState = TimerState.COOLDOWN;
+            // this.gameController.requestStartTurn(); //
         });
     }
 
@@ -162,7 +164,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endTurn', (activePlayerId: string) => {
             this.timerState = TimerState.COOLDOWN;
             this.gameController.setActivePlayer(activePlayerId);
-            this.gameController.requestStartTurn(); //
+            // this.gameController.requestStartTurn(); //
         });
     }
 
@@ -240,6 +242,22 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenCombatTimer() {
+        this.socketService.on('CombatTimerUpdate', (time: number) => {
+            if (this.gameController.isInCombat()) {
+                this.timeLeft = time;
+            }
+        });
+    }
+
+    listenEnCombatTimer() {
+        this.socketService.on('endCombatTimer', () => {
+            if (this.gameController.isActivePlayer()) {
+                this.gameController.requestCombatAction('attack');
+            }
+        });
+    }
+
     listenStartCombat() {
         this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
             console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
@@ -248,23 +266,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
             this.gameController.setActivePlayer(combatData.attacker.player.id);
             if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
+                this.timerState = TimerState.COMBAT;
                 this.gameController.setFighters([combatData.attacker, combatData.defender]);
                 if (this.gameController.isActivePlayer()) {
                     this.mapService.setState(GameState.COMBAT); // fighter[0] <- initier combat ; fighter[1] <- recevoir combat
                     this.remainingActions = 0;
                 }
             } else {
+                this.timerState = TimerState.NONE;
                 this.timeLeft = '--';
             }
             console.log('GameState', this.mapService.currentStateNumber);
-        });
-    }
-
-    listenCombatTimer() {
-        this.socketService.on('combatTimerUpdate', (time: number) => {
-            if (this.gameController.isInCombat()) {
-                this.timeLeft = time;
-            }
         });
     }
 
@@ -339,6 +351,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
             this.gameController.updatePlayerCoordsList(newFighters);
             this.mapService.setState(GameState.NOTPLAYING);
+            this.timerState = TimerState.REGULAR;
             if (this.gameController.isActivePlayer()) {
                 if (this.currentMoveBudget === 0) {
                     this.gameController.requestEndTurn();
@@ -373,7 +386,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        this.gameController.requestQuitGame();
+        // this.gameController.requestQuitGame();
         // this.socketService.disconnect();
         // this.router.navigate(['/home']);
     }
