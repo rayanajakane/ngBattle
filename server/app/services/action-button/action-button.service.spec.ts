@@ -71,7 +71,7 @@ describe('ActionButtonService', () => {
 
         const result = service.getAvailableIndexes(roomId, activePlayer);
 
-        expect(result).toEqual([6, 7]);
+        expect(result).toEqual([mockPlayersAround[0].position, mockDoorsAround[0].idx]);
     });
 
     it('should start combat with the given fighters', () => {
@@ -81,7 +81,7 @@ describe('ActionButtonService', () => {
             { player: { id: 'player2' } as Player, position: 2 },
         ] as PlayerCoord[];
 
-        jest.spyOn(combatService, 'startCombat').mockImplementation((roomId: string, fighters: PlayerCoord[]) => {
+        jest.spyOn(combatService, 'startCombat').mockImplementation(() => {
             return null;
         });
 
@@ -131,13 +131,13 @@ describe('ActionButtonService', () => {
             item: '',
             hasPlayer: true,
         };
-        game.map[position - 10] = {
+        game.map[position - parseInt(game.mapSize, 10)] = {
             idx: 40,
             tileType: TileTypes.BASIC,
             item: '',
             hasPlayer: true,
         };
-        game.map[position + 10] = {
+        game.map[position + parseInt(game.mapSize, 10)] = {
             idx: 60,
             tileType: TileTypes.BASIC,
             item: '',
@@ -145,15 +145,9 @@ describe('ActionButtonService', () => {
         };
 
         const playerCoordsMap: PlayerCoord[] = Array.from({ length: 100 }, (_, idx) => ({ player: { id: 'WORKS !' } as Player, position: idx }));
-        const playerCoordsMapResult = [
-            playerCoordsMap[position + 1],
-            playerCoordsMap[position - 1],
-            playerCoordsMap[position - 10],
-            playerCoordsMap[position + 10],
-        ];
 
         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
-            game: game,
+            game,
             playersCoord: playerCoordsMap,
         } as GameInstance);
 
@@ -193,7 +187,7 @@ describe('ActionButtonService', () => {
         };
 
         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
-            game: game,
+            game,
             playersCoord: [],
         } as GameInstance);
 
@@ -201,44 +195,6 @@ describe('ActionButtonService', () => {
 
         service.chosenAction(roomId, originalPlayer, position);
         expect(actionService.interactWithDoor).toHaveBeenCalledWith(roomId, originalPlayer.player.id, originalPlayer.position);
-    });
-
-    it('should return an empty array if no players are around the given position', () => {
-        const roomId = '123abc';
-        const position = 5;
-        const mapSize = '3';
-        const mockMap = [
-            { idx: 0, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 1, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 2, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 3, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 4, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 5, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 6, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 7, tileType: 'tile', item: '', hasPlayer: false },
-            { idx: 8, tileType: 'tile', item: '', hasPlayer: false },
-        ] as TileStructure[];
-
-        const game: GameStructure = {
-            id: 'gameId',
-            gameName: 'Test Game',
-            gameDescription: 'Test Description',
-            mapSize: mapSize,
-            map: mockMap,
-            gameType: 'classic',
-            isVisible: true,
-            creationDate: '2024-11-11T19:59:26.518Z',
-            lastModified: '16/11/2024, 12:39:04',
-        };
-
-        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
-            game: game,
-            playersCoord: [],
-        } as GameInstance);
-
-        const result = service.getPlayersAround(roomId, position);
-
-        expect(result).toEqual([]);
     });
 
     it('should return doors around the given player position', () => {
@@ -261,7 +217,7 @@ describe('ActionButtonService', () => {
             id: 'gameId',
             gameName: 'Test Game',
             gameDescription: 'Test Description',
-            mapSize: mapSize,
+            mapSize,
             map: mockMap,
             gameType: 'classic',
             isVisible: true,
@@ -270,7 +226,7 @@ describe('ActionButtonService', () => {
         };
 
         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
-            game: game,
+            game,
             playersCoord: [],
         } as GameInstance);
 
@@ -294,7 +250,7 @@ describe('ActionButtonService', () => {
             id: 'gameId',
             gameName: 'Test Game',
             gameDescription: 'Test Description',
-            mapSize: mapSize,
+            mapSize,
             map: mockMap,
             gameType: 'classic',
             isVisible: true,
@@ -303,12 +259,93 @@ describe('ActionButtonService', () => {
         };
 
         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
-            game: game,
+            game,
             playersCoord: [],
         } as GameInstance);
 
         const result = service.getDoorsAround(roomId, player);
 
         expect(result).toEqual([]);
+    });
+
+    it('should return an empty array if no players are around the given position', () => {
+        const roomId = '123abc';
+        const position = 5;
+        const mapSize = '3';
+        const mockMap = [
+            { idx: 0, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 1, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 2, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 3, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 4, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 5, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 6, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 7, tileType: 'tile', item: '', hasPlayer: false },
+            { idx: 8, tileType: 'tile', item: '', hasPlayer: false },
+        ] as TileStructure[];
+
+        const game: GameStructure = {
+            id: 'gameId',
+            gameName: 'Test Game',
+            gameDescription: 'Test Description',
+            mapSize,
+            map: mockMap,
+            gameType: 'classic',
+            isVisible: true,
+            creationDate: '2024-11-11T19:59:26.518Z',
+            lastModified: '16/11/2024, 12:39:04',
+        };
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
+            game,
+            playersCoord: [],
+        } as GameInstance);
+
+        const result = service.getPlayersAround(roomId, position);
+
+        expect(result).toEqual([]);
+    });
+
+    it('should return players around the given position', () => {
+        const roomId = '123abc';
+        const position = 45;
+        const mapSize = '10';
+        const mockMap = Array.from({ length: 100 }, (_, idx) => ({
+            idx,
+            tileType: TileTypes.BASIC,
+            item: '',
+            hasPlayer: false,
+        })) as TileStructure[];
+
+        const playerCoordsMap: PlayerCoord[] = Array.from({ length: 100 }, (_, idx) => ({
+            player: { id: `player${idx}` } as Player,
+            position: idx,
+        }));
+
+        mockMap[46].hasPlayer = true;
+        mockMap[44].hasPlayer = true;
+        mockMap[35].hasPlayer = true;
+        mockMap[55].hasPlayer = true;
+
+        const game: GameStructure = {
+            id: 'gameId',
+            gameName: 'Test Game',
+            gameDescription: 'Test Description',
+            mapSize,
+            map: mockMap,
+            gameType: 'classic',
+            isVisible: true,
+            creationDate: '2024-11-11T19:59:26.518Z',
+            lastModified: '16/11/2024, 12:39:04',
+        };
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
+            game,
+            playersCoord: playerCoordsMap,
+        } as GameInstance);
+
+        const result = service.getPlayersAround(roomId, position);
+
+        expect(result).toEqual([playerCoordsMap[46], playerCoordsMap[44], playerCoordsMap[35], playerCoordsMap[55]]);
     });
 });

@@ -53,7 +53,7 @@ export class TileBasicComponent implements OnChanges {
 
     setAvatarImage() {
         if (this.avatar) {
-            this.avatarUrl = `./../../../assets/characters/${this.avatar}.png`;
+            this.avatarUrl = `./../../../assets/characters/${this.chooseAvatar(this.avatar)}.png`;
         } else {
             this.avatarUrl = '';
         }
@@ -65,6 +65,37 @@ export class TileBasicComponent implements OnChanges {
                 return 'previsualize';
             case TilePreview.SHORTESTPATH:
                 return 'shortestPath';
+            default:
+                return '';
+        }
+    }
+
+    chooseAvatar(avatar: string) {
+        switch (avatar) {
+            case 'Avatar 1':
+                return '1';
+            case 'Avatar 2':
+                return '2';
+            case 'Avatar 3':
+                return '3';
+            case 'Avatar 4':
+                return '4';
+            case 'Avatar 5':
+                return '5';
+            case 'Avatar 6':
+                return '6';
+            case 'Avatar 7':
+                return '7';
+            case 'Avatar 8':
+                return '8';
+            case 'Avatar 9':
+                return '9';
+            case 'Avatar 10':
+                return '10';
+            case 'Avatar 11':
+                return '11';
+            case 'Avatar 12':
+                return '12';
             default:
                 return '';
         }
