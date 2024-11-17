@@ -34,6 +34,12 @@ export class CombatGateway {
             this.server
                 .to(data.roomId)
                 .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: player.player.id });
+
+            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+            const message = `Combat entre ${firstTurnPlayer.player.name} et ${secondTurnPlayer.player.name} a été débuté`;
+            this.server
+                .to(data.roomId)
+                .emit('newLog', { date: formattedTime, message: message, sender: firstTurnPlayer.player.id, receiver: secondTurnPlayer.player.id });
         } else if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOOROPEN
@@ -65,9 +71,15 @@ export class CombatGateway {
                 isAttackSuccessful,
             });
 
-            // if (combatStatus === 'combatEnd') {
-            //     this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId });
-            // } else
+            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+            const attackResult = isAttackSuccessful ? 'réussi' : 'échoué';
+            const message = `${player.player.name} attaque ${defender.player.name}. \n L'attaque a ${attackResult}. \n
+            Jet de dé attaquant: ${attackerDice}.\n Jet de dé défenseur: ${defenderDice}\n
+            calcul: ${player.player.attributes.attack + attackerDice} vs ${defender.player.attributes.defense + defenderDice}`;
+            this.server
+                .to(data.roomId)
+                .emit('newLog', { date: formattedTime, message: message, sender: player.player.id, receiver: defender.player.id, exclusive: true });
+
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(data.roomId, defender);
                 this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
@@ -81,14 +93,21 @@ export class CombatGateway {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(data.roomId, player, this.server);
         this.server.to(data.roomId).emit('didEscape', { playerId: data.playerId, remainingEscapeChances, hasEscaped: escapeResult });
+        const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
             const resetFighters = this.combatService.endCombat(data.roomId);
             this.server.to(data.roomId).emit('endCombat', resetFighters);
+
+            const message = `${player.player.name} a réussi à s'échapper du combat`;
+            this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
         } else {
             const defender = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
             this.combatService.startCombatTurn(data.roomId, defender);
             this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
+
+            const message = `${player.player.name} a échoué à s'échapper du combat`;
+            this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
         }
     }
 

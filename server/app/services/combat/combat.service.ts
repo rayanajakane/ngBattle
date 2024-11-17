@@ -15,7 +15,6 @@ import {
     SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
 } from '@app/services/combat/constants';
-import { MovementService } from '@app/services/movement/movement.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
@@ -26,10 +25,7 @@ export class CombatService {
     private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
-    constructor(
-        @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
-        @Inject(MovementService) private readonly movementService: MovementService,
-    ) {}
+    constructor(@Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
     // with a setPlayerTurn method with more verification
@@ -210,6 +206,14 @@ export class CombatService {
                         killedOldPosition: killedPlayerOldPosition,
                     });
                     server.to(roomId).emit('endCombat', fighters);
+
+                    // log message
+                    const currentTime = new Date();
+                    const formattedTime = currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+                    const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
+                    server
+                        .to(roomId)
+                        .emit('newLog', { date: formattedTime, message: message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
@@ -234,7 +238,7 @@ export class CombatService {
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
-            // this.disperseKilledPlayerObjects(roomId, playerKilled);
+            //this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
