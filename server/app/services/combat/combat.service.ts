@@ -129,8 +129,9 @@ export class CombatService {
 
     escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
-        if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id) {
-            return;
+        console.log('escape:', player.player.attributes.escape);
+        if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
+            return [player.player.attributes.escape, false];
         }
         const canPlayerEscape = this.canPlayerEscape(roomId, player);
         if (this.isPlayerInCombat(roomId, player) && !canPlayerEscape) {
@@ -285,10 +286,12 @@ export class CombatService {
     }
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player) && player.player.attributes.escape > 0) {
+        if (this.isPlayerInCombat(roomId, player)) {
+            console.log('escape left:', player.player.attributes.escape);
             const randomNumber = Math.random();
             return 10 < ESCAPE_PROBABILITY;
         }
+        return false;
     }
 
     private isPlayerOnIce(roomId: string, player: PlayerCoord): boolean {
