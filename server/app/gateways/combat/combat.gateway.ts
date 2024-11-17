@@ -85,7 +85,8 @@ export class CombatGateway {
             .emit('didEscape', { playerId: data.playerId, remainingEscapeChances: remainingEscapeChances, hasEscaped: escapeResult });
 
         if (escapeResult) {
-            this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId });
+            const resetFighters = this.combatService.endCombat(data.roomId);
+            this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId, newFighters: resetFighters });
         } else {
             const defender = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
             this.combatService.startCombatTurn(data.roomId, defender);

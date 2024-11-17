@@ -140,7 +140,7 @@ export class CombatService {
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
-            this.endCombat(roomId);
+            //this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
     }
@@ -289,7 +289,7 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             console.log('escape left:', player.player.attributes.escape);
             const randomNumber = Math.random();
-            return 10 < ESCAPE_PROBABILITY;
+            return randomNumber < ESCAPE_PROBABILITY;
         }
         return false;
     }
