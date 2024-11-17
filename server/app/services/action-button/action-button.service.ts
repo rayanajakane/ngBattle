@@ -14,7 +14,6 @@ export class ActionButtonService {
     ) {}
 
     getAvailableIndexes(roomId: string, activePlayer: PlayerCoord): number[] {
-        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const availableIndexes: number[] = [];
         this.getPlayersAround(roomId, activePlayer.position).forEach((opponentPlayer) => {
             availableIndexes.push(opponentPlayer.position);
