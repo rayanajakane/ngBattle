@@ -17,7 +17,7 @@ export class ActionHandlerService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TIME_BETWEEN_MOVES = 150;
 
-    private getCurrentTimeFormatted(): string {
+    getCurrentTimeFormatted(): string {
         const currentTime = new Date();
         return currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }); // HH:MM:SS in EST
     }
