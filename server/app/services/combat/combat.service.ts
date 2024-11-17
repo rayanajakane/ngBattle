@@ -232,7 +232,7 @@ export class CombatService {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         if (playerKiller && playerKilled) {
-            // this.setWinner(roomId, playerKiller);
+            this.setWinner(roomId, playerKiller);
             //this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
@@ -281,13 +281,13 @@ export class CombatService {
         const possiblePositions = [RIGHT_TILE, LEFT_TILE, mapSize, -mapSize];
         const verifiedPositions = [];
         possiblePositions.forEach((pos) => {
-            if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.WATER) {
+            if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
                 verifiedPositions.push(pos);
             } else {
                 pos *= 2;
             }
             if (verifiedPositions.length === 0) {
-                if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.WATER) {
+                if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
                     verifiedPositions.push(pos);
                 }
             }
