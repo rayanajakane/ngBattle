@@ -2,7 +2,7 @@ import { TimerService } from './timer.service';
 
 describe('TimerService', () => {
     let service: TimerService;
-    let mockServer: any;
+    let mockServer: unknown;
     let mockEmit: jest.Mock;
     let mockTo: jest.Mock;
 

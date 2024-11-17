@@ -59,10 +59,10 @@ export class CombatGateway {
 
             this.server.to(data.roomId).emit('attacked', {
                 attacker: player,
-                attackerDice: attackerDice,
-                defender: defender,
-                defenderDice: defenderDice,
-                isAttackSuccessful: isAttackSuccessful,
+                attackerDice,
+                defender,
+                defenderDice,
+                isAttackSuccessful,
             });
 
             // if (combatStatus === 'combatEnd') {
@@ -80,9 +80,7 @@ export class CombatGateway {
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(data.roomId, player, this.server);
-        this.server
-            .to(data.roomId)
-            .emit('didEscape', { playerId: data.playerId, remainingEscapeChances: remainingEscapeChances, hasEscaped: escapeResult });
+        this.server.to(data.roomId).emit('didEscape', { playerId: data.playerId, remainingEscapeChances, hasEscaped: escapeResult });
 
         if (escapeResult) {
             const resetFighters = this.combatService.endCombat(data.roomId);

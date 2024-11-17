@@ -141,7 +141,7 @@ export class CombatService {
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
-            //this.endCombat(roomId);
+            // this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
     }
@@ -234,7 +234,7 @@ export class CombatService {
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
-            //this.disperseKilledPlayerObjects(roomId, playerKilled);
+            // this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
