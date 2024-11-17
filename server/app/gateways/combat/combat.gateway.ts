@@ -45,7 +45,6 @@ export class CombatGateway {
 
     @SubscribeMessage('attack')
     handleAttack(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
-        console.log('attack');
         if (this.combatService.getCurrentTurnPlayer(data.roomId).player.id === data.playerId) {
             console.log('getCurrentTurnPlayer');
             const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
@@ -66,9 +65,10 @@ export class CombatGateway {
                 isAttackSuccessful: isAttackSuccessful,
             });
 
-            if (combatStatus === 'combatEnd') {
-                this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId });
-            } else if (combatStatus === 'combatTurnEnd') {
+            // if (combatStatus === 'combatEnd') {
+            //     this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId });
+            // } else
+            if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(data.roomId, defender);
                 this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
             }
@@ -86,7 +86,7 @@ export class CombatGateway {
 
         if (escapeResult) {
             const resetFighters = this.combatService.endCombat(data.roomId);
-            this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId, newFighters: resetFighters });
+            this.server.to(data.roomId).emit('endCombat', resetFighters);
         } else {
             const defender = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
             this.combatService.startCombatTurn(data.roomId, defender);
@@ -111,23 +111,21 @@ export class CombatGateway {
     }
 
     // killedPlayer + KilledPlayerHomePosition
-    @SubscribeMessage('killedPlayer')
-    handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
-        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const killedPlayerOldPosition = this.activeGameService
-            .getActiveGame(data.roomId)
-            .playersCoord.find((player) => player.player.id !== data.playerId).position;
-        const fighters = this.combatService.killPlayer(data.roomId, player);
-        const playerKiller = fighters[0];
-        const playerKilled = fighters[1];
-        this.server.to(data.roomId).emit('killedPlayer', {
-            roomId: data.roomId,
-            playerId: data.playerId,
-            killer: playerKiller,
-            killed: playerKilled,
-            killedOldPosition: killedPlayerOldPosition,
-        });
-    }
+    // @SubscribeMessage('killedPlayer')
+    // handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+    //     const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+    //     const killedPlayerOldPosition = this.activeGameService
+    //         .getActiveGame(data.roomId)
+    //         .playersCoord.find((player) => player.player.id !== data.playerId).position;
+    //     const fighters = this.combatService.killPlayer(data.roomId, player);
+    //     const playerKiller = fighters[0];
+    //     const playerKilled = fighters[1];
+    //     this.server.to(data.roomId).emit('killedPlayer', {
+    //         killer: playerKiller,
+    //         killed: playerKilled,
+    //         killedOldPosition: killedPlayerOldPosition,
+    //     });
+    // }
 
     // winnerPlayer
     @SubscribeMessage('winnerPlayer')

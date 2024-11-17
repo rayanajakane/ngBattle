@@ -201,7 +201,14 @@ export class CombatService {
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
-                    this.endCombat(roomId, defensePlayer);
+                    const killedPlayerOldPosition = defensePlayer.position;
+                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer);
+                    server.to(roomId).emit('killedPlayer', {
+                        killer: playerKiller,
+                        killed: playerKilled,
+                        killedOldPosition: killedPlayerOldPosition,
+                    });
+                    server.to(roomId).emit('endCombat', fighters);
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
@@ -221,19 +228,19 @@ export class CombatService {
         }
     }
 
-    killPlayer(roomId: string, player: PlayerCoord): PlayerCoord[] {
+    killPlayer(roomId: string, player: PlayerCoord): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         if (playerKiller && playerKilled) {
-            this.setWinner(roomId, playerKiller);
-            this.disperseKilledPlayerObjects(roomId, playerKilled);
+            // this.setWinner(roomId, playerKiller);
+            //this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
-            this.endCombat(roomId);
-            return [playerKiller, playerKilled];
+            const fighters = this.endCombat(roomId, playerKiller);
+            return [playerKiller, playerKilled, fighters];
         }
-        return [];
+        return [null, null, []];
     }
 
     disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
@@ -249,14 +256,17 @@ export class CombatService {
     teleportPlayerToHome(roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
+        game.map[player.position].hasPlayer = false;
         const playerHomePosition = player.player.homePosition;
         if (game.map[playerHomePosition].hasPlayer === false) {
             player.position = playerHomePosition;
+            game.map[playerHomePosition].hasPlayer = true;
         } else {
             // if the home position taken, find a new position near home position
             const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
             const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
             player.position = playerHomePosition + verifiedPositions[randomIndex];
+            game.map[player.position].hasPlayer = true;
         }
     }
 

@@ -54,6 +54,10 @@ export class ActionHandlerService {
         server.to(data.roomId).emit('newLog', { date: formattedTime, message });
     }
 
+    handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {
+        client.emit('availableMovesOnBudget', this.action.availablePlayerMovesOnBudget(data.playerId, data.roomId, data.currentBudget));
+    }
+
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
         const playerId = data.playerId;
         const roomId = data.roomId;

@@ -17,6 +17,14 @@ export class ActionGateway implements OnGatewayInit {
         this.actionHandler.handleStartTurn(data, this.server, client);
     }
 
+    @SubscribeMessage('getAvailableMovesOnBudget')
+    handleGetAvailableMovesOnBudget(
+        @MessageBody() data: { roomId: string; playerId: string; currentBudget: number },
+        @ConnectedSocket() client: Socket,
+    ) {
+        this.actionHandler.handleGetAvailableMovesOnBudget(data, client);
+    }
+
     @SubscribeMessage('move')
     handleMove(@MessageBody() data: { roomId: string; playerId: string; endPosition: number }, @ConnectedSocket() client: Socket) {
         this.actionHandler.handleMove(data, this.server, client);

@@ -164,6 +164,10 @@ export class GameControllerService {
         this.socketService.emit(combatAction, { roomId: this.roomId, playerId: this.player.id });
     }
 
+    requestAvailableMovesOnBudget(currentBudget: number): void {
+        this.socketService.emit('getAvailableMovesOnBudget', { roomId: this.roomId, playerId: this.player.id, currentBudget });
+    }
+
     requestEndCombatTurn(): void {}
 
     requestQuitGame(): void {

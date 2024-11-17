@@ -102,6 +102,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenKilledPlayer();
         this.listenEscaped();
         this.listenEndCombat();
+        this.listenAvailableMovesOnBudget();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -297,10 +298,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenKilledPlayer() {
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
-            this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
+            // this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
             this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
-            if (this.gameController.fighters[0].player.id === this.gameController.playerId) {
-                this.currentMoveBudget = 0;
+            this.gameController.setActivePlayer(this.combatInitiatorId);
+            if (this.gameController.isActivePlayer()) {
+                if (this.combatInitiatorId === data.killed.player.id) {
+                    this.currentMoveBudget = 0;
+                } else if (this.combatInitiatorId === data.killer.player.id) {
+                    if (this.currentMoveBudget !== '--') {
+                        this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
+                    }
+                }
+            }
+        });
+    }
+
+    listenAvailableMovesOnBudget() {
+        this.socketService.on('availableMovesOnBudget', (availableMoves: ShortestPathByTile) => {
+            if (this.gameController.isActivePlayer()) {
+                this.mapService.switchToMovingStateRoutine(availableMoves);
             }
         });
     }
@@ -320,9 +336,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenEndCombat() {
-        this.socketService.on('endCombat', (data: { playerId: string; newFighters: PlayerCoord[] }) => {
-            console.log('endCombat', data.playerId);
-            this.gameController.updatePlayerCoordsList(data.newFighters);
+        this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
+            this.gameController.updatePlayerCoordsList(newFighters);
             this.mapService.setState(GameState.NOTPLAYING);
             if (this.gameController.isActivePlayer()) {
                 if (this.currentMoveBudget === 0) {
