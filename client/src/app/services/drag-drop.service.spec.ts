@@ -54,18 +54,18 @@ describe('DragDropService', () => {
     it('should set the multiple item counter based on map size', () => {
         const tilesSmall = createTiles(MAP_SIZE_SMALL);
         service.setMultipleItemCounter(MAP_SIZE_SMALL, tilesSmall);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_TWO);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_TWO);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_TWO);
+        expect(service.itemCounter(RANDOM_ITEM_COUNTER_TWO);
 
         const tilesMedium = createTiles(MAP_SIZE_MEDIUM);
         service.setMultipleItemCounter(MAP_SIZE_MEDIUM, tilesMedium);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_FOUR);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_FOUR);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_FOUR);
+        expect(service.itemCounter(RANDOM_ITEM_COUNTER_FOUR);
 
         const tilesLarge = createTiles(MAP_SIZE_LARGE);
         service.setMultipleItemCounter(MAP_SIZE_LARGE, tilesLarge);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_SIX);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_SIX);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_SIX);
+        expect(service.itemCounter(RANDOM_ITEM_COUNTER_SIX);
     });
 
     it('should set the multiple item counter based on map content ', () => {
@@ -73,8 +73,8 @@ describe('DragDropService', () => {
         tiles[0].item = 'startingPoint';
         tiles[1].item = 'item-aleatoire';
         service.setMultipleItemCounter(MAP_SIZE_SMALL, tiles);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_TWO - 1);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_TWO - 1);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_TWO - 1);
+        expect(service.itemCounter(RANDOM_ITEM_COUNTER_TWO - 1);
     });
 
     it('should set the multiple item counter to zero if placedStartingPoints too high ', () => {
@@ -88,48 +88,48 @@ describe('DragDropService', () => {
         tiles[5].item = 'item-aleatoire';
 
         service.setMultipleItemCounter(MAP_SIZE_SMALL, tiles);
-        expect(service.startingPointNumberCounter).toBe(0);
-        expect(service.randomItemCounter).toBe(0);
+        expect(service.startingPointCounter).toBe(0);
+        expect(service.itemCounter(0);
     });
 
     it('should reduce the number of starting points', () => {
         const STARTING_COUNTER = 5;
         const REDUCE_COUNTER = 4;
-        service.startingPointNumberCounter = STARTING_COUNTER;
-        service.reduceNumberStartingPoints();
-        expect(service.startingPointNumberCounter).toBe(REDUCE_COUNTER);
+        service.startingPointCounter = STARTING_COUNTER;
+        service.reduceStartingPointCounter();
+        expect(service.startingPointCounter).toBe(REDUCE_COUNTER);
         const REDUCE_COUNTER_ZERO = 0;
-        service.startingPointNumberCounter = REDUCE_COUNTER_ZERO;
-        service.reduceNumberStartingPoints();
-        expect(service.startingPointNumberCounter).toBe(REDUCE_COUNTER_ZERO);
+        service.startingPointCounter = REDUCE_COUNTER_ZERO;
+        service.reduceStartingPointCounter();
+        expect(service.startingPointCounter).toBe(REDUCE_COUNTER_ZERO);
     });
 
     it('should reduce the number of random items', () => {
         const RANDOM_ITEM_COUNTER = 5;
         const RANDOM_ITEM_REDUCE_COUNTER = 4;
         const RANDOM_ITEM_NULL = 0;
-        service.randomItemCounter = RANDOM_ITEM_COUNTER;
-        service.reduceNumberRandomItem();
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_REDUCE_COUNTER);
+        service.itemCounterDOM_ITEM_COUNTER;
+        service.reduceItemCounter();
+        expect(service.itemCounter(RANDOM_ITEM_REDUCE_COUNTER);
 
-        service.randomItemCounter = RANDOM_ITEM_NULL;
-        service.reduceNumberRandomItem();
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_NULL);
+        service.itemCounterDOM_ITEM_NULL;
+        service.reduceItemCounter();
+        expect(service.itemCounter(RANDOM_ITEM_NULL);
     });
 
     it('should increment the number of starting points', () => {
         const STARTING_COUNTER = 5;
         const STARTING_COUNTER_INCREMENT = 6;
-        service.startingPointNumberCounter = STARTING_COUNTER;
+        service.startingPointCounter = STARTING_COUNTER;
         service.incrementNumberStartingPoints();
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_INCREMENT);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_INCREMENT);
     });
 
     it('should increment the number of random items', () => {
         const RANDOM_ITEM_COUNTER = 5;
         const RANDOM_ITEM_INCREMENT = 6;
-        service.randomItemCounter = RANDOM_ITEM_COUNTER;
-        service.incrementNumberRandomItem();
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_INCREMENT);
+        service.itemCounterDOM_ITEM_COUNTER;
+        service.incrementNumberItem();
+        expect(service.itemCounter(RANDOM_ITEM_INCREMENT);
     });
 });

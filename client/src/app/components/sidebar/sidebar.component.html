@@ -45,12 +45,7 @@
                 matTooltip="Item aléatoire à découvrir !"
                 matTooltipPosition="left"
             >
-                <span
-                    [matBadge]="this.dragDropService.randomItemCounter"
-                    matBadgeSize="medium"
-                    matBadgeOverlap="false"
-                    matBadgePosition="above"
-                ></span>
+                <span [matBadge]="this.dragDropService.itemCounter" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
                 <img
                     src="./assets/item-aleatoire_transparent.png
                 "
@@ -65,7 +60,7 @@
                 matTooltipPosition="right"
             >
                 <span
-                    [matBadge]="this.dragDropService.startingPointNumberCounter"
+                    [matBadge]="this.dragDropService.startingPointCounter"
                     matBadgeSize="medium"
                     matBadgeOverlap="false"
                     matBadgePosition="above"
@@ -73,6 +68,7 @@
                 <img src="./assets/startingPoint_transparent.png" alt="COMPTEUR " class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile id="drapeau-A" (mousedown)="startDragging('drapeau-A')" matTooltip="Premier Drapeau !" matTooltipPosition="below">
+                <span [matBadge]="this.dragDropService.flagACounter" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
                 <img
                     src="./assets/drapeau-A_transparent.png
                 "
@@ -81,6 +77,7 @@
                 />
             </mat-grid-tile>
             <mat-grid-tile id="drapeau-B" (mousedown)="startDragging('drapeau-B')" matTooltip="Deuxième Drapeau !" matTooltipPosition="below">
+                <span [matBadge]="this.dragDropService.flagBCounter" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
                 <img src="./assets/drapeau-B_transparent.png" alt="Drapeau B" class="drag-image" />
             </mat-grid-tile>
         </mat-grid-list>

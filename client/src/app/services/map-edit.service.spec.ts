@@ -11,7 +11,7 @@ describe('MapEditService', () => {
 
     const dragDropServiceSpy = jasmine.createSpyObj('DragDropService', [
         'incrementNumberStartingPoints',
-        'incrementNumberRandomItem',
+        'incrementNumberItem',
         'resetDraggedObject',
     ]);
 
@@ -86,10 +86,10 @@ describe('MapEditService', () => {
         expect(service.tiles[0].item).toBe('');
     });
 
-    it('deleteItem should call incrementNumberRandomItem if the item is item-aleatoire', () => {
+    it('deleteItem should call incrementNumberItem if the item is item-aleatoire', () => {
         service.tiles = [{ idx: 0, tileType: 'ice', item: 'item-aleatoire', hasPlayer: false }];
         service.deleteItem(0);
-        expect(dragDropServiceSpy.incrementNumberRandomItem).toHaveBeenCalled();
+        expect(dragDropServiceSpy.incrementNumberItem).toHaveBeenCalled();
         expect(service.tiles[0].item).toBe('');
     });
 
@@ -466,36 +466,36 @@ describe('MapEditService', () => {
         expect(service.tiles[0].item).toBe('');
     });
 
-    it('setItemType should not set item if itemType is startingPoint and startingPointNumberCounter is 0', () => {
+    it('setItemType should not set item if itemType is startingPoint and startingPointCounter is 0', () => {
         service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
-        dragDropServiceSpy.startingPointNumberCounter = 0;
+        dragDropServiceSpy.startingPointCounter = 0;
         service.setItemType(0, 'startingPoint');
         expect(service.tiles[0].item).toBe('');
     });
 
-    it('setItemType should not set item if itemType is item-aleatoire and randomItemCounter is 0', () => {
+    it('setItemType should not set item if itemType is item-aleatoire and itemCounter is 0', () => {
         service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
-        dragDropServiceSpy.randomItemCounter = 0;
+        dragDropServiceSpy.itemCounter = 0;
         service.setItemType(0, 'item-aleatoire');
         expect(service.tiles[0].item).toBe('');
     });
 
     it('setItemType should decrease startingPoint counter if itemType is startingPoint and current item is not startingPoint', () => {
         service.tiles = [{ idx: 0, tileType: 'ice', item: 'test-item', hasPlayer: false }];
-        dragDropServiceSpy.reduceNumberStartingPoints = jasmine.createSpy('reduceNumberStartingPoints');
+        dragDropServiceSpy.reduceStartingPointCounter = jasmine.createSpy('reduceStartingPointCounter');
         dragDropServiceSpy.draggedTile = 'startingPoint';
-        dragDropServiceSpy.startingPointNumberCounter = 1;
+        dragDropServiceSpy.startingPointCounter = 1;
         service.setItemType(0, 'startingPoint');
-        expect(dragDropServiceSpy.reduceNumberStartingPoints).toHaveBeenCalled();
+        expect(dragDropServiceSpy.reduceStartingPointCounter).toHaveBeenCalled();
     });
 
     it('setItemType should decrease randomItem counter if itemType is item-aleatoire and current item is not item-aleatoire', () => {
         service.tiles = [{ idx: 0, tileType: 'ice', item: 'test-item', hasPlayer: false }];
-        dragDropServiceSpy.reduceNumberRandomItem = jasmine.createSpy('reduceNumberRandomItem');
+        dragDropServiceSpy.reduceItemCounter = jasmine.createSpy('reduceItemCounter');
         dragDropServiceSpy.draggedTile = 'item-aleatoire';
-        dragDropServiceSpy.randomItemCounter = 1;
+        dragDropServiceSpy.itemCounter = 1;
         service.setItemType(0, 'item-aleatoire');
-        expect(dragDropServiceSpy.reduceNumberRandomItem).toHaveBeenCalled();
+        expect(dragDropServiceSpy.reduceItemCounter).toHaveBeenCalled();
     });
 
     it('setItemType should set item and reset dragged object', () => {

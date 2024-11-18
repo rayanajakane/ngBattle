@@ -69,7 +69,7 @@ describe('SidebarComponent', () => {
     });
 
     it('should have correct initial values for badges', () => {
-        expect(component.dragDropService.randomItemCounter).toEqual(DEFAULT_STARTING_COUNTER_TWO);
-        expect(component.dragDropService.startingPointNumberCounter).toEqual(DEFAULT_STARTING_COUNTER_TWO);
+        expect(component.dragDropService.itemCounterual(DEFAULT_STARTING_COUNTER_TWO);
+        expect(component.dragDropService.startingPointCounter).toEqual(DEFAULT_STARTING_COUNTER_TWO);
     });
 });
