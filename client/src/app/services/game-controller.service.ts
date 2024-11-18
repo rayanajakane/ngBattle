@@ -142,6 +142,7 @@ export class GameControllerService {
     }
 
     requestMove(endPosition: number): void {
+        console.log('requestMove', endPosition);
         this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition });
     }
 
@@ -172,5 +173,9 @@ export class GameControllerService {
 
     requestQuitGame(): void {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    requestEndCombat(): void {
+        this.socketService.emit('endCombat', { roomId: this.roomId, playerId: this.player.id });
     }
 }

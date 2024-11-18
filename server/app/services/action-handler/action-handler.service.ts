@@ -150,11 +150,16 @@ export class ActionHandlerService {
         }
     }
 
-    handleQuitGame(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
-        const activeGame = this.activeGamesService.getActiveGame(data.roomId);
-        const roomId = data.roomId;
-        const playerId = data.playerId;
+    handleQuitGame(server: Server, client: Socket) {
+        const roomId = this.findRoomIdByClientId(client.id);
+        const playerId = client.id;
 
+        const activeGame = this.activeGamesService.getActiveGame(roomId);
+        const playerPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        activeGame.game.map[playerPosition].hasPlayer = false;
+        // if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
+        //     this.action.nextTurn(roomId, true);
+        // }
         server.to(roomId).emit('quitGame', playerId);
 
         const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
@@ -164,5 +169,15 @@ export class ActionHandlerService {
         // if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
         //     this.handleEndTurn({ ...data, lastTurn: true }, server);
         // }
+    }
+
+    findRoomIdByClientId(clientId: string): string {
+        for (const [roomId, room] of this.match.rooms.entries()) {
+            console.log('findRoomIdByClientId', roomId, room);
+            if (room.players.some((p) => p.id === clientId)) {
+                return roomId;
+            }
+        }
+        return null;
     }
 }

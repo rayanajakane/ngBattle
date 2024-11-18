@@ -81,7 +81,7 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
 
-        if (this.fightersMap.get(roomId).length === 1) {
+        if (this.fightersMap.get(roomId).length === 1 || player) {
             this.setWinner(roomId, player);
         }
 

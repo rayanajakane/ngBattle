@@ -175,8 +175,8 @@ export class MapGameService extends MapBaseService {
 
     removePlayerById(playerId: string): void {
         const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
+        console.log('removePlayerById', index);
         if (index !== -1) {
-            console.log('removePlayerById', index);
             this.removePlayer(index);
         }
     }

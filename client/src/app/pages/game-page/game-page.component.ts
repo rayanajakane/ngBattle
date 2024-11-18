@@ -205,13 +205,38 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenQuitGame() {
         this.socketService.on('quitGame', (playerId: string) => {
-            if (this.gameController.isActivePlayer()) {
-                this.gameController.requestEndTurn(true);
-                this.socketService.disconnect();
-                this.router.navigate(['/home']);
+            switch (this.mapService.currentStateNumber) {
+                case GameState.MOVING:
+                    //this.mapService.resetMovementPrevisualization();
+                    break;
+                case GameState.ACTION:
+                    //this.mapService.removeAllPreview();
+                    break;
+                case GameState.COMBAT:
+                    const fighters = this.gameController.getFighters();
+                    if (fighters.some((fighter) => fighter.player.id === playerId)) {
+                        console.log('quitGame', playerId);
+                        this.gameController.feedAfkList(playerId);
+                        this.mapService.removePlayerById(playerId);
+                        this.gameController.requestEndCombat();
+                    }
+                    // the other player abandoned and I'm in combat
+                    //this.mapService.setState(GameState.NOTPLAYING);
+                    break;
+
+                case GameState.NOTPLAYING:
+                    break;
+                default:
+                    break;
             }
-            this.gameController.feedAfkList(playerId);
-            this.mapService.removePlayerById(playerId);
+
+            // if (this.gameController.isActivePlayer()) {
+            //     this.gameController.requestEndTurn(true);
+            //     this.socketService.disconnect();
+            //     this.router.navigate(['/home']);
+            // }
+            // this.gameController.feedAfkList(playerId);
+            // this.mapService.removePlayerById(playerId);
         });
     }
 
@@ -353,7 +378,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.mapService.setState(GameState.NOTPLAYING);
             this.timerState = TimerState.REGULAR;
             if (this.gameController.isActivePlayer()) {
-                if (this.currentMoveBudget === 0) {
+                if (this.currentMoveBudget === 0 || this.combatInitiatorId !== this.gameController.playerId) {
                     this.gameController.requestEndTurn();
                 } else {
                     this.mapService.switchToMovingStateRoutine();
@@ -386,9 +411,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        // this.gameController.requestQuitGame();
-        // this.socketService.disconnect();
-        // this.router.navigate(['/home']);
+        this.router.navigate(['/home']);
     }
 
     startAction() {

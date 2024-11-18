@@ -122,9 +122,11 @@ export class CombatGateway {
     // endCombat
     @SubscribeMessage('endCombat')
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+        console.log('endCombat', data.playerId);
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const fighters = this.combatService.endCombat(data.roomId, player);
-        this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
+        const abandonedPlayerPosition = fighters[data.roomId];
+        this.server.to(data.roomId).emit('endCombat', fighters);
     }
 
     // killedPlayer + KilledPlayerHomePosition
