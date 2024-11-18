@@ -60,10 +60,10 @@ describe('TileBasicComponent', () => {
         expect(component.choosePreviewClass()).toBe('shortestPath');
     });
     it('setAvatarImage should change avatarUrl based on avatar', () => {
-        const avatars = ['hero', 'villain', 'npc'];
+        const avatars = ['Avatar 1', 'Avatar 2', 'Avatar 3'];
         component.avatar = avatars[Math.floor(Math.random() * avatars.length)];
         component.setAvatarImage();
-        expect(component.avatarUrl).toBe(`./../../../assets/characters/${component.avatar}.png`);
+        expect(component.avatarUrl).toBe('./../../../assets/characters/' + component.chooseAvatar(component.avatar) + '.png');
         component.avatar = '';
         component.setAvatarImage();
         expect(component.avatarUrl).toBe('');
