@@ -42,7 +42,10 @@ export class CombatTimerService {
             }
         }, 1000);
     }
-
+    resetTimer(): void {
+        this.clearTimer();
+        this.server.to(this.roomId).emit('CombatTimerUpdate', this.currentTime);
+    }
     private clearTimer(): void {
         if (this.intervalId) {
             clearInterval(this.intervalId);

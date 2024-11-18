@@ -62,9 +62,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     attackerDiceResult: number = 0;
     defenderDiceResult: number = 0;
+    attackSuccessful: boolean;
 
     gameCreated = false;
     playersInitialized = false;
+
+    remainingEscapeChances: number | '--' = '--';
+
+    combatInitiatorId: string = '';
 
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
@@ -94,6 +99,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenCombatTimer();
         this.listenAttacked();
         this.listenChangeCombatTurn();
+        this.listenKilledPlayer();
+        this.listenEscaped();
+        this.listenEndCombat();
+        this.listenAvailableMovesOnBudget();
+        this.listenEnCombatTimer();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -109,6 +119,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.playersInitialized = true;
             this.initializePlayersPositions();
             this.mapService.setState(GameState.NOTPLAYING);
+            this.timerState = TimerState.COOLDOWN;
+            // this.gameController.requestStartTurn(); //
         });
     }
 
@@ -137,9 +149,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             console.log('playerPositionUpdate', data.newPlayerPosition);
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
-        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
+        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number; hasSlipped: boolean }) => {
+            console.log('endMove', data);
             this.currentMoveBudget = data.currentMoveBudget;
-            this.endMovement(data.availableMoves);
+            if (data.hasSlipped) {
+                this.endTurn();
+            } else {
+                this.endMovement(data.availableMoves);
+            }
         });
     }
 
@@ -147,7 +164,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.socketService.on('endTurn', (activePlayerId: string) => {
             this.timerState = TimerState.COOLDOWN;
             this.gameController.setActivePlayer(activePlayerId);
-            //this.gameController.requestStartTurn();
+            // this.gameController.requestStartTurn(); //
         });
     }
 
@@ -200,8 +217,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenStartAction() {
         this.socketService.on('startAction', (availableTiles: number[]) => {
-            console.log('startAction', availableTiles);
-            this.mapService.switchToActionStateRoutine(availableTiles);
+            if (availableTiles.length > 0) {
+                this.mapService.switchToActionStateRoutine(availableTiles);
+            }
         });
     }
 
@@ -224,40 +242,62 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    listenStartCombat() {
-        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord }) => {
-            this.gameController.setActivePlayer(combatData.attacker.player.id);
-            if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
-                this.gameController.setFighters([combatData.attacker, combatData.defender]);
-                this.mapService.setState(GameState.COMBAT);
-            } else {
-                this.timeLeft = '--';
-            }
-            console.log('GameState', this.mapService.currentStateNumber);
-        });
-    }
-
     listenCombatTimer() {
-        this.socketService.on('combatTimerUpdate', (time: number) => {
+        this.socketService.on('CombatTimerUpdate', (time: number) => {
             if (this.gameController.isInCombat()) {
                 this.timeLeft = time;
             }
         });
     }
 
-    listenAttacked() {
-        this.socketService.on('attacked', (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number }) => {
-            if (this.gameController.isInCombat()) {
-                this.attackerDiceResult = data.attackerDice;
-                this.defenderDiceResult = data.defenderDice;
-                this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
+    listenEnCombatTimer() {
+        this.socketService.on('endCombatTimer', () => {
+            if (this.gameController.isActivePlayer()) {
+                this.gameController.requestCombatAction('attack');
             }
         });
     }
 
+    listenStartCombat() {
+        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
+            console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
+            this.remainingEscapeChances = 2;
+            this.combatInitiatorId = combatData.combatInitiatorId;
+            this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
+            this.gameController.setActivePlayer(combatData.attacker.player.id);
+            if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
+                this.timerState = TimerState.COMBAT;
+                this.gameController.setFighters([combatData.attacker, combatData.defender]);
+                if (this.gameController.isActivePlayer()) {
+                    this.mapService.setState(GameState.COMBAT); // fighter[0] <- initier combat ; fighter[1] <- recevoir combat
+                    this.remainingActions = 0;
+                }
+            } else {
+                this.timerState = TimerState.NONE;
+                this.timeLeft = '--';
+            }
+            console.log('GameState', this.mapService.currentStateNumber);
+        });
+    }
+
+    listenAttacked() {
+        this.socketService.on(
+            'attacked',
+            (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number; isAttackSuccessful: boolean }) => {
+                if (this.gameController.isInCombat()) {
+                    this.attackerDiceResult = data.attackerDice;
+                    this.defenderDiceResult = data.defenderDice;
+                    this.attackSuccessful = data.isAttackSuccessful;
+                    console.log('lifePoints', data.defender.player.attributes.health);
+                    this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
+                }
+            },
+        );
+    }
+
     listenChangeCombatTurn() {
-        this.socketService.on('changeCombatTurn', (attackerId: string) => {
-            this.gameController.setActivePlayer(attackerId);
+        this.socketService.on('changeCombatTurn', (newAttackerId: string) => {
+            this.gameController.setActivePlayer(newAttackerId);
             if (this.gameController.isInCombat()) {
                 if (this.gameController.isActivePlayer()) {
                     this.mapService.setState(GameState.COMBAT);
@@ -269,20 +309,63 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenKilledPlayer() {
-        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; newPosition: number }) => {});
+        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
+            // this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
+            this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
+            this.gameController.setActivePlayer(this.combatInitiatorId);
+            if (this.gameController.isActivePlayer()) {
+                if (this.combatInitiatorId === data.killed.player.id) {
+                    this.currentMoveBudget = 0;
+                } else if (this.combatInitiatorId === data.killer.player.id) {
+                    if (this.currentMoveBudget !== '--') {
+                        this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
+                    }
+                }
+            }
+        });
+    }
+
+    listenAvailableMovesOnBudget() {
+        this.socketService.on('availableMovesOnBudget', (availableMoves: ShortestPathByTile) => {
+            if (this.gameController.isActivePlayer()) {
+                this.mapService.switchToMovingStateRoutine(availableMoves);
+            }
+        });
     }
 
     listenEscaped() {
-        this.socketService.on('didEscape', (data: { result: boolean }) => {
+        this.socketService.on('didEscape', (data: { playerId: string; remainingEscapeChances: number; hasEscaped: boolean }) => {
             if (this.gameController.isInCombat()) {
-                console.log('escaped', data);
+                console.log('escaped', data.remainingEscapeChances, data.hasEscaped);
+                if (data.hasEscaped) {
+                    this.gameController.setActivePlayer(this.combatInitiatorId);
+                    this.remainingEscapeChances = '--';
+                } else if (this.gameController.isActivePlayer()) {
+                    this.remainingEscapeChances = data.remainingEscapeChances;
+                }
             }
+        });
+    }
+
+    listenEndCombat() {
+        this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
+            this.gameController.updatePlayerCoordsList(newFighters);
+            this.mapService.setState(GameState.NOTPLAYING);
+            this.timerState = TimerState.REGULAR;
+            if (this.gameController.isActivePlayer()) {
+                if (this.currentMoveBudget === 0) {
+                    this.gameController.requestEndTurn();
+                } else {
+                    this.mapService.switchToMovingStateRoutine();
+                }
+            }
+            this.gameController.resetFighters();
+            this.combatInitiatorId = '';
         });
     }
 
     handleSelectCombatAction(combatAction: string) {
         if (this.gameController.isActivePlayer()) {
-            console.log('combatAction', combatAction);
             this.gameController.requestCombatAction(combatAction);
         }
     }
@@ -303,7 +386,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     quitGame() {
-        this.gameController.requestQuitGame();
+        // this.gameController.requestQuitGame();
         // this.socketService.disconnect();
         // this.router.navigate(['/home']);
     }

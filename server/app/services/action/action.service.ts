@@ -59,6 +59,14 @@ export class ActionService {
         return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }
 
+    availablePlayerMovesOnBudget(playerId: string, roomId: string, moveBudget: number): { [key: number]: number[] } {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        const game = gameInstance.game;
+        const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+
+        return this.movement.availableMoves(moveBudget, game, playerPosition);
+    }
+
     interactWithDoor(roomId: string, playerId: string, doorPosition: number): boolean {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
 

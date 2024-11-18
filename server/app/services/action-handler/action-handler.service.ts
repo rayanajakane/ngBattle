@@ -17,9 +17,9 @@ export class ActionHandlerService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TIME_BETWEEN_MOVES = 150;
 
-    private getCurrentTimeFormatted(): string {
+    getCurrentTimeFormatted(): string {
         const currentTime = new Date();
-        return currentTime.toTimeString().split(' ')[0]; // HH:MM:SS
+        return currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }); // HH:MM:SS in EST
     }
 
     private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
@@ -51,7 +51,11 @@ export class ActionHandlerService {
         const playerName = player.name;
 
         const message = `Début de tour de ${playerName}`;
-        server.to(data.roomId).emit('newLog', { date: formattedTime, message });
+        server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
+    }
+
+    handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {
+        client.emit('availableMovesOnBudget', this.action.availablePlayerMovesOnBudget(data.playerId, data.roomId, data.currentBudget));
     }
 
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
@@ -67,6 +71,7 @@ export class ActionHandlerService {
             let iceSlip = false;
 
             let pastPosition = startPosition;
+            let tileCounter = 0;
             playerPositions.forEach((playerPosition) => {
                 if (!iceSlip) {
                     setTimeout(() => {
@@ -79,6 +84,7 @@ export class ActionHandlerService {
                     activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
                     pastPosition = playerPosition;
+                    tileCounter++;
 
                     if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
                         activeGame.currentPlayerMoveBudget = 0;
@@ -91,8 +97,9 @@ export class ActionHandlerService {
                 client.emit('endMove', {
                     availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
                     currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                    hasSlipped: iceSlip,
                 });
-            }, this.TIME_BETWEEN_MOVES * playerPositions.length);
+            }, this.TIME_BETWEEN_MOVES * tileCounter);
         }
     }
 

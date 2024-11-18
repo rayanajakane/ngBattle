@@ -14,7 +14,6 @@ export class ActionButtonService {
     ) {}
 
     getAvailableIndexes(roomId: string, activePlayer: PlayerCoord): number[] {
-        const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const availableIndexes: number[] = [];
         this.getPlayersAround(roomId, activePlayer.position).forEach((opponentPlayer) => {
             availableIndexes.push(opponentPlayer.position);
@@ -28,10 +27,18 @@ export class ActionButtonService {
     getPlayersAround(roomId: string, position: number): PlayerCoord[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const mapSize = parseInt(gameInstance.game.mapSize, 10);
-        const right = gameInstance.game.map[position + 1].hasPlayer;
-        const left = gameInstance.game.map[position - 1].hasPlayer;
-        const up = gameInstance.game.map[position - mapSize].hasPlayer;
-        const down = gameInstance.game.map[position + mapSize].hasPlayer;
+        const mapLength = gameInstance.game.map.length;
+
+        const isRightValid = position % mapSize !== mapSize - 1;
+        const isLeftValid = position % mapSize !== 0;
+        const isUpValid = position - mapSize >= 0;
+        const isDownValid = position + mapSize < mapLength;
+
+        const right = isRightValid ? gameInstance.game.map[position + 1].hasPlayer : false;
+        const left = isLeftValid ? gameInstance.game.map[position - 1].hasPlayer : false;
+        const up = isUpValid ? gameInstance.game.map[position - mapSize].hasPlayer : false;
+        const down = isDownValid ? gameInstance.game.map[position + mapSize].hasPlayer : false;
+
         const players: PlayerCoord[] = [];
         if (right) {
             const player: PlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.position === position + 1);
@@ -57,18 +64,32 @@ export class ActionButtonService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const mapSize = parseInt(gameInstance.game.mapSize, 10);
         const doors: TileTypes[] = [TileTypes.DOOR, TileTypes.DOORCLOSED, TileTypes.DOOROPEN];
-        if (doors.includes(gameInstance.game.map[player.position + 1].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position + 1]);
+        const mapLength = gameInstance.game.map.length;
+
+        if (player.position + 1 < mapLength && player.position % mapSize !== mapSize - 1) {
+            if (doors.includes(gameInstance.game.map[player.position + 1].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position + 1]);
+            }
         }
-        if (doors.includes(gameInstance.game.map[player.position - 1].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position - 1]);
+
+        if (player.position - 1 >= 0 && player.position % mapSize !== 0) {
+            if (doors.includes(gameInstance.game.map[player.position - 1].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position - 1]);
+            }
         }
-        if (doors.includes(gameInstance.game.map[player.position - mapSize].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position - mapSize]);
+
+        if (player.position - mapSize >= 0) {
+            if (doors.includes(gameInstance.game.map[player.position - mapSize].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position - mapSize]);
+            }
         }
-        if (doors.includes(gameInstance.game.map[player.position + mapSize].tileType as TileTypes)) {
-            doorsFound.push(gameInstance.game.map[player.position + mapSize]);
+
+        if (player.position + mapSize < mapLength) {
+            if (doors.includes(gameInstance.game.map[player.position + mapSize].tileType as TileTypes)) {
+                doorsFound.push(gameInstance.game.map[player.position + mapSize]);
+            }
         }
+
         return doorsFound;
     }
 

@@ -4,6 +4,7 @@ import { GameStructure } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { CombatTimerService } from '../combat-timer/combat-timer.service';
 import { TimerService } from '../timer/timer.service';
 
 @Injectable()
@@ -74,6 +75,7 @@ export class ActiveGamesService {
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
             this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
+            this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
 
             this.activeGames[activeGameIndex].turnTimer.startTimer();
 

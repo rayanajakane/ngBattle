@@ -14,10 +14,24 @@
             class="player-card"
             [playerName]="gameController.player.name"
             [selectedAvatar]="gameController.player.avatar"
-            [lifePoints]="gameController.player.attributes.health.toString()"
-            [speed]="gameController.player.attributes.speed"
-            [attack]="gameController.player.attributes.attack"
-            [defense]="gameController.player.attributes.defense"
+            [lifePoints]="
+                gameController.player.attributes.currentHealth
+                    ? gameController.player.attributes.currentHealth
+                    : gameController.player.attributes.health
+            "
+            [speed]="
+                gameController.player.attributes.currentSpeed ? gameController.player.attributes.currentSpeed : gameController.player.attributes.speed
+            "
+            [attack]="
+                gameController.player.attributes.currentAttack
+                    ? gameController.player.attributes.currentAttack
+                    : gameController.player.attributes.attack
+            "
+            [defense]="
+                gameController.player.attributes.currentDefense
+                    ? gameController.player.attributes.currentDefense
+                    : gameController.player.attributes.defense
+            "
             [bonusDice]="gameController.player.attributes.dice"
             [movementPoints]="currentMoveBudget"
             [nActions]="remainingActions"
@@ -27,8 +41,21 @@
         <app-combat-interface
             class="combat-card"
             (selectCombatActionEvent)="handleSelectCombatAction($event)"
+            [currentAtttack]="
+                gameController.player.attributes.currentAttack
+                    ? gameController.player.attributes.currentAttack
+                    : gameController.player.attributes.attack
+            "
+            [currentDefense]="
+                gameController.player.attributes.currentDefense
+                    ? gameController.player.attributes.currentDefense
+                    : gameController.player.attributes.defense
+            "
+            [attackSuccessful]="attackSuccessful"
             [attackerDiceResult]="attackerDiceResult"
             [defenderDiceResult]="defenderDiceResult"
+            [isActivePlayer]="gameController.isActivePlayer()"
+            [escapeChance]="remainingEscapeChances"
         ></app-combat-interface>
         } @if (gameCreated) {
         <app-game-map [mapSize]="mapSize"></app-game-map>
@@ -36,6 +63,7 @@
 
         <section class="game-btns">
             <app-inventory class="tools"></app-inventory>
+            @if (!gameController.isInCombat()) {
             <button mat-raised-button color="primary" (click)="startAction()">
                 <mat-icon> construction </mat-icon>
                 Action
@@ -44,6 +72,7 @@
                 <mat-icon> check </mat-icon>
                 Fin de tours
             </button>
+            }
             <button mat-raised-button color="warn" (click)="quitGame()">
                 <mat-icon>exit_to_app</mat-icon>
                 Abandon

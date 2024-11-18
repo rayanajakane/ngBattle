@@ -30,8 +30,16 @@ export class CombatGateway {
         if (this.activeGameService.getActiveGame(data.roomId).game.map[data.target].hasPlayer) {
             const targetPlayer = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.position === data.target);
             const fighters = [player, targetPlayer];
-            this.combatService.startCombat(data.roomId, fighters);
-            this.server.to(data.roomId).emit('startCombat', { attacker: fighters[0], defender: fighters[1] });
+            const [firstTurnPlayer, secondTurnPlayer] = this.combatService.startCombat(data.roomId, fighters);
+            this.server
+                .to(data.roomId)
+                .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: player.player.id });
+
+            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+            const message = `Combat entre ${firstTurnPlayer.player.name} et ${secondTurnPlayer.player.name} a été débuté`;
+            this.server
+                .to(data.roomId)
+                .emit('newLog', { date: formattedTime, message: message, sender: firstTurnPlayer.player.id, receiver: secondTurnPlayer.player.id });
         } else if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOOROPEN
@@ -44,18 +52,37 @@ export class CombatGateway {
     @SubscribeMessage('attack')
     handleAttack(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         if (this.combatService.getCurrentTurnPlayer(data.roomId).player.id === data.playerId) {
+            console.log('getCurrentTurnPlayer');
             const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
             const targetPlayer = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
 
-            const beginAttack = this.combatService.attack(data.roomId, player, targetPlayer);
-            const defender = beginAttack[3];
-            const dices = [beginAttack[0], beginAttack[1]];
-            const combatStatus = beginAttack[2];
-            this.server.to(data.roomId).emit('attacked', { attacker: player, attackerDice: dices[0], defender, defenderDice: dices[1] });
-            if (combatStatus === 'combatEnd') {
-                this.server.to(data.roomId).emit('combatEnd', { roomId: data.roomId, playerId: data.playerId });
-            } else if (combatStatus === 'combatTurnEnd') {
-                this.server.to(data.roomId).emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
+            const [attackerDice, defenderDice, combatStatus, defender, isAttackSuccessful] = this.combatService.attack(
+                data.roomId,
+                player,
+                targetPlayer,
+                this.server,
+            );
+
+            this.server.to(data.roomId).emit('attacked', {
+                attacker: player,
+                attackerDice,
+                defender,
+                defenderDice,
+                isAttackSuccessful,
+            });
+
+            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+            const attackResult = isAttackSuccessful ? 'réussi' : 'échoué';
+            const message = `${player.player.name} attaque ${defender.player.name}. \n L'attaque a ${attackResult}. \n
+            Jet de dé attaquant: ${attackerDice}.\n Jet de dé défenseur: ${defenderDice}\n
+            calcul: ${player.player.attributes.attack + attackerDice} vs ${defender.player.attributes.defense + defenderDice}`;
+            this.server
+                .to(data.roomId)
+                .emit('newLog', { date: formattedTime, message: message, sender: player.player.id, receiver: defender.player.id, exclusive: true });
+
+            if (combatStatus === 'combatTurnEnd') {
+                this.combatService.startCombatTurn(data.roomId, defender);
+                this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
             }
         }
     }
@@ -64,24 +91,32 @@ export class CombatGateway {
     @SubscribeMessage('escape')
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const escapeResult = this.combatService.escape(data.roomId, player);
-        this.server.to(data.roomId).emit('didEscape', { roomId: data.roomId, playerId: data.playerId, result: escapeResult });
+        const [remainingEscapeChances, escapeResult] = this.combatService.escape(data.roomId, player, this.server);
+        this.server.to(data.roomId).emit('didEscape', { playerId: data.playerId, remainingEscapeChances, hasEscaped: escapeResult });
+        const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+
+        if (escapeResult) {
+            const resetFighters = this.combatService.endCombat(data.roomId);
+            this.server.to(data.roomId).emit('endCombat', resetFighters);
+
+            const message = `${player.player.name} a réussi à s'échapper du combat`;
+            this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
+        } else {
+            const defender = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
+            this.combatService.startCombatTurn(data.roomId, defender);
+            this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
+
+            const message = `${player.player.name} a échoué à s'échapper du combat`;
+            this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
+        }
     }
 
     // startCombatTurn
     @SubscribeMessage('startCombatTurn')
     handleStartCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; combatAction: CombatAction }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.combatService.startCombatTurn(data.roomId, player, data.combatAction);
-        this.server.to(data.roomId).emit('startCombatTurn', { roomId: data.roomId, playerId: data.playerId, combatAction: data.combatAction });
-    }
-
-    // endCombatTurn
-    @SubscribeMessage('endCombatTurn')
-    handleEndCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
-        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        this.combatService.endCombatTurn(data.roomId, player);
-        this.server.to(data.roomId).emit('endCombatTurn', { roomId: data.roomId, playerId: data.playerId });
+        this.combatService.startCombatTurn(data.roomId, player);
+        this.server.to(data.roomId).emit('changeCombatTurn', { playerId: data.playerId, combatAction: data.combatAction });
     }
 
     // endCombat
@@ -89,27 +124,25 @@ export class CombatGateway {
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const fighters = this.combatService.endCombat(data.roomId, player);
-        this.server.to(data.roomId).emit('endCombat', { roomId: data.roomId, playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
+        this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
     }
 
     // killedPlayer + KilledPlayerHomePosition
-    @SubscribeMessage('killedPlayer')
-    handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
-        const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const killedPlayerOldPosition = this.activeGameService
-            .getActiveGame(data.roomId)
-            .playersCoord.find((player) => player.player.id !== data.playerId).position;
-        const fighters = this.combatService.killPlayer(data.roomId, player);
-        const playerKiller = fighters[0];
-        const playerKilled = fighters[1];
-        this.server.to(data.roomId).emit('killedPlayer', {
-            roomId: data.roomId,
-            playerId: data.playerId,
-            killer: playerKiller,
-            killed: playerKilled,
-            killedOldPosition: killedPlayerOldPosition,
-        });
-    }
+    // @SubscribeMessage('killedPlayer')
+    // handleKilledPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
+    //     const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
+    //     const killedPlayerOldPosition = this.activeGameService
+    //         .getActiveGame(data.roomId)
+    //         .playersCoord.find((player) => player.player.id !== data.playerId).position;
+    //     const fighters = this.combatService.killPlayer(data.roomId, player);
+    //     const playerKiller = fighters[0];
+    //     const playerKilled = fighters[1];
+    //     this.server.to(data.roomId).emit('killedPlayer', {
+    //         killer: playerKiller,
+    //         killed: playerKilled,
+    //         killedOldPosition: killedPlayerOldPosition,
+    //     });
+    // }
 
     // winnerPlayer
     @SubscribeMessage('winnerPlayer')

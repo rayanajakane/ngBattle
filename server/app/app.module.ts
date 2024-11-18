@@ -1,3 +1,4 @@
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,14 +10,12 @@ import { Game, gameSchema } from './model/schema/game.schema';
 import { ActionButtonService } from './services/action-button/action-button.service';
 import { ActionHandlerService } from './services/action-handler/action-handler.service';
 import { ActionService } from './services/action/action.service';
-import { ActiveGamesService } from './services/active-games/active-games.service';
 import { CombatService } from './services/combat/combat.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
 import { MapValidationService } from './services/map-validation.service';
 import { MatchService } from './services/match.service';
 import { MovementService } from './services/movement/movement.service';
-
 @Module({
     imports: [
         ConfigModule.forRoot(),
@@ -25,6 +24,8 @@ import { MovementService } from './services/movement/movement.service';
     ],
     controllers: [GameController],
     providers: [
+        ActionButtonService,
+        ActiveGamesService,
         GameService,
         GameValidationService,
         MapValidationService,
@@ -38,7 +39,6 @@ import { MovementService } from './services/movement/movement.service';
         CombatGateway,
         ActiveGamesService,
         CombatService,
-        ActionButtonService,
     ],
 })
 export class AppModule {}
