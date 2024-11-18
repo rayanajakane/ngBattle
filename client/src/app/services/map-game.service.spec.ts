@@ -20,10 +20,8 @@ const player1: Player = {
 };
 
 /* eslint-disable */ // Magic numbers are used for testing purposes
-// const shortestPathIndexes1 = [0, 1, 2];
-// const shortestPathIndexes2 = [4, 5, 6];
+
 const availableTiles = [1, 2, 3, 4, 5];
-// const availableTiles2 = [0, 1, 2];
 
 /* eslint-enable */
 
@@ -52,6 +50,7 @@ const movingStateServiceSpy = jasmine.createSpyObj('MovingStateService', [
     'getShortestPathByTile',
     'getShortestPathByIndex',
     'getAvailableTiles',
+    'availablesTilesIncludes',
 ]);
 const actionStateServiceSpy = jasmine.createSpyObj('ActionStateService', [
     'onMouseDown',
@@ -168,6 +167,17 @@ describe('MapGameService', () => {
         service.onMouseDown(0, event);
         expect(event.preventDefault).toHaveBeenCalled();
         expect(notPlayingStateServiceSpy.onMouseDown).toHaveBeenCalledWith(0);
+
+        notPlayingStateServiceSpy.onMouseDown.and.returnValue(GameState.MOVING);
+        spyOn(service, 'switchToMovingStateRoutine');
+        service.onMouseDown(0, event);
+        expect(service.switchToMovingStateRoutine).toHaveBeenCalled();
+
+        notPlayingStateServiceSpy.onMouseDown.and.returnValue(GameState.NOTPLAYING);
+        service.currentStateNumber = GameState.MOVING;
+        spyOn(service, 'switchToNotPlayingStateRoutine');
+        service.onMouseDown(0, event);
+        expect(service.switchToNotPlayingStateRoutine).toHaveBeenCalled;
     });
 
     it('should handle onMouseEnter correctly', () => {
@@ -228,11 +238,19 @@ describe('MapGameService', () => {
         expect(service.tiles[1].isAccessible).toBe(TilePreview.PREVIEW);
     });
 
-    it('should render path to target correctly', () => {
+    it('should render path to target correctly when shortest path is available', () => {
         service['currentState'] = movingStateServiceSpy;
         movingStateServiceSpy.getShortestPathByIndex.and.returnValue([0, 1]);
         service.renderPathToTarget(1);
         expect(service.tiles[0].isAccessible).toBe(TilePreview.SHORTESTPATH);
+        expect(service.tiles[1].isAccessible).toBe(TilePreview.SHORTESTPATH);
+    });
+
+    it('should render path to target correctly when index is in available tiles', () => {
+        service['currentState'] = movingStateServiceSpy;
+        movingStateServiceSpy.getShortestPathByIndex.and.returnValue(null);
+        movingStateServiceSpy.availablesTilesIncludes.and.returnValue(true);
+        service.renderPathToTarget(1);
         expect(service.tiles[1].isAccessible).toBe(TilePreview.SHORTESTPATH);
     });
 
@@ -319,5 +337,19 @@ describe('MapGameService', () => {
 
         service.tiles[0].tileType = '';
         expect(service.checkIfDoorOrPlayer(0)).toBe(false);
+    });
+
+    it('should reset all movement previsualization correctly', () => {
+        notPlayingStateServiceSpy.resetMovementPrevisualization.calls.reset();
+        movingStateServiceSpy.resetMovementPrevisualization.calls.reset();
+        actionStateServiceSpy.resetMovementPrevisualization.calls.reset();
+        combatStateServiceSpy.resetMovementPrevisualization.calls.reset();
+
+        service.resetAllMovementPrevisualization();
+
+        expect(notPlayingStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
+        expect(movingStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
+        expect(actionStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
+        expect(combatStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
     });
 });
