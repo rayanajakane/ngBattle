@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
+import { ItemTypes, TileTypes } from '@common/tile-types';
+
 import { TilePreview } from '@common/game-structure';
 import { Player, PlayerAttribute } from '@common/player';
 import { MapGameService } from './map-game.service';
