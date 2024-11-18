@@ -1,5 +1,6 @@
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { COUNTDOWN_DELAY, TIME_LEFT } from '@app/components/timer/constant';
+import { TimerState } from '@common/game-structure';
 import { TimerComponent } from './timer.component';
 
 describe('TimerComponent', () => {
@@ -73,4 +74,28 @@ describe('TimerComponent', () => {
         expect(component.isActive).toBeFalse();
         expect(component.timerSubscription).toBeNull();
     }));
+
+    it('should set timerStateEnum to "Jeu" when timerState is REGULAR', () => {
+        component.timerState = TimerState.REGULAR;
+        component.ngOnChanges();
+        expect(component.timerStateEnum).toBe('Jeu');
+    });
+
+    it('should set timerStateEnum to "Repos" when timerState is COOLDOWN', () => {
+        component.timerState = TimerState.COOLDOWN;
+        component.ngOnChanges();
+        expect(component.timerStateEnum).toBe('Repos');
+    });
+
+    it('should set timerStateEnum to "Combat" when timerState is COMBAT', () => {
+        component.timerState = TimerState.COMBAT;
+        component.ngOnChanges();
+        expect(component.timerStateEnum).toBe('Combat');
+    });
+
+    it('should set timerStateEnum to an empty string when timerState is undefined', () => {
+        component.timerState = 10 as TimerState;
+        component.ngOnChanges();
+        expect(component.timerStateEnum).toBe('');
+    });
 });
