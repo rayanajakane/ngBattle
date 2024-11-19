@@ -15,10 +15,10 @@ describe('PlayerService', () => {
     });
     it('should set attributes correctly', () => {
         const attributes: PlayerAttribute = {
-            health: '10',
+            health: 10,
             speed: '8',
-            attack: '7',
-            defense: '5',
+            attack: 7,
+            defense: 5,
             dice: '6',
         };
         service.setAttributes(attributes);
@@ -27,16 +27,17 @@ describe('PlayerService', () => {
 
     it('should get attributes correctly', () => {
         const attributes: PlayerAttribute = {
-            health: '10',
+            health: 10,
             speed: '8',
-            attack: '7',
-            defense: '5',
+            attack: 7,
+            defense: 5,
             dice: '6',
         };
         service.setAttributes(attributes);
         const retrievedAttributes = service.getAttributes();
         expect(retrievedAttributes).toEqual(attributes);
     });
+
     it('should set and get character name correctly', () => {
         const name = 'Player1';
         service.setCharacterName(name);

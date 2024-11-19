@@ -83,10 +83,10 @@ describe('LogsComponent', () => {
             isAdmin: false,
             avatar: 'avatar.png',
             attributes: {
-                health: '100',
+                health: 100,
                 speed: '10',
-                attack: '20',
-                defense: '30',
+                attack: 20,
+                defense: 30,
                 dice: '6',
             },
             isActive: true,

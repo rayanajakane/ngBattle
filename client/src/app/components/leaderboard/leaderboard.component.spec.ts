@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlayerCoord } from '@app/pages/game-page/game-page.component';
-import { Player } from '@common/player';
+import { Player, PlayerCoord } from '@common/player';
 import { LeaderboardComponent } from './leaderboard.component';
 
 describe('LeaderboardComponent', () => {
@@ -26,7 +25,7 @@ describe('LeaderboardComponent', () => {
             name: 'Player 1',
             isAdmin: false,
             avatar: 'avatar1.png',
-            attributes: { health: '100', speed: '10', attack: '20', defense: '30', dice: '6' },
+            attributes: { health: 100, speed: '10', attack: 20, defense: 30, dice: '6' },
             isActive: true,
             abandoned: false,
             wins: 5,
@@ -37,7 +36,7 @@ describe('LeaderboardComponent', () => {
             name: 'Player 2',
             isAdmin: false,
             avatar: 'avatar2.png',
-            attributes: { health: '90', speed: '9', attack: '18', defense: '28', dice: '6' },
+            attributes: { health: 90, speed: '9', attack: 18, defense: 28, dice: '6' },
             isActive: true,
             abandoned: false,
             wins: 3,

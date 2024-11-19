@@ -1,8 +1,8 @@
 /* eslint-disable max-lines */
 import { TestBed } from '@angular/core/testing';
 import { CurrentMode } from '@app/data-structure/editViewSelectedMode';
-import { TileTypes } from '@app/data-structure/toolType';
 import { TileStructure } from '@common/game-structure';
+import { TileTypes } from '@common/tile-types';
 import { DragDropService } from './drag-drop.service';
 import { MapEditService } from './map-edit.service';
 

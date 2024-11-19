@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ItemTypes } from '@app/data-structure/toolType';
 import { TilePreview } from '@common/game-structure';
+import { ItemTypes } from '@common/tile-types';
 import { TileBasicComponent } from './tile-basic.component';
 
 describe('TileBasicComponent', () => {
@@ -31,8 +31,8 @@ describe('TileBasicComponent', () => {
             ItemTypes.AF2,
             ItemTypes.RANDOMITEM,
             ItemTypes.STARTINGPOINT,
-            ItemTypes.FLAGA,
-            ItemTypes.FLAGB,
+            ItemTypes.FLAG_A,
+            ItemTypes.FLAG_B,
         ];
         component.itemType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
         component.setItemImage();
