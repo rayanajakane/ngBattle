@@ -91,7 +91,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
-        this.listenQuitGame();
+        // this.listenQuitGame();
         this.listenTimer();
         this.listenEndTimer();
         this.listenEndCooldown();
