@@ -127,7 +127,6 @@ export class CombatService {
 
     escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
-        console.log('escape:', player.player.attributes.escape);
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
             return [player.player.attributes.escape, false];
         }
@@ -303,7 +302,6 @@ export class CombatService {
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player)) {
-            console.log('escape left:', player.player.attributes.escape);
             const randomNumber = Math.random();
             return randomNumber < ESCAPE_PROBABILITY;
         }
