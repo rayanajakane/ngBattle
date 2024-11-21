@@ -662,4 +662,66 @@ describe('CombatService', () => {
         const result = service['canPlayerEscape'](roomId, player);
         expect(result).toBe(false);
     });
+    it('should return an array of possible object positions', () => {
+        const roomId = 'room1';
+        const position = 20;
+        const mapSize = '10';
+        const map = Array(100)
+            .fill(null)
+            .map((_, idx) => ({ idx, tileType: TileTypes.BASIC, item: '', hasPlayer: false }));
+        const game = {
+            mapSize: mapSize,
+            map: map,
+        };
+        const activeGame = { game } as unknown as GameInstance;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+
+        const result = service['verifyPossibleObjectsPositions'](roomId, position);
+
+        expect(result).toEqual([1, -1, 10, -10]);
+    });
+    it('should return an array of possible object positions', () => {
+        const roomId = 'room1';
+        const position = 20;
+        const mapSize = '10';
+        const map = Array(100)
+            .fill(null)
+            .map((_, idx) => ({ idx, tileType: TileTypes.BASIC, item: '', hasPlayer: false }));
+        const game = {
+            mapSize: mapSize,
+            map: map,
+        };
+        const activeGame = { game } as unknown as GameInstance;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+
+        const result = service['verifyPossibleObjectsPositions'](roomId, position);
+
+        expect(result).toEqual([1, -1, 10, -10]);
+    });
+
+    it('should double the position and add it to verifiedPositions if the tileType is not WALL or DOORCLOSED', () => {
+        const roomId = 'room1';
+        const position = 20;
+        const pos = 1;
+        const mapSize = '10';
+        const map = Array(100)
+            .fill(null)
+            .map((_, idx) => ({ idx, tileType: TileTypes.BASIC, item: '', hasPlayer: false }));
+        map[position + pos] = { tileType: TileTypes.BASIC, item: '', hasPlayer: false };
+        
+        const game = {
+            mapSize: mapSize,
+            map: map,
+        };
+        const activeGame = { game } as unknown as GameInstance;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+
+        const verifiedPositions: number[] = [];
+        service['verifyPossibleObjectsPositions'](roomId, position);
+
+        expect(verifiedPositions).toEqual([pos * 2]);
+    });
 });
