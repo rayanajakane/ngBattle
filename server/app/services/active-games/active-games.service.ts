@@ -82,7 +82,8 @@ export class ActiveGamesService {
             const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
             const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
             this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
-            this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
+            // TODO: uncomment when the a end game state is implemented
+            // this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
 
             this.activeGames[activeGameIndex].turnTimer.startTimer();
 

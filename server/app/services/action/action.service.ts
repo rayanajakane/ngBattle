@@ -89,7 +89,9 @@ export class ActionService {
             }
 
             gameInstance.currentPlayerActionPoint -= 1;
+
             gameInstance.globalStatsService.addUsedDoor(doorPosition);
+
             return true;
         }
         return false;

@@ -5,8 +5,8 @@ import { Injectable } from '@nestjs/common';
 export class GlobalStatsService {
     globalStats: GlobalStats;
 
-    visitedIndex?: Set<number>;
-    usedDoors?: Set<number>;
+    visitedIndex: Set<number>;
+    usedDoors: Set<number>;
 
     maxNbDoors: number;
     maxNbTiles: number;
@@ -24,6 +24,13 @@ export class GlobalStatsService {
     }
 
     constructor(maxNbDoors: number, maxNbTiles: number) {
+        this.globalStats = {
+            matchLength: 0,
+            nbTurns: 0,
+            visitedTilesPercent: 0,
+            usedDoorsPercent: 0,
+            nbPlayersHeldFlag: 0,
+        };
         this.maxNbDoors = maxNbDoors;
         this.maxNbTiles = maxNbTiles;
         this.visitedIndex = new Set<number>();
@@ -35,9 +42,7 @@ export class GlobalStatsService {
     }
 
     addVisitedTile(tileIndex: number): void {
-        if (this.visitedIndex.has(tileIndex)) {
-            this.visitedIndex.add(tileIndex);
-        }
+        this.visitedIndex.add(tileIndex);
     }
 
     //TODO: call the function to get percent at the end of the game
@@ -46,9 +51,7 @@ export class GlobalStatsService {
     }
 
     addUsedDoor(doorIndex: number): void {
-        if (this.usedDoors.has(doorIndex)) {
-            this.usedDoors.add(doorIndex);
-        }
+        this.usedDoors.add(doorIndex);
     }
 
     //TODO: call the function to get percent at the end of the game
