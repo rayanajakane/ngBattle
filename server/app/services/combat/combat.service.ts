@@ -70,7 +70,8 @@ export class CombatService {
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
             firstPlayer.player.stats.combatCount++;
-            secondPlayer.player.stats.combatCount++;
+            console.log('player 1 combatcnt:', firstPlayer.player.stats.combatCount);
+            console.log('player 2 combatcnt:', secondPlayer.player.stats.combatCount);
 
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
             this.currentTurnMap.set(roomId, firstPlayerIndex);
@@ -140,6 +141,7 @@ export class CombatService {
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
             player.player.stats.escapeCount++;
+            console.log('escape left:', player.player.stats.escapeCount);
             // this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
@@ -149,6 +151,7 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             player.player.wins++;
             player.player.stats.victoryCount++;
+            console.log('victory:', player.player.stats.victoryCount);
         }
     }
 
@@ -203,6 +206,9 @@ export class CombatService {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
+                defensePlayer.player.stats.totalHealthLost += SUCCESSFUL_ATTACK_DAMAGE;
+                attackPlayer.player.stats.totalHealthTaken += SUCCESSFUL_ATTACK_DAMAGE;
+                console.log('health:', defensePlayer.player.stats.totalHealthLost, attackPlayer.player.stats.totalHealthTaken);
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const killedPlayerOldPosition = defensePlayer.position;
                     const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer);
@@ -249,6 +255,8 @@ export class CombatService {
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
             const fighters = this.endCombat(roomId, playerKiller);
+            playerKilled.player.stats.defeatCount++;
+            console.log('defeat:', playerKilled.player.stats.defeatCount);
             return [playerKiller, playerKilled, fighters];
         }
         return [null, null, []];
