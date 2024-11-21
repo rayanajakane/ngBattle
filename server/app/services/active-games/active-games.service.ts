@@ -5,8 +5,8 @@ import { Player, PlayerCoord } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { CombatTimerService } from '../combat-timer/combat-timer.service';
+import { GlobalStatsService } from '../global-stats/global-stats.service';
 import { TimerService } from '../timer/timer.service';
-
 @Injectable()
 export class ActiveGamesService {
     constructor(private readonly gameService: GameService) {}
@@ -55,6 +55,7 @@ export class ActiveGamesService {
 
     gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
         let playerCoord: PlayerCoord[] = [];
+
         this.checkGameInstance(roomId, gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
             playerCoord = this.randomizePlayerPosition(game, players);
@@ -72,10 +73,16 @@ export class ActiveGamesService {
                 }
                 return Math.random() - this.CHANCES;
             });
+
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
             this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
             this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
+
+            const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
+            const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
+            this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
+            this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
 
             this.activeGames[activeGameIndex].turnTimer.startTimer();
 

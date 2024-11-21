@@ -23,6 +23,8 @@ export class ActionHandlerService {
     }
 
     private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
+        this.activeGamesService.getActiveGame(roomId).globalStatsService.addVisitedTile(newPlayerPosition);
+
         server.to(roomId).emit('playerPositionUpdate', {
             playerId,
             newPlayerPosition,
@@ -38,6 +40,8 @@ export class ActionHandlerService {
     handleStartTurn(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
         const activeGame = this.activeGamesService.getActiveGame(data.roomId);
         const player = activeGame.playersCoord[activeGame.turn].player;
+
+        activeGame.globalStatsService.incrementTurn();
 
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
