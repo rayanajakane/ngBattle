@@ -725,9 +725,88 @@ describe('CombatService', () => {
 
         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
 
-        const verifiedPositions: number[] = [];
-        service['verifyPossibleObjectsPositions'](roomId, position);
+        const verifiedPositions: number[] = service['verifyPossibleObjectsPositions'](roomId, position);
+        console.log(verifiedPositions);
 
         expect(verifiedPositions).toEqual([2, 20]);
+    });
+
+    it('should initialize combat correctly when fighters length is equal to COMBAT_FIGHTERS_NUMBER', () => {
+        const roomId = 'room1';
+        const fighters = [
+            { player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } } },
+            { player: { id: 'player2', attributes: { health: 90, attack: 25, defense: 35, speed: 45 } } },
+        ] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'applyIceDisadvantage').mockImplementation();
+        jest.spyOn(service, 'setEscapeTokens').mockImplementation();
+        jest.spyOn(service, 'whoIsFirstPlayer').mockReturnValue(fighters[1]);
+        jest.spyOn(service['fightersMap'], 'set');
+        jest.spyOn(service['currentTurnMap'], 'set');
+
+        const result = service.startCombat(roomId, fighters);
+
+        expect(gameInstance.turnTimer.pauseTimer).toHaveBeenCalled();
+        expect(service.applyIceDisadvantage).toHaveBeenCalledTimes(2);
+        expect(service.setEscapeTokens).toHaveBeenCalledWith(roomId);
+        expect(gameInstance.combatTimer.startTimer).toHaveBeenCalledWith(true);
+        expect(service['fightersMap'].set).toHaveBeenCalledWith(roomId, fighters);
+        expect(service['currentTurnMap'].set).toHaveBeenCalledWith(roomId, 1);
+        expect(result).toEqual([fighters[1], fighters[0]]);
+    });
+
+    it('should not initialize combat if fighters length is not equal to COMBAT_FIGHTERS_NUMBER', () => {
+        const roomId = 'room1';
+        const fighters = [{ player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } } }] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+
+        const result = service.startCombat(roomId, fighters);
+
+        expect(gameInstance.turnTimer.pauseTimer).toHaveBeenCalled();
+        expect(result).toBeUndefined();
+    });
+
+    it('should set default attributes if current attributes are undefined', () => {
+        const roomId = 'room1';
+        const fighters = [
+            { player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } } },
+            { player: { id: 'player2', attributes: { health: 90, attack: 25, defense: 35, speed: 45 } } },
+        ] as unknown as PlayerCoord[];
+
+        fighters[0].player.attributes.currentHealth = undefined;
+        fighters[0].player.attributes.currentAttack = undefined;
+        fighters[0].player.attributes.currentDefense = undefined;
+        fighters[0].player.attributes.currentSpeed = undefined;
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'applyIceDisadvantage').mockImplementation();
+        jest.spyOn(service, 'setEscapeTokens').mockImplementation();
+        jest.spyOn(service, 'whoIsFirstPlayer').mockReturnValue(fighters[1]);
+        jest.spyOn(service['fightersMap'], 'set');
+        jest.spyOn(service['currentTurnMap'], 'set');
+
+        service.startCombat(roomId, fighters);
+
+        expect(fighters[0].player.attributes.currentHealth).toBe(100);
+        expect(fighters[0].player.attributes.currentAttack).toBe(20);
+        expect(fighters[0].player.attributes.currentDefense).toBe(30);
+        expect(fighters[0].player.attributes.currentSpeed).toBe(40);
     });
 });

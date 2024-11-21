@@ -64,7 +64,6 @@ export class CombatService {
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
             gameInstance.combatTimer.startTimer(true);
-            // this.startCombatTtimer(roomId, true, server); // start combat timer
 
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
@@ -269,6 +268,7 @@ export class CombatService {
         } else {
             // if the home position taken, find a new position near home position
             const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
+            console.log('verifiedPositions when teleport:', verifiedPositions);
             const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
             player.position = playerHomePosition + verifiedPositions[randomIndex];
             game.map[player.position].hasPlayer = true;
@@ -284,19 +284,21 @@ export class CombatService {
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
         const possiblePositions = [RIGHT_TILE, LEFT_TILE, mapSize, -mapSize];
+        const extraPositions = [2 * RIGHT_TILE, 2 * LEFT_TILE, 2 * mapSize, -2 * mapSize];
         const verifiedPositions = [];
         possiblePositions.forEach((pos) => {
             if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
                 verifiedPositions.push(pos);
-            } else {
-                pos *= 2;
             }
-            if (verifiedPositions.length === 0) {
+        });
+        if (verifiedPositions.length === 0) {
+            extraPositions.forEach((pos) => {
                 if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
                     verifiedPositions.push(pos);
                 }
-            }
-        });
+            });
+        }
+
         return verifiedPositions;
     }
 
