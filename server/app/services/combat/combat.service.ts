@@ -69,6 +69,8 @@ export class CombatService {
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
+            firstPlayer.player.stats.combatCount++;
+            secondPlayer.player.stats.combatCount++;
 
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
             this.currentTurnMap.set(roomId, firstPlayerIndex);
@@ -137,13 +139,17 @@ export class CombatService {
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
+            player.player.stats.escapeCount++;
             // this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
     }
 
     setWinner(roomId: string, player: PlayerCoord): void {
-        if (this.isPlayerInCombat(roomId, player)) player.player.wins++;
+        if (this.isPlayerInCombat(roomId, player)) {
+            player.player.wins++;
+            player.player.stats.victoryCount++;
+        }
     }
 
     startCombatTurn(roomId: string, player: PlayerCoord): void {
