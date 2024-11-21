@@ -703,14 +703,20 @@ describe('CombatService', () => {
 
     it('should double the position and add it to verifiedPositions if the tileType is not WALL or DOORCLOSED', () => {
         const roomId = 'room1';
-        const position = 20;
-        const pos = 1;
+        const position = 11;
         const mapSize = '10';
         const map = Array(100)
             .fill(null)
             .map((_, idx) => ({ idx, tileType: TileTypes.BASIC, item: '', hasPlayer: false }));
-        map[position + pos] = { tileType: TileTypes.BASIC, item: '', hasPlayer: false };
-        
+        map[0] = { idx: 0, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+        map[1] = { idx: 1, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+        map[2] = { idx: 2, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+        map[10] = { idx: 10, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+        map[12] = { idx: 12, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+        map[20] = { idx: 20, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+        map[21] = { idx: 22, tileType: TileTypes.DOORCLOSED, item: '', hasPlayer: false };
+        map[22] = { idx: 22, tileType: TileTypes.WALL, item: '', hasPlayer: false };
+
         const game = {
             mapSize: mapSize,
             map: map,
@@ -722,6 +728,6 @@ describe('CombatService', () => {
         const verifiedPositions: number[] = [];
         service['verifyPossibleObjectsPositions'](roomId, position);
 
-        expect(verifiedPositions).toEqual([pos * 2]);
+        expect(verifiedPositions).toEqual([2, 20]);
     });
 });
