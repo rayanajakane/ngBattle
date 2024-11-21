@@ -1,5 +1,5 @@
 export interface GlobalStats {
-    matchLength: string;
+    matchLength: number;
     nbTurns: number;
     visitedTilesPercent: number;
     usedDoorsPercent: number;

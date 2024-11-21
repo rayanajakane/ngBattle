@@ -42,6 +42,7 @@ export class ActionHandlerService {
         const player = activeGame.playersCoord[activeGame.turn].player;
 
         activeGame.globalStatsService.incrementTurn();
+        console.log('Total Time: ', activeGame.globalStatsService.globalStats.matchLength);
 
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
