@@ -809,4 +809,58 @@ describe('CombatService', () => {
         expect(fighters[0].player.attributes.currentDefense).toBe(30);
         expect(fighters[0].player.attributes.currentSpeed).toBe(40);
     });
+    it('should end combat and remove player from fighters map', () => {
+        const roomId = 'room1';
+        const playerToRemove = {
+            player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } },
+        } as unknown as PlayerCoord;
+        const fighters = [
+            { player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } } },
+            { player: { id: 'player2', attributes: { health: 90, attack: 25, defense: 35, speed: 45 } } },
+        ] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { resumeTimer: jest.fn() },
+            combatTimer: { stopTimer: jest.fn(), resetTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service['fightersMap'], 'get').mockReturnValue(fighters);
+        jest.spyOn(service['fightersMap'], 'set');
+        jest.spyOn(service['fightersMap'], 'delete');
+        jest.spyOn(service['currentTurnMap'], 'delete');
+
+        service.endCombat(roomId, playerToRemove);
+
+        expect(gameInstance.turnTimer.resumeTimer).toHaveBeenCalled();
+        expect(service['fightersMap'].get).toHaveBeenCalledWith(roomId);
+        expect(service['fightersMap'].delete).toHaveBeenCalled();
+        expect(service['currentTurnMap'].delete).toHaveBeenCalledWith(roomId);
+    });
+    it('should end combat and remove player from fighters map if fighter length is 1 ', () => {
+        const roomId = 'room1';
+        const playerToRemove = {
+            player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } },
+        } as unknown as PlayerCoord;
+        const fighters = [{ player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } } }] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { resumeTimer: jest.fn() },
+            combatTimer: { stopTimer: jest.fn(), resetTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(service as any, 'setWinner').mockImplementation();
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service['fightersMap'], 'get').mockReturnValue(fighters);
+        jest.spyOn(service['fightersMap'], 'set');
+        jest.spyOn(service['fightersMap'], 'delete');
+        jest.spyOn(service['currentTurnMap'], 'delete');
+
+        service.endCombat(roomId, playerToRemove);
+        expect(service['setWinner']).toHaveBeenCalled();
+        expect(gameInstance.turnTimer.resumeTimer).toHaveBeenCalled();
+        expect(service['fightersMap'].get).toHaveBeenCalledWith(roomId);
+        expect(service['fightersMap'].delete).toHaveBeenCalled();
+        expect(service['currentTurnMap'].delete).toHaveBeenCalledWith(roomId);
+    });
 });
