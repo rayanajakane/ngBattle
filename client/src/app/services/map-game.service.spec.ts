@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
+import { ItemTypes, TileTypes } from '@common/tile-types';
+
 import { TilePreview } from '@common/game-structure';
 import { Player, PlayerAttribute, PlayerStats } from '@common/player';
 import { MapGameService } from './map-game.service';
@@ -106,7 +107,7 @@ describe('MapGameService', () => {
             1: shortestPathIndexes1,
         };
         /* eslint-enable */
-        service.renderShortestPath(index);
+        service.renderPathToTarget(index);
 
         service.shortestPathByTile[index].forEach((tileIndex) => {
             expect(service.tiles[tileIndex].isAccessible).toBe(TilePreview.SHORTESTPATH);
@@ -201,7 +202,7 @@ describe('MapGameService', () => {
 
         service.onMouseEnter(index, event);
 
-        expect(service.renderShortestPath).toHaveBeenCalledWith(index);
+        expect(service.renderPathToTarget).toHaveBeenCalledWith(index);
     });
     it('should reset shortest path', () => {
         service.shortestPathByTile = {

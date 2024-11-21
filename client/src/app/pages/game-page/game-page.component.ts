@@ -7,6 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
+import { CombatTimerComponent } from '@app/components/combat-timer/combat-timer.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
@@ -15,18 +16,12 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DELAY } from '@app/pages/game-page/constant';
+import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
-import { GameStructure, GameTile } from '@common/game-structure';
-import { Player } from '@common/player';
-import { Subscription } from 'rxjs';
-
-export interface PlayerCoord {
-    player: Player;
-    position: number;
-}
+import { GameState, GameStructure, GameTile, TimerState } from '@common/game-structure';
+import { PlayerCoord } from '@common/player';
 
 export interface ShortestPathByTile {
     [key: number]: number[];
@@ -38,6 +33,7 @@ export interface ShortestPathByTile {
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     imports: [
+        CombatTimerComponent,
         ChatComponent,
         InventoryComponent,
         MatCardModule,
@@ -58,27 +54,27 @@ export interface ShortestPathByTile {
 export class GamePageComponent implements OnInit, OnDestroy {
     mapSize: number;
     game: GameStructure;
-    player: Player;
-    playersList: Player[];
-    playerCoords: PlayerCoord[];
 
-    currentMoveBudget: number;
+    currentMoveBudget: number | '--' = '--';
+    remainingActions: number | '--' = '--';
+    timeLeft: number | '--' = '--';
+    timerState: TimerState = TimerState.COOLDOWN;
+
+    attackerDiceResult: number = 0;
+    defenderDiceResult: number = 0;
+    attackSuccessful: boolean;
 
     gameCreated = false;
     playersInitialized = false;
 
-    roomId: string;
+    remainingEscapeChances: number | '--' = '--';
 
-    activePlayer: Player;
-    turn: number = 0;
-
-    afklist: PlayerCoord[] = [];
+    combatInitiatorId: string = '';
 
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
-
-    private mapServiceSubscription: Subscription = new Subscription();
+    readonly gameController = inject(GameControllerService);
 
     constructor(
         private route: ActivatedRoute,
@@ -86,39 +82,53 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.roomId = this.route.snapshot.params['roomId'];
+        this.gameController.setRoomId(this.route.snapshot.params['roomId']);
+        this.gameController.setPlayerId(this.route.snapshot.params['playerId']);
 
         this.listenGameSetup();
         this.listenMovement();
+        this.listenStartAction();
         this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
         this.listenQuitGame();
+        this.listenTimer();
+        this.listenEndTimer();
+        this.listenEndCooldown();
+        this.listenStartCombat();
+        this.listenCombatTimer();
+        this.listenAttacked();
+        this.listenChangeCombatTurn();
+        this.listenKilledPlayer();
+        this.listenEscaped();
+        this.listenEndCombat();
+        this.listenAvailableMovesOnBudget();
+        this.listenEnCombatTimer();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
-            this.mapService.tiles = this.game.map as GameTile[];
+            this.mapService.setTiles(this.game.map as GameTile[]);
             this.mapSize = parseInt(this.game.mapSize, 10);
             this.gameCreated = true;
-            if (this.route.snapshot.params['isAdmin'] === 'true') {
-                setTimeout(() => {
-                    this.socketService.emit('gameSetup', this.roomId);
-                }, DELAY);
-            }
+            this.gameController.requestGameSetup(this.route.snapshot.params['isAdmin'] === 'true');
         });
     }
 
     listenGameSetup() {
         this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            this.initializePlayerCoords(data.playerCoords, data.turn);
+            this.gameController.initializePlayers(data.playerCoords, data.turn);
+            this.playersInitialized = true;
             this.initializePlayersPositions();
-            this.startTurn();
+            this.mapService.setState(GameState.NOTPLAYING);
+            this.timerState = TimerState.COOLDOWN;
+            // this.gameController.requestStartTurn(); //
         });
     }
 
     listenStartTurn() {
-        this.socketService.on('startTurn', (shortestPathByTile: ShortestPathByTile) => {
-            this.initializeMovementPrevisualization(shortestPathByTile);
-            this.subscribeMapService();
+        this.socketService.on('startTurn', (data: { shortestPathByTile: ShortestPathByTile; currentMoveBudget: number }) => {
+            this.mapService.switchToMovingStateRoutine(data.shortestPathByTile);
+            this.currentMoveBudget = data.currentMoveBudget;
+            this.remainingActions = 1;
         });
     }
 
@@ -127,96 +137,66 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (data.isToggable) {
                 this.mapService.toggleDoor(data.doorPosition);
             }
-            this.mapService.actionDoor = false;
-            this.endMovement(data.availableMoves);
+            if (this.gameController.isActivePlayer()) {
+                this.remainingActions = 0;
+                this.endMovement(data.availableMoves);
+            }
         });
     }
 
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
+            console.log('playerPositionUpdate', data.newPlayerPosition);
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
-        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number }) => {
+        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number; hasSlipped: boolean }) => {
+            console.log('endMove', data);
             this.currentMoveBudget = data.currentMoveBudget;
-            this.mapService.isMoving = false;
-            this.endMovement(data.availableMoves);
+            if (data.hasSlipped) {
+                this.endTurn();
+            } else {
+                this.endMovement(data.availableMoves);
+            }
         });
     }
 
     listenEndTurn() {
-        this.socketService.on('endTurn', (turn: number) => {
-            this.activePlayer = this.playerCoords[turn].player;
-            this.turn = turn;
-            this.startTurn();
+        this.socketService.on('endTurn', (activePlayerId: string) => {
+            this.timerState = TimerState.COOLDOWN;
+            this.gameController.setActivePlayer(activePlayerId);
+            // this.gameController.requestStartTurn(); //
         });
     }
 
-    initializePlayerCoords(playerCoords: PlayerCoord[], turn: number) {
-        this.playerCoords = playerCoords;
-        for (const playerCoord of this.playerCoords) {
-            if (playerCoord.player.id === this.route.snapshot.params['playerId']) {
-                this.player = playerCoord.player;
-                break;
-            }
-        }
-        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
-        this.playersInitialized = true;
-    }
-
     initializePlayersPositions() {
-        this.playerCoords.forEach((playerCoord) => {
+        this.gameController.getPlayerCoords().forEach((playerCoord) => {
             this.mapService.placePlayer(playerCoord.position, playerCoord.player);
         });
         this.mapService.removeUnusedStartingPoints();
     }
 
-    startTurn() {
-        if (this.activePlayer.id === this.player.id) {
-            this.socketService.emit('startTurn', { roomId: this.roomId, playerId: this.activePlayer.id });
-        }
-    }
-
-    subscribeMapService() {
-        this.mapServiceSubscription = this.mapService.event$.subscribe((index) => {
-            this.mapService.removeAllPreview();
-            if (this.mapService.isMoving) {
-                this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition: index });
-            } else if (this.mapService.actionDoor) {
-                this.socketService.emit('interactDoor', { roomId: this.roomId, playerId: this.player.id, doorPosition: index });
-            }
-        });
-    }
-
     updatePlayerPosition(playerId: string, newPlayerPosition: number) {
-        const playerCoord = this.findPlayerCoordById(playerId);
+        const playerCoord = this.gameController.findPlayerCoordById(playerId);
         if (playerCoord) {
             this.mapService.changePlayerPosition(playerCoord.position, newPlayerPosition, playerCoord.player);
             playerCoord.position = newPlayerPosition;
         }
     }
 
-    // Need server to send endMove to only client that moved
     endMovement(shortestPathByTile: ShortestPathByTile) {
+        const currentPlayerPosition = this.gameController.findPlayerCoordById(this.gameController.playerId)?.position;
+
         if (Object.keys(shortestPathByTile).length !== 0) {
-            this.initializeMovementPrevisualization(shortestPathByTile);
+            this.mapService.switchToMovingStateRoutine(shortestPathByTile);
+        } else if (
+            currentPlayerPosition &&
+            (this.remainingActions === 0 || !this.mapService.checkIfTargetAvailable(currentPlayerPosition, this.mapSize))
+        ) {
+            this.endTurn();
         } else {
-            this.resetMovementPrevisualization();
+            this.mapService.resetMovementPrevisualization();
+            this.mapService.setState(GameState.MOVING);
         }
-    }
-
-    findPlayerCoordById(playerId: string): PlayerCoord | undefined {
-        return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
-    }
-
-    initializeMovementPrevisualization(shortestPathByTile: ShortestPathByTile) {
-        this.mapService.setAvailableTiles(Object.keys(shortestPathByTile).map(Number));
-        this.mapService.setShortestPathByTile(shortestPathByTile);
-        this.mapService.renderAvailableTiles();
-    }
-
-    resetMovementPrevisualization() {
-        this.mapService.setAvailableTiles([]);
-        this.mapService.setShortestPathByTile({});
     }
 
     async getGame(gameId: string) {
@@ -225,29 +205,201 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenQuitGame() {
         this.socketService.on('quitGame', (playerId: string) => {
-            const afkPlayer = this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
-            if (afkPlayer) {
-                afkPlayer.player.abandoned = true;
-                this.afklist.push(afkPlayer);
-                this.playerCoords = this.playerCoords.filter((playerCoord) => playerCoord.player.id !== playerId);
+            if (this.gameController.isActivePlayer()) {
+                this.gameController.requestEndTurn(true);
+                this.socketService.disconnect();
+                this.router.navigate(['/home']);
+            }
+            this.gameController.feedAfkList(playerId);
+            this.mapService.removePlayerById(playerId);
+        });
+    }
+
+    listenStartAction() {
+        this.socketService.on('startAction', (availableTiles: number[]) => {
+            if (availableTiles.length > 0) {
+                this.mapService.switchToActionStateRoutine(availableTiles);
             }
         });
     }
 
+    listenTimer() {
+        this.socketService.on('timerUpdate', (time: number) => {
+            this.timeLeft = time;
+        });
+    }
+
+    listenEndTimer() {
+        this.socketService.on('endTimer', () => {
+            this.endTurn();
+        });
+    }
+
+    listenEndCooldown() {
+        this.socketService.on('endCooldown', () => {
+            this.timerState = TimerState.REGULAR;
+            this.gameController.requestStartTurn();
+        });
+    }
+
+    listenCombatTimer() {
+        this.socketService.on('CombatTimerUpdate', (time: number) => {
+            if (this.gameController.isInCombat()) {
+                this.timeLeft = time;
+            }
+        });
+    }
+
+    listenEnCombatTimer() {
+        this.socketService.on('endCombatTimer', () => {
+            if (this.gameController.isActivePlayer()) {
+                this.gameController.requestCombatAction('attack');
+            }
+        });
+    }
+
+    listenStartCombat() {
+        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
+            console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
+            this.remainingEscapeChances = 2;
+            this.combatInitiatorId = combatData.combatInitiatorId;
+            this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
+            this.gameController.setActivePlayer(combatData.attacker.player.id);
+            if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
+                this.timerState = TimerState.COMBAT;
+                this.gameController.setFighters([combatData.attacker, combatData.defender]);
+                if (this.gameController.isActivePlayer()) {
+                    this.mapService.setState(GameState.COMBAT); // fighter[0] <- initier combat ; fighter[1] <- recevoir combat
+                    this.remainingActions = 0;
+                }
+            } else {
+                this.timerState = TimerState.NONE;
+                this.timeLeft = '--';
+            }
+            console.log('GameState', this.mapService.currentStateNumber);
+        });
+    }
+
+    listenAttacked() {
+        this.socketService.on(
+            'attacked',
+            (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number; isAttackSuccessful: boolean }) => {
+                if (this.gameController.isInCombat()) {
+                    this.attackerDiceResult = data.attackerDice;
+                    this.defenderDiceResult = data.defenderDice;
+                    this.attackSuccessful = data.isAttackSuccessful;
+                    console.log('lifePoints', data.defender.player.attributes.health);
+                    this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
+                }
+            },
+        );
+    }
+
+    listenChangeCombatTurn() {
+        this.socketService.on('changeCombatTurn', (newAttackerId: string) => {
+            this.gameController.setActivePlayer(newAttackerId);
+            if (this.gameController.isInCombat()) {
+                if (this.gameController.isActivePlayer()) {
+                    this.mapService.setState(GameState.COMBAT);
+                } else {
+                    this.mapService.setState(GameState.NOTPLAYING);
+                }
+            }
+        });
+    }
+
+    listenKilledPlayer() {
+        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
+            // this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
+            this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
+            this.gameController.setActivePlayer(this.combatInitiatorId);
+            if (this.gameController.isActivePlayer()) {
+                if (this.combatInitiatorId === data.killed.player.id) {
+                    this.currentMoveBudget = 0;
+                } else if (this.combatInitiatorId === data.killer.player.id) {
+                    if (this.currentMoveBudget !== '--') {
+                        this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
+                    }
+                }
+            }
+        });
+    }
+
+    listenAvailableMovesOnBudget() {
+        this.socketService.on('availableMovesOnBudget', (availableMoves: ShortestPathByTile) => {
+            if (this.gameController.isActivePlayer()) {
+                this.mapService.switchToMovingStateRoutine(availableMoves);
+            }
+        });
+    }
+
+    listenEscaped() {
+        this.socketService.on('didEscape', (data: { playerId: string; remainingEscapeChances: number; hasEscaped: boolean }) => {
+            if (this.gameController.isInCombat()) {
+                console.log('escaped', data.remainingEscapeChances, data.hasEscaped);
+                if (data.hasEscaped) {
+                    this.gameController.setActivePlayer(this.combatInitiatorId);
+                    this.remainingEscapeChances = '--';
+                } else if (this.gameController.isActivePlayer()) {
+                    this.remainingEscapeChances = data.remainingEscapeChances;
+                }
+            }
+        });
+    }
+
+    listenEndCombat() {
+        this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
+            this.gameController.updatePlayerCoordsList(newFighters);
+            this.mapService.setState(GameState.NOTPLAYING);
+            this.timerState = TimerState.REGULAR;
+            if (this.gameController.isActivePlayer()) {
+                if (this.currentMoveBudget === 0) {
+                    this.gameController.requestEndTurn();
+                } else {
+                    this.mapService.switchToMovingStateRoutine();
+                }
+            }
+            this.gameController.resetFighters();
+            this.combatInitiatorId = '';
+        });
+    }
+
+    handleSelectCombatAction(combatAction: string) {
+        if (this.gameController.isActivePlayer()) {
+            this.gameController.requestCombatAction(combatAction);
+        }
+    }
+
     endTurn() {
+        if (this.gameController.isActivePlayer()) {
+            this.resetPlayerView();
+            this.gameController.requestEndTurn();
+        }
+    }
+
+    resetPlayerView() {
+        this.mapService.resetAllMovementPrevisualization();
         this.mapService.removeAllPreview();
-        this.resetMovementPrevisualization();
-        this.mapServiceSubscription.unsubscribe();
-        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player?.id, lastTurn: false });
+        this.mapService.setState(GameState.NOTPLAYING);
+        this.currentMoveBudget = '--';
+        this.remainingActions = '--';
     }
 
     quitGame() {
-        this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
-        this.router.navigate(['/home']);
+        // this.gameController.requestQuitGame();
+        // this.socketService.disconnect();
+        // this.router.navigate(['/home']);
+    }
+
+    startAction() {
+        console.log('currentState', this.mapService.currentStateNumber);
+        if (this.remainingActions === 1 && this.mapService.currentStateNumber === GameState.MOVING) {
+            this.gameController.requestStartAction();
+        }
     }
 
     ngOnDestroy() {
-        this.mapServiceSubscription.unsubscribe();
+        this.mapService.resetMovementPrevisualization();
         this.socketService.disconnect();
     }
 }
