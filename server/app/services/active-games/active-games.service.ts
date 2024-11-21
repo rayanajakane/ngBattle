@@ -89,4 +89,8 @@ export class ActiveGamesService {
     getActiveGame(roomId: string): GameInstance {
         return this.activeGames.find((instance) => instance.roomId === roomId);
     }
+
+    getActiveGameByPlayerId(playerId: string): GameInstance {
+        return this.activeGames.find((instance) => instance.playersCoord.find((player) => player.player.id === playerId));
+    }
 }

@@ -22,7 +22,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 @Injectable()
 export class CombatService {
-    private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
+    fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
     constructor(@Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService) {}
@@ -75,15 +75,10 @@ export class CombatService {
         }
     }
 
-    endCombat(roomId: string, player?: PlayerCoord): PlayerCoord[] {
+    endCombat(roomId: string, server: Server, player?: PlayerCoord): PlayerCoord[] {
         // inc wins if a player leaves game
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
-
-        if (this.fightersMap.get(roomId).length === 1) {
-            this.setWinner(roomId, player);
-            console.log('winner:', player.player.name);
-        }
 
         const fighters = this.fightersMap.get(roomId);
         if (fighters.length !== 0) {
@@ -96,6 +91,7 @@ export class CombatService {
         this.currentTurnMap.delete(roomId);
 
         gameInstance.turnTimer.resumeTimer();
+        server.to(roomId).emit('endCombat', fighters);
 
         return fighters;
     }
@@ -198,13 +194,8 @@ export class CombatService {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const killedPlayerOldPosition = defensePlayer.position;
-                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer);
-                    server.to(roomId).emit('killedPlayer', {
-                        killer: playerKiller,
-                        killed: playerKilled,
-                        killedOldPosition: killedPlayerOldPosition,
-                    });
-                    server.to(roomId).emit('endCombat', fighters);
+                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer, server);
+                    // server.to(roomId).emit('endCombat', fighters);
 
                     // log message
                     const currentTime = new Date();
@@ -232,16 +223,24 @@ export class CombatService {
         }
     }
 
-    killPlayer(roomId: string, player: PlayerCoord): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
+    killPlayer(roomId: string, player: PlayerCoord, server: Server): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
+        const killedOldPosition = playerKilled.position;
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
             //this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
-            const fighters = this.endCombat(roomId, playerKiller);
+            server.to(roomId).emit('killedPlayer', {
+                killer: playerKiller,
+                killed: playerKilled,
+                killedOldPosition: killedOldPosition,
+            });
+
+            const fighters = this.endCombat(roomId, server, playerKiller);
+
             return [playerKiller, playerKilled, fighters];
         }
         return [null, null, []];

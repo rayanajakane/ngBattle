@@ -4,12 +4,14 @@ import { MatchService } from '@app/services/match.service';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { CombatService } from '../combat/combat.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
+        private readonly combatService: CombatService,
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -151,33 +153,33 @@ export class ActionHandlerService {
     }
 
     handleQuitGame(server: Server, client: Socket) {
-        const roomId = this.findRoomIdByClientId(client.id);
         const playerId = client.id;
+        const activeGame = this.activeGamesService.getActiveGameByPlayerId(playerId);
+        if (!activeGame) return;
 
-        const activeGame = this.activeGamesService.getActiveGame(roomId);
-        const playerPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
-        activeGame.game.map[playerPosition].hasPlayer = false;
-        // if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
-        //     this.action.nextTurn(roomId, true);
-        // }
-        server.to(roomId).emit('quitGame', playerId);
-
+        const roomId = activeGame.roomId;
         const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
         const message = `${playerName} a quitté la partie`;
         server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
-        // if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-        //     this.handleEndTurn({ ...data, lastTurn: true }, server);
-        // }
-    }
-
-    findRoomIdByClientId(clientId: string): string {
-        for (const [roomId, room] of this.match.rooms.entries()) {
-            console.log('findRoomIdByClientId', roomId, room);
-            if (room.players.some((p) => p.id === clientId)) {
-                return roomId;
-            }
+        const activePlayerId = activeGame.playersCoord[activeGame.turn].player.id;
+        const killedPlayer = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        if (this.combatService.fightersMap.get(roomId)) {
+            const fighters = this.combatService.fightersMap.get(roomId);
+            fighters.forEach((fighter) => {
+                if (fighter.player.id === playerId) {
+                    this.combatService.killPlayer(roomId, fighter, server);
+                }
+            });
         }
-        return null;
+
+        if (activePlayerId === playerId) {
+            this.handleEndTurn({ roomId, playerId, lastTurn: true }, server);
+        } else {
+            this.action.quitGame(roomId, playerId);
+        }
+
+        server.to(roomId).emit('quitGame', playerId);
+        // remove from fight participants?
     }
 }

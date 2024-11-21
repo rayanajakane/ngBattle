@@ -96,8 +96,8 @@ export class CombatGateway {
         const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
-            const resetFighters = this.combatService.endCombat(data.roomId);
-            this.server.to(data.roomId).emit('endCombat', resetFighters);
+            const resetFighters = this.combatService.endCombat(data.roomId, this.server);
+            // this.server.to(data.roomId).emit('endCombat', resetFighters);
 
             const message = `${player.player.name} a réussi à s'échapper du combat`;
             this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
@@ -124,7 +124,7 @@ export class CombatGateway {
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         console.log('endCombat', data.playerId);
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const fighters = this.combatService.endCombat(data.roomId, player);
+        const fighters = this.combatService.endCombat(data.roomId, this.server, player);
         const abandonedPlayerPosition = fighters[data.roomId];
         this.server.to(data.roomId).emit('endCombat', fighters);
     }

@@ -91,7 +91,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenInteractDoor();
         this.listenStartTurn();
         this.listenEndTurn();
-        // this.listenQuitGame();
+        this.listenQuitGame();
         this.listenTimer();
         this.listenEndTimer();
         this.listenEndCooldown();
@@ -205,38 +205,33 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenQuitGame() {
         this.socketService.on('quitGame', (playerId: string) => {
-            switch (this.mapService.currentStateNumber) {
-                case GameState.MOVING:
-                    //this.mapService.resetMovementPrevisualization();
-                    break;
-                case GameState.ACTION:
-                    //this.mapService.removeAllPreview();
-                    break;
-                case GameState.COMBAT:
-                    const fighters = this.gameController.getFighters();
-                    if (fighters.some((fighter) => fighter.player.id === playerId)) {
-                        console.log('quitGame', playerId);
-                        this.gameController.feedAfkList(playerId);
-                        this.mapService.removePlayerById(playerId);
-                        this.gameController.requestEndCombat();
-                    }
-                    // the other player abandoned and I'm in combat
-                    //this.mapService.setState(GameState.NOTPLAYING);
-                    break;
+            // switch (this.mapService.currentStateNumber) {
+            //     case GameState.MOVING:
+            //         //this.mapService.resetMovementPrevisualization();
+            //         break;
+            //     case GameState.ACTION:
+            //         //this.mapService.removeAllPreview();
+            //         break;
+            //     case GameState.COMBAT:
+            //         const fighters = this.gameController.getFighters();
+            //         if (fighters.some((fighter) => fighter.player.id === playerId)) {
+            //             console.log('quitGame', playerId);
+            //             this.gameController.feedAfkList(playerId);
+            //             this.mapService.removePlayerById(playerId);
+            //             this.gameController.requestEndCombat();
+            //         }
+            //         // the other player abandoned and I'm in combat
+            //         //this.mapService.setState(GameState.NOTPLAYING);
+            //         break;
 
-                case GameState.NOTPLAYING:
-                    break;
-                default:
-                    break;
-            }
-
-            // if (this.gameController.isActivePlayer()) {
-            //     this.gameController.requestEndTurn(true);
-            //     this.socketService.disconnect();
-            //     this.router.navigate(['/home']);
+            //     case GameState.NOTPLAYING:
+            //         break;
+            //     default:
+            //         break;
             // }
-            // this.gameController.feedAfkList(playerId);
-            // this.mapService.removePlayerById(playerId);
+
+            this.gameController.feedAfkList(playerId);
+            this.mapService.removePlayerById(playerId);
         });
     }
 
@@ -335,7 +330,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenKilledPlayer() {
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
-            // this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
+            this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
             this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
             this.gameController.setActivePlayer(this.combatInitiatorId);
             if (this.gameController.isActivePlayer()) {
