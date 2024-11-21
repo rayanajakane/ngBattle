@@ -679,7 +679,7 @@ describe('CombatService', () => {
 
         const result = service['verifyPossibleObjectsPositions'](roomId, position);
 
-        expect(result).toEqual([1, -1, 10, -10]);
+        expect(result).toEqual([1, -1, -10, 10]);
     });
     it('should return an array of possible object positions', () => {
         const roomId = 'room1';
@@ -698,7 +698,7 @@ describe('CombatService', () => {
 
         const result = service['verifyPossibleObjectsPositions'](roomId, position);
 
-        expect(result).toEqual([1, -1, 10, -10]);
+        expect(result).toEqual([1, -1, -10, 10]);
     });
 
     it('should double the position and add it to verifiedPositions if the tileType is not WALL or DOORCLOSED', () => {

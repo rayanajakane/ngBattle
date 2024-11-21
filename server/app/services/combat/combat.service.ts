@@ -283,22 +283,54 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
-        const possiblePositions = [RIGHT_TILE, LEFT_TILE, mapSize, -mapSize];
-        const extraPositions = [2 * RIGHT_TILE, 2 * LEFT_TILE, 2 * mapSize, -2 * mapSize];
         const verifiedPositions = [];
-        possiblePositions.forEach((pos) => {
-            if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
-                verifiedPositions.push(pos);
-            }
-        });
-        if (verifiedPositions.length === 0) {
-            extraPositions.forEach((pos) => {
-                if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
-                    verifiedPositions.push(pos);
-                }
-            });
-        }
+        const mapLength = gameInstance.game.map.length;
 
+        let n: number = 0;
+        while (verifiedPositions.length === 0) {
+            n++;
+
+            // Check right movement
+            if (position % mapSize < mapSize) {
+                if (
+                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.WALL &&
+                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(RIGHT_TILE * n);
+                }
+            }
+
+            // Check left movement
+            if (position % mapSize <= 0) {
+                if (
+                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.WALL &&
+                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(LEFT_TILE * n);
+                }
+            }
+
+            // Check upward movement
+            if (position - mapSize * n >= 0) {
+                if (
+                    game.map[position - mapSize * n].tileType !== TileTypes.WALL &&
+                    game.map[position - mapSize * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(n * mapSize * -1);
+                }
+            }
+
+            // Check downward movement
+            if (position + mapSize * n < mapLength) {
+                if (
+                    game.map[position + mapSize * n].tileType !== TileTypes.WALL &&
+                    game.map[position + mapSize * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(mapSize * n);
+                }
+            }
+        }
+        console.log('verifiedPositions:', verifiedPositions);
         return verifiedPositions;
     }
 
