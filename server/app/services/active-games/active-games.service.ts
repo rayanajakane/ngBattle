@@ -59,7 +59,11 @@ export class ActiveGamesService {
         this.checkGameInstance(roomId, gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
             playerCoord = this.randomizePlayerPosition(game, players);
+            const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
+            const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
+
+            // TODO: Create a function
             playerCoord.sort((a, b) => {
                 const speedA = parseInt(a.player.attributes.speed, 10);
                 const speedB = parseInt(b.player.attributes.speed, 10);
@@ -74,19 +78,19 @@ export class ActiveGamesService {
                 return Math.random() - this.CHANCES;
             });
 
+            //TODO: Create a function
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
             this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
             this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
-
-            const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
-            const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
+            this.activeGames[activeGameIndex].maxNbTiles = maxNbTiles;
             this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
             // TODO: uncomment when the a end game state is implemented
             this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
 
             this.activeGames[activeGameIndex].turnTimer.startTimer();
 
+            //TODO: move to action-handler service
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,

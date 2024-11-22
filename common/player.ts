@@ -50,4 +50,5 @@ export interface PlayerStats {
     totalHealthTaken: number;
     uniqueItemsCollected: number;
     visitedTilesPercent: number;
+    visitedTiles: Set<number>;
 }

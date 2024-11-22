@@ -15,4 +15,5 @@ export interface GameInstance {
     currentPlayerMoveBudget?: number;
     currentPlayerActionPoint?: number;
     globalStatsService?: GlobalStatsService;
+    maxNbTiles?: number;
 }

@@ -68,10 +68,10 @@ export class ActionHandlerService {
         const roomId = data.roomId;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
         const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
 
         if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
             const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
-
             const gameMap = activeGame.game.map;
             let iceSlip = false;
 
@@ -81,6 +81,9 @@ export class ActionHandlerService {
                 if (!iceSlip) {
                     setTimeout(() => {
                         this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
+                        player.stats.visitedTilesPercent = (player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;
+                        console.log('Visited Tiles: ', player.stats.visitedTilesPercent);
+                        console.log('Visited Tiles: ', player.stats.visitedTiles);
                     }, this.TIME_BETWEEN_MOVES);
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
@@ -132,27 +135,26 @@ export class ActionHandlerService {
         const remainingActionPoints = activeGame.currentPlayerActionPoint;
         const map = activeGame.game.map;
 
-        if (remainingActionPoints > 0) {
-            const isToggable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
-            server.to(roomId).emit('interactDoor', {
-                isToggable,
-                doorPosition,
-                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-            });
+        if (remainingActionPoints <= 0) return;
 
-            const playerName = this.activeGamesService
-                .getActiveGame(roomId)
-                .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player.name;
+        const isToggable = this.action.interactWithDoor(roomId, data.playerId, data.doorPosition);
+        server.to(roomId).emit('interactDoor', {
+            isToggable,
+            doorPosition,
+            availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+        });
 
-            let message = '';
-            if (map[doorPosition].tileType === TileTypes.DOOROPEN) {
-                message = `Porte a été ouverte par ${playerName}`;
-            } else if (map[doorPosition].tileType === TileTypes.DOORCLOSED) {
-                message = `Porte a été ouverte par ${playerName}`;
-            }
+        const playerName = this.activeGamesService.getActiveGame(roomId).playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId)
+            .player.name;
 
-            client.emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
+        let message = '';
+        if (map[doorPosition].tileType === TileTypes.DOOROPEN) {
+            message = `Porte a été ouverte par ${playerName}`;
+        } else if (map[doorPosition].tileType === TileTypes.DOORCLOSED) {
+            message = `Porte a été ouverte par ${playerName}`;
         }
+
+        client.emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
     }
 
     handleQuitGame(data: { roomId: string; playerId: string }, server: Server, client: Socket) {

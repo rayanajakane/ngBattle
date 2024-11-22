@@ -3,7 +3,6 @@ import { Player, PlayerAttribute } from '@common/player';
 import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { BASE_STATS } from './constants';
 import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
 
@@ -42,7 +41,17 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
-            stats: BASE_STATS,
+            stats: {
+                combatCount: 0,
+                escapeCount: 0,
+                victoryCount: 0,
+                defeatCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                visitedTilesPercent: 0,
+                visitedTiles: new Set<number>(),
+            },
         };
         room.players.push(player);
 
@@ -90,14 +99,24 @@ export class MatchService {
 
         const player: Player = {
             id: client.id,
-            name: checkedPlayerName,
-            isAdmin: false,
+            name: playerData.playerName,
+            isAdmin: true,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
-            isActive: false,
-            abandoned: false,
+            isActive: true,
+            abandoned: true,
             wins: 0,
-            stats: BASE_STATS,
+            stats: {
+                combatCount: 0,
+                escapeCount: 0,
+                victoryCount: 0,
+                defeatCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                visitedTilesPercent: 0,
+                visitedTiles: new Set<number>(),
+            },
         };
         room.players.push(player);
 
