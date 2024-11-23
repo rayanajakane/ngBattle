@@ -90,6 +90,12 @@ export class CombatService {
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
 
+        if (player.player.wins === 3) {
+            server.to(roomId).emit('endGame', `${player.player.name} a gagné la partie`);
+            this.activeGamesService.removeGameInstance(roomId);
+            return;
+        }
+
         gameInstance.turnTimer.resumeTimer();
         server.to(roomId).emit('endCombat', fighters);
 
@@ -202,6 +208,12 @@ export class CombatService {
                     server
                         .to(roomId)
                         .emit('newLog', { date: formattedTime, message: message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
+
+                    // if (playerKiller.player.wins === 3) {
+                    //     server.to(roomId).emit('endGame', `${playerKiller.player.name} a gagné la partie`);
+                    //     this.endCombat(roomId, server);
+                    //     this.activeGamesService.removeGameInstance(roomId);
+                    // }
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }

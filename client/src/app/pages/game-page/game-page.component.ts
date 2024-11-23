@@ -109,6 +109,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenAvailableMovesOnBudget();
         this.listenEnCombatTimer();
         this.listenLastManStanding();
+        this.listenEndGame();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -308,15 +309,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenKilledPlayer() {
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
-            this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
-            this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
-            this.gameController.setActivePlayer(this.combatInitiatorId);
-            if (this.gameController.isActivePlayer()) {
-                if (this.combatInitiatorId === data.killed.player.id) {
-                    this.currentMoveBudget = 0;
-                } else if (this.combatInitiatorId === data.killer.player.id) {
-                    if (this.currentMoveBudget !== '--') {
-                        this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
+            if (data.killer.player.wins < 3) {
+                this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
+                this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
+                this.gameController.setActivePlayer(this.combatInitiatorId);
+                if (this.gameController.isActivePlayer()) {
+                    if (this.combatInitiatorId === data.killed.player.id) {
+                        this.currentMoveBudget = 0;
+                    } else if (this.combatInitiatorId === data.killer.player.id) {
+                        if (this.currentMoveBudget !== '--') {
+                            this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
+                        }
                     }
                 }
             }
@@ -367,6 +370,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenEndGame() {
+        this.socketService.on('endGame', (endGameMessage: string) => {
+            this.redirectEndGame(endGameMessage);
+        });
+    }
+
     handleSelectCombatAction(combatAction: string) {
         if (this.gameController.isActivePlayer()) {
             this.gameController.requestCombatAction(combatAction);
@@ -401,6 +410,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
     redirectLastManStanding() {
         this.router.navigate(['/home']);
         this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', {
+            duration: SNACKBAR_DURATION,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+        });
+    }
+
+    redirectEndGame(endGameMessage: string) {
+        setTimeout(() => {
+            this.router.navigate(['/home']);
+        }, 1000);
+        this.snackbar.open(endGameMessage, 'Fermer', {
             duration: SNACKBAR_DURATION,
             horizontalPosition: 'center',
             verticalPosition: 'top',
