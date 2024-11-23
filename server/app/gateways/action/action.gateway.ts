@@ -7,13 +7,6 @@ export class ActionGateway implements OnGatewayInit {
 
     constructor(private readonly actionHandler: ActionHandlerService) {}
 
-    // @SubscribeMessage('disconnect')
-    // handleDisconnect(@ConnectedSocket() client: Socket, @MessageBody() playerId: string) {
-    //     console.log(`Client disconnected: ${client.id}`);
-
-    //     // Add any additional logic you need to handle on client disconnect
-    // }
-
     @SubscribeMessage('gameSetup')
     handleGameSetup(@MessageBody() roomId: string) {
         this.actionHandler.handleGameSetup(this.server, roomId);
@@ -47,11 +40,6 @@ export class ActionGateway implements OnGatewayInit {
     handleInteractDoor(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
         this.actionHandler.handleInteractDoor(data, this.server, client);
     }
-
-    // @SubscribeMessage('quitGame')
-    // handleQuitGame(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
-    //     this.actionHandler.handleQuitGame(data, this.server, client);
-    // }
 
     afterInit(server: Server) {
         this.server = server;

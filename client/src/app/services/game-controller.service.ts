@@ -65,10 +65,6 @@ export class GameControllerService {
         });
     }
 
-    // setActiveFighter(index: number): void {
-    //     this.activePlayer = this.fighters[index].player;
-    // }
-
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;
     }
@@ -156,6 +152,10 @@ export class GameControllerService {
         }
     }
 
+    requestCheckAction(): void {
+        this.socketService.emit('checkAction', { roomId: this.roomId, playerId: this.player.id });
+    }
+
     // change back-end
     requestAction(target: number): void {
         this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
@@ -168,8 +168,6 @@ export class GameControllerService {
     requestAvailableMovesOnBudget(currentBudget: number): void {
         this.socketService.emit('getAvailableMovesOnBudget', { roomId: this.roomId, playerId: this.player.id, currentBudget });
     }
-
-    requestEndCombatTurn(): void {}
 
     requestQuitGame(): void {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });

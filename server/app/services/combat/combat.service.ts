@@ -132,7 +132,6 @@ export class CombatService {
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
-            // this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
     }
@@ -195,7 +194,6 @@ export class CombatService {
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const killedPlayerOldPosition = defensePlayer.position;
                     const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer, server);
-                    // server.to(roomId).emit('endCombat', fighters);
 
                     // log message
                     const currentTime = new Date();

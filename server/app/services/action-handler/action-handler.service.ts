@@ -180,6 +180,5 @@ export class ActionHandlerService {
         }
 
         server.to(roomId).emit('quitGame', playerId);
-        // remove from fight participants?
     }
 }
