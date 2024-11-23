@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
@@ -16,6 +17,7 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
+import { SNACKBAR_DURATION } from '@app/pages/game-page/constant';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
@@ -79,6 +81,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
+        private snackbar: MatSnackBar,
     ) {}
 
     ngOnInit() {
@@ -105,6 +108,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.listenEndCombat();
         this.listenAvailableMovesOnBudget();
         this.listenEnCombatTimer();
+        this.listenLastManStanding();
 
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
             this.mapService.setTiles(this.game.map as GameTile[]);
@@ -357,6 +361,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    listenLastManStanding() {
+        this.socketService.on('lastManStanding', () => {
+            this.redirectLastManStanding();
+        });
+    }
+
     handleSelectCombatAction(combatAction: string) {
         if (this.gameController.isActivePlayer()) {
             this.gameController.requestCombatAction(combatAction);
@@ -386,6 +396,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.remainingActions === 1 && this.mapService.currentStateNumber === GameState.MOVING) {
             this.gameController.requestStartAction();
         }
+    }
+
+    redirectLastManStanding() {
+        this.router.navigate(['/home']);
+        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', {
+            duration: SNACKBAR_DURATION,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+        });
     }
 
     ngOnDestroy() {

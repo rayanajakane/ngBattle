@@ -180,5 +180,11 @@ export class ActionHandlerService {
         }
 
         server.to(roomId).emit('quitGame', playerId);
+
+        if (activeGame.playersCoord.length === 1) {
+            server.to(roomId).emit('lastManStanding');
+            // remove game from server
+            this.activeGamesService.removeGameInstance(roomId);
+        }
     }
 }
