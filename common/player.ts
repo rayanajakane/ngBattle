@@ -8,12 +8,24 @@ export interface Player {
     abandoned: boolean;
     wins: number;
     isVirtual: boolean;
+    inventory?: string[];
+    homePosition?: number;
 }
 
 export interface PlayerAttribute {
-    health: string;
-    speed: string;
-    attack: string;
-    defense: string;
+    health: number; // maxHealth
+    currentHealth?: number;
+    speed: string; // maxSpeed
+    currentSpeed?: string;
+    attack: number; // maxAttack
+    currentAttack?: number;
+    defense: number; // maxDefense
+    currentDefense?: number;
     dice: string;
+    escape?: number;
+}
+
+export interface PlayerCoord {
+    player: Player;
+    position: number;
 }

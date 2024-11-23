@@ -3,19 +3,25 @@
         <mat-card-title>Combat!</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <p>{{ diceInfo }}</p>
+        <p>{{ attackerDiceInfo }}</p>
+        <p>{{ defenderDiceInfo }}</p>
         <p>{{ escapeChanceInfo }}</p>
+        <p>L'attaque est valide: {{ attackSuccessful ? 'Oui!' : 'Non !' }}</p>
     </mat-card-content>
     <mat-card-footer class="card-footer">
+        @if (isActivePlayer) {
         <section class="combat-btns">
-            <button mat-raised-button color="primary">
+            <button mat-raised-button color="primary" (click)="attack()">
                 <mat-icon>sports_kabaddi</mat-icon>
                 Attaque
             </button>
-            <button mat-raised-button color="primary">
+            @if (escapeChance !== 0) {
+            <button mat-raised-button color="primary" (click)="escape()">
                 <mat-icon>directions_run</mat-icon>
                 Évasion
             </button>
+            }
         </section>
+        }
     </mat-card-footer>
 </mat-card>

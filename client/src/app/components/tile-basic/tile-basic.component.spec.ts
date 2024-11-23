@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ItemTypes } from '@app/data-structure/toolType';
 import { TilePreview } from '@common/game-structure';
+import { ItemTypes } from '@common/tile-types';
 import { TileBasicComponent } from './tile-basic.component';
 
 describe('TileBasicComponent', () => {
@@ -60,10 +60,10 @@ describe('TileBasicComponent', () => {
         expect(component.choosePreviewClass()).toBe('shortestPath');
     });
     it('setAvatarImage should change avatarUrl based on avatar', () => {
-        const avatars = ['hero', 'villain', 'npc'];
+        const avatars = ['Avatar 1', 'Avatar 2', 'Avatar 3'];
         component.avatar = avatars[Math.floor(Math.random() * avatars.length)];
         component.setAvatarImage();
-        expect(component.avatarUrl).toBe(`./../../../assets/characters/${component.avatar}.png`);
+        expect(component.avatarUrl).toBe('./../../../assets/characters/' + component.chooseAvatar(component.avatar) + '.png');
         component.avatar = '';
         component.setAvatarImage();
         expect(component.avatarUrl).toBe('');

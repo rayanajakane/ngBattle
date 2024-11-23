@@ -83,10 +83,10 @@ describe('LogsComponent', () => {
             isAdmin: false,
             avatar: 'avatar.png',
             attributes: {
-                health: '100',
-                speed: '10',
-                attack: '20',
-                defense: '30',
+                health: 10,
+                speed: '8',
+                attack: 7,
+                defense: 5,
                 dice: '6',
             },
             isActive: true,
@@ -110,5 +110,61 @@ describe('LogsComponent', () => {
         expect(component.playerLogs.length).toBe(1);
         expect(component.playerLogs[0]).toEqual(log);
         expect(component.logsContainer.nativeElement.scrollTop).toBe(component.logsContainer.nativeElement.scrollHeight);
+    });
+
+    it('should add log to logs and playerLogs if the player attacks another player', () => {
+        const log: LogMessage = { date: '22:22:22', receiver: 'player1', sender: 'player2', message: 'Test log', exclusive: true };
+        component.player = {
+            id: 'player2',
+            name: 'Player 1',
+            isAdmin: false,
+            avatar: 'avatar.png',
+            attributes: {
+                health: 10,
+                speed: '8',
+                attack: 7,
+                defense: 5,
+                dice: '6',
+            },
+            isActive: true,
+            abandoned: false,
+            wins: 0,
+        };
+
+        // Simulate receiving a log
+        socketServiceSpy.on.calls.mostRecent().args[1](log);
+
+        expect(component.logs.length).toBe(1);
+        expect(component.logs[0]).toEqual(log);
+        expect(component.playerLogs.length).toBe(1);
+        expect(component.playerLogs[0]).toEqual(log);
+    });
+
+    it('should add exclusive log to logs and playerLogs for attack & escape', () => {
+        const log: LogMessage = { date: '22:22:22', receiver: 'player1', sender: 'player2', message: 'Test log', exclusive: true };
+        component.player = {
+            id: 'player1',
+            name: 'Player 1',
+            isAdmin: false,
+            avatar: 'avatar.png',
+            attributes: {
+                health: 10,
+                speed: '8',
+                attack: 7,
+                defense: 5,
+                dice: '6',
+            },
+            isActive: true,
+            abandoned: false,
+            wins: 0,
+        };
+
+        // Simulate receiving a log
+        socketServiceSpy.on.calls.mostRecent().args[1](log);
+
+        expect(component.logs.length).toBe(1);
+        expect(component.logs[0]).toEqual(log);
+        expect(component.playerLogs.length).toBe(1);
+        expect(component.playerLogs[0]).toEqual(log);
     });
 });

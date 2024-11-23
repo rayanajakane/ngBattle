@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { TileTypes } from '@app/data-structure/toolType';
 import { TileStructure } from '@common/game-structure';
+import { TileTypes } from '@common/tile-types';
 import { DragDropService } from './drag-drop.service';
 
 describe('DragDropService', () => {
