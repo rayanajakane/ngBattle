@@ -2,14 +2,19 @@ import { GameInstance } from '@app/data-structures/game-instance';
 import { GameService } from '@app/services/game.service';
 import { GameStructure } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { CombatTimerService } from '../combat-timer/combat-timer.service';
 import { TimerService } from '../timer/timer.service';
+import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 
 @Injectable()
 export class ActiveGamesService {
-    constructor(private readonly gameService: GameService) {}
+    constructor(
+        private readonly gameService: GameService,
+        private readonly uniqueItemRandomizer: UniqueItemRandomizerService,
+    ) {}
     activeGames: GameInstance[] = [];
     private readonly CHANCES: number = 0.5;
 
@@ -38,7 +43,7 @@ export class ActiveGamesService {
 
         if (startingPositions.length > 0) {
             startingPositions.forEach((position) => {
-                game.map[position].item = '';
+                game.map[position].item = ItemTypes.EMPTY;
             });
         }
 
@@ -79,9 +84,12 @@ export class ActiveGamesService {
 
             this.activeGames[activeGameIndex].turnTimer.startTimer();
 
+            const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
+
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,
+                randomizedItemsPlacement: randomizedItemsPlacement,
             });
         });
     }

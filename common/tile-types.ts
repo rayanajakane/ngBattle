@@ -9,6 +9,7 @@ export enum TileTypes {
 }
 
 export enum ItemTypes {
+    EMPTY = '',
     AA1 = 'AA1',
     AA2 = 'AA2',
     AC1 = 'AC1',

@@ -22,6 +22,7 @@ import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, TimerState } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 
 export interface ShortestPathByTile {
     [key: number]: number[];
@@ -114,14 +115,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenGameSetup() {
-        this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            this.gameController.initializePlayers(data.playerCoords, data.turn);
-            this.playersInitialized = true;
-            this.initializePlayersPositions();
-            this.mapService.setState(GameState.NOTPLAYING);
-            this.timerState = TimerState.COOLDOWN;
-            // this.gameController.requestStartTurn(); //
-        });
+        this.socketService.once(
+            'gameSetup',
+            (data: {
+                playerCoords: PlayerCoord[];
+                turn: number;
+                randomizedItemsPlacement: {
+                    idx: number;
+                    item: ItemTypes;
+                }[];
+            }) => {
+                this.mapService.replaceRandomItems(data.randomizedItemsPlacement);
+                this.gameController.initializePlayers(data.playerCoords, data.turn);
+                this.playersInitialized = true;
+                this.initializePlayersPositions();
+                this.mapService.setState(GameState.NOTPLAYING);
+                this.timerState = TimerState.COOLDOWN;
+                // this.gameController.requestStartTurn(); //
+            },
+        );
     }
 
     listenStartTurn() {

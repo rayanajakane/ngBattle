@@ -9,6 +9,7 @@ import { CombatStateService } from './combat-state.service';
 import { MapBaseService } from './map-base.service';
 import { MovingStateService } from './moving-state.service';
 import { NotPlayingStateService } from './not-playing-state.service';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -50,6 +51,17 @@ export class MapGameService extends MapBaseService {
             default:
                 this.currentState = this.notPlaying;
         }
+    }
+
+    replaceRandomItems(
+        randomizedItemsPlacement: {
+            idx: number;
+            item: ItemTypes;
+        }[],
+    ) {
+        randomizedItemsPlacement.forEach((itemPlacement) => {
+            this.tiles[itemPlacement.idx].item = itemPlacement.item;
+        });
     }
 
     setTiles(tiles: GameTile[]): void {
@@ -194,7 +206,7 @@ export class MapGameService extends MapBaseService {
     removeUnusedStartingPoints(): void {
         this.tiles.forEach((tile) => {
             if (tile.item === ItemTypes.STARTINGPOINT && !tile.hasPlayer) {
-                tile.item = '';
+                tile.item = ItemTypes.EMPTY;
             }
         });
     }

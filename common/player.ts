@@ -1,3 +1,5 @@
+import { ItemTypes } from '@common/tile-types';
+
 export interface Player {
     id: string;
     name: string;
@@ -7,7 +9,7 @@ export interface Player {
     isActive: boolean;
     abandoned: boolean;
     wins: number;
-    inventory?: string[];
+    inventory?: ItemTypes[];
     homePosition?: number;
 }
 
