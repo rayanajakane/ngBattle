@@ -65,8 +65,8 @@ export class VirtualPlayerDialogComponent {
     createPlayer() {
         this.virtualAvatar = this.availableAvatars[Math.floor(Math.random() * this.availableAvatars.length)];
         const randomIndex = Math.floor(Math.random() * 2);
-        const health = randomIndex === 0 ? '6' : '4';
-        const speed = randomIndex === 0 ? '4' : '6';
+        const health = randomIndex === 0 ? 6 : 4;
+        const speed = randomIndex === 0 ? 4 : 6;
         const dice = Math.random() < 0.5 ? 'attack' : 'defense';
 
         this.virtualPlayer = {
@@ -75,19 +75,19 @@ export class VirtualPlayerDialogComponent {
             isAdmin: false,
             avatar: this.virtualAvatar.name,
             attributes: {
-                health: health.toString(),
+                health: health,
                 speed: speed.toString(),
-                attack: '4',
-                defense: '4',
+                attack: 4,
+                defense: 4,
                 dice: dice,
             },
             isActive: false,
             abandoned: false,
             wins: 0,
             isVirtual: true,
+            inventory: [],
+            homePosition: 0,
         };
-
-        //this.joinRoom();
     }
 
     addVirtualPlayer() {

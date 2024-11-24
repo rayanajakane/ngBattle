@@ -1,6 +1,7 @@
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { MatchService } from '@app/services/match.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -10,6 +11,7 @@ export class ActionHandlerService {
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
+        private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -52,6 +54,12 @@ export class ActionHandlerService {
 
         const message = `Début de tour de ${playerName}`;
         server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
+
+        if (player.isVirtual) {
+            this.virtualPlayerService.virtualPlayerId = player.id;
+            this.virtualPlayerService.roomId = data.roomId;
+            this.virtualPlayerService.handleVirtualPlayerTurn(server);
+        }
     }
 
     handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {

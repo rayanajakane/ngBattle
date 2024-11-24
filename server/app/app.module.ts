@@ -16,6 +16,7 @@ import { GameService } from './services/game.service';
 import { MapValidationService } from './services/map-validation.service';
 import { MatchService } from './services/match.service';
 import { MovementService } from './services/movement/movement.service';
+import { VirtualPlayerService } from './services/virtual-player/virtual-player.service';
 @Module({
     imports: [
         ConfigModule.forRoot(),
@@ -39,6 +40,7 @@ import { MovementService } from './services/movement/movement.service';
         CombatGateway,
         ActiveGamesService,
         CombatService,
+        VirtualPlayerService,
     ],
 })
 export class AppModule {}

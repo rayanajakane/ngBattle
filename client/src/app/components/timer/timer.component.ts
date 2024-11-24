@@ -13,7 +13,7 @@ import { interval, Subscription } from 'rxjs';
     styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnChanges {
-    @Input() timeLeft: number = TIME_LEFT; // Set the initial time in seconds
+    @Input() timeLeft: number | '--' = TIME_LEFT; // Set the initial time in seconds
     timerSubscription: Subscription | null = null;
     isRunning: boolean = false;
     isActive: boolean = false;
@@ -50,7 +50,7 @@ export class TimerComponent implements OnChanges {
         this.isRunning = true;
 
         this.timerSubscription = interval(COUNTDOWN_DELAY).subscribe(() => {
-            if (this.timeLeft > 0) {
+            if (this.timeLeft !== '--' && this.timeLeft > 0) {
                 this.timeLeft--;
             } else {
                 this.stopTimer(); // Stop the timer when it reaches zero
