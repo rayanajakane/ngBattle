@@ -40,5 +40,6 @@ import { MovementService } from './services/movement/movement.service';
         ActiveGamesService,
         CombatService,
     ],
+    exports: [ActionHandlerService],
 })
 export class AppModule {}

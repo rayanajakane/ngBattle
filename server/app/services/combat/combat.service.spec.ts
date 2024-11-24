@@ -1,15 +1,16 @@
 import { GameInstance } from '@app/data-structures/game-instance';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatService } from '@app/services/combat/combat.service';
+import { GameService } from '@app/services/game.service';
+import { MovementService } from '@app/services/movement/movement.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { GameService } from '../game.service';
-import { MovementService } from '../movement/movement.service';
-import { CombatService } from './combat.service';
 import { ICE_PENALTY } from './constants';
 
+/* eslint-disable */
 describe('CombatService', () => {
     let service: CombatService;
     let activeGamesService: ActiveGamesService;

@@ -1,17 +1,17 @@
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { MatchService } from '@app/services/match.service';
 import { TileTypes } from '@common/tile-types';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { CombatService } from '../combat/combat.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
-        private readonly combatService: CombatService,
+        @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -22,13 +22,6 @@ export class ActionHandlerService {
     getCurrentTimeFormatted(): string {
         const currentTime = new Date();
         return currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }); // HH:MM:SS in EST
-    }
-
-    private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
-        server.to(roomId).emit('playerPositionUpdate', {
-            playerId,
-            newPlayerPosition,
-        });
     }
 
     handleGameSetup(server: Server, roomId: string) {
@@ -191,5 +184,12 @@ export class ActionHandlerService {
             // remove game from server
             this.activeGamesService.removeGameInstance(roomId);
         }
+    }
+
+    private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
+        server.to(roomId).emit('playerPositionUpdate', {
+            playerId,
+            newPlayerPosition,
+        });
     }
 }

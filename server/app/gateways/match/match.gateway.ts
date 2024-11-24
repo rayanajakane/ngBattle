@@ -100,7 +100,6 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     }
 
     handleDisconnect(client: Socket) {
-        console.log('Client disconnected ( from handleDisconnect):', client.id);
         this.actionHandler.handleQuitGame(this.server, client);
         this.matchService.leaveAllRooms(this.server, client);
     }

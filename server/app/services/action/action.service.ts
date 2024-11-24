@@ -1,8 +1,8 @@
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { GameStructure } from '@common/game-structure';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
-import { ActiveGamesService } from '../active-games/active-games.service';
 
 @Injectable()
 export class ActionService {

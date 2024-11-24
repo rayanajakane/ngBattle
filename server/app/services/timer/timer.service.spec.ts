@@ -1,5 +1,5 @@
 import { TimerService } from './timer.service';
-
+/* eslint-disable */
 describe('TimerService', () => {
     let service: TimerService;
     let mockServer: unknown;

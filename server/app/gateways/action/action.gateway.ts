@@ -27,7 +27,6 @@ export class ActionGateway implements OnGatewayInit {
 
     @SubscribeMessage('move')
     handleMove(@MessageBody() data: { roomId: string; playerId: string; endPosition: number }, @ConnectedSocket() client: Socket) {
-        console.log('yooooooo');
         this.actionHandler.handleMove(data, this.server, client);
     }
 

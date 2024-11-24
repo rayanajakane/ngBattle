@@ -1,3 +1,4 @@
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatTimerService } from '@app/services/combat-timer/combat-timer.service';
 import {
@@ -14,13 +15,14 @@ import {
     RIGHT_TILE,
     SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
+    WINS_TO_WIN,
 } from '@app/services/combat/constants';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
+
 @Injectable()
 export class CombatService {
     fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
@@ -28,7 +30,7 @@ export class CombatService {
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
-        @Inject(ActionHandlerService) private readonly actionHandlerService: ActionHandlerService,
+        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
     ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
@@ -94,7 +96,7 @@ export class CombatService {
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
 
-        if (player.player.wins === 3) {
+        if (player.player.wins === WINS_TO_WIN) {
             let playersLeft = '';
             gameInstance.playersCoord.forEach((p) => {
                 playersLeft = playersLeft.concat(`${p.player.name} `);
@@ -127,7 +129,6 @@ export class CombatService {
             // verify if attributes are > 0
             player.player.attributes.currentAttack -= ICE_PENALTY;
             player.player.attributes.currentDefense -= ICE_PENALTY;
-            console.log('ice penalty', player.player.attributes.currentAttack, player.player.attributes.currentDefense);
         }
     }
 
@@ -219,12 +220,11 @@ export class CombatService {
                     const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
                     server
                         .to(roomId)
-                        .emit('newLog', { date: formattedTime, message: message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
+                        .emit('newLog', { date: formattedTime, message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
 
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
-            console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer, server);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }
@@ -246,14 +246,14 @@ export class CombatService {
         const killedOldPosition = playerKilled.position;
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
-            //this.disperseKilledPlayerObjects(roomId, playerKilled);
+            // this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
                 killed: playerKilled,
-                killedOldPosition: killedOldPosition,
+                killedOldPosition,
             });
 
             const fighters = this.endCombat(roomId, server, playerKiller);
@@ -284,7 +284,6 @@ export class CombatService {
         } else {
             // if the home position taken, find a new position near home position
             const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
-            console.log('verifiedPositions when teleport:', verifiedPositions);
             const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
             player.position = playerHomePosition + verifiedPositions[randomIndex];
             game.map[player.position].hasPlayer = true;
@@ -302,7 +301,7 @@ export class CombatService {
         const verifiedPositions = [];
         const mapLength = gameInstance.game.map.length;
 
-        let n: number = 0;
+        let n = 0;
         while (verifiedPositions.length === 0) {
             n++;
 
@@ -346,7 +345,6 @@ export class CombatService {
                 }
             }
         }
-        console.log('verifiedPositions:', verifiedPositions);
         return verifiedPositions;
     }
 
