@@ -20,12 +20,16 @@ import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { ActionHandlerService } from '../action-handler/action-handler.service';
 @Injectable()
 export class CombatService {
     fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
-    constructor(@Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService) {}
+    constructor(
+        @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
+        @Inject(ActionHandlerService) private readonly actionHandlerService: ActionHandlerService,
+    ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
     // with a setPlayerTurn method with more verification
@@ -91,6 +95,15 @@ export class CombatService {
         this.currentTurnMap.delete(roomId);
 
         if (player.player.wins === 3) {
+            let playersLeft = '';
+            gameInstance.playersCoord.forEach((p) => {
+                playersLeft = playersLeft.concat(`${p.player.name} `);
+            });
+            playersLeft = playersLeft.concat('.');
+            const logMessage = `Partie terminée: ${player.player.name} a gagné la partie. Joueurs restants: ${playersLeft}`;
+            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+            server.to(roomId).emit('newLog', { date: formattedTime, message: logMessage });
+
             server.to(roomId).emit('endGame', `${player.player.name} a gagné la partie`);
             this.activeGamesService.removeGameInstance(roomId);
             return;
@@ -202,18 +215,12 @@ export class CombatService {
                     const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer, server);
 
                     // log message
-                    const currentTime = new Date();
-                    const formattedTime = currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+                    const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
                     const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
                     server
                         .to(roomId)
                         .emit('newLog', { date: formattedTime, message: message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
 
-                    // if (playerKiller.player.wins === 3) {
-                    //     server.to(roomId).emit('endGame', `${playerKiller.player.name} a gagné la partie`);
-                    //     this.endCombat(roomId, server);
-                    //     this.activeGamesService.removeGameInstance(roomId);
-                    // }
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }

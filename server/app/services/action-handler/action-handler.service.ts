@@ -182,7 +182,12 @@ export class ActionHandlerService {
         server.to(roomId).emit('quitGame', playerId);
 
         if (activeGame.playersCoord.length === 1) {
+            const lastManStanding = activeGame.playersCoord[0].player.name;
+            const logMessage = `Partie terminée: ${lastManStanding} a gagné la partie. Joueurs restants: ${lastManStanding}`;
+            server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: logMessage });
+
             server.to(roomId).emit('lastManStanding');
+
             // remove game from server
             this.activeGamesService.removeGameInstance(roomId);
         }

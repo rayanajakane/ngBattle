@@ -85,11 +85,6 @@ export class CombatGateway {
                 .to(data.roomId)
                 .emit('newLog', { date: formattedTime, message: message, sender: player.player.id, receiver: defender.player.id, exclusive: true });
 
-            // if (player.player.wins === 3) {
-            //     this.server.to(data.roomId).emit('endGame', `${player.player.name} a gagné la partie`);
-            //     this.handleEndCombat(client, data);
-            //     this.activeGameService.removeGameInstance(data.roomId);
-            // }
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(data.roomId, defender);
                 this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
