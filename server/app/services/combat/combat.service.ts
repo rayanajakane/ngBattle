@@ -94,12 +94,15 @@ export class CombatService {
         this.currentTurnMap.delete(roomId);
 
         if (player.player.wins === 3) {
-            const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.globalStats;
-            const players = this.fightersMap.get(roomId).map((fighter) => fighter.player);
+            const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
+            const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
+            console.log('allPlayers:', allPlayers[0].stats.visitedTiles);
+            console.log('globalStats:', globalStats);
             server
                 .to(roomId)
-                .emit('endGame', { globalStats: globalStats, players: players, endGameMessage: `${player.player.name} a gagné la partie` });
-            this.activeGamesService.removeGameInstance(roomId);
+                .emit('endGame', { globalStats: globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
+            //TODO: Delete game instance later
+            //this.activeGamesService.removeGameInstance(roomId);
             return;
         }
 
@@ -209,8 +212,9 @@ export class CombatService {
     attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord, boolean] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
-            if (checkAttack[0]) {
-                defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
+            // checkAttack[0]
+            if (true) {
+                defensePlayer.player.attributes.currentHealth = 0; //-= SUCCESSFUL_ATTACK_DAMAGE;
                 defensePlayer.player.stats.totalHealthLost += SUCCESSFUL_ATTACK_DAMAGE;
                 attackPlayer.player.stats.totalHealthTaken += SUCCESSFUL_ATTACK_DAMAGE;
                 console.log('health:', defensePlayer.player.stats.totalHealthLost, attackPlayer.player.stats.totalHealthTaken);

@@ -43,7 +43,7 @@
 
         <ng-container matColumnDef="visitedTilesPercent">
             <th mat-header-cell value="visitedTilesPercent" *matHeaderCellDef mat-sort-header>% de tuiles visités</th>
-            <td mat-cell *matCellDef="let player">{{ player.visitedTilesPercent }}%</td>
+            <td mat-cell *matCellDef="let player">{{ player.visitedTilesPercent.toFixed(2) }}%</td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>

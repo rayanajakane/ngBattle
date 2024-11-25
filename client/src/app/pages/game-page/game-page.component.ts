@@ -416,9 +416,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
             verticalPosition: 'top',
         });
     }
-
     redirectEndGame(globalStats: GlobalStats, players: Player[], endGameMessage: string) {
         let navData;
+        console.log('players', players);
+        console.log('players[0].stats', players[0].stats);
+        console.log('globalStats', globalStats);
         setTimeout(() => {
             navData = {
                 roomId: this.gameController.roomId,
@@ -426,7 +428,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 globalStats: globalStats,
                 players: players,
             };
-            this.router.navigate(['/gameEnd', navData]);
+            const navDataString = JSON.stringify(navData);
+            this.router.navigate(['/gameEnd'], { queryParams: { data: navDataString } });
         }, 1000);
         this.snackbar.open(endGameMessage, 'Fermer', {
             duration: SNACKBAR_DURATION,
@@ -437,6 +440,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.mapService.resetMovementPrevisualization();
-        this.socketService.disconnect();
+        //this.socketService.disconnect();
     }
 }

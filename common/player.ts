@@ -39,16 +39,5 @@ export interface PlayerStats {
     totalHealthTaken: number;
     uniqueItemsCollected: number;
     visitedTilesPercent: number;
-}
-
-export interface PlayerStats {
-    combatCount: number;
-    escapeCount: number;
-    victoryCount: number;
-    defeatCount: number;
-    totalHealthLost: number;
-    totalHealthTaken: number;
-    uniqueItemsCollected: number;
-    visitedTilesPercent: number;
     visitedTiles: Set<number>;
 }
