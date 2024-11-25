@@ -8,7 +8,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
-import { CombatTimerComponent } from '@app/components/combat-timer/combat-timer.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
@@ -17,7 +16,7 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { SNACKBAR_DURATION } from '@app/pages/game-page/constant';
+import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_DURATION } from '@app/pages/game-page/constant';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
@@ -35,7 +34,6 @@ export interface ShortestPathByTile {
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     imports: [
-        CombatTimerComponent,
         ChatComponent,
         InventoryComponent,
         MatCardModule,
@@ -73,10 +71,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     combatInitiatorId: string = '';
 
+    readonly gameController = inject(GameControllerService);
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
-    readonly gameController = inject(GameControllerService);
 
     constructor(
         private route: ActivatedRoute,
@@ -309,7 +307,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     listenKilledPlayer() {
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
-            if (data.killer.player.wins < 3) {
+            if (data.killer.player.wins < MAX_NUMBER_OF_WINS) {
                 this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
                 this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
                 this.gameController.setActivePlayer(this.combatInitiatorId);
@@ -419,7 +417,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     redirectEndGame(endGameMessage: string) {
         setTimeout(() => {
             this.router.navigate(['/home']);
-        }, 1000);
+        }, ENDGAME_DELAY);
         this.snackbar.open(endGameMessage, 'Fermer', {
             duration: SNACKBAR_DURATION,
             horizontalPosition: 'center',

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { GameState } from '@common/game-structure';
 import { ActionStateService } from './action-state.service';
+import { TEST_AVAILABLE_TILES } from './constants';
 
 describe('ActionStateService', () => {
     let service: ActionStateService;
@@ -16,7 +17,7 @@ describe('ActionStateService', () => {
     });
 
     it('should initialize previsualization with accessible tiles', () => {
-        const accessibleTiles = [1, 2, 3];
+        const accessibleTiles = TEST_AVAILABLE_TILES;
         spyOn(service, 'setAvailableTiles');
         service.initializePrevisualization(accessibleTiles);
         expect(service.setAvailableTiles).toHaveBeenCalledWith(accessibleTiles);
@@ -36,11 +37,5 @@ describe('ActionStateService', () => {
         const result = service.onMouseDown(1);
         expect(service.availablesTilesIncludes).toHaveBeenCalledWith(1);
         expect(result).toBe(GameState.MOVING);
-    });
-
-    it('should log message on mouse enter', () => {
-        spyOn(console, 'log');
-        service.onMouseEnter();
-        expect(console.log).toHaveBeenCalledWith('You are doing action');
     });
 });

@@ -15,10 +15,11 @@ export abstract class MapBaseService {
         return (tile as GameTile).player !== undefined;
     }
 
-    abstract onRightClick(index: number): void;
-    abstract onMouseDown(index: number, event: MouseEvent): void;
-    abstract onMouseUp(index: number, event: MouseEvent): void;
-    abstract onDrop(index: number): void;
-    abstract onMouseEnter(index: number, event: MouseEvent): void;
-    abstract onExit(): void;
+    /* eslint-disable */ // intentionnaly left empty to do nothing if not reimplemented by child class
+    onRightClick(index: number): void {}
+    onMouseDown(index: number, event: MouseEvent): void {}
+    onMouseUp(index: number, event: MouseEvent): void {}
+    onDrop(index: number): void {}
+    onMouseEnter(index: number, event: MouseEvent): void {}
+    onExit(): void {}
 }

@@ -96,7 +96,7 @@ export class CombatService {
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
 
-        if (player.player.wins === WINS_TO_WIN) {
+        if (player && player.player.wins === WINS_TO_WIN) {
             let playersLeft = '';
             gameInstance.playersCoord.forEach((p) => {
                 playersLeft = playersLeft.concat(`${p.player.name} `);

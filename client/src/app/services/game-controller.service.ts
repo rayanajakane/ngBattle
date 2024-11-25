@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
@@ -21,9 +21,7 @@ export class GameControllerService {
 
     fighters: PlayerCoord[] = [];
 
-    private readonly socketService = inject(SocketService);
-
-    constructor() {}
+    constructor(private readonly socketService: SocketService) {}
 
     setFighters(fighters: PlayerCoord[]): void {
         this.fighters = fighters;
@@ -138,12 +136,11 @@ export class GameControllerService {
     }
 
     requestMove(endPosition: number): void {
-        console.log('requestMove', endPosition);
         this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition });
     }
 
     requestEndTurn(lastTurn: boolean = false): void {
-        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player.id, lastTurn: lastTurn });
+        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player.id, lastTurn });
     }
 
     requestStartAction(): void {

@@ -20,8 +20,6 @@ export class MapGameService extends MapBaseService {
     currentStateNumber: GameState;
     private currentState: BaseStateService;
 
-    /* eslint-disable */ // Methods to be implemented in the next sprint
-
     constructor(
         private notPlaying: NotPlayingStateService,
         private moving: MovingStateService,
@@ -59,8 +57,6 @@ export class MapGameService extends MapBaseService {
     onRightClick(index: number): void {
         this.currentState.onRightClick(this.tiles[index]);
     }
-    onExit(): void {}
-    onDrop(index: number): void {}
 
     onMouseDown(index: number, event: MouseEvent): void {
         event.preventDefault();
@@ -163,7 +159,6 @@ export class MapGameService extends MapBaseService {
 
     removePlayerById(playerId: string): void {
         const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
-        console.log('removePlayerById', index);
         if (index !== -1) {
             this.removePlayer(index);
         }
@@ -197,7 +192,6 @@ export class MapGameService extends MapBaseService {
 
     checkIfTargetAvailable(index: number, mapSize: number): boolean {
         const potentialindexes: number[] = [index - 1, index + 1, index - mapSize, index + mapSize];
-        console.log('checkIfTargetAvailable', potentialindexes);
         return potentialindexes.some((potentialIndex) => this.checkIfDoorOrPlayer(potentialIndex));
     }
 

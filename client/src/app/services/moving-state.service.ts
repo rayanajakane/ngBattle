@@ -12,17 +12,11 @@ export class MovingStateService extends BaseStateService {
     }
 
     onMouseDown(index: number): GameState {
-        console.log('You are moving', index);
         if (this.availablesTilesIncludes(index)) {
-            console.log('available tiles include', index);
             this.resetMovementPrevisualization();
             this.gameController.requestMove(index);
             return GameState.NOTPLAYING;
         }
         return GameState.MOVING;
-    }
-
-    onMouseEnter(): void {
-        console.log('You are moving');
     }
 }

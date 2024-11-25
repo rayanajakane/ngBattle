@@ -20,11 +20,12 @@ export class CombatInterfaceComponent implements OnChanges {
     @Input() currentDefense: number;
     @Input() attackSuccessful: boolean;
     @Input() escapeChance: number | '--' = '--';
+    @Output() selectCombatActionEvent = new EventEmitter<string>();
+
     combatInfo: string = '';
     attackerDiceInfo: string = '';
     defenderDiceInfo: string = '';
     escapeChanceInfo: string = '';
-    @Output() selectCombatActionEvent = new EventEmitter<string>();
 
     ngOnChanges() {
         this.attackerDiceInfo = 'Résultats des dés attaquant : ' + this.attackerDiceResult;
@@ -33,12 +34,10 @@ export class CombatInterfaceComponent implements OnChanges {
     }
 
     attack() {
-        console.log('Attaque');
         this.selectCombatActionEvent.emit('attack');
     }
 
     escape() {
-        console.log('Evasion');
         this.selectCombatActionEvent.emit('escape');
     }
 }

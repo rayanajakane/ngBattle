@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GameTile } from '@common/game-structure';
 import { TileTypes } from '@common/tile-types';
@@ -7,15 +7,17 @@ import { TileTypes } from '@common/tile-types';
     selector: 'app-tile-info-modal',
     templateUrl: './tile-info-modal.component.html',
 })
-export class TileInfoModalComponent {
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { tile: GameTile }) {}
+export class TileInfoModalComponent implements OnInit {
     tileType: string;
     objectName: string;
     objectDescription: string;
     avatarName: string;
     tileCost: string;
     tileEffect: string;
-    ObjectEffect: string;
+    objectEffect: string;
+
+    constructor(@Inject(MAT_DIALOG_DATA) public data: { tile: GameTile }) {}
+
     // TODO : add the cost and effect of each tile ( object & tile effect)
     // TODO : add the correct path for the avatar
     ngOnInit() {

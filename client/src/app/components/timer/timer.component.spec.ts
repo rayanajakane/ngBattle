@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TIME_LEFT } from '@app/components/timer/constant';
+import { RANDOM_TIME_STATE, TIME_LEFT } from '@app/components/timer/constant';
 import { TimerState } from '@common/game-structure';
 import { TimerComponent } from './timer.component';
 
@@ -46,7 +46,7 @@ describe('TimerComponent', () => {
     });
 
     it('should set timerStateEnum to an empty string when timerState is undefined', () => {
-        component.timerState = 10 as TimerState;
+        component.timerState = RANDOM_TIME_STATE as TimerState;
         component.ngOnChanges();
         expect(component.timerStateEnum).toBe('');
     });

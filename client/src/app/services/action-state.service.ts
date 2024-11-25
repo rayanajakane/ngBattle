@@ -17,8 +17,4 @@ export class ActionStateService extends BaseStateService {
         }
         return GameState.MOVING;
     }
-
-    onMouseEnter(): void {
-        console.log('You are doing action');
-    }
 }

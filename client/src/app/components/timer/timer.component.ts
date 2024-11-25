@@ -14,11 +14,11 @@ import { Subscription } from 'rxjs';
 })
 export class TimerComponent implements OnChanges {
     @Input() timeLeft: number | '--' = TIME_LEFT; // Set the initial time in seconds
+    @Input() timerState: TimerState;
+
     timerSubscription: Subscription | null = null;
     isRunning: boolean = false;
     isActive: boolean = false;
-
-    @Input() timerState: TimerState;
     timerStateEnum: string;
 
     ngOnChanges() {

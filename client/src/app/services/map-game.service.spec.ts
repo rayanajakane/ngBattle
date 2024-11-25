@@ -321,6 +321,7 @@ describe('MapGameService', () => {
 
     it('should check if target is available correctly', () => {
         spyOn(service, 'checkIfDoorOrPlayer').and.returnValue(true);
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         expect(service.checkIfTargetAvailable(0, 3)).toBe(true);
     });
 
