@@ -1,13 +1,13 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GameTile } from '@common/game-structure';
-import { TileTypes } from '@common/tile-types';
+import { ItemTypes, TileTypes } from '@common/tile-types';
 
 @Component({
     selector: 'app-tile-info-modal',
     templateUrl: './tile-info-modal.component.html',
 })
-export class TileInfoModalComponent implements OnInit {
+export class TileInfoModalComponent {
     tileType: string;
     objectName: string;
     objectDescription: string;
@@ -16,61 +16,55 @@ export class TileInfoModalComponent implements OnInit {
     tileEffect: string;
     objectEffect: string;
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { tile: GameTile }) {}
+    constructor(@Inject(MAT_DIALOG_DATA) public data: { tile: GameTile }) {
+        this.tileType = this.chooseTileType(this.data.tile.tileType);
+        this.objectName = this.chooseObjectName(this.data.tile.item);
+    }
 
     // TODO : add the cost and effect of each tile ( object & tile effect)
     // TODO : add the correct path for the avatar
-    ngOnInit() {
-        // Set the tile type
-        switch (this.data.tile.tileType) {
+    chooseTileType(tileType: string) {
+        switch (tileType) {
             case TileTypes.WALL:
-                this.tileType = 'Mur frl';
-                break;
+                return 'Mur';
             case TileTypes.DOOR:
-                this.tileType = 'Porte';
-                break;
+                return 'Porte';
+            case TileTypes.DOOROPEN:
+                return 'Porte ouverte';
+            case TileTypes.DOORCLOSED:
+                return 'Porte fermée';
             case TileTypes.WATER:
-                this.tileType = 'Eau';
-                break;
+                return 'Eau';
             case TileTypes.ICE:
-                this.tileType = 'Glace';
-                break;
-        }
-        // Set the object names
-        switch (this.data.tile.item) {
-            case 'AA1':
-                this.objectName = 'Arme à feu';
-                break;
-            case 'AA2':
-                this.objectName = 'Arme à feu 2';
-                break;
-            case 'AC1':
-                this.objectName = 'Arme contondante';
-                break;
-            case 'AC2':
-                this.objectName = 'Arme contondante 2';
-                break;
-            case 'AF1':
-                this.objectName = 'Arme de jet';
-                break;
-            case 'AF2':
-                this.objectName = 'Arme de jet 2';
-                break;
-            case 'item-aleatoire':
-                this.objectName = 'Objet aléatoire';
-                break;
-            case 'startingPoint':
-                this.objectName = 'Point de départ';
-                break;
-            case 'drapeau-A':
-                this.objectName = 'Drapeau A';
-                break;
-            case 'drapeau-B':
-                this.objectName = 'Drapeau B';
-                break;
+                return 'Glace';
             default:
-                this.objectName = 'Aucun objet';
-                break;
+                return 'Terrain';
+        }
+    }
+    chooseObjectName(item: string) {
+        switch (item) {
+            case ItemTypes.AA1:
+                return 'Arme à feu';
+            case ItemTypes.AA2:
+                return 'Arme à feu 2';
+            case ItemTypes.AC1:
+                return 'Arme contondante';
+            case ItemTypes.AC2:
+                return 'Arme contondante 2';
+            case ItemTypes.AF1:
+                return 'Arme de jet';
+            case ItemTypes.AF2:
+                return 'Arme de jet 2';
+            case ItemTypes.RANDOMITEM:
+                return 'Objet aléatoire';
+            case ItemTypes.STARTINGPOINT:
+                return 'Point de départ';
+            case ItemTypes.FLAGA:
+                return 'Drapeau A';
+            case ItemTypes.FLAGB:
+                return 'Drapeau B';
+            default:
+                return 'Aucun objet';
         }
     }
 }

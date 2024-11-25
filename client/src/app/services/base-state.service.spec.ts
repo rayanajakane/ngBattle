@@ -92,4 +92,16 @@ describe('BaseStateService', () => {
         service.setShortestPathByTile(shortestPath);
         expect(service.getShortestPathByIndex(RANDOM_TILE_INDEX)).toBeUndefined();
     });
+
+    it('should initialize previsualization with accessible tiles', () => {
+        const accessibleTiles: ShortestPathByTile = TEST_SHORTEST_PATH;
+        service.initializePrevisualization(accessibleTiles);
+        expect(() => service.initializePrevisualization(accessibleTiles)).not.toThrow();
+    });
+
+    it('should initialize previsualization with accessible tile indices', () => {
+        const accessibleTiles: number[] = TEST_AVAILABLE_TILES;
+        service.initializePrevisualization(accessibleTiles);
+        expect(() => service.initializePrevisualization(accessibleTiles)).not.toThrow();
+    });
 });
