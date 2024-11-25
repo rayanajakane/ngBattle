@@ -99,7 +99,7 @@ export class MatchService {
 
         const player: Player = {
             id: client.id,
-            name: playerData.playerName,
+            name: checkedPlayerName,
             isAdmin: true,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
