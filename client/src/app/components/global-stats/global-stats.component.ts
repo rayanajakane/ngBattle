@@ -13,4 +13,12 @@ export class GlobalStatsComponent {
     //globalStats: GlobalStats = { matchLength: 0, nbTurns: 0, visitedTilesPercent: 0, usedDoorsPercent: 0, nbPlayersHeldFlag: 0 };
 
     @Input() gameMode: string;
+
+    formatMatchLength(length: number): string {
+        const minutes = Math.floor(length / 60);
+
+        const seconds = (length % 60).toString().padStart(2, '0');
+
+        return `${minutes}:${seconds}`;
+    }
 }
