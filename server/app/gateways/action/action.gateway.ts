@@ -27,6 +27,7 @@ export class ActionGateway implements OnGatewayInit {
 
     @SubscribeMessage('move')
     handleMove(@MessageBody() data: { roomId: string; playerId: string; endPosition: number }, @ConnectedSocket() client: Socket) {
+        console.log('yooooooo');
         this.actionHandler.handleMove(data, this.server, client);
     }
 
@@ -38,11 +39,6 @@ export class ActionGateway implements OnGatewayInit {
     @SubscribeMessage('interactDoor')
     handleInteractDoor(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
         this.actionHandler.handleInteractDoor(data, this.server, client);
-    }
-
-    @SubscribeMessage('quitGame')
-    handleQuitGame(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string }) {
-        this.actionHandler.handleQuitGame(data, this.server, client);
     }
 
     afterInit(server: Server) {

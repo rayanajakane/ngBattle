@@ -4,8 +4,6 @@ import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { ActiveGamesService } from '../active-games/active-games.service';
 
-// TODO: declare the Coord interface interface in a separate file and import it here
-
 @Injectable()
 export class ActionService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -39,6 +37,11 @@ export class ActionService {
         return currentPlayer.id === playerId;
     }
 
+    // changePlayerTurn( roomId: string, playerId: string): void {
+    //     const gameInstance = this.activeGamesService.getActiveGame(roomId);
+    //     const playerIndex = gameInstance.playersCoord.find((player) => player.player.id === playerId).position;
+    //     gameInstance.turn = playerIndex;
+    // }
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game: GameStructure = gameInstance.game;

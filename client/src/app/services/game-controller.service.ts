@@ -65,10 +65,6 @@ export class GameControllerService {
         });
     }
 
-    // setActiveFighter(index: number): void {
-    //     this.activePlayer = this.fighters[index].player;
-    // }
-
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;
     }
@@ -142,6 +138,7 @@ export class GameControllerService {
     }
 
     requestMove(endPosition: number): void {
+        console.log('requestMove', endPosition);
         this.socketService.emit('move', { roomId: this.roomId, playerId: this.player.id, endPosition });
     }
 
@@ -153,6 +150,10 @@ export class GameControllerService {
         if (this.activePlayer.id === this.player.id) {
             this.socketService.emit('startAction', { roomId: this.roomId, playerId: this.player.id });
         }
+    }
+
+    requestCheckAction(): void {
+        this.socketService.emit('checkAction', { roomId: this.roomId, playerId: this.player.id });
     }
 
     // change back-end
@@ -168,9 +169,11 @@ export class GameControllerService {
         this.socketService.emit('getAvailableMovesOnBudget', { roomId: this.roomId, playerId: this.player.id, currentBudget });
     }
 
-    requestEndCombatTurn(): void {}
-
     requestQuitGame(): void {
         this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    requestEndCombat(): void {
+        this.socketService.emit('endCombat', { roomId: this.roomId, playerId: this.player.id });
     }
 }

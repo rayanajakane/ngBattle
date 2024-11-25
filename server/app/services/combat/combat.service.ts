@@ -22,7 +22,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 @Injectable()
 export class CombatService {
-    private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
+    fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
     constructor(@Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService) {}
@@ -64,7 +64,6 @@ export class CombatService {
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
             gameInstance.combatTimer.startTimer(true);
-            // this.startCombatTtimer(roomId, true, server); // start combat timer
 
             // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
@@ -79,14 +78,10 @@ export class CombatService {
         }
     }
 
-    endCombat(roomId: string, player?: PlayerCoord): PlayerCoord[] {
+    endCombat(roomId: string, server: Server, player?: PlayerCoord): PlayerCoord[] {
         // inc wins if a player leaves game
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
-
-        if (this.fightersMap.get(roomId).length === 1) {
-            this.setWinner(roomId, player);
-        }
 
         const fighters = this.fightersMap.get(roomId);
         if (fighters.length !== 0) {
@@ -98,7 +93,14 @@ export class CombatService {
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
 
+        if (player.player.wins === 3) {
+            server.to(roomId).emit('endGame', `${player.player.name} a gagné la partie`);
+            this.activeGamesService.removeGameInstance(roomId);
+            return;
+        }
+
         gameInstance.turnTimer.resumeTimer();
+        server.to(roomId).emit('endCombat', fighters);
 
         return fighters;
     }
@@ -129,7 +131,6 @@ export class CombatService {
 
     escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
-        console.log('escape:', player.player.attributes.escape);
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
             return [player.player.attributes.escape, false];
         }
@@ -211,13 +212,7 @@ export class CombatService {
                 console.log('health:', defensePlayer.player.stats.totalHealthLost, attackPlayer.player.stats.totalHealthTaken);
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const killedPlayerOldPosition = defensePlayer.position;
-                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer);
-                    server.to(roomId).emit('killedPlayer', {
-                        killer: playerKiller,
-                        killed: playerKilled,
-                        killedOldPosition: killedPlayerOldPosition,
-                    });
-                    server.to(roomId).emit('endCombat', fighters);
+                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer, server);
 
                     // log message
                     const currentTime = new Date();
@@ -226,6 +221,12 @@ export class CombatService {
                     server
                         .to(roomId)
                         .emit('newLog', { date: formattedTime, message: message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
+
+                    // if (playerKiller.player.wins === 3) {
+                    //     server.to(roomId).emit('endGame', `${playerKiller.player.name} a gagné la partie`);
+                    //     this.endCombat(roomId, server);
+                    //     this.activeGamesService.removeGameInstance(roomId);
+                    // }
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
@@ -245,16 +246,24 @@ export class CombatService {
         }
     }
 
-    killPlayer(roomId: string, player: PlayerCoord): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
+    killPlayer(roomId: string, player: PlayerCoord, server: Server): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
+        const killedOldPosition = playerKilled.position;
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
             //this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
-            const fighters = this.endCombat(roomId, playerKiller);
+            server.to(roomId).emit('killedPlayer', {
+                killer: playerKiller,
+                killed: playerKilled,
+                killedOldPosition: killedOldPosition,
+            });
+
+            const fighters = this.endCombat(roomId, server, playerKiller);
+
             playerKilled.player.stats.defeatCount++;
             console.log('defeat:', playerKilled.player.stats.defeatCount);
             return [playerKiller, playerKilled, fighters];
@@ -283,6 +292,7 @@ export class CombatService {
         } else {
             // if the home position taken, find a new position near home position
             const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
+            console.log('verifiedPositions when teleport:', verifiedPositions);
             const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
             player.position = playerHomePosition + verifiedPositions[randomIndex];
             game.map[player.position].hasPlayer = true;
@@ -297,26 +307,59 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const mapSize = parseInt(game.mapSize, 10);
-        const possiblePositions = [RIGHT_TILE, LEFT_TILE, mapSize, -mapSize];
         const verifiedPositions = [];
-        possiblePositions.forEach((pos) => {
-            if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
-                verifiedPositions.push(pos);
-            } else {
-                pos *= 2;
-            }
-            if (verifiedPositions.length === 0) {
-                if (game.map[position + pos].tileType !== TileTypes.WALL && game.map[position + pos].tileType !== TileTypes.DOORCLOSED) {
-                    verifiedPositions.push(pos);
+        const mapLength = gameInstance.game.map.length;
+
+        let n: number = 0;
+        while (verifiedPositions.length === 0) {
+            n++;
+
+            // Check right movement
+            if (position % mapSize < mapSize) {
+                if (
+                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.WALL &&
+                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(RIGHT_TILE * n);
                 }
             }
-        });
+
+            // Check left movement
+            if (position % mapSize <= 0) {
+                if (
+                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.WALL &&
+                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(LEFT_TILE * n);
+                }
+            }
+
+            // Check upward movement
+            if (position - mapSize * n >= 0) {
+                if (
+                    game.map[position - mapSize * n].tileType !== TileTypes.WALL &&
+                    game.map[position - mapSize * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(n * mapSize * -1);
+                }
+            }
+
+            // Check downward movement
+            if (position + mapSize * n < mapLength) {
+                if (
+                    game.map[position + mapSize * n].tileType !== TileTypes.WALL &&
+                    game.map[position + mapSize * n].tileType !== TileTypes.DOORCLOSED
+                ) {
+                    verifiedPositions.push(mapSize * n);
+                }
+            }
+        }
+        console.log('verifiedPositions:', verifiedPositions);
         return verifiedPositions;
     }
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player)) {
-            console.log('escape left:', player.player.attributes.escape);
             const randomNumber = Math.random();
             return randomNumber < ESCAPE_PROBABILITY;
         }

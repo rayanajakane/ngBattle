@@ -41,34 +41,4 @@ export class TimerComponent implements OnChanges {
                 break;
         }
     }
-
-    // startTimer() {
-    //     if (this.isRunning) {
-    //         this.stopTimer(); // Stop the existing timer if it's running
-    //     }
-    //     this.isActive = true;
-    //     this.isRunning = true;
-
-    //     this.timerSubscription = interval(COUNTDOWN_DELAY).subscribe(() => {
-    //         if (this.timeLeft > 0) {
-    //             this.timeLeft--;
-    //         } else {
-    //             this.stopTimer(); // Stop the timer when it reaches zero
-    //         }
-    //     });
-    // }
-
-    // // this can be called at the end of the turn.
-    // stopTimer() {
-    //     if (this.timerSubscription) {
-    //         this.timerSubscription.unsubscribe();
-    //         this.timerSubscription = null;
-    //     }
-    //     this.isRunning = false;
-    //     this.isActive = false;
-    // }
-
-    // ngOnDestroy() {
-    //     this.stopTimer();
-    // }
 }

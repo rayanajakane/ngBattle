@@ -20,10 +20,7 @@ export class MapGameService extends MapBaseService {
     currentStateNumber: GameState;
     private currentState: BaseStateService;
 
-    // private eventSubject = new Subject<number>();
-
     /* eslint-disable */ // Methods to be implemented in the next sprint
-    // event$ = this.eventSubject.asObservable();
 
     constructor(
         private notPlaying: NotPlayingStateService,
@@ -76,15 +73,6 @@ export class MapGameService extends MapBaseService {
                     this.switchToMovingStateRoutine();
                 }
             }
-            // if (this.currentState.onMouseDown(index)) {
-            //     this.removeAllPreview();
-            // }
-
-            // this.removeAllPreview();
-            // this.currentState.onMouseDown(index);
-            // if (true) {
-            //     this.removeAllPreview();
-            // }
         }
     }
 
@@ -175,8 +163,8 @@ export class MapGameService extends MapBaseService {
 
     removePlayerById(playerId: string): void {
         const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
+        console.log('removePlayerById', index);
         if (index !== -1) {
-            console.log('removePlayerById', index);
             this.removePlayer(index);
         }
     }
