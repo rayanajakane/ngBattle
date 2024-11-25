@@ -23,7 +23,8 @@ import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, TimerState } from '@common/game-structure';
-import { PlayerCoord } from '@common/player';
+import { GlobalStats } from '@common/global-stats';
+import { Player, PlayerCoord } from '@common/player';
 
 export interface ShortestPathByTile {
     [key: number]: number[];
@@ -371,8 +372,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     listenEndGame() {
-        this.socketService.on('endGame', (endGameMessage: string) => {
-            this.redirectEndGame(endGameMessage);
+        this.socketService.on('endGame', (data: { globalStats: GlobalStats; players: Player[]; endGameMessage: string }) => {
+            this.redirectEndGame(data.globalStats, data.players, data.endGameMessage);
         });
     }
 
@@ -416,9 +417,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    redirectEndGame(endGameMessage: string) {
+    redirectEndGame(globalStats: GlobalStats, players: Player[], endGameMessage: string) {
+        let navData;
         setTimeout(() => {
-            this.router.navigate(['/home']);
+            navData = {
+                roomId: this.gameController.roomId,
+                characterName: this.gameController.player.name,
+                globalStats: globalStats,
+                players: players,
+            };
+            this.router.navigate(['/gameEnd', navData]);
         }, 1000);
         this.snackbar.open(endGameMessage, 'Fermer', {
             duration: SNACKBAR_DURATION,

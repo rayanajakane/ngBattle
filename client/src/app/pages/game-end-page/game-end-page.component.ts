@@ -26,6 +26,8 @@ export class GameEndPageComponent implements OnInit {
         this.route.params.subscribe((params) => {
             this.roomId = params.roomId;
             this.characterName = params.characterName;
+            this.globalStats = params.globalStats;
+            this.playerList = params.players;
         });
     }
 }

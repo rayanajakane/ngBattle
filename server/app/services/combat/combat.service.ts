@@ -94,7 +94,11 @@ export class CombatService {
         this.currentTurnMap.delete(roomId);
 
         if (player.player.wins === 3) {
-            server.to(roomId).emit('endGame', `${player.player.name} a gagné la partie`);
+            const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.globalStats;
+            const players = this.fightersMap.get(roomId).map((fighter) => fighter.player);
+            server
+                .to(roomId)
+                .emit('endGame', { globalStats: globalStats, players: players, endGameMessage: `${player.player.name} a gagné la partie` });
             this.activeGamesService.removeGameInstance(roomId);
             return;
         }
