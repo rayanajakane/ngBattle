@@ -1,3 +1,5 @@
+import { Player, PlayerAttribute } from '@common/player';
+
 /* eslint-disable */
 export const DEFAULT_STARTING_POINT_NUMBER = 5;
 export const DEFAULT_MAP_SIZE_SMALL = 10;
@@ -10,3 +12,25 @@ export const TEST_AVAILABLE_TILES = [1, 2, 3];
 export const RANDOM_TILE_INDEX = 4;
 export const TEST_SHORTEST_PATH = { 1: [2, 3] };
 export const TEST_SHORTEST_PATH_BY_INDEX = { 1: [2, 3], 2: [3, 4] };
+
+export const MOCK_PLAYER: Player = {
+    id: '1',
+    name: 'player1',
+    isAdmin: false,
+    avatar: '1',
+    attributes: {} as PlayerAttribute,
+    isActive: false,
+    abandoned: false,
+    wins: 0,
+};
+
+export const MOCK_PLAYER_TWO: Player = {
+    id: '2',
+    name: 'player2',
+    isAdmin: false,
+    avatar: '2',
+    attributes: {} as PlayerAttribute,
+    isActive: false,
+    abandoned: false,
+    wins: 0,
+};

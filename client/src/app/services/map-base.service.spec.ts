@@ -1,18 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { GameTile, TilePreview, TileStructure } from '@common/game-structure';
-import { Player, PlayerAttribute } from '@common/player';
+import { Player } from '@common/player';
+import { MOCK_PLAYER } from './constants';
 import { MapBaseService } from './map-base.service';
-
-const player1: Player = {
-    id: '1',
-    name: 'player1',
-    isAdmin: false,
-    avatar: '1',
-    attributes: {} as PlayerAttribute,
-    isActive: false,
-    abandoned: true,
-    wins: 0,
-};
 
 describe('MapBaseService', () => {
     let service: MapBaseService;
@@ -33,7 +23,7 @@ describe('MapBaseService', () => {
             item: '',
             hasPlayer: false,
             isAccessible: TilePreview.NONE,
-            player: player1,
+            player: MOCK_PLAYER,
         };
         const tileJson: TileStructure = {
             idx: 0,
