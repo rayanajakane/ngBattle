@@ -45,19 +45,33 @@ export class GameControllerService {
         this.incrementItemCount();
     }
 
-    removeItem(): ItemTypes {
-        if (this.itemCount === 0) {
-            throw new Error('Cannot remove more items');
+    removeItemByType(itemType: ItemTypes): void {
+        let item = this.inventory.find((item, index) => {
+            if (item === itemType) {
+                this.inventory[index] = ItemTypes.EMPTY;
+                this.decrementItemCount();
+                return true;
+            }
+            return false;
+        });
+        if (!item) {
+            throw new Error('Item not found in inventory');
         }
-        const item = this.inventory[1] !== ItemTypes.EMPTY ? this.inventory[1] : this.inventory[0];
-        if (this.inventory[1] !== ItemTypes.EMPTY) {
-            this.inventory[1] = ItemTypes.EMPTY;
-        } else if (this.inventory[0] !== ItemTypes.EMPTY) {
-            this.inventory[0] = ItemTypes.EMPTY;
-        }
-        this.decrementItemCount();
-        return item;
     }
+
+    // removeItem(): ItemTypes {
+    //     if (this.itemCount === 0) {
+    //         throw new Error('Cannot remove more items');
+    //     }
+    //     const item = this.inventory[1] !== ItemTypes.EMPTY ? this.inventory[1] : this.inventory[0];
+    //     if (this.inventory[1] !== ItemTypes.EMPTY) {
+    //         this.inventory[1] = ItemTypes.EMPTY;
+    //     } else if (this.inventory[0] !== ItemTypes.EMPTY) {
+    //         this.inventory[0] = ItemTypes.EMPTY;
+    //     }
+    //     this.decrementItemCount();
+    //     return item;
+    // }
 
     incrementItemCount(): void {
         this.itemCount++;
