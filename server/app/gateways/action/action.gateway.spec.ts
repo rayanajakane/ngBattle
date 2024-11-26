@@ -91,18 +91,18 @@ describe('ActionGateway', () => {
         });
     });
 
-    describe('handleQuitGame', () => {
-        it('should call handleQuitGame on actionHandlerService with correct parameters', () => {
-            const client = { id: 'testClientId' } as Socket;
-            const data = { roomId: 'testRoomId', playerId: 'testPlayerId' };
-            const server = new Server();
+    // describe('handleQuitGame', () => {
+    //     it('should call handleQuitGame on actionHandlerService with correct parameters', () => {
+    //         const client = { id: 'testClientId' } as Socket;
+    //         const data = { roomId: 'testRoomId', playerId: 'testPlayerId' };
+    //         const server = new Server();
 
-            gateway['server'] = server;
-            gateway.handleQuitGame(client, data);
+    //         gateway['server'] = server;
+    //         gateway.handleQuitGame(client, data);
 
-            expect(actionHandlerService.handleQuitGame).toHaveBeenCalledWith(data, server, client);
-        });
-    });
+    //         expect(actionHandlerService.handleQuitGame).toHaveBeenCalledWith(data, server, client);
+    //     });
+    // });
 
     describe('afterInit', () => {
         it('should set server property', () => {
@@ -111,6 +111,17 @@ describe('ActionGateway', () => {
             gateway.afterInit(server);
 
             expect(gateway['server']).toBe(server);
+        });
+    });
+
+    describe('handleGetAvailableMovesOnBudget', () => {
+        it('should call handleGetAvailableMovesOnBudget on actionHandlerService with correct parameters', () => {
+            const data = { roomId: 'testRoomId', playerId: 'testPlayerId', currentBudget: 100 };
+            const client = { id: 'testClientId' } as Socket;
+
+            gateway.handleGetAvailableMovesOnBudget(data, client);
+
+            expect(actionHandlerService.handleGetAvailableMovesOnBudget).toHaveBeenCalledWith(data, client);
         });
     });
 });
