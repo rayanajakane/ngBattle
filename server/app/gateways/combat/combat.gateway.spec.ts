@@ -52,4 +52,92 @@ describe('CombatGateway', () => {
     it('should be defined', () => {
         expect(gateway).toBeDefined();
     });
+
+    it('should handle successful escape', () => {
+        const client = { emit: jest.fn() };
+        const data = { roomId: 'room1', playerId: 'player1' };
+        const fighter = {
+            player: {
+                id: 'player1',
+                name: 'Player One',
+                isAdmin: true,
+                avatar: 'string',
+                attributes: {
+                    health: 10,
+                    speed: 'string',
+                    attack: 10,
+                    defense: 10,
+                    dice: 'string',
+                },
+                isActive: true,
+                abandoned: false,
+                wins: 1,
+            },
+            position: 1,
+        };
+        const formattedTime = '12:00';
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
+            playersCoord: [fighter],
+            roomId: '',
+            game: undefined,
+        });
+        jest.spyOn(gateway['combatService'], 'escape').mockReturnValue([1, true]);
+        jest.spyOn(gateway['actionHandlerService'], 'getCurrentTimeFormatted').mockReturnValue(formattedTime);
+        jest.spyOn(gateway['combatService'], 'endCombat').mockReturnValue([]);
+
+        gateway.handleEscape(client, data);
+
+        expect(client.emit).toHaveBeenCalledWith('didEscape', { playerId: data.playerId, remainingEscapeChances: 1, hasEscaped: true });
+        expect(gateway['server'].to(data.roomId).emit).toHaveBeenCalledWith('newLog', {
+            date: formattedTime,
+            message: `${fighter.player.name} a réussi à s'échapper du combat`,
+            receiver: data.playerId,
+            exclusive: true,
+        });
+    });
+
+    it('should handle failed escape', () => {
+        const client = { emit: jest.fn() };
+        const data = { roomId: 'room1', playerId: 'player1' };
+        const fighter = {
+            player: {
+                id: 'player1',
+                name: 'Player One',
+                isAdmin: true,
+                avatar: 'string',
+                attributes: {
+                    health: 10,
+                    speed: 'string',
+                    attack: 10,
+                    defense: 10,
+                    dice: 'string',
+                },
+                isActive: true,
+                abandoned: false,
+                wins: 1,
+            },
+            position: 1,
+        };
+        const defender = fighter;
+        const formattedTime = '12:00';
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
+            playersCoord: [fighter],
+            roomId: '',
+            game: undefined,
+        });
+        jest.spyOn(gateway['combatService'], 'escape').mockReturnValue([1, false]);
+        jest.spyOn(gateway['actionHandlerService'], 'getCurrentTimeFormatted').mockReturnValue(formattedTime);
+        jest.spyOn(gateway['combatService'], 'getFighters').mockReturnValue([defender]);
+
+        gateway.handleEscape(client, data);
+
+        expect(client.emit).toHaveBeenCalledWith('didEscape', { playerId: data.playerId, remainingEscapeChances: 1, hasEscaped: false });
+        expect(gateway['server'].to(data.roomId).emit).toHaveBeenCalledWith('newLog', {
+            date: formattedTime,
+            message: `${fighter.player.name} a échoué à s'échapper du combat`,
+            receiver: data.playerId,
+            exclusive: true,
+        });
+        expect(gateway['server'].to(data.roomId).emit).toHaveBeenCalledWith('changeCombatTurn', defender.player.id);
+    });
 });
