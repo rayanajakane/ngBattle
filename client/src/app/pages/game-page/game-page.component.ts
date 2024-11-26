@@ -265,25 +265,17 @@ export class GamePageComponent implements OnDestroy {
 
     handleEndMove(availableMoves: ShortestPathByTile, currentMoveBudget: number, hasSlipped: boolean) {
         this.currentMoveBudget = currentMoveBudget;
-        if (hasSlipped) {
-            this.endTurn();
-        } else {
-            this.endMovement(availableMoves);
-        }
+        if (hasSlipped) this.endTurn();
+        else this.endMovement(availableMoves);
     }
 
     handleCheckValidAction(availableTiles: number[]) {
-        if (availableTiles.length === 0) {
-            this.endTurn();
-        } else if (availableTiles.length > 0) {
-            this.mapService.setState(GameState.MOVING);
-        }
+        if (availableTiles.length === 0) this.endTurn();
+        else if (availableTiles.length > 0) this.mapService.setState(GameState.MOVING);
     }
 
     handleInteractDoor(isToggable: boolean, doorPosition: number, availableMoves: ShortestPathByTile) {
-        if (isToggable) {
-            this.mapService.toggleDoor(doorPosition);
-        }
+        if (isToggable) this.mapService.toggleDoor(doorPosition);
         if (this.gameController.isActivePlayer()) {
             this.remainingActions = 0;
             this.endMovement(availableMoves);
