@@ -1,3 +1,4 @@
+import { GameStructure } from '@common/game-structure';
 import { Player, PlayerAttribute } from '@common/player';
 
 /* eslint-disable */
@@ -33,4 +34,20 @@ export const MOCK_PLAYER_TWO: Player = {
     isActive: false,
     abandoned: false,
     wins: 0,
+};
+
+export const MOCK_PLAYER_COORD = { player: MOCK_PLAYER, position: 1 };
+export const MOCK_PLAYER_TWO_COORD = { player: MOCK_PLAYER_TWO, position: 2 };
+
+export const MOCK_PLAYER_COORDS = [MOCK_PLAYER_COORD, MOCK_PLAYER_TWO_COORD];
+export const MOCKGAME: GameStructure = {
+    id: 'testGame',
+    gameName: 'Test Game',
+    gameDescription: 'This is a test game',
+    mapSize: '10',
+    map: [],
+    gameType: 'Test Type',
+    isVisible: true,
+    creationDate: new Date().toISOString(),
+    lastModified: new Date().toISOString(),
 };
