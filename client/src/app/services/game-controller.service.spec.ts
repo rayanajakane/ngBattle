@@ -3,24 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
-import { MOCK_PLAYER, MOCK_PLAYER_TWO } from './constants';
+import { MOCK_PLAYER, MOCK_PLAYER_TWO, TEST_MOVE_BUDGET } from './constants';
 import { GameControllerService } from './game-controller.service';
 
-// describe('GameControllerService', () => {
-//     let service: GameControllerService;
-
-//     beforeEach(() => {
-//         TestBed.configureTestingModule({});
-//         service = TestBed.inject(GameControllerService);
-//     });
-
-//     it('should be created', () => {
-//         expect(service).toBeTruthy();
-//     });
+/* eslint-disable max-lines */
 
 describe('GameControllerService', () => {
     let service: GameControllerService;
-    // let socketServiceSpy: jasmine.SpyObj<SocketService>;
 
     beforeEach(() => {
         const spy = jasmine.createSpyObj('SocketService', ['emit']);
@@ -30,7 +19,6 @@ describe('GameControllerService', () => {
         });
 
         service = TestBed.inject(GameControllerService);
-        // socketServiceSpy = TestBed.inject(SocketService) as jasmine.SpyObj<SocketService>;
     });
 
     it('should be created', () => {
@@ -311,8 +299,8 @@ describe('GameControllerService', () => {
             ],
             0,
         );
-        service.requestMove(5);
-        expect(service['socketService'].emit).toHaveBeenCalledWith('move', { roomId: 'room1', playerId: MOCK_PLAYER.id, endPosition: 5 });
+        service.requestMove(2);
+        expect(service['socketService'].emit).toHaveBeenCalledWith('move', { roomId: 'room1', playerId: MOCK_PLAYER.id, endPosition: 2 });
     });
 
     it('should request end turn', () => {
@@ -382,8 +370,8 @@ describe('GameControllerService', () => {
             ],
             0,
         );
-        service.requestAction(3);
-        expect(service['socketService'].emit).toHaveBeenCalledWith('action', { roomId: 'room1', playerId: MOCK_PLAYER.id, target: 3 });
+        service.requestAction(2);
+        expect(service['socketService'].emit).toHaveBeenCalledWith('action', { roomId: 'room1', playerId: MOCK_PLAYER.id, target: 2 });
     });
 
     it('should request combat action', () => {
@@ -410,12 +398,11 @@ describe('GameControllerService', () => {
             ],
             0,
         );
-        service.requestAvailableMovesOnBudget(10);
+        service.requestAvailableMovesOnBudget(TEST_MOVE_BUDGET);
         expect(service['socketService'].emit).toHaveBeenCalledWith('getAvailableMovesOnBudget', {
             roomId: 'room1',
             playerId: MOCK_PLAYER.id,
-            currentBudget: 10,
+            currentBudget: TEST_MOVE_BUDGET,
         });
     });
 });
-// });

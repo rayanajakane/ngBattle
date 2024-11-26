@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MOCK_PLAYER_COORD, MOCK_PLAYER_COORDS, MOCKGAME } from '@app/services/constants';
+import { MOCK_PLAYER_COORD, MOCK_PLAYER_COORDS, MOCKGAME, TEST_AVAILABLE_TILES, TEST_SHORTEST_PATH } from '@app/services/constants';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
@@ -11,6 +11,7 @@ import { GameState, GameTile, TimerState } from '@common/game-structure';
 import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS } from './constant';
 import { GamePageComponent } from './game-page.component';
 
+/* eslint-disable max-lines */
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
@@ -210,6 +211,8 @@ describe('GamePageComponent', () => {
         const mockNewAttackerId = 'newAttackerId';
         spyOn(component, 'handleChangeCombatTurn');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(3)[1](mockNewAttackerId);
 
         expect(socketService.on).toHaveBeenCalledWith('changeCombatTurn', jasmine.any(Function));
@@ -220,6 +223,8 @@ describe('GamePageComponent', () => {
         const mockNewFighters = MOCK_PLAYER_COORDS;
         spyOn(component, 'handleEndCombat');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(4)[1](mockNewFighters);
 
         expect(socketService.on).toHaveBeenCalledWith('endCombat', jasmine.any(Function));
@@ -229,6 +234,8 @@ describe('GamePageComponent', () => {
     it('should listen for timerUpdate and update timeLeft', () => {
         const mockTime = 10;
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(5)[1](mockTime);
 
         expect(socketService.on).toHaveBeenCalledWith('timerUpdate', jasmine.any(Function));
@@ -238,6 +245,8 @@ describe('GamePageComponent', () => {
     it('should listen for endTimer and call endTurn', () => {
         spyOn(component, 'endTurn');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(6)[1](undefined);
 
         expect(socketService.on).toHaveBeenCalledWith('endTimer', jasmine.any(Function));
@@ -245,6 +254,8 @@ describe('GamePageComponent', () => {
     });
 
     it('should listen for endCooldown and update timerState and request start turn', () => {
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(7)[1](undefined);
 
         expect(socketService.on).toHaveBeenCalledWith('endCooldown', jasmine.any(Function));
@@ -256,6 +267,8 @@ describe('GamePageComponent', () => {
         const mockTime = 10;
         gameControllerService.isInCombat.and.returnValue(true);
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(8)[1](mockTime);
 
         expect(socketService.on).toHaveBeenCalledWith('CombatTimerUpdate', jasmine.any(Function));
@@ -265,6 +278,8 @@ describe('GamePageComponent', () => {
     it('should listen for endCombatTimer and request combat action if active player', () => {
         gameControllerService.isActivePlayer.and.returnValue(true);
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(9)[1](undefined);
 
         expect(socketService.on).toHaveBeenCalledWith('endCombatTimer', jasmine.any(Function));
@@ -275,6 +290,8 @@ describe('GamePageComponent', () => {
         const mockData = { playerId: 'testPlayerId', newPlayerPosition: 5 };
         spyOn(component, 'updatePlayerPosition');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(10)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('playerPositionUpdate', jasmine.any(Function));
@@ -285,6 +302,8 @@ describe('GamePageComponent', () => {
         const mockData = { availableMoves: {}, currentMoveBudget: 3, hasSlipped: false };
         spyOn(component, 'handleEndMove');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(11)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('endMove', jasmine.any(Function));
@@ -292,28 +311,31 @@ describe('GamePageComponent', () => {
     });
 
     it('should listen for startAction and switch to action state if tiles available', () => {
-        const mockAvailableTiles = [1, 2, 3];
-
-        socketService.on.calls.argsFor(12)[1](mockAvailableTiles);
+        // it's the index of the expected listener
+        // eslint-disable-next-line
+        socketService.on.calls.argsFor(12)[1](TEST_AVAILABLE_TILES);
 
         expect(socketService.on).toHaveBeenCalledWith('startAction', jasmine.any(Function));
-        expect(mapGameService.switchToActionStateRoutine).toHaveBeenCalledWith(mockAvailableTiles);
+        expect(mapGameService.switchToActionStateRoutine).toHaveBeenCalledWith(TEST_AVAILABLE_TILES);
     });
 
     it('should listen for checkValidAction and handle it', () => {
-        const mockAvailableTiles = [1, 2, 3];
         spyOn(component, 'handleCheckValidAction');
 
-        socketService.on.calls.argsFor(13)[1](mockAvailableTiles);
+        // it's the index of the expected listener
+        // eslint-disable-next-line
+        socketService.on.calls.argsFor(13)[1](TEST_AVAILABLE_TILES);
 
         expect(socketService.on).toHaveBeenCalledWith('checkValidAction', jasmine.any(Function));
-        expect(component.handleCheckValidAction).toHaveBeenCalledWith(mockAvailableTiles);
+        expect(component.handleCheckValidAction).toHaveBeenCalledWith(TEST_AVAILABLE_TILES);
     });
 
     it('should listen for interactDoor and handle it', () => {
         const mockData = { isToggable: true, doorPosition: 1, availableMoves: {} };
         spyOn(component, 'handleInteractDoor');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(14)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('interactDoor', jasmine.any(Function));
@@ -324,6 +346,8 @@ describe('GamePageComponent', () => {
         const mockAvailableMoves = {};
         gameControllerService.isActivePlayer.and.returnValue(true);
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(15)[1](mockAvailableMoves);
 
         expect(socketService.on).toHaveBeenCalledWith('availableMovesOnBudget', jasmine.any(Function));
@@ -341,6 +365,9 @@ describe('GamePageComponent', () => {
         spyOn(component, 'handleAttacked');
 
         gameControllerService.isInCombat.and.returnValue(true);
+
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(16)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('attacked', jasmine.any(Function));
@@ -363,6 +390,8 @@ describe('GamePageComponent', () => {
         };
         spyOn(component, 'handleAttacked');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(16)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('attacked', jasmine.any(Function));
@@ -373,6 +402,8 @@ describe('GamePageComponent', () => {
         const mockData = { killer: MOCK_PLAYER_COORDS[0], killed: MOCK_PLAYER_COORDS[1], killedOldPosition: 5 };
         spyOn(component, 'handleKilledPlayer');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(17)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('killedPlayer', jasmine.any(Function));
@@ -386,6 +417,8 @@ describe('GamePageComponent', () => {
 
         spyOn(component, 'handleKilledPlayer');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(17)[1](mockData);
 
         mockData.killer.player.wins = usualWinNumber;
@@ -399,6 +432,8 @@ describe('GamePageComponent', () => {
         spyOn(component, 'handleEscaped');
         gameControllerService.isInCombat.and.returnValue(true);
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(18)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('didEscape', jasmine.any(Function));
@@ -409,6 +444,8 @@ describe('GamePageComponent', () => {
         const mockData = { playerId: 'testPlayerId', remainingEscapeChances: 1, hasEscaped: true };
         spyOn(component, 'handleEscaped');
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(18)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('didEscape', jasmine.any(Function));
@@ -418,6 +455,8 @@ describe('GamePageComponent', () => {
     it('should listen for quitGame and handle it', () => {
         const mockPlayerId = 'testPlayerId';
 
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(19)[1](mockPlayerId);
 
         expect(socketService.on).toHaveBeenCalledWith('quitGame', jasmine.any(Function));
@@ -429,6 +468,9 @@ describe('GamePageComponent', () => {
         spyOn(component, 'redirectLastManStanding');
 
         component.listenEndGameEvents();
+
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(20)[1](undefined);
 
         expect(socketService.on).toHaveBeenCalledWith('lastManStanding', jasmine.any(Function));
@@ -440,6 +482,9 @@ describe('GamePageComponent', () => {
         spyOn(component, 'redirectEndGame');
 
         component.listenEndGameEvents();
+
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(21)[1](mockEndGameMessage);
 
         expect(socketService.on).toHaveBeenCalledWith('endGame', jasmine.any(Function));
@@ -616,9 +661,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should set state to MOVING if availableTiles length is greater than 0', () => {
-        const mockAvailableTiles = [1, 2, 3];
-
-        component.handleCheckValidAction(mockAvailableTiles);
+        component.handleCheckValidAction(TEST_AVAILABLE_TILES);
 
         expect(mapGameService.setState).toHaveBeenCalledWith(GameState.MOVING);
     });
@@ -841,11 +884,9 @@ describe('GamePageComponent', () => {
     });
 
     it('should switch to moving state routine if shortestPathByTile is not empty', () => {
-        const mockShortestPathByTile = { 1: [2, 3] };
+        component.endMovement(TEST_SHORTEST_PATH);
 
-        component.endMovement(mockShortestPathByTile);
-
-        expect(mapGameService.switchToMovingStateRoutine).toHaveBeenCalledWith(mockShortestPathByTile);
+        expect(mapGameService.switchToMovingStateRoutine).toHaveBeenCalledWith(TEST_SHORTEST_PATH);
     });
 
     it('should request check action if shortestPathByTile is empty and remainingActions is greater than 0', () => {

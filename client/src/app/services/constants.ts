@@ -14,6 +14,8 @@ export const RANDOM_TILE_INDEX = 4;
 export const TEST_SHORTEST_PATH = { 1: [2, 3] };
 export const TEST_SHORTEST_PATH_BY_INDEX = { 1: [2, 3], 2: [3, 4] };
 
+export const TEST_MOVE_BUDGET = 6;
+
 export const MOCK_PLAYER: Player = {
     id: '1',
     name: 'player1',
