@@ -177,7 +177,7 @@ describe('MapGameService', () => {
         service.currentStateNumber = GameState.MOVING;
         spyOn(service, 'switchToNotPlayingStateRoutine');
         service.onMouseDown(0, event);
-        expect(service.switchToNotPlayingStateRoutine).toHaveBeenCalled;
+        expect(service.switchToNotPlayingStateRoutine).toHaveBeenCalled();
     });
 
     it('should handle onMouseEnter correctly', () => {
