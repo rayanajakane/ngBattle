@@ -23,6 +23,11 @@ export class GameControllerService {
 
     constructor(private readonly socketService: SocketService) {}
 
+    setRoom(roomId: string, playerId: string): void {
+        this.roomId = roomId;
+        this.playerId = playerId;
+    }
+
     setFighters(fighters: PlayerCoord[]): void {
         this.fighters = fighters;
     }
@@ -75,14 +80,6 @@ export class GameControllerService {
         return this.playerCoords.find((playerCoord) => playerCoord.position === position);
     }
 
-    setRoomId(roomId: string): void {
-        this.roomId = roomId;
-    }
-
-    setPlayerId(playerId: string): void {
-        this.playerId = playerId;
-    }
-
     setActivePlayer(activePlayerId: string): void {
         const activePlayer = this.findPlayerCoordById(activePlayerId)?.player;
         if (activePlayer) {
@@ -110,12 +107,10 @@ export class GameControllerService {
         }
     }
 
-    requestGameSetup(isAdmin: boolean): void {
-        if (isAdmin) {
-            setTimeout(() => {
-                this.socketService.emit('gameSetup', this.roomId);
-            }, DELAY);
-        }
+    requestGameSetup(): void {
+        setTimeout(() => {
+            this.socketService.emit('gameSetup', this.roomId);
+        }, DELAY);
     }
 
     initializePlayers(playerCoords: PlayerCoord[], turn: number) {

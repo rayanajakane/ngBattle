@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
-import { GameState, GameTile, TilePreview } from '@common/game-structure';
-import { Player } from '@common/player';
+import { GameState, GameTile, ShortestPathByTile, TilePreview } from '@common/game-structure';
+import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { ActionStateService } from './action-state.service';
 import { BaseStateService } from './base-state.service';
@@ -181,5 +180,12 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
+    }
+
+    initializePlayersPositions(playerCoords: PlayerCoord[]) {
+        playerCoords.forEach((playerCoord) => {
+            this.placePlayer(playerCoord.position, playerCoord.player);
+        });
+        this.removeUnusedStartingPoints();
     }
 }

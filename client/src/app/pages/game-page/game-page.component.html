@@ -40,7 +40,7 @@
         } @if (gameController.isInCombat()) {
         <app-combat-interface
             class="combat-card"
-            (selectCombatActionEvent)="handleSelectCombatAction($event)"
+            (selectCombatActionEvent)="catchSelectCombatAction($event)"
             [currentAtttack]="
                 gameController.player.attributes.currentAttack
                     ? gameController.player.attributes.currentAttack
