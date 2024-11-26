@@ -792,9 +792,10 @@ describe('GamePageComponent', () => {
 
         component.redirectEndGame(mockEndGameMessage);
         expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
+        expect(router.navigate).not.toHaveBeenCalled();
         setTimeout(() => {
             expect(router.navigate).toHaveBeenCalledWith(['/home']);
-        }, ENDGAME_DELAY);
+        }, ENDGAME_DELAY * 2);
     });
 
     it('should call resetPlayerView and requestEndTurn if active player', () => {
