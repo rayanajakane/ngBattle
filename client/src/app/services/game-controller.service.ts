@@ -9,16 +9,11 @@ import { Player, PlayerCoord } from '@common/player';
 export class GameControllerService {
     activePlayer: Player;
     player: Player;
-
     playerCoords: PlayerCoord[];
     afklist: PlayerCoord[] = [];
-    playersInitialized: boolean = false;
-
     roomId: string;
     playerId: string;
-
     turn: number = 0;
-
     fighters: PlayerCoord[] = [];
 
     constructor(private readonly socketService: SocketService) {}
@@ -28,29 +23,15 @@ export class GameControllerService {
         this.playerId = playerId;
     }
 
-    setFighters(fighters: PlayerCoord[]): void {
-        this.fighters = fighters;
-    }
-
-    getFighters(): PlayerCoord[] {
-        return this.fighters;
-    }
-
-    resetFighters(): void {
-        this.fighters = [];
-    }
-
-    isFighter(fighters: PlayerCoord[]): boolean {
-        return fighters.some((fighter) => fighter.player.id === this.player.id);
-    }
-
-    isInCombat(): boolean {
-        return this.fighters.length > 0;
-    }
-
-    updateActiveFighter(playerCoords: PlayerCoord[], playerId: string): void {
-        this.updatePlayerCoordsList(playerCoords);
-        this.setActivePlayer(playerId);
+    initializePlayers(playerCoords: PlayerCoord[], turn: number) {
+        this.playerCoords = playerCoords;
+        for (const playerCoord of this.playerCoords) {
+            if (playerCoord.player.id === this.playerId) {
+                this.player = playerCoord.player;
+                break;
+            }
+        }
+        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
     }
 
     updatePlayerCoords(playerCoord: PlayerCoord): void {
@@ -81,19 +62,11 @@ export class GameControllerService {
         return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
     }
 
-    findPlayerCoordByPosition(position: number): PlayerCoord | undefined {
-        return this.playerCoords.find((playerCoord) => playerCoord.position === position);
-    }
-
     setActivePlayer(activePlayerId: string): void {
         const activePlayer = this.findPlayerCoordById(activePlayerId)?.player;
         if (activePlayer) {
             this.activePlayer = activePlayer;
         }
-    }
-
-    setPlayer(player: Player): void {
-        this.player = player;
     }
 
     isActivePlayer(): boolean {
@@ -112,21 +85,31 @@ export class GameControllerService {
         }
     }
 
+    setFighters(fighters: PlayerCoord[]): void {
+        this.fighters = fighters;
+    }
+
+    resetFighters(): void {
+        this.fighters = [];
+    }
+
+    isFighter(fighters: PlayerCoord[]): boolean {
+        return fighters.some((fighter) => fighter.player.id === this.player.id);
+    }
+
+    isInCombat(): boolean {
+        return this.fighters.length > 0;
+    }
+
+    updateActiveFighter(playerCoords: PlayerCoord[], playerId: string): void {
+        this.updatePlayerCoordsList(playerCoords);
+        this.setActivePlayer(playerId);
+    }
+
     requestGameSetup(): void {
         setTimeout(() => {
             this.socketService.emit('gameSetup', this.roomId);
         }, DELAY);
-    }
-
-    initializePlayers(playerCoords: PlayerCoord[], turn: number) {
-        this.playerCoords = playerCoords;
-        for (const playerCoord of this.playerCoords) {
-            if (playerCoord.player.id === this.playerId) {
-                this.player = playerCoord.player;
-                break;
-            }
-        }
-        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
     }
 
     requestStartTurn(): void {
@@ -153,7 +136,6 @@ export class GameControllerService {
         this.socketService.emit('checkAction', { roomId: this.roomId, playerId: this.player.id });
     }
 
-    // change back-end
     requestAction(target: number): void {
         this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
@@ -164,13 +146,5 @@ export class GameControllerService {
 
     requestAvailableMovesOnBudget(currentBudget: number): void {
         this.socketService.emit('getAvailableMovesOnBudget', { roomId: this.roomId, playerId: this.player.id, currentBudget });
-    }
-
-    requestQuitGame(): void {
-        this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
-    }
-
-    requestEndCombat(): void {
-        this.socketService.emit('endCombat', { roomId: this.roomId, playerId: this.player.id });
     }
 }
