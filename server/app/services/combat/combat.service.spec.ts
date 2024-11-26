@@ -17,11 +17,18 @@ import { ICE_PENALTY } from './constants';
 describe('CombatService', () => {
     let service: CombatService;
     let activeGamesService: ActiveGamesService;
+    let debugModeService: DebugModeService;
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 CombatService,
-                DebugModeService,
+                {
+                    provide: DebugModeService,
+                    useValue: {
+                        isDebugMode: jest.fn(),
+                    },
+                },
                 ActionHandlerService,
                 {
                     provide: ActionHandlerService,
@@ -52,6 +59,7 @@ describe('CombatService', () => {
 
         service = module.get<CombatService>(CombatService);
         activeGamesService = module.get<ActiveGamesService>(ActiveGamesService);
+        debugModeService = module.get<DebugModeService>(DebugModeService);
     });
 
     it('should be defined', () => {
@@ -505,6 +513,8 @@ describe('CombatService', () => {
         jest.spyOn(service as any, 'throwDice')
             .mockReturnValueOnce(6)
             .mockReturnValueOnce(3);
+
+        jest.spyOn(debugModeService, 'isDebugModeActive').mockReturnValue(false);
 
         const [isAttackSuccessful, diceRolls] = service.checkAttackSuccessful(attacker, defender);
 
