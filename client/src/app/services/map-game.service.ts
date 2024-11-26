@@ -51,9 +51,6 @@ export class MapGameService extends MapBaseService {
         this.tiles = tiles;
     }
 
-    onMouseUp(index: number, event: MouseEvent): void {
-        event.preventDefault();
-    }
     onRightClick(index: number): void {
         this.currentState.onRightClick(this.tiles[index]);
     }
@@ -100,7 +97,7 @@ export class MapGameService extends MapBaseService {
     }
 
     resetMap() {
-        this.resetMovementPrevisualization();
+        this.resetAllMovementPrevisualization();
         this.removeAllPreview();
     }
 
@@ -148,10 +145,6 @@ export class MapGameService extends MapBaseService {
         this.combat.resetMovementPrevisualization();
     }
 
-    setAvailableTiles(availableTiles: number[]): void {
-        this.currentState.setAvailableTiles(availableTiles);
-    }
-
     placePlayer(index: number, player: Player): void {
         this.tiles[index].player = player;
         this.tiles[index].hasPlayer = true;
@@ -188,15 +181,5 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
-    }
-
-    checkIfTargetAvailable(index: number, mapSize: number): boolean {
-        const potentialindexes: number[] = [index - 1, index + 1, index - mapSize, index + mapSize];
-        return potentialindexes.some((potentialIndex) => this.checkIfDoorOrPlayer(potentialIndex));
-    }
-
-    checkIfDoorOrPlayer(index: number): boolean {
-        const tile = this.tiles[index];
-        return tile.hasPlayer || tile.tileType === TileTypes.DOORCLOSED || tile.tileType === TileTypes.DOOROPEN;
     }
 }

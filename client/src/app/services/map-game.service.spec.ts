@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { GameState, GameTile, TilePreview } from '@common/game-structure';
+import { GameState, GameTile, ShortestPathByTile, TilePreview } from '@common/game-structure';
 import { Player, PlayerAttribute } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { ActionStateService } from './action-state.service';
 import { CombatStateService } from './combat-state.service';
+import { TEST_SHORTEST_PATH_BY_INDEX } from './constants';
 import { MapGameService } from './map-game.service';
 import { MovingStateService } from './moving-state.service';
 import { NotPlayingStateService } from './not-playing-state.service';
@@ -30,11 +31,8 @@ const notPlayingStateServiceSpy = jasmine.createSpyObj('NotPlayingStateService',
     'onMouseEnter',
     'onMouseUp',
     'onRightClick',
-    'onExit',
-    'onDrop',
     'resetMovementPrevisualization',
-    'initializePrevisualization',
-    'setAvailableTiles',
+    'getAvailableTiles',
     'getShortestPathByTile',
 ]);
 const movingStateServiceSpy = jasmine.createSpyObj('MovingStateService', [
@@ -42,39 +40,26 @@ const movingStateServiceSpy = jasmine.createSpyObj('MovingStateService', [
     'onMouseEnter',
     'onMouseUp',
     'onRightClick',
-    'onExit',
-    'onDrop',
     'resetMovementPrevisualization',
-    'initializePrevisualization',
-    'setAvailableTiles',
-    'getShortestPathByTile',
     'getShortestPathByIndex',
     'getAvailableTiles',
     'availablesTilesIncludes',
+    'getShortestPathByTile',
 ]);
 const actionStateServiceSpy = jasmine.createSpyObj('ActionStateService', [
     'onMouseDown',
     'onMouseEnter',
     'onMouseUp',
     'onRightClick',
-    'onExit',
-    'onDrop',
     'resetMovementPrevisualization',
     'initializePrevisualization',
-    'setAvailableTiles',
-    'getShortestPathByTile',
 ]);
 const combatStateServiceSpy = jasmine.createSpyObj('CombatStateService', [
     'onMouseDown',
     'onMouseEnter',
     'onMouseUp',
     'onRightClick',
-    'onExit',
-    'onDrop',
     'resetMovementPrevisualization',
-    'initializePrevisualization',
-    'setAvailableTiles',
-    'getShortestPathByTile',
 ]);
 
 describe('MapGameService', () => {
@@ -149,13 +134,6 @@ describe('MapGameService', () => {
         expect(service.tiles).toEqual(tiles);
     });
 
-    it('should handle onMouseUp correctly', () => {
-        const event = new MouseEvent('mouseup');
-        spyOn(event, 'preventDefault');
-        service.onMouseUp(0, event);
-        expect(event.preventDefault).toHaveBeenCalled();
-    });
-
     it('should handle onRightClick correctly', () => {
         service.onRightClick(0);
         expect(notPlayingStateServiceSpy.onRightClick).toHaveBeenCalledWith(service.tiles[0]);
@@ -217,10 +195,10 @@ describe('MapGameService', () => {
     });
 
     it('should reset map correctly', () => {
-        spyOn(service, 'resetMovementPrevisualization');
+        spyOn(service, 'resetAllMovementPrevisualization');
         spyOn(service, 'removeAllPreview');
         service.resetMap();
-        expect(service.resetMovementPrevisualization).toHaveBeenCalled();
+        expect(service.resetAllMovementPrevisualization).toHaveBeenCalled();
         expect(service.removeAllPreview).toHaveBeenCalled();
     });
 
@@ -261,20 +239,9 @@ describe('MapGameService', () => {
         });
     });
 
-    it('should initialize previsualization correctly', () => {
-        spyOn(service, 'renderAvailableTiles');
-        service.initializePrevisualization(availableTiles);
-        expect(service.renderAvailableTiles).toHaveBeenCalled();
-    });
-
     it('should reset movement previsualization correctly', () => {
         service.resetMovementPrevisualization();
         expect(notPlayingStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
-    });
-
-    it('should set available tiles correctly', () => {
-        service.setAvailableTiles(availableTiles);
-        expect(notPlayingStateServiceSpy.setAvailableTiles).toHaveBeenCalledWith(availableTiles);
     });
 
     it('should place player correctly', () => {
@@ -319,27 +286,6 @@ describe('MapGameService', () => {
         expect(service.tiles[0].tileType).toBe(TileTypes.DOORCLOSED);
     });
 
-    it('should check if target is available correctly', () => {
-        spyOn(service, 'checkIfDoorOrPlayer').and.returnValue(true);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        expect(service.checkIfTargetAvailable(0, 3)).toBe(true);
-    });
-
-    it('should check if door or player correctly', () => {
-        service.tiles[0].hasPlayer = true;
-        expect(service.checkIfDoorOrPlayer(0)).toBe(true);
-
-        service.tiles[0].hasPlayer = false;
-        service.tiles[0].tileType = TileTypes.DOORCLOSED;
-        expect(service.checkIfDoorOrPlayer(0)).toBe(true);
-
-        service.tiles[0].tileType = TileTypes.DOOROPEN;
-        expect(service.checkIfDoorOrPlayer(0)).toBe(true);
-
-        service.tiles[0].tileType = '';
-        expect(service.checkIfDoorOrPlayer(0)).toBe(false);
-    });
-
     it('should reset all movement previsualization correctly', () => {
         notPlayingStateServiceSpy.resetMovementPrevisualization.calls.reset();
         movingStateServiceSpy.resetMovementPrevisualization.calls.reset();
@@ -352,5 +298,23 @@ describe('MapGameService', () => {
         expect(movingStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
         expect(actionStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
         expect(combatStateServiceSpy.resetMovementPrevisualization).toHaveBeenCalled();
+    });
+
+    it('should initialize previsualization correctly with ShortestPathByTile', () => {
+        const shortestPathByTile: ShortestPathByTile = TEST_SHORTEST_PATH_BY_INDEX;
+        service['currentState'] = actionStateServiceSpy;
+        spyOn(service, 'renderAvailableTiles');
+        service.initializePrevisualization(shortestPathByTile);
+        expect(actionStateServiceSpy.initializePrevisualization).toHaveBeenCalledWith(shortestPathByTile);
+        expect(service.renderAvailableTiles).toHaveBeenCalled();
+    });
+
+    it('should initialize previsualization correctly with number array', () => {
+        const accessibleTiles: number[] = [0, 1, 2];
+        service['currentState'] = actionStateServiceSpy;
+        spyOn(service, 'renderAvailableTiles');
+        service.initializePrevisualization(accessibleTiles);
+        expect(actionStateServiceSpy.initializePrevisualization).toHaveBeenCalledWith(accessibleTiles);
+        expect(service.renderAvailableTiles).toHaveBeenCalled();
     });
 });

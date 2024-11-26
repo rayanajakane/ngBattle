@@ -426,7 +426,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.mapService.resetMovementPrevisualization();
+        this.mapService.resetMap();
         this.socketService.disconnect();
     }
 }
