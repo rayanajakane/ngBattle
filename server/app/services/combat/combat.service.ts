@@ -22,6 +22,7 @@ import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { DebugModeService } from '../debug-mode/debug-mode.service';
 
 @Injectable()
 export class CombatService {
@@ -31,6 +32,7 @@ export class CombatService {
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
+        @Inject(DebugModeService) private readonly debugModeService: DebugModeService,
     ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
@@ -198,10 +200,17 @@ export class CombatService {
     checkAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): [boolean, number[]] {
         let bonusAttackDice: number = DEFAULT_BONUS_DICE;
         let bonusDefenseDice: number = DEFAULT_BONUS_DICE;
+        let attackerRoll: number;
+        let defenderRoll: number;
         if (attacker.player.attributes.dice === 'attack') bonusAttackDice = BOOSTED_BONUS_DICE;
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
-        const attackerRoll = this.throwDice(bonusAttackDice);
-        const defenderRoll = this.throwDice(bonusDefenseDice);
+        if (this.debugModeService.isDebugModeActive()) {
+            const attackerRoll = bonusAttackDice;
+            const defenderRoll = bonusDefenseDice;
+        } else {
+            const attackerRoll = this.throwDice(bonusAttackDice);
+            const defenderRoll = this.throwDice(bonusDefenseDice);
+        }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
