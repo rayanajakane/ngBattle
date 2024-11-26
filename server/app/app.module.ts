@@ -41,6 +41,14 @@ import { VirtualPlayerService } from './services/virtual-player/virtual-player.s
         ActiveGamesService,
         CombatService,
         VirtualPlayerService,
+        {
+            provide: ActionHandlerService,
+            useClass: ActionHandlerService,
+        },
+        {
+            provide: VirtualPlayerService,
+            useClass: VirtualPlayerService,
+        },
     ],
 })
 export class AppModule {}

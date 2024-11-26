@@ -3,7 +3,7 @@ import { ActiveGamesService } from '@app/services/active-games/active-games.serv
 import { MatchService } from '@app/services/match.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { TileTypes } from '@common/tile-types';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
 export class ActionHandlerService {
@@ -11,6 +11,7 @@ export class ActionHandlerService {
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
+        @Inject(forwardRef(() => VirtualPlayerService))
         private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
 
@@ -34,7 +35,14 @@ export class ActionHandlerService {
     handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-        this.activeGamesService.gameSetup(server, roomId, gameId, players);
+        this.activeGamesService.gameSetup(server, roomId, gameId, players).then(() => {
+            const activeGame = this.activeGamesService.getActiveGame(roomId);
+            const playerCoord = activeGame.playersCoord;
+            if (playerCoord[0].player.isVirtual) {
+                // if the first player is a virtual player
+                this.handleStartTurn({ roomId, playerId: playerCoord[0].player.id }, server, null);
+            }
+        });
     }
 
     handleStartTurn(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
@@ -44,11 +52,12 @@ export class ActionHandlerService {
         activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
         activeGame.currentPlayerActionPoint = 1;
 
-        client.emit('startTurn', {
-            shortestPathByTile: this.action.availablePlayerMoves(data.playerId, data.roomId),
-            currentMoveBudget: activeGame.currentPlayerMoveBudget,
-        });
-
+        if (!player.isVirtual) {
+            client.emit('startTurn', {
+                shortestPathByTile: this.action.availablePlayerMoves(data.playerId, data.roomId),
+                currentMoveBudget: activeGame.currentPlayerMoveBudget,
+            });
+        }
         const formattedTime = this.getCurrentTimeFormatted();
         const playerName = player.name;
 
@@ -58,7 +67,8 @@ export class ActionHandlerService {
         if (player.isVirtual) {
             this.virtualPlayerService.virtualPlayerId = player.id;
             this.virtualPlayerService.roomId = data.roomId;
-            this.virtualPlayerService.handleVirtualPlayerTurn(server);
+            this.virtualPlayerService.server = server;
+            this.virtualPlayerService.move();
         }
     }
 
@@ -70,7 +80,8 @@ export class ActionHandlerService {
         const playerId = data.playerId;
         const roomId = data.roomId;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
-        const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const playerCoord = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        const startPosition = playerCoord.position;
 
         if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
             const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
@@ -101,13 +112,15 @@ export class ActionHandlerService {
                 }
             });
 
-            setTimeout(() => {
-                client.emit('endMove', {
-                    availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-                    currentMoveBudget: activeGame.currentPlayerMoveBudget,
-                    hasSlipped: iceSlip,
-                });
-            }, this.TIME_BETWEEN_MOVES * tileCounter);
+            if (!playerCoord.player.isVirtual) {
+                setTimeout(() => {
+                    client.emit('endMove', {
+                        availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                        currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                        hasSlipped: iceSlip,
+                    });
+                }, this.TIME_BETWEEN_MOVES * tileCounter);
+            }
         }
     }
 
@@ -123,6 +136,14 @@ export class ActionHandlerService {
 
             if (activeGame.playersCoord.length > 0) {
                 server.to(roomId).emit('endTurn', activeGame.playersCoord[activeGame.turn].player.id);
+            }
+
+            if (activeGame.playersCoord[activeGame.turn].player.isVirtual) {
+                console.log('Virtual player turn');
+                this.virtualPlayerService.virtualPlayerId = activeGame.playersCoord[activeGame.turn].player.id;
+                this.virtualPlayerService.roomId = roomId;
+                this.virtualPlayerService.server = server;
+                this.virtualPlayerService.move();
             }
         }
     }

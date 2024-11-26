@@ -112,7 +112,6 @@ export class CombatService {
             // verify if attributes are > 0
             player.player.attributes.currentAttack -= ICE_PENALTY;
             player.player.attributes.currentDefense -= ICE_PENALTY;
-            console.log('ice penalty', player.player.attributes.currentAttack, player.player.attributes.currentDefense);
         }
     }
 
@@ -126,7 +125,6 @@ export class CombatService {
 
     escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
-        console.log('escape:', player.player.attributes.escape);
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
             return [player.player.attributes.escape, false];
         }
@@ -217,7 +215,6 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
-            console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer, server);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }
@@ -302,7 +299,6 @@ export class CombatService {
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
         if (this.isPlayerInCombat(roomId, player)) {
-            console.log('escape left:', player.player.attributes.escape);
             const randomNumber = Math.random();
             return randomNumber < ESCAPE_PROBABILITY;
         }

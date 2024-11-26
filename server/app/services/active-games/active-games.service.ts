@@ -53,36 +53,42 @@ export class ActiveGamesService {
         }
     }
 
-    gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
-        let playerCoord: PlayerCoord[] = [];
-        this.checkGameInstance(roomId, gameId).then(() => {
-            const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
-            playerCoord = this.randomizePlayerPosition(game, players);
-            const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
-            playerCoord.sort((a, b) => {
-                const speedA = parseInt(a.player.attributes.speed, 10);
-                const speedB = parseInt(b.player.attributes.speed, 10);
+    gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let playerCoord: PlayerCoord[] = [];
+            this.checkGameInstance(roomId, gameId)
+                .then(() => {
+                    const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
+                    playerCoord = this.randomizePlayerPosition(game, players);
+                    const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
+                    playerCoord.sort((a, b) => {
+                        const speedA = parseInt(a.player.attributes.speed, 10);
+                        const speedB = parseInt(b.player.attributes.speed, 10);
 
-                // used when player is killed and has to respawn back home
-                a.player.homePosition = a.position;
-                b.player.homePosition = b.position;
+                        // used when player is killed and has to respawn back home
+                        a.player.homePosition = a.position;
+                        b.player.homePosition = b.position;
 
-                if (speedA !== speedB) {
-                    return speedB - speedA;
-                }
-                return Math.random() - this.CHANCES;
-            });
-            this.activeGames[activeGameIndex].playersCoord = playerCoord;
-            this.activeGames[activeGameIndex].turn = 0;
-            this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
-            this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
+                        if (speedA !== speedB) {
+                            return speedB - speedA;
+                        }
+                        return Math.random() - this.CHANCES;
+                    });
+                    this.activeGames[activeGameIndex].playersCoord = playerCoord;
+                    this.activeGames[activeGameIndex].turn = 0;
+                    this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
+                    this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
 
-            this.activeGames[activeGameIndex].turnTimer.startTimer();
+                    this.activeGames[activeGameIndex].turnTimer.startTimer();
 
-            server.to(roomId).emit('gameSetup', {
-                playerCoords: playerCoord,
-                turn: this.activeGames[activeGameIndex].turn,
-            });
+                    server.to(roomId).emit('gameSetup', {
+                        playerCoords: playerCoord,
+                        turn: this.activeGames[activeGameIndex].turn,
+                    });
+
+                    resolve();
+                })
+                .catch(reject);
         });
     }
 

@@ -39,6 +39,11 @@ export class ActionService {
         return currentPlayer.id === playerId;
     }
 
+    getCurrentPlayer(roomId: string): string {
+        const gameInstance = this.activeGamesService.getActiveGame(roomId);
+        return gameInstance.playersCoord[gameInstance.turn].player.id;
+    }
+
     movePlayer(roomId: string, startPosition: number, endPosition: number) {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game: GameStructure = gameInstance.game;
