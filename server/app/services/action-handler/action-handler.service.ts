@@ -5,12 +5,14 @@ import { MatchService } from '@app/services/match.service';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { DebugModeService } from '../debug-mode/debug-mode.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
+        private readonly debugModeService: DebugModeService,
         @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
     ) {}
 
@@ -84,6 +86,10 @@ export class ActionHandlerService {
                     if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
+
+                        if (this.debugModeService.isDebugModeActive()) {
+                            iceSlip = false;
+                        }
                     }
                 }
             });

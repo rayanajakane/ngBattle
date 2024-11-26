@@ -8,6 +8,9 @@ import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
+import { ActionHandlerService } from '../action-handler/action-handler.service';
+import { ActionService } from '../action/action.service';
+import { DebugModeService } from '../debug-mode/debug-mode.service';
 import { ICE_PENALTY } from './constants';
 
 /* eslint-disable */
@@ -18,7 +21,17 @@ describe('CombatService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 CombatService,
+                DebugModeService,
+                ActionHandlerService,
+                {
+                    provide: ActionHandlerService,
+                    useValue: {
+                        handleCombatAction: jest.fn(),
+                        handleLogicAction: jest.fn(),
+                    },
+                },
                 ActiveGamesService,
+                ActionService,
                 {
                     provide: ActiveGamesService,
                     useValue: {
@@ -545,6 +558,7 @@ describe('CombatService', () => {
         const player = { player: { id: 'player1' } } as any;
         const playerKiller = { player: { id: 'player2' } } as any;
         const fighters = [player, playerKiller] as any;
+        const server = {} as Server;
 
         service['fightersMap'].set(roomId, fighters);
 
@@ -553,23 +567,23 @@ describe('CombatService', () => {
         const teleportPlayerToHomeSpy = jest.spyOn(service as any, 'teleportPlayerToHome').mockImplementation();
         const endCombatSpy = jest.spyOn(service as any, 'endCombat').mockReturnValue(fighters);
 
-        const result = service['killPlayer'](roomId, player);
+        const result = service['killPlayer'](roomId, player, server);
 
         expect(setWinnerSpy).toHaveBeenCalledWith(roomId, playerKiller);
         expect(resetAllAttributesSpy).toHaveBeenCalledWith(roomId, player);
         expect(teleportPlayerToHomeSpy).toHaveBeenCalledWith(roomId, player);
         expect(resetAllAttributesSpy).toHaveBeenCalledWith(roomId, playerKiller);
-        expect(endCombatSpy).toHaveBeenCalledWith(roomId, playerKiller);
+        expect(endCombatSpy).toHaveBeenCalledWith(roomId, playerKiller, server);
         expect(result).toEqual([playerKiller, player, fighters]);
     });
-
     it('should return [null, null, []] if playerKiller or playerKilled is not found', () => {
         const roomId = 'room1';
         const player = { player: { id: 'player1' } } as any;
+        const server = {} as Server;
 
         service['fightersMap'].set(roomId, [player]);
 
-        const result = service['killPlayer'](roomId, player);
+        const result = service['killPlayer'](roomId, player, server);
 
         expect(result).toEqual([null, null, []]);
     });
@@ -812,6 +826,7 @@ describe('CombatService', () => {
     });
     it('should end combat and remove player from fighters map', () => {
         const roomId = 'room1';
+        const server = {} as Server;
         const playerToRemove = {
             player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } },
         } as unknown as PlayerCoord;
@@ -831,7 +846,7 @@ describe('CombatService', () => {
         jest.spyOn(service['fightersMap'], 'delete');
         jest.spyOn(service['currentTurnMap'], 'delete');
 
-        service.endCombat(roomId, playerToRemove);
+        service.endCombat(roomId, server, playerToRemove);
 
         expect(gameInstance.turnTimer.resumeTimer).toHaveBeenCalled();
         expect(service['fightersMap'].get).toHaveBeenCalledWith(roomId);
@@ -840,6 +855,7 @@ describe('CombatService', () => {
     });
     it('should end combat and remove player from fighters map if fighter length is 1 ', () => {
         const roomId = 'room1';
+        const server = {} as Server;
         const playerToRemove = {
             player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } },
         } as unknown as PlayerCoord;
@@ -857,7 +873,7 @@ describe('CombatService', () => {
         jest.spyOn(service['fightersMap'], 'delete');
         jest.spyOn(service['currentTurnMap'], 'delete');
 
-        service.endCombat(roomId, playerToRemove);
+        service.endCombat(roomId, server, playerToRemove);
         expect(service['setWinner']).toHaveBeenCalled();
         expect(gameInstance.turnTimer.resumeTimer).toHaveBeenCalled();
         expect(service['fightersMap'].get).toHaveBeenCalledWith(roomId);
