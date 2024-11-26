@@ -95,11 +95,6 @@ export class MapGameService extends MapBaseService {
         this.initializePrevisualization(availableTiles);
     }
 
-    resetMap() {
-        this.resetAllMovementPrevisualization();
-        this.removeAllPreview();
-    }
-
     renderPreview(indexes: number[], previewType: TilePreview): void {
         indexes.forEach((index) => {
             this.tiles[index].isAccessible = previewType;
@@ -144,9 +139,31 @@ export class MapGameService extends MapBaseService {
         this.combat.resetMovementPrevisualization();
     }
 
+    resetMap() {
+        this.resetAllMovementPrevisualization();
+        this.removeAllPreview();
+    }
+
+    resetPlayerView(): void {
+        this.resetMap();
+        this.setState(GameState.NOTPLAYING);
+    }
+
+    initializePlayersPositions(playerCoords: PlayerCoord[]) {
+        playerCoords.forEach((playerCoord) => {
+            this.placePlayer(playerCoord.position, playerCoord.player);
+        });
+        this.removeUnusedStartingPoints();
+    }
+
     placePlayer(index: number, player: Player): void {
         this.tiles[index].player = player;
         this.tiles[index].hasPlayer = true;
+    }
+
+    removePlayer(index: number): void {
+        this.tiles[index].player = undefined;
+        this.tiles[index].hasPlayer = false;
     }
 
     removePlayerById(playerId: string): void {
@@ -154,11 +171,6 @@ export class MapGameService extends MapBaseService {
         if (index !== -1) {
             this.removePlayer(index);
         }
-    }
-
-    removePlayer(index: number): void {
-        this.tiles[index].player = undefined;
-        this.tiles[index].hasPlayer = false;
     }
 
     changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
@@ -180,12 +192,5 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
-    }
-
-    initializePlayersPositions(playerCoords: PlayerCoord[]) {
-        playerCoords.forEach((playerCoord) => {
-            this.placePlayer(playerCoord.position, playerCoord.player);
-        });
-        this.removeUnusedStartingPoints();
     }
 }

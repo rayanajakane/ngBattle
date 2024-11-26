@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { GameState, GameTile, ShortestPathByTile, TilePreview } from '@common/game-structure';
-import { Player, PlayerAttribute } from '@common/player';
+import { Player, PlayerAttribute, PlayerCoord } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { ActionStateService } from './action-state.service';
 import { CombatStateService } from './combat-state.service';
@@ -316,5 +316,25 @@ describe('MapGameService', () => {
         service.initializePrevisualization(accessibleTiles);
         expect(actionStateServiceSpy.initializePrevisualization).toHaveBeenCalledWith(accessibleTiles);
         expect(service.renderAvailableTiles).toHaveBeenCalled();
+    });
+
+    it('should reset player view correctly', () => {
+        spyOn(service, 'resetMap');
+        service.resetPlayerView();
+        expect(service.resetMap).toHaveBeenCalled();
+        expect(service.currentStateNumber).toBe(GameState.NOTPLAYING);
+    });
+
+    it('should initialize players positions correctly', () => {
+        const playerCoords: PlayerCoord[] = [
+            { position: 0, player: player1 },
+            { position: 1, player: player1 },
+        ];
+        spyOn(service, 'placePlayer');
+        spyOn(service, 'removeUnusedStartingPoints');
+        service.initializePlayersPositions(playerCoords);
+        expect(service.placePlayer).toHaveBeenCalledWith(0, player1);
+        expect(service.placePlayer).toHaveBeenCalledWith(1, player1);
+        expect(service.removeUnusedStartingPoints).toHaveBeenCalled();
     });
 });

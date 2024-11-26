@@ -48,6 +48,11 @@ export class GameControllerService {
         return this.fighters.length > 0;
     }
 
+    updateActiveFighter(playerCoords: PlayerCoord[], playerId: string): void {
+        this.updatePlayerCoordsList(playerCoords);
+        this.setActivePlayer(playerId);
+    }
+
     updatePlayerCoords(playerCoord: PlayerCoord): void {
         const index = this.playerCoords.findIndex((coord) => coord.player.id === playerCoord.player.id);
         if (index !== -1) {

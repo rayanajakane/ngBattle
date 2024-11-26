@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
@@ -15,7 +15,7 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_DURATION } from '@app/pages/game-page/constant';
+import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
@@ -48,21 +48,16 @@ import { PlayerCoord } from '@common/player';
 export class GamePageComponent implements OnDestroy {
     mapSize: number;
     game: GameStructure;
-
     currentMoveBudget: number | '--' = '--';
     remainingActions: number | '--' = '--';
     timeLeft: number | '--' = '--';
     timerState: TimerState = TimerState.COOLDOWN;
-
     attackerDiceResult: number = 0;
     defenderDiceResult: number = 0;
     attackSuccessful: boolean;
-
     gameCreated = false;
     playersInitialized = false;
-
     remainingEscapeChances: number | '--' = '--';
-
     combatInitiatorId: string = '';
 
     readonly gameController = inject(GameControllerService);
@@ -102,9 +97,7 @@ export class GamePageComponent implements OnDestroy {
         this.mapService.setTiles(game.map as GameTile[]);
         this.mapSize = parseInt(game.mapSize, 10);
         this.gameCreated = true;
-        if (isAdmin) {
-            this.gameController.requestGameSetup();
-        }
+        if (isAdmin) this.gameController.requestGameSetup();
     }
 
     listenGameSetup() {
@@ -152,14 +145,10 @@ export class GamePageComponent implements OnDestroy {
 
     listenCombatTimer() {
         this.socketService.on('CombatTimerUpdate', (time: number) => {
-            if (this.gameController.isInCombat()) {
-                this.timeLeft = time;
-            }
+            if (this.gameController.isInCombat()) this.timeLeft = time;
         });
         this.socketService.on('endCombatTimer', () => {
-            if (this.gameController.isActivePlayer()) {
-                this.gameController.requestCombatAction('attack');
-            }
+            if (this.gameController.isActivePlayer()) this.gameController.requestCombatAction('attack');
         });
     }
 
@@ -174,9 +163,7 @@ export class GamePageComponent implements OnDestroy {
 
     listenActions() {
         this.socketService.on('startAction', (availableTiles: number[]) => {
-            if (availableTiles.length > 0) {
-                this.mapService.switchToActionStateRoutine(availableTiles);
-            }
+            if (availableTiles.length > 0) this.mapService.switchToActionStateRoutine(availableTiles);
         });
         this.socketService.on('checkValidAction', (availableTiles: number[]) => {
             this.handleCheckValidAction(availableTiles);
@@ -185,9 +172,7 @@ export class GamePageComponent implements OnDestroy {
             this.handleInteractDoor(data.isToggable, data.doorPosition, data.availableMoves);
         });
         this.socketService.on('availableMovesOnBudget', (availableMoves: ShortestPathByTile) => {
-            if (this.gameController.isActivePlayer()) {
-                this.mapService.switchToMovingStateRoutine(availableMoves);
-            }
+            if (this.gameController.isActivePlayer()) this.mapService.switchToMovingStateRoutine(availableMoves);
         });
     }
 
@@ -236,8 +221,7 @@ export class GamePageComponent implements OnDestroy {
     handleStartCombat(attacker: PlayerCoord, defender: PlayerCoord, combatInitiatorId: string) {
         this.remainingEscapeChances = 2;
         this.combatInitiatorId = combatInitiatorId;
-        this.gameController.updatePlayerCoordsList([attacker, defender]);
-        this.gameController.setActivePlayer(attacker.player.id);
+        this.gameController.updateActiveFighter([attacker, defender], attacker.player.id);
         if (this.gameController.isFighter([attacker, defender])) {
             this.timerState = TimerState.COMBAT;
             this.gameController.setFighters([attacker, defender]);
@@ -305,16 +289,13 @@ export class GamePageComponent implements OnDestroy {
     }
 
     handleAttacked(attacker: PlayerCoord, attackerDice: number, defender: PlayerCoord, defenderDice: number, isAttackSuccessful: boolean) {
-        this.attackerDiceResult = attackerDice;
-        this.defenderDiceResult = defenderDice;
-        this.attackSuccessful = isAttackSuccessful;
+        [this.attackerDiceResult, this.defenderDiceResult, this.attackSuccessful] = [attackerDice, defenderDice, isAttackSuccessful];
         this.gameController.updatePlayerCoordsList([attacker, defender]);
     }
 
     handleKilledPlayer(killer: PlayerCoord, killed: PlayerCoord, killedOldPosition: number) {
-        this.gameController.updatePlayerCoordsList([killer, killed]);
+        this.gameController.updateActiveFighter([killer, killed], this.combatInitiatorId);
         this.mapService.changePlayerPosition(killedOldPosition, killed.position, killed.player);
-        this.gameController.setActivePlayer(this.combatInitiatorId);
         if (this.gameController.isActivePlayer()) {
             if (this.combatInitiatorId === killed.player.id) {
                 this.currentMoveBudget = 0;
@@ -337,22 +318,14 @@ export class GamePageComponent implements OnDestroy {
 
     redirectLastManStanding() {
         this.router.navigate(['/home']);
-        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', {
-            duration: SNACKBAR_DURATION,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-        });
+        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
 
     redirectEndGame(endGameMessage: string) {
         setTimeout(() => {
             this.router.navigate(['/home']);
         }, ENDGAME_DELAY);
-        this.snackbar.open(endGameMessage, 'Fermer', {
-            duration: SNACKBAR_DURATION,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-        });
+        this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
 
     endTurn() {
@@ -394,9 +367,7 @@ export class GamePageComponent implements OnDestroy {
     }
 
     resetPlayerView() {
-        this.mapService.resetAllMovementPrevisualization();
-        this.mapService.removeAllPreview();
-        this.mapService.setState(GameState.NOTPLAYING);
+        this.mapService.resetPlayerView();
         this.currentMoveBudget = '--';
         this.remainingActions = '--';
     }
