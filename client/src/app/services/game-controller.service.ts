@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 
 @Injectable({
     providedIn: 'root',
@@ -21,9 +22,50 @@ export class GameControllerService {
 
     fighters: PlayerCoord[] = [];
 
+    inventory: ItemTypes[] = [ItemTypes.EMPTY, ItemTypes.EMPTY];
+    itemCount: number = 0;
+
     private readonly socketService = inject(SocketService);
 
     constructor() {}
+
+    isInventoryFull(): boolean {
+        return this.itemCount === 2;
+    }
+
+    addItem(itemType: ItemTypes): void {
+        if (this.itemCount === 2) {
+            throw new Error('Cannot add more than 2 items');
+        }
+        if (this.inventory[0] === ItemTypes.EMPTY) {
+            this.inventory[0] = itemType;
+        } else if (this.inventory[1] === ItemTypes.EMPTY) {
+            this.inventory[1] = itemType;
+        }
+        this.incrementItemCount();
+    }
+
+    removeItem(): ItemTypes {
+        if (this.itemCount === 0) {
+            throw new Error('Cannot remove more items');
+        }
+        const item = this.inventory[1] !== ItemTypes.EMPTY ? this.inventory[1] : this.inventory[0];
+        if (this.inventory[1] !== ItemTypes.EMPTY) {
+            this.inventory[1] = ItemTypes.EMPTY;
+        } else if (this.inventory[0] !== ItemTypes.EMPTY) {
+            this.inventory[0] = ItemTypes.EMPTY;
+        }
+        this.decrementItemCount();
+        return item;
+    }
+
+    incrementItemCount(): void {
+        this.itemCount++;
+    }
+
+    decrementItemCount(): void {
+        this.itemCount--;
+    }
 
     setFighters(fighters: PlayerCoord[]): void {
         this.fighters = fighters;
@@ -64,10 +106,6 @@ export class GameControllerService {
             this.updatePlayer(playerCoord);
         });
     }
-
-    // setActiveFighter(index: number): void {
-    //     this.activePlayer = this.fighters[index].player;
-    // }
 
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;

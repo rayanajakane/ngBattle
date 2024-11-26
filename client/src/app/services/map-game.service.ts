@@ -229,4 +229,12 @@ export class MapGameService extends MapBaseService {
         const tile = this.tiles[index];
         return tile.hasPlayer || tile.tileType === TileTypes.DOORCLOSED || tile.tileType === TileTypes.DOOROPEN;
     }
+
+    placeItem(index: number, item: string): void {
+        this.tiles[index].item = item;
+    }
+
+    removeItem(index: number): void {
+        this.tiles[index].item = '';
+    }
 }

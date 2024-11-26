@@ -13,6 +13,7 @@ import { ActionService } from './services/action/action.service';
 import { CombatService } from './services/combat/combat.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
+import { InventoryService } from './services/inventory/inventory.service';
 import { MapValidationService } from './services/map-validation.service';
 import { MatchService } from './services/match.service';
 import { MovementService } from './services/movement/movement.service';
@@ -41,6 +42,7 @@ import { UniqueItemRandomizerService } from './services/unique-item-randomiser/u
         ActiveGamesService,
         CombatService,
         UniqueItemRandomizerService,
+        InventoryService,
     ],
 })
 export class AppModule {}

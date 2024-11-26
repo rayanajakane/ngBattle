@@ -65,8 +65,8 @@ export class ActiveGamesService {
             playerCoord = this.randomizePlayerPosition(game, players);
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
             playerCoord.sort((a, b) => {
-                const speedA = parseInt(a.player.attributes.speed, 10);
-                const speedB = parseInt(b.player.attributes.speed, 10);
+                const speedA = a.player.attributes.speed;
+                const speedB = b.player.attributes.speed;
 
                 // used when player is killed and has to respawn back home
                 a.player.homePosition = a.position;

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { ItemTypes } from '@common/tile-types';
 
 @Component({
     selector: 'app-inventory',
@@ -8,4 +9,16 @@ import { MatGridListModule } from '@angular/material/grid-list';
     templateUrl: './inventory.component.html',
     styleUrl: './inventory.component.scss',
 })
-export class InventoryComponent {}
+export class InventoryComponent {
+    @Input() items: ItemTypes[];
+
+    constructor() {}
+
+    findItemImage(itemType: string): string | undefined {
+        if (itemType) {
+            return `./assets/${itemType}_transparent.png`;
+        } else {
+            return undefined;
+        }
+    }
+}

@@ -9,6 +9,7 @@ export enum TilePreview {
 export interface TileStructure {
     idx: number;
     tileType: string;
+    //TODO: change to ItemTypes type
     item: string;
     hasPlayer: boolean;
 }
@@ -22,6 +23,7 @@ export interface GameStructure {
     id: string;
     gameName: string;
     gameDescription: string;
+    //TODO: change to number
     mapSize: string;
     map: TileStructure[];
     gameType: string;

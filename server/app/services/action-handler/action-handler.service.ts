@@ -1,20 +1,21 @@
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { MatchService } from '@app/services/match.service';
-import { TileTypes } from '@common/tile-types';
+import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { InventoryService } from '../inventory/inventory.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
+        private readonly inventoryService: InventoryService,
     ) {}
 
-    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    //TODO: move to a utils file
     private readonly TEN_POURCENT = 0.1;
-    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TIME_BETWEEN_MOVES = 150;
 
     getCurrentTimeFormatted(): string {
@@ -39,7 +40,7 @@ export class ActionHandlerService {
         const activeGame = this.activeGamesService.getActiveGame(data.roomId);
         const player = activeGame.playersCoord[activeGame.turn].player;
 
-        activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
+        activeGame.currentPlayerMoveBudget = player.attributes.speed;
         activeGame.currentPlayerActionPoint = 1;
 
         client.emit('startTurn', {
@@ -71,9 +72,15 @@ export class ActionHandlerService {
             let iceSlip = false;
 
             let pastPosition = startPosition;
-            let tileCounter = 0;
-            playerPositions.forEach((playerPosition) => {
-                if (!iceSlip) {
+            let tileItem: string = '';
+            // let tileCounter = 0;
+            if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
+                activeGame.currentPlayerMoveBudget = 0;
+                iceSlip = true;
+            }
+
+            playerPositions.forEach((playerPosition, index) => {
+                if (index !== 0 && !iceSlip && !tileItem) {
                     setTimeout(() => {
                         this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                     }, this.TIME_BETWEEN_MOVES);
@@ -84,11 +91,15 @@ export class ActionHandlerService {
                     activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
                     pastPosition = playerPosition;
-                    tileCounter++;
 
                     if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
+                    }
+                    tileItem = gameMap[playerPosition].item;
+                    if (tileItem) {
+                        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+                        this.inventoryService.addToInventory(player, tileItem as ItemTypes);
                     }
                 }
             });
@@ -98,8 +109,9 @@ export class ActionHandlerService {
                     availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
                     currentMoveBudget: activeGame.currentPlayerMoveBudget,
                     hasSlipped: iceSlip,
+                    //TODO: send inventory
                 });
-            }, this.TIME_BETWEEN_MOVES * tileCounter);
+            }, this.TIME_BETWEEN_MOVES * playerPositions.length);
         }
     }
 

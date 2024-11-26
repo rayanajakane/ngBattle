@@ -62,7 +62,7 @@
         }
 
         <section class="game-btns">
-            <app-inventory class="tools"></app-inventory>
+            <app-inventory class="tools" [items]="gameController.inventory"></app-inventory>
             @if (!gameController.isInCombat()) {
             <button mat-raised-button color="primary" (click)="startAction()">
                 <mat-icon> construction </mat-icon>
