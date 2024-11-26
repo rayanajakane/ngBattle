@@ -59,7 +59,8 @@ export class GamePageComponent implements OnDestroy {
     playersInitialized = false;
     remainingEscapeChances: number | '--' = '--';
     combatInitiatorId: string = '';
-
+    isDebugModeActive = false;
+    isAdmin = false;
     readonly gameController = inject(GameControllerService);
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
@@ -73,7 +74,8 @@ export class GamePageComponent implements OnDestroy {
         this.gameController.setRoom(this.route.snapshot.params['roomId'], this.route.snapshot.params['playerId']);
         this.addListeners();
         this.getGame(this.route.snapshot.params['gameId']).then(() => {
-            this.initiateGameSetup(this.game, this.route.snapshot.params['isAdmin'] === 'true');
+            this.isAdmin = this.route.snapshot.params['isAdmin'] === 'true';
+            this.initiateGameSetup(this.game);
         });
     }
 
@@ -93,11 +95,11 @@ export class GamePageComponent implements OnDestroy {
         this.game = await this.httpService.getGame(gameId);
     }
 
-    initiateGameSetup(game: GameStructure, isAdmin: boolean) {
+    initiateGameSetup(game: GameStructure) {
         this.mapService.setTiles(game.map as GameTile[]);
         this.mapSize = parseInt(game.mapSize, 10);
         this.gameCreated = true;
-        if (isAdmin) this.gameController.requestGameSetup();
+        if (this.isAdmin) this.gameController.requestGameSetup();
     }
 
     listenGameSetup() {
