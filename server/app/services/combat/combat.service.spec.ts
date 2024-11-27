@@ -1,14 +1,14 @@
 import { GameInstance } from '@app/data-structures/game-instance';
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
-import { ActionService } from '../action/action.service';
-import { DebugModeService } from '../debug-mode/debug-mode.service';
 import { ICE_PENALTY } from './constants';
 
 /* eslint-disable */

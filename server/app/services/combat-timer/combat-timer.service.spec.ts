@@ -11,6 +11,9 @@ describe('CombatTimerService', () => {
         mockServer = {
             to: jest.fn().mockReturnThis(),
             emit: jest.fn(),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            any: {} as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any;
 
         const mockRoomId = 'testRoom';

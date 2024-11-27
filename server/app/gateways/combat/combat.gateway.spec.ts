@@ -11,9 +11,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CombatGateway } from './combat.gateway';
 describe('CombatGateway', () => {
     let gateway: CombatGateway;
-    let actionButtonService: ActionButtonService;
-    let activeGamesService: ActiveGamesService;
-    let combatService: CombatService;
+    // let actionButtonService: ActionButtonService;
+    // let activeGamesService: ActiveGamesService;
+    // let combatService: CombatService;
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -54,9 +54,9 @@ describe('CombatGateway', () => {
         }).compile();
 
         gateway = module.get<CombatGateway>(CombatGateway);
-        actionButtonService = module.get<ActionButtonService>(ActionButtonService);
-        activeGamesService = module.get<ActiveGamesService>(ActiveGamesService);
-        combatService = module.get<CombatService>(CombatService);
+        // actionButtonService = module.get<ActionButtonService>(ActionButtonService);
+        // activeGamesService = module.get<ActiveGamesService>(ActiveGamesService);
+        // combatService = module.get<CombatService>(CombatService);
     });
 
     it('should be defined', () => {

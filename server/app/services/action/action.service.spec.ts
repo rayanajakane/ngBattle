@@ -1,7 +1,7 @@
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ActiveGamesService } from '../active-games/active-games.service';
 import { ActionService } from './action.service';
 
 /* eslint-disable */

@@ -1,15 +1,14 @@
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { MatchService } from '@app/services/match.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Server, Socket } from 'socket.io';
 import { MatchGateway } from './match.gateway';
 
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
-    let matchService: MatchService;
-    let actionHandlerService: ActionHandlerService;
-    let mockServer: Server;
-    let mockSocket: Socket;
+    // let matchService: MatchService;
+    // let actionHandlerService: ActionHandlerService;
+    // let mockServer: Server;
+    // let mockSocket: Socket;
 
     beforeEach(async () => {
         const mockMatchService = {
@@ -42,12 +41,12 @@ describe('MatchGateway', () => {
         }).compile();
 
         gateway = module.get<MatchGateway>(MatchGateway);
-        matchService = module.get<MatchService>(MatchService);
-        actionHandlerService = module.get<ActionHandlerService>(ActionHandlerService);
-        mockServer = { to: jest.fn() } as unknown as Server;
-        mockSocket = { id: 'mockSocketId', emit: jest.fn() } as unknown as Socket;
+        // matchService = module.get<MatchService>(MatchService);
+        // actionHandlerService = module.get<ActionHandlerService>(ActionHandlerService);
+        // mockServer = { to: jest.fn() } as unknown as Server;
+        // mockSocket = { id: 'mockSocketId', emit: jest.fn() } as unknown as Socket;
 
-        gateway.afterInit(mockServer);
+        // gateway.afterInit(mockServer);
     });
 
     it('should be defined', () => {

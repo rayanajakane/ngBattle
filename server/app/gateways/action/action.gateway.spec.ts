@@ -5,7 +5,6 @@ import { ActionGateway } from './action.gateway';
 
 describe('ActionGateway', () => {
     let gateway: ActionGateway;
-    let actionHandlerService: ActionHandlerService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -22,7 +21,6 @@ describe('ActionGateway', () => {
         }).compile();
 
         gateway = module.get<ActionGateway>(ActionGateway);
-        actionHandlerService = module.get<ActionHandlerService>(ActionHandlerService);
     });
 
     it('should be defined', () => {
