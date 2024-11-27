@@ -56,7 +56,7 @@ export class MapGameService extends MapBaseService {
         }[],
     ) {
         randomizedItemsPlacement.forEach((itemPlacement) => {
-            this.tiles[itemPlacement.idx].item = itemPlacement.item;
+            this.placeItem(itemPlacement.idx, itemPlacement.item);
         });
     }
 

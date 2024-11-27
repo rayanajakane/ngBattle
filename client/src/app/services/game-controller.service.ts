@@ -31,7 +31,7 @@ export class GameControllerService {
         return this.itemCount === 2;
     }
 
-    addItem(itemType: ItemTypes): void {
+    addItemToInventory(itemType: ItemTypes): void {
         if (this.itemCount === 2) {
             throw new Error('Cannot add more than 2 items');
         }
@@ -55,6 +55,11 @@ export class GameControllerService {
         if (!item) {
             throw new Error('Item not found in inventory');
         }
+    }
+
+    setInventory(inventory: ItemTypes[]): void {
+        this.inventory = inventory;
+        this.itemCount = inventory.filter((item) => item !== ItemTypes.EMPTY).length;
     }
 
     // removeItem(): ItemTypes {

@@ -106,6 +106,8 @@ export class GamePageComponent implements OnDestroy {
         this.listenEndGameEvents();
 
         this.listenDebugMode();
+        this.listenItemReplaced();
+        this.listenUpdatePlayersAttributes();
     }
 
     async getGame(gameId: string) {
@@ -193,9 +195,18 @@ export class GamePageComponent implements OnDestroy {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
-        this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number; hasSlipped: boolean }) => {
-            this.handleEndMove(data.availableMoves, data.currentMoveBudget, data.hasSlipped);
-        });
+        this.socketService.on(
+            'endMove',
+            (data: {
+                availableMoves: ShortestPathByTile;
+                currentMoveBudget: number;
+                hasSlipped: boolean;
+                newItem?: ItemTypes;
+                player?: PlayerCoord;
+            }) => {
+                this.handleEndMove(data.availableMoves, data.currentMoveBudget, data.hasSlipped, data.newItem, data.player);
+            },
+        );
     }
 
     listenActions() {
@@ -261,6 +272,20 @@ export class GamePageComponent implements OnDestroy {
         });
     }
 
+    listenItemReplaced() {
+        this.socketService.on('itemReplaced', (data: { updatedPlayer: PlayerCoord; newInventory: ItemTypes[]; dropedItem: ItemTypes }) => {
+            this.gameController.updatePlayerCoordsList([data.updatedPlayer]);
+            this.gameController.setInventory(data.newInventory);
+            this.mapService.placeItem(data.updatedPlayer.position, data.dropedItem);
+        });
+    }
+
+    listenUpdatePlayersAttributes() {
+        this.socketService.on('updatePlayersAttributes', (players: PlayerCoord) => {
+            this.gameController.updatePlayerCoordsList([players]);
+        });
+    }
+
     handleGameSetup(
         playerCoords: PlayerCoord[],
         turn: number,
@@ -320,8 +345,28 @@ export class GamePageComponent implements OnDestroy {
         this.combatInitiatorId = '';
     }
 
-    handleEndMove(availableMoves: ShortestPathByTile, currentMoveBudget: number, hasSlipped: boolean) {
+    handleEndMove(availableMoves: ShortestPathByTile, currentMoveBudget: number, hasSlipped: boolean, newItem?: ItemTypes, player?: PlayerCoord) {
         this.currentMoveBudget = currentMoveBudget;
+        if (newItem && player) {
+            this.gameController.updatePlayerCoordsList([player]);
+            if (this.gameController.isInventoryFull()) {
+                this.inquirePlayerForItemReplacement(newItem)
+                    .then
+                    // send item to replace to server
+                    ();
+            } else {
+                this.gameController.addItemToInventory(newItem);
+                this.mapService.removeItem(player.position);
+            }
+        }
+        this.chooseEndMoveOutcome(hasSlipped, availableMoves);
+    }
+
+    async inquirePlayerForItemReplacement(item: ItemTypes) {
+        // TODO: chooseItem and send to server
+    }
+
+    chooseEndMoveOutcome(hasSlipped: boolean, availableMoves: ShortestPathByTile) {
         if (hasSlipped) this.endTurn();
         else this.endMovement(availableMoves);
     }
