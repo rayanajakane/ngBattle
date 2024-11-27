@@ -11,6 +11,7 @@ import { ActionButtonService } from './services/action-button/action-button.serv
 import { ActionHandlerService } from './services/action-handler/action-handler.service';
 import { ActionService } from './services/action/action.service';
 import { CombatService } from './services/combat/combat.service';
+import { DebugModeService } from './services/debug-mode/debug-mode.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
 import { InventoryService } from './services/inventory/inventory.service';
@@ -41,8 +42,10 @@ import { UniqueItemRandomizerService } from './services/unique-item-randomiser/u
         CombatGateway,
         ActiveGamesService,
         CombatService,
+        DebugModeService,
         UniqueItemRandomizerService,
         InventoryService,
     ],
+    exports: [ActionHandlerService],
 })
 export class AppModule {}

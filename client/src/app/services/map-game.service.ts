@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
-import { GameState, GameTile, TilePreview } from '@common/game-structure';
-import { Player } from '@common/player';
+import { GameState, GameTile, ShortestPathByTile, TilePreview } from '@common/game-structure';
+import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { ActionStateService } from './action-state.service';
 import { BaseStateService } from './base-state.service';
@@ -21,10 +20,7 @@ export class MapGameService extends MapBaseService {
     currentStateNumber: GameState;
     private currentState: BaseStateService;
 
-    // private eventSubject = new Subject<number>();
-
-    /* eslint-disable */ // Methods to be implemented in the next sprint
-    // event$ = this.eventSubject.asObservable();
+    // private movingStateSubscription: Subscription;
 
     constructor(
         private notPlaying: NotPlayingStateService,
@@ -68,14 +64,9 @@ export class MapGameService extends MapBaseService {
         this.tiles = tiles;
     }
 
-    onMouseUp(index: number, event: MouseEvent): void {
-        event.preventDefault();
-    }
     onRightClick(index: number): void {
         this.currentState.onRightClick(this.tiles[index]);
     }
-    onExit(): void {}
-    onDrop(index: number): void {}
 
     onMouseDown(index: number, event: MouseEvent): void {
         event.preventDefault();
@@ -88,15 +79,6 @@ export class MapGameService extends MapBaseService {
                     this.switchToMovingStateRoutine();
                 }
             }
-            // if (this.currentState.onMouseDown(index)) {
-            //     this.removeAllPreview();
-            // }
-
-            // this.removeAllPreview();
-            // this.currentState.onMouseDown(index);
-            // if (true) {
-            //     this.removeAllPreview();
-            // }
         }
     }
 
@@ -125,11 +107,6 @@ export class MapGameService extends MapBaseService {
         this.removeAllPreview();
         this.setState(GameState.ACTION);
         this.initializePrevisualization(availableTiles);
-    }
-
-    resetMap() {
-        this.resetMovementPrevisualization();
-        this.removeAllPreview();
     }
 
     renderPreview(indexes: number[], previewType: TilePreview): void {
@@ -176,8 +153,21 @@ export class MapGameService extends MapBaseService {
         this.combat.resetMovementPrevisualization();
     }
 
-    setAvailableTiles(availableTiles: number[]): void {
-        this.currentState.setAvailableTiles(availableTiles);
+    resetMap() {
+        this.resetAllMovementPrevisualization();
+        this.removeAllPreview();
+    }
+
+    resetPlayerView(): void {
+        this.resetMap();
+        this.setState(GameState.NOTPLAYING);
+    }
+
+    initializePlayersPositions(playerCoords: PlayerCoord[]) {
+        playerCoords.forEach((playerCoord) => {
+            this.placePlayer(playerCoord.position, playerCoord.player);
+        });
+        this.removeUnusedStartingPoints();
     }
 
     placePlayer(index: number, player: Player): void {
@@ -185,17 +175,16 @@ export class MapGameService extends MapBaseService {
         this.tiles[index].hasPlayer = true;
     }
 
-    removePlayerById(playerId: string): void {
-        const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
-        if (index !== -1) {
-            console.log('removePlayerById', index);
-            this.removePlayer(index);
-        }
-    }
-
     removePlayer(index: number): void {
         this.tiles[index].player = undefined;
         this.tiles[index].hasPlayer = false;
+    }
+
+    removePlayerById(playerId: string): void {
+        const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
+        if (index !== -1) {
+            this.removePlayer(index);
+        }
     }
 
     changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
@@ -217,17 +206,6 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
-    }
-
-    checkIfTargetAvailable(index: number, mapSize: number): boolean {
-        const potentialindexes: number[] = [index - 1, index + 1, index - mapSize, index + mapSize];
-        console.log('checkIfTargetAvailable', potentialindexes);
-        return potentialindexes.some((potentialIndex) => this.checkIfDoorOrPlayer(potentialIndex));
-    }
-
-    checkIfDoorOrPlayer(index: number): boolean {
-        const tile = this.tiles[index];
-        return tile.hasPlayer || tile.tileType === TileTypes.DOORCLOSED || tile.tileType === TileTypes.DOOROPEN;
     }
 
     placeItem(index: number, item: string): void {

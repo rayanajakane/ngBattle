@@ -59,12 +59,70 @@ describe('TileBasicComponent', () => {
         component.isAccessible = TilePreview.SHORTESTPATH;
         expect(component.choosePreviewClass()).toBe('shortestPath');
     });
+
     it('setAvatarImage should change avatarUrl based on avatar', () => {
-        const avatars = ['hero', 'villain', 'npc'];
+        const avatars = [
+            'Avatar 1',
+            'Avatar 2',
+            'Avatar 3',
+            'Avatar 4',
+            'Avatar 5',
+            'Avatar 6',
+            'Avatar 7',
+            'Avatar 8',
+            'Avatar 9',
+            'Avatar 10',
+            'Avatar 11',
+            'Avatar 12',
+        ];
         component.avatar = avatars[Math.floor(Math.random() * avatars.length)];
         component.setAvatarImage();
-        expect(component.avatarUrl).toBe(`./../../../assets/characters/${component.avatar}.png`);
+        expect(component.avatarUrl).toBe('./assets/characters/' + component.chooseAvatar(component.avatar) + '.png');
         component.avatar = '';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+    });
+
+    it('ngOnChanges should call setTileImage, setItemImage, choosePreviewClass, and setAvatarImage', () => {
+        spyOn(component, 'setTileImage');
+        spyOn(component, 'setItemImage');
+        spyOn(component, 'choosePreviewClass');
+        spyOn(component, 'setAvatarImage');
+
+        component.ngOnChanges();
+
+        expect(component.setTileImage).toHaveBeenCalled();
+        expect(component.setItemImage).toHaveBeenCalled();
+        expect(component.choosePreviewClass).toHaveBeenCalled();
+        expect(component.setAvatarImage).toHaveBeenCalled();
+    });
+
+    it('setAvatarImage should set avatarUrl correctly when avatar is valid', () => {
+        component.avatar = 'Avatar 1';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('./assets/characters/1.png');
+
+        component.avatar = 'Avatar 12';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('./assets/characters/12.png');
+    });
+
+    it('setAvatarImage should set avatarUrl to empty string when avatar is invalid', () => {
+        component.avatar = 'Avatar 0';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+
+        component.avatar = 'Avatar 13';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+
+        component.avatar = '';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+    });
+
+    it('setAvatarImage should set avatarUrl to empty string when avatar is undefined', () => {
+        component.avatar = undefined;
         component.setAvatarImage();
         expect(component.avatarUrl).toBe('');
     });

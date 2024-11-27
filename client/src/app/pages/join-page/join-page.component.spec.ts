@@ -64,7 +64,13 @@ describe('JoinPageComponent', () => {
     });
 
     it('should receive attributes from child', () => {
-        const attributesFromChild: PlayerAttribute = { health: 4, speed: '4', attack: 4, defense: 4, dice: 'attack' };
+        const attributesFromChild: PlayerAttribute = {
+            health: 10,
+            speed: 8,
+            attack: 7,
+            defense: 5,
+            dice: '6',
+        };
         component.receiveAttributes(attributesFromChild);
 
         expect(component.attributes).toEqual(attributesFromChild);

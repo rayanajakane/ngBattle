@@ -16,7 +16,7 @@ describe('PlayerService', () => {
     it('should set attributes correctly', () => {
         const attributes: PlayerAttribute = {
             health: 10,
-            speed: '8',
+            speed: 8,
             attack: 7,
             defense: 5,
             dice: '6',
@@ -28,7 +28,7 @@ describe('PlayerService', () => {
     it('should get attributes correctly', () => {
         const attributes: PlayerAttribute = {
             health: 10,
-            speed: '8',
+            speed: 8,
             attack: 7,
             defense: 5,
             dice: '6',

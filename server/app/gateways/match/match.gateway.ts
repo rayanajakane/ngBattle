@@ -1,3 +1,4 @@
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { MatchService } from '@app/services/match.service';
 import { PlayerAttribute } from '@common/player';
 import { Inject } from '@nestjs/common';
@@ -16,7 +17,10 @@ import { Server, Socket } from 'socket.io';
 export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
-    constructor(@Inject() private readonly matchService: MatchService) {}
+    constructor(
+        @Inject() private readonly matchService: MatchService,
+        private readonly actionHandler: ActionHandlerService,
+    ) {}
 
     @SubscribeMessage('createRoom')
     handleCreateRoom(
@@ -96,6 +100,7 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     }
 
     handleDisconnect(client: Socket) {
+        this.actionHandler.handleQuitGame(this.server, client);
         this.matchService.leaveAllRooms(this.server, client);
     }
 }

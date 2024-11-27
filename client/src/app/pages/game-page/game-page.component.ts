@@ -1,46 +1,42 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
-import { CombatTimerComponent } from '@app/components/combat-timer/combat-timer.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
 import { InventoryComponent } from '@app/components/inventory/inventory.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
+import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
-import { GameState, GameStructure, GameTile, TimerState } from '@common/game-structure';
+import { GameState, GameStructure, GameTile, ShortestPathByTile, TimerState } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 
-export interface ShortestPathByTile {
-    [key: number]: number[];
-}
-
+// Game Page is complex and has many functionalities, so it is normal to have a high number of lines
+/* eslint-disable max-lines */
 @Component({
     selector: 'app-game-page',
     standalone: true,
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     imports: [
-        CombatTimerComponent,
         ChatComponent,
         InventoryComponent,
         MatCardModule,
         MatIconModule,
         MatListModule,
-        SidebarComponent,
         GameMapComponent,
         MatButtonModule,
         MatTabsModule,
@@ -52,66 +48,83 @@ export interface ShortestPathByTile {
         LogsComponent,
     ],
 })
-export class GamePageComponent implements OnInit, OnDestroy {
+export class GamePageComponent implements OnDestroy {
     mapSize: number;
     game: GameStructure;
-
-    currentMoveBudget: number | '--' = '--';
-    remainingActions: number | '--' = '--';
-    timeLeft: number | '--' = '--';
+    currentMoveBudget: number = -1;
+    remainingActions: number = -1;
+    timeLeft: number = -1;
     timerState: TimerState = TimerState.COOLDOWN;
-
     attackerDiceResult: number = 0;
     defenderDiceResult: number = 0;
     attackSuccessful: boolean;
-
     gameCreated = false;
     playersInitialized = false;
-
-    remainingEscapeChances: number | '--' = '--';
-
+    remainingEscapeChances: number = -1;
     combatInitiatorId: string = '';
-
+    isAdmin = false;
+    readonly gameController = inject(GameControllerService);
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
     private readonly socketService = inject(SocketService);
-    readonly gameController = inject(GameControllerService);
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-    ) {}
+        private snackbar: MatSnackBar,
+    ) {
+        this.gameController.setRoom(this.route.snapshot.params['roomId'], this.route.snapshot.params['playerId']);
+        this.addListeners();
+        this.getGame(this.route.snapshot.params['gameId']).then(() => {
+            this.isAdmin = this.route.snapshot.params['isAdmin'] === 'true';
+            this.initiateGameSetup(this.game);
+        });
+    }
 
-    ngOnInit() {
-        this.gameController.setRoomId(this.route.snapshot.params['roomId']);
-        this.gameController.setPlayerId(this.route.snapshot.params['playerId']);
+    addListeners() {
+        window.addEventListener('keydown', (event) => {
+            if (
+                (event.key === 'd' || event.key === 'D' || event.code === 'KeyD') &&
+                !event.ctrlKey &&
+                !event.shiftKey &&
+                !event.altKey &&
+                !event.metaKey &&
+                this.isAdmin
+            ) {
+                this.handleKeyDPressed();
+            }
+        });
 
         this.listenGameSetup();
-        this.listenMovement();
-        this.listenStartAction();
-        this.listenInteractDoor();
-        this.listenStartTurn();
-        this.listenEndTurn();
-        this.listenQuitGame();
+        this.listenTurns();
+        this.listenCombatTurns();
         this.listenTimer();
-        this.listenEndTimer();
-        this.listenEndCooldown();
-        this.listenStartCombat();
         this.listenCombatTimer();
-        this.listenAttacked();
-        this.listenChangeCombatTurn();
-        this.listenKilledPlayer();
-        this.listenEscaped();
-        this.listenEndCombat();
-        this.listenAvailableMovesOnBudget();
-        this.listenEnCombatTimer();
+        this.listenMovement();
+        this.listenActions();
+        this.listenCombatActions();
+        this.listenEndGameEvents();
 
-        this.getGame(this.route.snapshot.params['gameId']).then(() => {
-            this.mapService.setTiles(this.game.map as GameTile[]);
-            this.mapSize = parseInt(this.game.mapSize, 10);
-            this.gameCreated = true;
-            this.gameController.requestGameSetup(this.route.snapshot.params['isAdmin'] === 'true');
-        });
+        this.listenDebugMode();
+    }
+
+    async getGame(gameId: string) {
+        this.game = await this.httpService.getGame(gameId);
+    }
+
+    handleKeyDPressed() {
+        if (this.gameController.isDebugModeActive) {
+            this.gameController.requestStopDebugMode();
+        } else {
+            this.gameController.requestDebugMode();
+        }
+    }
+
+    initiateGameSetup(game: GameStructure) {
+        this.mapService.setTiles(game.map as GameTile[]);
+        this.mapSize = parseInt(game.mapSize, 10);
+        this.gameCreated = true;
+        if (this.isAdmin) this.gameController.requestGameSetup();
     }
 
     listenGameSetup() {
@@ -125,66 +138,252 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     item: ItemTypes;
                 }[];
             }) => {
-                this.mapService.replaceRandomItems(data.randomizedItemsPlacement);
-                this.gameController.initializePlayers(data.playerCoords, data.turn);
-                this.playersInitialized = true;
-                this.initializePlayersPositions();
-                this.mapService.setState(GameState.NOTPLAYING);
-                this.timerState = TimerState.COOLDOWN;
-                // this.gameController.requestStartTurn(); //
+                this.handleGameSetup(data.playerCoords, data.turn, data.randomizedItemsPlacement);
             },
         );
     }
 
-    listenStartTurn() {
+    listenTurns() {
         this.socketService.on('startTurn', (data: { shortestPathByTile: ShortestPathByTile; currentMoveBudget: number }) => {
             this.mapService.switchToMovingStateRoutine(data.shortestPathByTile);
             this.currentMoveBudget = data.currentMoveBudget;
             this.remainingActions = 1;
         });
+        this.socketService.on('endTurn', (activePlayerId: string) => {
+            this.timerState = TimerState.COOLDOWN;
+            this.gameController.setActivePlayer(activePlayerId);
+        });
     }
 
-    listenInteractDoor() {
-        this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
-            if (data.isToggable) {
-                this.mapService.toggleDoor(data.doorPosition);
-            }
-            if (this.gameController.isActivePlayer()) {
-                this.remainingActions = 0;
-                this.endMovement(data.availableMoves);
-            }
+    listenCombatTurns() {
+        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
+            this.handleStartCombat(combatData.attacker, combatData.defender, combatData.combatInitiatorId);
+        });
+        this.socketService.on('changeCombatTurn', (newAttackerId: string) => {
+            this.handleChangeCombatTurn(newAttackerId);
+        });
+        this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
+            this.handleEndCombat(newFighters);
+        });
+    }
+
+    listenTimer() {
+        this.socketService.on('timerUpdate', (time: number) => {
+            this.timeLeft = time;
+        });
+        this.socketService.on('endTimer', () => {
+            this.endTurn();
+        });
+        this.socketService.on('endCooldown', () => {
+            this.timerState = TimerState.REGULAR;
+            this.gameController.requestStartTurn();
+        });
+    }
+
+    listenCombatTimer() {
+        this.socketService.on('CombatTimerUpdate', (time: number) => {
+            if (this.gameController.isInCombat()) this.timeLeft = time;
+        });
+        this.socketService.on('endCombatTimer', () => {
+            if (this.gameController.isActivePlayer()) this.gameController.requestCombatAction('attack');
         });
     }
 
     listenMovement() {
         this.socketService.on('playerPositionUpdate', (data: { playerId: string; newPlayerPosition: number }) => {
-            console.log('playerPositionUpdate', data.newPlayerPosition);
             this.updatePlayerPosition(data.playerId, data.newPlayerPosition);
         });
         this.socketService.on('endMove', (data: { availableMoves: ShortestPathByTile; currentMoveBudget: number; hasSlipped: boolean }) => {
-            console.log('endMove', data);
-            this.currentMoveBudget = data.currentMoveBudget;
-            if (data.hasSlipped) {
-                this.endTurn();
-            } else {
-                this.endMovement(data.availableMoves);
+            this.handleEndMove(data.availableMoves, data.currentMoveBudget, data.hasSlipped);
+        });
+    }
+
+    listenActions() {
+        this.socketService.on('startAction', (availableTiles: number[]) => {
+            if (availableTiles.length > 0) this.mapService.switchToActionStateRoutine(availableTiles);
+        });
+        this.socketService.on('checkValidAction', (availableTiles: number[]) => {
+            this.handleCheckValidAction(availableTiles);
+        });
+        this.socketService.on('interactDoor', (data: { isToggable: boolean; doorPosition: number; availableMoves: ShortestPathByTile }) => {
+            this.handleInteractDoor(data.isToggable, data.doorPosition, data.availableMoves);
+        });
+        this.socketService.on('availableMovesOnBudget', (availableMoves: ShortestPathByTile) => {
+            if (this.gameController.isActivePlayer()) this.mapService.switchToMovingStateRoutine(availableMoves);
+        });
+    }
+
+    listenCombatActions() {
+        this.socketService.on(
+            'attacked',
+            (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number; isAttackSuccessful: boolean }) => {
+                if (this.gameController.isInCombat()) {
+                    this.handleAttacked(data.attacker, data.attackerDice, data.defender, data.defenderDice, data.isAttackSuccessful);
+                }
+            },
+        );
+        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
+            if (data.killer.player.wins < MAX_NUMBER_OF_WINS) {
+                this.handleKilledPlayer(data.killer, data.killed, data.killedOldPosition);
+            }
+        });
+        this.socketService.on('didEscape', (data: { playerId: string; remainingEscapeChances: number; hasEscaped: boolean }) => {
+            if (this.gameController.isInCombat()) {
+                this.handleEscaped(data.remainingEscapeChances, data.hasEscaped);
             }
         });
     }
 
-    listenEndTurn() {
-        this.socketService.on('endTurn', (activePlayerId: string) => {
-            this.timerState = TimerState.COOLDOWN;
-            this.gameController.setActivePlayer(activePlayerId);
-            // this.gameController.requestStartTurn(); //
+    listenEndGameEvents() {
+        this.socketService.on('quitGame', (playerId: string) => {
+            this.gameController.feedAfkList(playerId);
+            this.mapService.removePlayerById(playerId);
+        });
+        this.socketService.on('lastManStanding', () => {
+            this.redirectLastManStanding();
+        });
+        this.socketService.on('endGame', (endGameMessage: string) => {
+            this.redirectEndGame(endGameMessage);
         });
     }
 
-    initializePlayersPositions() {
-        this.gameController.getPlayerCoords().forEach((playerCoord) => {
-            this.mapService.placePlayer(playerCoord.position, playerCoord.player);
+    listenDebugMode() {
+        this.socketService.on('startDebugMode', () => {
+            this.gameController.isDebugModeActive = true;
+            this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
         });
-        this.mapService.removeUnusedStartingPoints();
+    }
+
+    listenStopDebugMode() {
+        this.socketService.on('stopDebugMode', () => {
+            this.gameController.isDebugModeActive = false;
+            this.snackbar.open("Le mode débogage a été désactivé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+        });
+    }
+
+    handleGameSetup(
+        playerCoords: PlayerCoord[],
+        turn: number,
+        randomizedItemsPlacement: {
+            idx: number;
+            item: ItemTypes;
+        }[],
+    ) {
+        this.mapService.replaceRandomItems(randomizedItemsPlacement);
+        this.gameController.initializePlayers(playerCoords, turn);
+        this.playersInitialized = true;
+        this.mapService.initializePlayersPositions(playerCoords);
+        this.mapService.setState(GameState.NOTPLAYING);
+        this.timerState = TimerState.COOLDOWN;
+    }
+
+    handleStartCombat(attacker: PlayerCoord, defender: PlayerCoord, combatInitiatorId: string) {
+        this.remainingEscapeChances = 2;
+        this.combatInitiatorId = combatInitiatorId;
+        this.gameController.updateActiveFighter([attacker, defender], attacker.player.id);
+        if (this.gameController.isFighter([attacker, defender])) {
+            this.timerState = TimerState.COMBAT;
+            this.gameController.setFighters([attacker, defender]);
+            if (this.gameController.isActivePlayer()) {
+                this.mapService.setState(GameState.COMBAT);
+                this.remainingActions = 0;
+            }
+        } else {
+            this.timerState = TimerState.NONE;
+            this.timeLeft = -1;
+        }
+    }
+
+    handleChangeCombatTurn(newAttackerId: string) {
+        this.gameController.setActivePlayer(newAttackerId);
+        if (this.gameController.isInCombat()) {
+            if (this.gameController.isActivePlayer()) {
+                this.mapService.setState(GameState.COMBAT);
+            } else {
+                this.mapService.setState(GameState.NOTPLAYING);
+            }
+        }
+    }
+
+    handleEndCombat(newFighters: PlayerCoord[]) {
+        this.gameController.updatePlayerCoordsList(newFighters);
+        this.mapService.setState(GameState.NOTPLAYING);
+        this.timerState = TimerState.REGULAR;
+        if (this.gameController.isActivePlayer()) {
+            if (this.currentMoveBudget === 0 || this.combatInitiatorId !== this.gameController.playerId) {
+                this.gameController.requestEndTurn();
+            } else {
+                this.mapService.switchToMovingStateRoutine();
+            }
+        }
+        this.gameController.resetFighters();
+        this.combatInitiatorId = '';
+    }
+
+    handleEndMove(availableMoves: ShortestPathByTile, currentMoveBudget: number, hasSlipped: boolean) {
+        this.currentMoveBudget = currentMoveBudget;
+        if (hasSlipped) this.endTurn();
+        else this.endMovement(availableMoves);
+    }
+
+    handleCheckValidAction(availableTiles: number[]) {
+        if (availableTiles.length === 0) this.endTurn();
+        else if (availableTiles.length > 0) this.mapService.setState(GameState.MOVING);
+    }
+
+    handleInteractDoor(isToggable: boolean, doorPosition: number, availableMoves: ShortestPathByTile) {
+        if (isToggable) this.mapService.toggleDoor(doorPosition);
+        if (this.gameController.isActivePlayer()) {
+            this.remainingActions = 0;
+            this.endMovement(availableMoves);
+        }
+    }
+
+    handleAttacked(attacker: PlayerCoord, attackerDice: number, defender: PlayerCoord, defenderDice: number, isAttackSuccessful: boolean) {
+        [this.attackerDiceResult, this.defenderDiceResult, this.attackSuccessful] = [attackerDice, defenderDice, isAttackSuccessful];
+        this.gameController.updatePlayerCoordsList([attacker, defender]);
+    }
+
+    handleKilledPlayer(killer: PlayerCoord, killed: PlayerCoord, killedOldPosition: number) {
+        this.gameController.updateActiveFighter([killer, killed], this.combatInitiatorId);
+        this.mapService.changePlayerPosition(killedOldPosition, killed.position, killed.player);
+        if (this.gameController.isActivePlayer()) {
+            if (this.combatInitiatorId === killed.player.id) {
+                this.currentMoveBudget = this.gameController.isDebugModeActive ? this.currentMoveBudget : 0;
+            } else if (this.combatInitiatorId === killer.player.id) {
+                if (this.currentMoveBudget !== -1) {
+                    this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
+                }
+            }
+        }
+    }
+
+    handleEscaped(remainingEscapeChances: number, hasEscaped: boolean) {
+        if (hasEscaped) {
+            this.gameController.setActivePlayer(this.combatInitiatorId);
+            this.remainingEscapeChances = -1;
+        } else if (this.gameController.isActivePlayer()) {
+            this.remainingEscapeChances = remainingEscapeChances;
+        }
+    }
+
+    redirectLastManStanding() {
+        this.router.navigate(['/home']);
+        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+    }
+
+    redirectEndGame(endGameMessage: string) {
+        setTimeout(() => {
+            this.router.navigate(['/home']);
+        }, ENDGAME_DELAY);
+        this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+    }
+
+    endTurn() {
+        if (this.gameController.isActivePlayer()) {
+            this.resetPlayerView();
+            this.gameController.requestEndTurn();
+        }
     }
 
     updatePlayerPosition(playerId: string, newPlayerPosition: number) {
@@ -196,222 +395,40 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endMovement(shortestPathByTile: ShortestPathByTile) {
-        const currentPlayerPosition = this.gameController.findPlayerCoordById(this.gameController.playerId)?.position;
-
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.switchToMovingStateRoutine(shortestPathByTile);
-        } else if (
-            currentPlayerPosition &&
-            (this.remainingActions === 0 || !this.mapService.checkIfTargetAvailable(currentPlayerPosition, this.mapSize))
-        ) {
-            this.endTurn();
+        } else if (this.remainingActions !== -1 && this.remainingActions > 0) {
+            this.gameController.requestCheckAction();
         } else {
             this.mapService.resetMovementPrevisualization();
-            this.mapService.setState(GameState.MOVING);
-        }
-    }
-
-    async getGame(gameId: string) {
-        this.game = await this.httpService.getGame(gameId);
-    }
-
-    listenQuitGame() {
-        this.socketService.on('quitGame', (playerId: string) => {
-            if (this.gameController.isActivePlayer()) {
-                this.gameController.requestEndTurn(true);
-                this.socketService.disconnect();
-                this.router.navigate(['/home']);
-            }
-            this.gameController.feedAfkList(playerId);
-            this.mapService.removePlayerById(playerId);
-        });
-    }
-
-    listenStartAction() {
-        this.socketService.on('startAction', (availableTiles: number[]) => {
-            if (availableTiles.length > 0) {
-                this.mapService.switchToActionStateRoutine(availableTiles);
-            }
-        });
-    }
-
-    listenTimer() {
-        this.socketService.on('timerUpdate', (time: number) => {
-            this.timeLeft = time;
-        });
-    }
-
-    listenEndTimer() {
-        this.socketService.on('endTimer', () => {
             this.endTurn();
-        });
-    }
-
-    listenEndCooldown() {
-        this.socketService.on('endCooldown', () => {
-            this.timerState = TimerState.REGULAR;
-            this.gameController.requestStartTurn();
-        });
-    }
-
-    listenCombatTimer() {
-        this.socketService.on('CombatTimerUpdate', (time: number) => {
-            if (this.gameController.isInCombat()) {
-                this.timeLeft = time;
-            }
-        });
-    }
-
-    listenEnCombatTimer() {
-        this.socketService.on('endCombatTimer', () => {
-            if (this.gameController.isActivePlayer()) {
-                this.gameController.requestCombatAction('attack');
-            }
-        });
-    }
-
-    listenStartCombat() {
-        this.socketService.on('startCombat', (combatData: { attacker: PlayerCoord; defender: PlayerCoord; combatInitiatorId: string }) => {
-            console.log('iceDisadvantage', combatData.defender.player.attributes.currentAttack, combatData.defender.player.attributes.currentDefense);
-            this.remainingEscapeChances = 2;
-            this.combatInitiatorId = combatData.combatInitiatorId;
-            this.gameController.updatePlayerCoordsList([combatData.attacker, combatData.defender]);
-            this.gameController.setActivePlayer(combatData.attacker.player.id);
-            if (this.gameController.isFighter([combatData.attacker, combatData.defender])) {
-                this.timerState = TimerState.COMBAT;
-                this.gameController.setFighters([combatData.attacker, combatData.defender]);
-                if (this.gameController.isActivePlayer()) {
-                    this.mapService.setState(GameState.COMBAT); // fighter[0] <- initier combat ; fighter[1] <- recevoir combat
-                    this.remainingActions = 0;
-                }
-            } else {
-                this.timerState = TimerState.NONE;
-                this.timeLeft = '--';
-            }
-            console.log('GameState', this.mapService.currentStateNumber);
-        });
-    }
-
-    listenAttacked() {
-        this.socketService.on(
-            'attacked',
-            (data: { attacker: PlayerCoord; attackerDice: number; defender: PlayerCoord; defenderDice: number; isAttackSuccessful: boolean }) => {
-                if (this.gameController.isInCombat()) {
-                    this.attackerDiceResult = data.attackerDice;
-                    this.defenderDiceResult = data.defenderDice;
-                    this.attackSuccessful = data.isAttackSuccessful;
-                    console.log('lifePoints', data.defender.player.attributes.health);
-                    this.gameController.updatePlayerCoordsList([data.attacker, data.defender]);
-                }
-            },
-        );
-    }
-
-    listenChangeCombatTurn() {
-        this.socketService.on('changeCombatTurn', (newAttackerId: string) => {
-            this.gameController.setActivePlayer(newAttackerId);
-            if (this.gameController.isInCombat()) {
-                if (this.gameController.isActivePlayer()) {
-                    this.mapService.setState(GameState.COMBAT);
-                } else {
-                    this.mapService.setState(GameState.NOTPLAYING);
-                }
-            }
-        });
-    }
-
-    listenKilledPlayer() {
-        this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
-            // this.gameController.updatePlayerCoordsList([data.killer, data.killed]);
-            this.mapService.changePlayerPosition(data.killedOldPosition, data.killed.position, data.killed.player);
-            this.gameController.setActivePlayer(this.combatInitiatorId);
-            if (this.gameController.isActivePlayer()) {
-                if (this.combatInitiatorId === data.killed.player.id) {
-                    this.currentMoveBudget = 0;
-                } else if (this.combatInitiatorId === data.killer.player.id) {
-                    if (this.currentMoveBudget !== '--') {
-                        this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
-                    }
-                }
-            }
-        });
-    }
-
-    listenAvailableMovesOnBudget() {
-        this.socketService.on('availableMovesOnBudget', (availableMoves: ShortestPathByTile) => {
-            if (this.gameController.isActivePlayer()) {
-                this.mapService.switchToMovingStateRoutine(availableMoves);
-            }
-        });
-    }
-
-    listenEscaped() {
-        this.socketService.on('didEscape', (data: { playerId: string; remainingEscapeChances: number; hasEscaped: boolean }) => {
-            if (this.gameController.isInCombat()) {
-                console.log('escaped', data.remainingEscapeChances, data.hasEscaped);
-                if (data.hasEscaped) {
-                    this.gameController.setActivePlayer(this.combatInitiatorId);
-                    this.remainingEscapeChances = '--';
-                } else if (this.gameController.isActivePlayer()) {
-                    this.remainingEscapeChances = data.remainingEscapeChances;
-                }
-            }
-        });
-    }
-
-    listenEndCombat() {
-        this.socketService.on('endCombat', (newFighters: PlayerCoord[]) => {
-            this.gameController.updatePlayerCoordsList(newFighters);
-            this.mapService.setState(GameState.NOTPLAYING);
-            this.timerState = TimerState.REGULAR;
-            if (this.gameController.isActivePlayer()) {
-                if (this.currentMoveBudget === 0) {
-                    this.gameController.requestEndTurn();
-                } else {
-                    this.mapService.switchToMovingStateRoutine();
-                }
-            }
-            this.gameController.resetFighters();
-            this.combatInitiatorId = '';
-        });
-    }
-
-    handleSelectCombatAction(combatAction: string) {
-        if (this.gameController.isActivePlayer()) {
-            this.gameController.requestCombatAction(combatAction);
         }
-    }
-
-    endTurn() {
-        if (this.gameController.isActivePlayer()) {
-            this.resetPlayerView();
-            this.gameController.requestEndTurn();
-        }
-    }
-
-    resetPlayerView() {
-        this.mapService.resetAllMovementPrevisualization();
-        this.mapService.removeAllPreview();
-        this.mapService.setState(GameState.NOTPLAYING);
-        this.currentMoveBudget = '--';
-        this.remainingActions = '--';
-    }
-
-    quitGame() {
-        // this.gameController.requestQuitGame();
-        // this.socketService.disconnect();
-        // this.router.navigate(['/home']);
     }
 
     startAction() {
-        console.log('currentState', this.mapService.currentStateNumber);
         if (this.remainingActions === 1 && this.mapService.currentStateNumber === GameState.MOVING) {
             this.gameController.requestStartAction();
         }
     }
 
+    catchSelectCombatAction(combatAction: string) {
+        if (this.gameController.isActivePlayer()) {
+            this.gameController.requestCombatAction(combatAction);
+        }
+    }
+
+    resetPlayerView() {
+        this.mapService.resetPlayerView();
+        this.currentMoveBudget = -1;
+        this.remainingActions = -1;
+    }
+
+    quitGame() {
+        this.router.navigate(['/home']);
+    }
+
     ngOnDestroy() {
-        this.mapService.resetMovementPrevisualization();
+        this.mapService.resetMap();
         this.socketService.disconnect();
     }
 }

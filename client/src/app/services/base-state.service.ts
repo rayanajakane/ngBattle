@@ -13,7 +13,7 @@ export abstract class BaseStateService {
 
     gameController = inject(GameControllerService);
 
-    constructor(private dialog: MatDialog) {}
+    constructor(protected dialog: MatDialog) {}
 
     getAvailableTiles(): number[] {
         return this.availableTiles;
@@ -52,15 +52,16 @@ export abstract class BaseStateService {
         this.resetShortestPathByTile();
     }
 
-    abstract initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]): void;
-
     onRightClick(tile: GameTile): void {
         if (this.gameController.isActivePlayer()) {
             this.dialog.open(TileInfoModalComponent, {
-                data: { tile: tile },
+                data: { tile },
             });
         }
     }
+    /* eslint-disable */ // intentionnaly left empty to do nothing if not reimplemented by child class
+    initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]): void {}
+    /* eslint-enable */
+
     abstract onMouseDown(index: number): GameState;
-    abstract onMouseEnter(): void;
 }

@@ -67,10 +67,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
+            health: 100,
             speed: '100',
-            attack: '100',
-            defense: '100',
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -219,10 +219,10 @@ describe('MatchService', () => {
                     isAdmin: true,
                     avatar: 'avatar',
                     attributes: {
-                        health: '100',
+                        health: 100,
                         speed: '100',
-                        attack: '100',
-                        defense: '100',
+                        attack: 100,
+                        defense: 100,
                         dice: '6',
                     },
                     isActive: false,
@@ -244,10 +244,10 @@ describe('MatchService', () => {
                 isAdmin: true,
                 avatar: 'avatar',
                 attributes: {
-                    health: '100',
+                    health: 100,
                     speed: '100',
-                    attack: '100',
-                    defense: '100',
+                    attack: 100,
+                    defense: 100,
                     dice: '6',
                 },
                 abandoned: false,
@@ -262,10 +262,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
+            health: 100,
             speed: '100',
-            attack: '100',
-            defense: '100',
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -280,10 +280,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
+            health: 100,
             speed: '100',
-            attack: '100',
-            defense: '100',
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -309,10 +309,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
+            health: 100,
             speed: '100',
-            attack: '100',
-            defense: '100',
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -352,10 +352,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
+            health: 100,
             speed: '100',
-            attack: '100',
-            defense: '100',
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -369,10 +369,10 @@ describe('MatchService', () => {
                     isAdmin: true,
                     avatar: 'avatar',
                     attributes: {
-                        health: '100',
+                        health: 100,
                         speed: '100',
-                        attack: '100',
-                        defense: '100',
+                        attack: 100,
+                        defense: 100,
                         dice: '6',
                     },
                     isActive: true,
@@ -406,10 +406,10 @@ describe('MatchService', () => {
                     isAdmin: true,
                     avatar: 'avatar',
                     attributes: {
-                        health: '100',
+                        health: 100,
                         speed: '100',
-                        attack: '100',
-                        defense: '100',
+                        attack: 100,
+                        defense: 100,
                     },
                 },
             ],

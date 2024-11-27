@@ -1,12 +1,11 @@
+import { COOLDOWN_TIME, INITIAL_TIME, INTERVAL_DURATION } from '@app/services/timer/constants';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
 @Injectable()
 export class TimerService {
-    private static readonly INITIAL_TIME = 30;
-    private static readonly COOLDOWN_TIME = 3;
     private intervalId: NodeJS.Timeout | null = null;
-    private currentTime: number = TimerService.INITIAL_TIME;
+    private currentTime: number = INITIAL_TIME;
     private isPaused: boolean = false;
     private server: Server;
     private roomId: string;
@@ -24,15 +23,40 @@ export class TimerService {
         this.startCooldown();
     }
 
+    pauseTimer(): void {
+        if (this.intervalId && !this.isPaused) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+            this.isPaused = true;
+        }
+    }
+
+    resumeTimer(): void {
+        if (this.isPaused) {
+            this.isPaused = false;
+            this.startInterval();
+        }
+    }
+
+    resetTimer(): void {
+        this.clearTimer();
+        this.isCooldown = false;
+        this.currentTime = INITIAL_TIME;
+    }
+
+    onDestroy(): void {
+        this.clearTimer();
+    }
+
     private startCooldown(): void {
-        this.currentTime = TimerService.COOLDOWN_TIME;
+        this.currentTime = COOLDOWN_TIME;
         this.isPaused = false;
         this.isCooldown = true;
         this.startInterval();
     }
 
     private startMainTimer(): void {
-        this.currentTime = TimerService.INITIAL_TIME;
+        this.currentTime = INITIAL_TIME;
         this.isPaused = false;
         this.isCooldown = false;
         this.startInterval();
@@ -54,28 +78,7 @@ export class TimerService {
                     this.server.to(this.roomId).emit('endTimer');
                 }
             }
-        }, 1000);
-    }
-
-    pauseTimer(): void {
-        if (this.intervalId && !this.isPaused) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-            this.isPaused = true;
-        }
-    }
-
-    resumeTimer(): void {
-        if (this.isPaused) {
-            this.isPaused = false;
-            this.startInterval();
-        }
-    }
-
-    resetTimer(): void {
-        this.clearTimer();
-        this.isCooldown = false;
-        this.currentTime = TimerService.INITIAL_TIME;
+        }, INTERVAL_DURATION);
     }
 
     private clearTimer(): void {
@@ -84,9 +87,5 @@ export class TimerService {
             this.intervalId = null;
         }
         this.isPaused = false;
-    }
-
-    onDestroy(): void {
-        this.clearTimer();
     }
 }
