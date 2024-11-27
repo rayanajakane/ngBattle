@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -830,17 +830,6 @@ describe('GamePageComponent', () => {
         expect(snackbar.open).toHaveBeenCalledWith('Tous les autres joueurs ont quitté la partie', 'Fermer', jasmine.any(Object));
     });
 
-    it('should redirect end game and navigate to home after delay', () => {
-        const mockEndGameMessage = 'Game Over';
-
-        component.redirectEndGame(mockEndGameMessage);
-        expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
-        expect(router.navigate).not.toHaveBeenCalled();
-        setTimeout(() => {
-            expect(router.navigate).toHaveBeenCalledWith(['/home']);
-        }, ENDGAME_DELAY * 2);
-    });
-
     it('should call resetPlayerView and requestEndTurn if active player', () => {
         gameControllerService.isActivePlayer.and.returnValue(true);
         spyOn(component, 'resetPlayerView');
@@ -983,5 +972,22 @@ describe('GamePageComponent', () => {
 
         expect(mapGameService.resetMap).toHaveBeenCalled();
         expect(socketService.disconnect).toHaveBeenCalled();
+    });
+
+    it('should open snackbar with end game message and navigate to home after delay', fakeAsync(() => {
+        const mockEndGameMessage = 'Game Over';
+
+        component.redirectEndGame(mockEndGameMessage);
+        expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
+        tick(ENDGAME_DELAY);
+        expect(router.navigate).toHaveBeenCalledWith(['/home']);
+    }));
+
+    it('should not navigate to home immediately', () => {
+        const mockEndGameMessage = 'Game Over';
+
+        component.redirectEndGame(mockEndGameMessage);
+        expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
+        expect(router.navigate).not.toHaveBeenCalled();
     });
 });
