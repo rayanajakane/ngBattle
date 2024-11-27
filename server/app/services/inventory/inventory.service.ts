@@ -77,7 +77,7 @@ export class InventoryService {
         player.player.attributes.isCombatBoostedSpeed = false;
     }
 
-    addToInventory(player: PlayerCoord, item: ItemTypes) {
+    addToInventory(playerPosition: number, player: PlayerCoord, item: ItemTypes) {
         const inventory = player.player.inventory;
 
         if (this.isInventoryFull(inventory)) {
@@ -86,29 +86,28 @@ export class InventoryService {
         } else {
             inventory.push(item);
             this.handleItemEffect(item, player, false);
-            this.emitNewInventory(player.player.inventory);
+            this.emitNewPlayerAttributes(player);
         }
-    }
-
-    emitNewInventory(newInventory: ItemTypes[]) {
-        // TODO: emit player's new inventory to client
     }
 
     emitItemToReplace(player: PlayerCoord, newItem: ItemTypes) {
         // TODO: emit to client to choose item to replace
     }
 
+    emitNewPlayerAttributes(player: PlayerCoord) {}
+
     listenForItemReplace(player: PlayerCoord, newInventory: ItemTypes[], dropedItem: ItemTypes) {
+        // TODO: listen for item to replace emit from client with socket.once
+
         player.player.inventory.forEach((item) => {
             this.handleItemEffect(item, player, true);
         });
         player.player.inventory = newInventory;
 
         player.player.inventory.forEach((item) => {
-            this.addToInventory(player, item);
+            this.handleItemEffect(item, player, false);
         });
 
-        // TODO: listen for item to replace emit from client
-        // then call updateInventory(player: PlayerCoord, items: ItemTypes[])
+        this.emitNewPlayerAttributes(player);
     }
 }

@@ -99,8 +99,10 @@ export class ActionHandlerService {
                     tileItem = gameMap[playerPosition].item;
                     if (tileItem) {
                         const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
-                        this.inventoryService.addToInventory(player, tileItem as ItemTypes);
+                        this.inventoryService.addToInventory(playerPosition, player, tileItem as ItemTypes);
+                        tileItem = ItemTypes.EMPTY;
                     }
+                    //TODO: put back the object if inventory is full
                 }
             });
 
