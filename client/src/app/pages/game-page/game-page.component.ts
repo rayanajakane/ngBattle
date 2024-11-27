@@ -50,16 +50,16 @@ import { PlayerCoord } from '@common/player';
 export class GamePageComponent implements OnDestroy {
     mapSize: number;
     game: GameStructure;
-    currentMoveBudget: number | '--' = '--';
-    remainingActions: number | '--' = '--';
-    timeLeft: number | '--' = '--';
+    currentMoveBudget: number = -1;
+    remainingActions: number = -1;
+    timeLeft: number = -1;
     timerState: TimerState = TimerState.COOLDOWN;
     attackerDiceResult: number = 0;
     defenderDiceResult: number = 0;
     attackSuccessful: boolean;
     gameCreated = false;
     playersInitialized = false;
-    remainingEscapeChances: number | '--' = '--';
+    remainingEscapeChances: number = -1;
     combatInitiatorId: string = '';
     isAdmin = false;
     readonly gameController = inject(GameControllerService);
@@ -271,7 +271,7 @@ export class GamePageComponent implements OnDestroy {
             }
         } else {
             this.timerState = TimerState.NONE;
-            this.timeLeft = '--';
+            this.timeLeft = -1;
         }
     }
 
@@ -332,7 +332,7 @@ export class GamePageComponent implements OnDestroy {
             if (this.combatInitiatorId === killed.player.id) {
                 this.currentMoveBudget = this.gameController.isDebugModeActive ? this.currentMoveBudget : 0;
             } else if (this.combatInitiatorId === killer.player.id) {
-                if (this.currentMoveBudget !== '--') {
+                if (this.currentMoveBudget !== -1) {
                     this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);
                 }
             }
@@ -342,7 +342,7 @@ export class GamePageComponent implements OnDestroy {
     handleEscaped(remainingEscapeChances: number, hasEscaped: boolean) {
         if (hasEscaped) {
             this.gameController.setActivePlayer(this.combatInitiatorId);
-            this.remainingEscapeChances = '--';
+            this.remainingEscapeChances = -1;
         } else if (this.gameController.isActivePlayer()) {
             this.remainingEscapeChances = remainingEscapeChances;
         }
@@ -378,7 +378,7 @@ export class GamePageComponent implements OnDestroy {
     endMovement(shortestPathByTile: ShortestPathByTile) {
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.switchToMovingStateRoutine(shortestPathByTile);
-        } else if (this.remainingActions !== '--' && this.remainingActions > 0) {
+        } else if (this.remainingActions !== -1 && this.remainingActions > 0) {
             this.gameController.requestCheckAction();
         } else {
             this.mapService.resetMovementPrevisualization();
@@ -400,8 +400,8 @@ export class GamePageComponent implements OnDestroy {
 
     resetPlayerView() {
         this.mapService.resetPlayerView();
-        this.currentMoveBudget = '--';
-        this.remainingActions = '--';
+        this.currentMoveBudget = -1;
+        this.remainingActions = -1;
     }
 
     quitGame() {

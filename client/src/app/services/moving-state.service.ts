@@ -8,12 +8,6 @@ import { BaseStateService } from './base-state.service';
     providedIn: 'root',
 })
 export class MovingStateService extends BaseStateService {
-    // private rightClickOnDebugEvent = new Subject<number>();
-    // public rightClickOnDebugEvent$ = this.rightClickOnDebugEvent.asObservable();
-    // emitEvent(data: number) {
-    //     this.rightClickOnDebugEvent.next(data);
-    // }
-
     constructor(protected dialog: MatDialog) {
         super(dialog);
     }

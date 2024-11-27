@@ -77,7 +77,7 @@ describe('TileBasicComponent', () => {
         ];
         component.avatar = avatars[Math.floor(Math.random() * avatars.length)];
         component.setAvatarImage();
-        expect(component.avatarUrl).toBe('./../../../assets/characters/' + component.chooseAvatar(component.avatar) + '.png');
+        expect(component.avatarUrl).toBe('./assets/characters/' + component.chooseAvatar(component.avatar) + '.png');
         component.avatar = '';
         component.setAvatarImage();
         expect(component.avatarUrl).toBe('');
@@ -97,19 +97,33 @@ describe('TileBasicComponent', () => {
         expect(component.setAvatarImage).toHaveBeenCalled();
     });
 
-    it('chooseAvatar should return correct avatar number', () => {
-        expect(component.chooseAvatar('Avatar 1')).toBe('1');
-        expect(component.chooseAvatar('Avatar 2')).toBe('2');
-        expect(component.chooseAvatar('Avatar 3')).toBe('3');
-        expect(component.chooseAvatar('Avatar 4')).toBe('4');
-        expect(component.chooseAvatar('Avatar 5')).toBe('5');
-        expect(component.chooseAvatar('Avatar 6')).toBe('6');
-        expect(component.chooseAvatar('Avatar 7')).toBe('7');
-        expect(component.chooseAvatar('Avatar 8')).toBe('8');
-        expect(component.chooseAvatar('Avatar 9')).toBe('9');
-        expect(component.chooseAvatar('Avatar 10')).toBe('10');
-        expect(component.chooseAvatar('Avatar 11')).toBe('11');
-        expect(component.chooseAvatar('Avatar 12')).toBe('12');
-        expect(component.chooseAvatar('Unknown Avatar')).toBe('');
+    it('setAvatarImage should set avatarUrl correctly when avatar is valid', () => {
+        component.avatar = 'Avatar 1';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('./assets/characters/1.png');
+
+        component.avatar = 'Avatar 12';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('./assets/characters/12.png');
+    });
+
+    it('setAvatarImage should set avatarUrl to empty string when avatar is invalid', () => {
+        component.avatar = 'Avatar 0';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+
+        component.avatar = 'Avatar 13';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+
+        component.avatar = '';
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
+    });
+
+    it('setAvatarImage should set avatarUrl to empty string when avatar is undefined', () => {
+        component.avatar = undefined;
+        component.setAvatarImage();
+        expect(component.avatarUrl).toBe('');
     });
 });

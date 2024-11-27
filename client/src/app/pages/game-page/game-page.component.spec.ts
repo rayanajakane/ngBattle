@@ -521,7 +521,7 @@ describe('GamePageComponent', () => {
         expect(component.combatInitiatorId).toBe(mockCombatInitiatorId);
         expect(gameControllerService.updateActiveFighter).toHaveBeenCalledWith([mockAttacker, mockDefender], mockAttacker.player.id);
         expect(component.timerState).toBe(TimerState.NONE);
-        expect(component.timeLeft).toBe('--');
+        expect(component.timeLeft).toBe(-1);
     });
 
     it('should handle start combat and not set state to COMBAT if player is not active', () => {
@@ -767,13 +767,13 @@ describe('GamePageComponent', () => {
         expect(gameControllerService.requestAvailableMovesOnBudget).toHaveBeenCalledWith(component.currentMoveBudget);
     });
 
-    it('should not request available moves on budget if currentMoveBudget is "--"', () => {
+    it('should not request available moves on budget if currentMoveBudget is -1', () => {
         const mockKiller = MOCK_PLAYER_COORDS[0];
         const mockKilled = MOCK_PLAYER_COORDS[1];
         const mockKilledOldPosition = 5;
         gameControllerService.isActivePlayer.and.returnValue(true);
         component.combatInitiatorId = mockKiller.player.id;
-        component.currentMoveBudget = '--';
+        component.currentMoveBudget = -1;
 
         component.handleKilledPlayer(mockKiller, mockKilled, mockKilledOldPosition);
 
@@ -800,7 +800,7 @@ describe('GamePageComponent', () => {
         component.handleEscaped(mockRemainingEscapeChances, mockHasEscaped);
 
         expect(gameControllerService.setActivePlayer).toHaveBeenCalledWith('testInitiator');
-        expect(component.remainingEscapeChances).toBe('--');
+        expect(component.remainingEscapeChances).toBe(-1);
     });
 
     it('should handle escaped and update remainingEscapeChances if hasEscaped is false and active player', () => {
@@ -898,9 +898,9 @@ describe('GamePageComponent', () => {
         expect(component.endTurn).toHaveBeenCalled();
     });
 
-    it('should reset movement previsualization and end turn if shortestPathByTile is empty and remainingActions is "--"', () => {
+    it('should reset movement previsualization and end turn if shortestPathByTile is empty and remainingActions is -1', () => {
         const mockShortestPathByTile = {};
-        component.remainingActions = '--';
+        component.remainingActions = -1;
         spyOn(component, 'endTurn');
 
         component.endMovement(mockShortestPathByTile);
@@ -958,8 +958,8 @@ describe('GamePageComponent', () => {
         component.resetPlayerView();
 
         expect(mapGameService.resetPlayerView).toHaveBeenCalled();
-        expect(component.currentMoveBudget).toBe('--');
-        expect(component.remainingActions).toBe('--');
+        expect(component.currentMoveBudget).toBe(-1);
+        expect(component.remainingActions).toBe(-1);
     });
 
     it('should navigate to home when quitGame is called', () => {

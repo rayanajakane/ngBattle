@@ -49,4 +49,10 @@ describe('CombatInterfaceComponent', () => {
         component.escape();
         expect(component.selectCombatActionEvent.emit).toHaveBeenCalledWith('escape');
     });
+
+    it('should set escapeChanceInfo to "--" when escapeChance is -1', () => {
+        component.escapeChance = -1;
+        component.ngOnChanges();
+        expect(component.escapeChanceInfo).toBe("Nombre d'évasion : --");
+    });
 });

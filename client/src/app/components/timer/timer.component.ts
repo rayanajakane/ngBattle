@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TIME_LEFT } from '@app/components/timer/constant';
 import { TimerState } from '@common/game-structure';
 import { Subscription } from 'rxjs';
 
@@ -13,7 +12,7 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnChanges {
-    @Input() timeLeft: number | '--' = TIME_LEFT; // Set the initial time in seconds
+    @Input() timeLeft: number; // Set the initial time in seconds
     @Input() timerState: TimerState;
 
     timerSubscription: Subscription | null = null;

@@ -12,7 +12,7 @@
         <p>Dès Attaque: {{ this.bonusAttackDice }}</p>
         <p>Défense: {{ this.defense }}</p>
         <p>Dès Défense: {{ this.bonusDefenseDice }}</p>
-        <p>Points de mouvement restants: {{ this.movementPoints }}</p>
-        <p>Actions restantes: {{ this.nActions }}</p>
+        <p>Points de mouvement restants: {{ this.movementPoints === -1 ? '' : this.movementPoints }}</p>
+        <p>Actions restantes: {{ this.nActions === -1 ? '' : this.nActions }}</p>
     </mat-card-content>
 </mat-card>
