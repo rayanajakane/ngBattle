@@ -95,12 +95,12 @@ export class CombatGateway {
     @SubscribeMessage('escape')
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const fighter = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const [remainingEscapeChances, escapeResult] = this.combatService.escape(data.roomId, fighter, this.server);
+        const [remainingEscapeChances, escapeResult] = this.combatService.escape(data.roomId, fighter);
         this.server.to(data.roomId).emit('didEscape', { playerId: data.playerId, remainingEscapeChances, hasEscaped: escapeResult });
         const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
-            const resetFighters = this.combatService.endCombat(data.roomId, this.server);
+            this.combatService.endCombat(data.roomId, this.server);
 
             const message = `${fighter.player.name} a réussi à s'échapper du combat`;
             this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });

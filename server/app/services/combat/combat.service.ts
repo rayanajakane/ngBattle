@@ -17,12 +17,12 @@ import {
     SUCCESSFUL_ATTACK_DAMAGE,
     WINS_TO_WIN,
 } from '@app/services/combat/constants';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { DebugModeService } from '../debug-mode/debug-mode.service';
 
 @Injectable()
 export class CombatService {
@@ -142,7 +142,7 @@ export class CombatService {
         }
     }
 
-    escape(roomId: string, player: PlayerCoord, server: Server): [PlayerAttribute['escape'], boolean] {
+    escape(roomId: string, player: PlayerCoord): [PlayerAttribute['escape'], boolean] {
         // only the player's turn can escape
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
             return [player.player.attributes.escape, false];
@@ -150,7 +150,7 @@ export class CombatService {
         const canPlayerEscape = this.canPlayerEscape(roomId, player);
         if (this.isPlayerInCombat(roomId, player) && !canPlayerEscape) {
             player.player.attributes.escape--;
-            this.endCombatTurn(roomId, player, server);
+            this.endCombatTurn(roomId, player);
             return [player.player.attributes.escape, false];
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
@@ -176,11 +176,11 @@ export class CombatService {
             const defender = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
             this.attack(roomId, player, defender, server);
         } else if (combatAction === CombatAction.ESCAPE) {
-            this.escape(roomId, player, server);
+            this.escape(roomId, player);
         }
     }
 
-    endCombatTurn(roomId: string, player: PlayerCoord, server: Server): void {
+    endCombatTurn(roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
 
@@ -205,11 +205,11 @@ export class CombatService {
         if (attacker.player.attributes.dice === 'attack') bonusAttackDice = BOOSTED_BONUS_DICE;
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
         if (this.debugModeService.isDebugModeActive()) {
-            const attackerRoll = bonusAttackDice;
-            const defenderRoll = bonusDefenseDice;
+            attackerRoll = bonusAttackDice;
+            defenderRoll = bonusDefenseDice;
         } else {
-            const attackerRoll = this.throwDice(bonusAttackDice);
-            const defenderRoll = this.throwDice(bonusDefenseDice);
+            attackerRoll = this.throwDice(bonusAttackDice);
+            defenderRoll = this.throwDice(bonusDefenseDice);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
@@ -221,8 +221,8 @@ export class CombatService {
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
-                    const killedPlayerOldPosition = defensePlayer.position;
-                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer, server);
+                    // const killedPlayerOldPosition = defensePlayer.position;
+                    const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
 
                     // log message
                     const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
@@ -234,7 +234,7 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
-            this.endCombatTurn(roomId, attackPlayer, server);
+            this.endCombatTurn(roomId, attackPlayer);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }
         return [-1, -1, 'playerNotInCombat', defensePlayer, false];

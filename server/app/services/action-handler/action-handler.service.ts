@@ -1,11 +1,11 @@
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { MatchService } from '@app/services/match.service';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { DebugModeService } from '../debug-mode/debug-mode.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
@@ -162,7 +162,7 @@ export class ActionHandlerService {
         server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
         const activePlayerId = activeGame.playersCoord[activeGame.turn].player.id;
-        const killedPlayer = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        // const killedPlayer = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
         if (this.combatService.fightersMap.get(roomId)) {
             const fighters = this.combatService.fightersMap.get(roomId);
             fighters.forEach((fighter) => {

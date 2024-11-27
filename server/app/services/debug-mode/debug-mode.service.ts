@@ -6,7 +6,6 @@ export class DebugModeService {
 
     toggleDebugMode(): void {
         this.debugMode = !this.debugMode;
-        console.log('Debug mode is now ' + (this.debugMode ? 'active' : 'inactive'));
     }
 
     isDebugModeActive(): boolean {

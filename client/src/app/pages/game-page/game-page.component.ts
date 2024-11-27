@@ -23,6 +23,8 @@ import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, ShortestPathByTile, TimerState } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 
+// Game Page is complex and has many functionalities, so it is normal to have a high number of lines
+/* eslint-disable max-lines */
 @Component({
     selector: 'app-game-page',
     standalone: true,
@@ -112,10 +114,8 @@ export class GamePageComponent implements OnDestroy {
     handleKeyDPressed() {
         if (this.gameController.isDebugModeActive) {
             this.gameController.requestStopDebugMode();
-            console.log('Debug mode is now:', this.gameController.isDebugModeActive);
         } else {
             this.gameController.requestDebugMode();
-            console.log('Debug mode is now:', this.gameController.isDebugModeActive);
         }
     }
 
