@@ -15,6 +15,7 @@ export class GameControllerService {
     playerId: string;
     turn: number = 0;
     fighters: PlayerCoord[] = [];
+    isDebugModeActive = false;
 
     constructor(private readonly socketService: SocketService) {}
 
@@ -146,5 +147,13 @@ export class GameControllerService {
 
     requestAvailableMovesOnBudget(currentBudget: number): void {
         this.socketService.emit('getAvailableMovesOnBudget', { roomId: this.roomId, playerId: this.player.id, currentBudget });
+    }
+
+    requestDebugMode(): void {
+        this.socketService.emit('debugMode', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    requestStopDebugMode(): void {
+        this.socketService.emit('stopDebugMode', { roomId: this.roomId, playerId: this.player.id });
     }
 }

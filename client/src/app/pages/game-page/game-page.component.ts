@@ -59,7 +59,6 @@ export class GamePageComponent implements OnDestroy {
     playersInitialized = false;
     remainingEscapeChances: number | '--' = '--';
     combatInitiatorId: string = '';
-    isDebugModeActive = false;
     isAdmin = false;
     readonly gameController = inject(GameControllerService);
     private readonly httpService = inject(HttpClientService);
@@ -80,6 +79,19 @@ export class GamePageComponent implements OnDestroy {
     }
 
     addListeners() {
+        window.addEventListener('keydown', (event) => {
+            if (
+                (event.key === 'd' || event.key === 'D' || event.code === 'KeyD') &&
+                !event.ctrlKey &&
+                !event.shiftKey &&
+                !event.altKey &&
+                !event.metaKey &&
+                this.isAdmin
+            ) {
+                this.handleKeyDPressed();
+            }
+        });
+
         this.listenGameSetup();
         this.listenTurns();
         this.listenCombatTurns();
@@ -89,10 +101,22 @@ export class GamePageComponent implements OnDestroy {
         this.listenActions();
         this.listenCombatActions();
         this.listenEndGameEvents();
+
+        this.listenDebugMode();
     }
 
     async getGame(gameId: string) {
         this.game = await this.httpService.getGame(gameId);
+    }
+
+    handleKeyDPressed() {
+        if (this.gameController.isDebugModeActive) {
+            this.gameController.requestStopDebugMode();
+            console.log('Debug mode is now:', this.gameController.isDebugModeActive);
+        } else {
+            this.gameController.requestDebugMode();
+            console.log('Debug mode is now:', this.gameController.isDebugModeActive);
+        }
     }
 
     initiateGameSetup(game: GameStructure) {
@@ -212,6 +236,20 @@ export class GamePageComponent implements OnDestroy {
         });
     }
 
+    listenDebugMode() {
+        this.socketService.on('startDebugMode', () => {
+            this.gameController.isDebugModeActive = true;
+            this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+        });
+    }
+
+    listenStopDebugMode() {
+        this.socketService.on('stopDebugMode', () => {
+            this.gameController.isDebugModeActive = false;
+            this.snackbar.open("Le mode débogage a été désactivé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+        });
+    }
+
     handleGameSetup(playerCoords: PlayerCoord[], turn: number) {
         this.gameController.initializePlayers(playerCoords, turn);
         this.playersInitialized = true;
@@ -292,7 +330,7 @@ export class GamePageComponent implements OnDestroy {
         this.mapService.changePlayerPosition(killedOldPosition, killed.position, killed.player);
         if (this.gameController.isActivePlayer()) {
             if (this.combatInitiatorId === killed.player.id) {
-                this.currentMoveBudget = 0;
+                this.currentMoveBudget = this.gameController.isDebugModeActive ? this.currentMoveBudget : 0;
             } else if (this.combatInitiatorId === killer.player.id) {
                 if (this.currentMoveBudget !== '--') {
                     this.gameController.requestAvailableMovesOnBudget(this.currentMoveBudget);

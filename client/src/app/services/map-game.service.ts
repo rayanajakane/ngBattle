@@ -19,6 +19,8 @@ export class MapGameService extends MapBaseService {
     currentStateNumber: GameState;
     private currentState: BaseStateService;
 
+    // private movingStateSubscription: Subscription;
+
     constructor(
         private notPlaying: NotPlayingStateService,
         private moving: MovingStateService,

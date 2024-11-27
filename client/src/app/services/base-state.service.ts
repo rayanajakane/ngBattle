@@ -13,7 +13,7 @@ export abstract class BaseStateService {
 
     gameController = inject(GameControllerService);
 
-    constructor(private dialog: MatDialog) {}
+    constructor(protected dialog: MatDialog) {}
 
     getAvailableTiles(): number[] {
         return this.availableTiles;
