@@ -2,14 +2,16 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class DebugModeService {
-    private debugMode = false;
+    private isDebugMode = false;
 
-    toggleDebugMode(): void {
-        this.debugMode = !this.debugMode;
-        console.log('Debug mode is now ' + (this.debugMode ? 'active' : 'inactive'));
+    debugModeOn(): void {
+        this.isDebugMode = true;
     }
 
+    debugModeOff(): void {
+        this.isDebugMode = false;
+    }
     isDebugModeActive(): boolean {
-        return this.debugMode;
+        return this.isDebugMode;
     }
 }
