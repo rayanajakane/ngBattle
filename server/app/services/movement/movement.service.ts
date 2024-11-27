@@ -113,11 +113,6 @@ export class MovementService {
         const queue: Coord[] = [{ ...startCoord, distance: 0 }];
 
         visited[startCoord.x][startCoord.y] = true;
-        // console.log('startCoord:', startCoord);
-        // console.log('mapSize:', mapSize);
-        // console.log('coordPath:', coordPath);
-        // console.log('visited:', visited);
-        // console.log('queue:', queue);
 
         while (queue.length > 0) {
             const current = queue.shift();

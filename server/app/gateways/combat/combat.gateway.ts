@@ -52,7 +52,6 @@ export class CombatGateway {
     @SubscribeMessage('attack')
     handleAttack(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         if (this.combatService.getCurrentTurnPlayer(data.roomId).player.id === data.playerId) {
-            console.log('getCurrentTurnPlayer');
             const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
             const targetPlayer = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
 

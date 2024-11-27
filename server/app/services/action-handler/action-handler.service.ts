@@ -139,11 +139,7 @@ export class ActionHandlerService {
             }
 
             if (activeGame.playersCoord[activeGame.turn].player.isVirtual) {
-                console.log('Virtual player turn');
-                this.virtualPlayerService.virtualPlayerId = activeGame.playersCoord[activeGame.turn].player.id;
-                this.virtualPlayerService.roomId = roomId;
-                this.virtualPlayerService.server = server;
-                this.virtualPlayerService.move();
+                this.handleStartTurn({ roomId, playerId: activeGame.playersCoord[activeGame.turn].player.id }, server, null);
             }
         }
     }
