@@ -221,7 +221,6 @@ export class CombatService {
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
-                    // const killedPlayerOldPosition = defensePlayer.position;
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
 
                     // log message
@@ -255,7 +254,6 @@ export class CombatService {
         const killedOldPosition = playerKilled.position;
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
-            // this.disperseKilledPlayerObjects(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
