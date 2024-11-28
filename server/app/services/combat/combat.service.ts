@@ -214,6 +214,7 @@ export class CombatService {
             defenderRoll = this.throwDice(bonusDefenseDice, defender);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
+
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
@@ -222,9 +223,12 @@ export class CombatService {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer, roomId);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
+                this.inventoryService.handleCombatInventory(defensePlayer.player);
+
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
-
+                    this.inventoryService.resetCombatBoost(playerKiller.player);
+                    this.inventoryService.resetCombatBoost(playerKilled.player);
                     // log message
                     const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
                     const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
@@ -259,6 +263,7 @@ export class CombatService {
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
+
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
                 killed: playerKilled,

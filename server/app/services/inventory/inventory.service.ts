@@ -7,12 +7,21 @@ import { Server, Socket } from 'socket.io';
 export class InventoryService {
     constructor(readonly activeGameService: ActiveGamesService) {}
 
-    handleCombatInventory(player: Player, inventory: ItemTypes[]) {
-        inventory.forEach((item) => {
+    handleCombatInventory(player: Player) {
+        player.inventory.forEach((item) => {
             if (item === ItemTypes.AC1 || item === ItemTypes.AC2) {
                 this.handleItemEffect(item, player, false);
             }
         });
+    }
+
+    resetCombatBoost(player: Player) {
+        if (player.attributes.isCombatBoostedAttack) {
+            this.deactivateCombatBoostAttack(player);
+        }
+        if (player.attributes.isCombatBoostedDefense) {
+            this.deactivateCombatBoostDefense(player);
+        }
     }
 
     handleItemEffect(item: ItemTypes, player: Player, isReset: boolean) {
@@ -58,7 +67,7 @@ export class InventoryService {
     }
 
     handleAC2Item(player: Player, isReset: boolean) {
-        if (player.attributes.currentHealth <= 2 && !player.attributes.isCombatBoostedDefense) {
+        if (player.attributes.currentHealth >= 2 && !player.attributes.isCombatBoostedDefense) {
             player.attributes.currentDefense += 2 * (isReset ? -1 : 1);
             player.attributes.isCombatBoostedDefense = !isReset;
         }
