@@ -72,6 +72,7 @@ describe('LeaderboardComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 2,
+            isVirtual: false,
         };
 
         const playerCoord1: PlayerCoord = { player: player1, position: 1 };
@@ -103,6 +104,7 @@ describe('LeaderboardComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 5,
+            isVirtual: false,
         };
 
         const player2: Player = {
@@ -120,6 +122,7 @@ describe('LeaderboardComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 3,
+            isVirtual: false,
         };
 
         const player3: Player = {
@@ -137,6 +140,7 @@ describe('LeaderboardComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 2,
+            isVirtual: false,
         };
 
         const playerCoord2: PlayerCoord = { player: player2, position: 2 };

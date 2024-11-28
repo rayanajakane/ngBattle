@@ -129,6 +129,7 @@ describe('LogsComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            isVirtual: false,
         };
 
         // Simulate receiving a log
@@ -157,6 +158,7 @@ describe('LogsComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            isVirtual: false,
         };
 
         // Simulate receiving a log
