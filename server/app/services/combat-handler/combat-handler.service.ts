@@ -4,7 +4,7 @@ import { ActiveGamesService } from '@app/services/active-games/active-games.serv
 import { CombatService } from '@app/services/combat/combat.service';
 import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class CombatHandlerService {
         private readonly activeGameService: ActiveGamesService,
         private readonly combatService: CombatService,
         private readonly actionButtonService: ActionButtonService,
-        private readonly actionHandlerService: ActionHandlerService,
+        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
     ) {}
 
     handleStartAction(roomId: string, playerId: string, client: Socket) {
@@ -26,7 +26,7 @@ export class CombatHandlerService {
         client.emit('checkValidAction', this.actionButtonService.getAvailableIndexes(roomId, fighter));
     }
 
-    handleCombatAction(roomId: string, playerId: string, target: number, client: Socket, server: Server) {
+    handleAction(roomId: string, playerId: string, target: number, client: Socket, server: Server) {
         const initialPlayer = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
         if (this.activeGameService.getActiveGame(roomId).game.map[target].hasPlayer) {
             const targetPlayer = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.position === target);
@@ -83,31 +83,36 @@ export class CombatHandlerService {
                 this.combatService.startCombatTurn(roomId, defender);
                 server.to(roomId).emit('changeCombatTurn', defender.player.id);
                 if (defender.player.isVirtual) {
-                    this.handleCombatAction(roomId, defender.player.id, initialPlayer.position, null, server);
+                    // add logic for escape for defensive vp
+                    this.handleCombatEscape(roomId, defender.player.id, server);
+                    // this.handleCombatAttack(roomId, defender.player.id, server);
                 }
             }
-            ``;
         }
     }
 
     handleCombatEscape(roomId: string, playerId: string, server: Server) {
         const fighter = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
+        const defender = this.combatService.getFighters(roomId).find((player) => player.player.id !== playerId);
+
+        if (fighter.player.isVirtual) {
+            console.log('virtual player escape attempt');
+        }
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(roomId, fighter);
         server.to(roomId).emit('didEscape', { playerId: playerId, remainingEscapeChances, hasEscaped: escapeResult });
         const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
-            this.combatService.endCombat(roomId, server);
-
+            console.log('escape successful');
             const message = `${fighter.player.name} a réussi à s'échapper du combat`;
-            server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: playerId, exclusive: true });
+            server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
+            this.combatService.endCombat(roomId, server);
         } else {
-            const defender = this.combatService.getFighters(roomId).find((player) => player.player.id !== playerId);
+            console.log('escape failed');
+            const message = `${fighter.player.name} a échoué à s'échapper du combat`;
+            server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
             this.combatService.startCombatTurn(roomId, defender);
             server.to(roomId).emit('changeCombatTurn', defender.player.id);
-
-            const message = `${fighter.player.name} a échoué à s'échapper du combat`;
-            server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: playerId, exclusive: true });
         }
     }
 
@@ -122,6 +127,7 @@ export class CombatHandlerService {
         const fighters = this.combatService.endCombat(roomId, server, fighter);
         server.to(roomId).emit('endCombat', fighters);
     }
+
     handleWinnerPlayer(roomId: string, playerId: string, client: Socket) {
         const fighter = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
         this.combatService.setWinner(roomId, fighter);

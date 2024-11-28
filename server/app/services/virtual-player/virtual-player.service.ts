@@ -5,6 +5,8 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { PlayerCoord } from '@common/player';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { ActionButtonService } from '../action-button/action-button.service';
+import { CombatHandlerService } from '../combat-handler/combat-handler.service';
 
 @Injectable()
 export class VirtualPlayerService {
@@ -13,37 +15,28 @@ export class VirtualPlayerService {
     server: Server;
 
     constructor(
-        @Inject(forwardRef(() => ActionHandlerService))
-        private readonly actionHandler: ActionHandlerService,
+        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandler: ActionHandlerService,
+        @Inject(forwardRef(() => CombatHandlerService)) private readonly combatHandlerService: CombatHandlerService,
         private readonly actionService: ActionService,
         private readonly activeGames: ActiveGamesService,
         private readonly combatService: CombatService,
+        private readonly actionButtonService: ActionButtonService,
     ) {}
 
     afterInit(server: Server) {
         this.server = server;
     }
 
-    action() {
+    think() {
         const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const virtualPlayerPosition = virtualPlayerCoord.position;
 
-        const otherPlayers = gameInstance.playersCoord.filter((playerCoord) => playerCoord.player.id !== this.virtualPlayerId);
-        const otherPlayersPositions = otherPlayers.map((playerCoord) => playerCoord.position);
+        const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, virtualPlayerPosition);
 
-        // todo use actionbuttonservice get players around
-        const adjacentPositions = [
-            virtualPlayerPosition - 1, // left
-            virtualPlayerPosition + 1, // right
-            virtualPlayerPosition - parseInt(gameInstance.game.mapSize), // above
-            virtualPlayerPosition + parseInt(gameInstance.game.mapSize), // below
-        ];
-
-        const isPlayerAdjacent = otherPlayersPositions.some((position) => adjacentPositions.includes(position));
-        if (isPlayerAdjacent) {
-            const randomPlayerCoord = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-            this.startAttack(virtualPlayerCoord, randomPlayerCoord);
+        if (nearbyPlayers.length > 0) {
+            const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
+            this.startAttack(randomPlayerCoord);
         } else {
             this.move();
         }
@@ -58,44 +51,16 @@ export class VirtualPlayerService {
         this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
-    startAttack(virtualPlayerCoord: PlayerCoord, targetPlayerCoord: PlayerCoord) {
-        const [firstTurnPlayer, secondTurnPlayer] = this.combatService.startCombat(this.roomId, [virtualPlayerCoord, targetPlayerCoord]);
-        this.server
-            .to(this.roomId)
-            .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: virtualPlayerCoord.player.id });
-        const [attackerDice, defenderDice, combatStatus, defender, isAttackSuccessful] = this.combatService.attack(
-            this.roomId,
-            virtualPlayerCoord,
-            targetPlayerCoord,
-            this.server,
-        );
-
-        this.server.to(this.roomId).emit('attacked', {
-            attacker: firstTurnPlayer,
-            attackerDice,
-            defender,
-            defenderDice,
-            isAttackSuccessful,
-        });
-
-        const formattedTime = this.actionHandler.getCurrentTimeFormatted();
-        const attackResult = isAttackSuccessful ? 'réussi' : 'échoué';
-        const message = `${virtualPlayerCoord.player.name} attaque ${defender.player.name}. \n L'attaque a ${attackResult}. \n
-            Jet de dé attaquant: ${attackerDice}.\n Jet de dé défenseur: ${defenderDice}\n
-            calcul: ${virtualPlayerCoord.player.attributes.attack + attackerDice} vs ${defender.player.attributes.defense + defenderDice}`;
-        this.server.to(this.roomId).emit('newLog', {
-            date: formattedTime,
-            message: message,
-            sender: virtualPlayerCoord.player.id,
-            receiver: defender.player.id,
-            exclusive: true,
-        });
-
-        if (combatStatus === 'combatTurnEnd') {
-            this.combatService.startCombatTurn(this.roomId, defender);
-            this.server.to(this.roomId).emit('changeCombatTurn', defender.player.id);
-        }
+    startAttack(targetPlayerCoord: PlayerCoord) {
+        this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
+        this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
     }
 
-    interactWithDoor() {}
+    // tryEscape() {
+    //     this.combatHandlerService.handleCombatEscape(this.roomId, this.virtualPlayerId, this.server);
+    // }
+
+    interactWithDoor(doorPosition: number) {
+        this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, doorPosition, null, this.server);
+    }
 }

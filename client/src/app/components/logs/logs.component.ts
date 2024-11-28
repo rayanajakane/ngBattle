@@ -23,8 +23,8 @@ export class LogsComponent implements OnInit {
     @Input() player: Player;
 
     btnText: string = 'Show Player Logs';
-    logs: LogMessage[] = []; // contains all logs
-    playerLogs: LogMessage[] = [];
+    logs: LogMessage[] = [];
+    playerLogs: LogMessage[] = []; // Logs that concern the player only
     currentLogs = this.logs;
 
     constructor(

@@ -95,10 +95,11 @@ export class CombatService {
                 this.resetHealth(fighter);
             });
         }
-
-        const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
-        if (killedPlayer.player.isVirtual) {
-            this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: killedPlayer.player.id }, server, null);
+        if (player) {
+            const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
+            if (killedPlayer.player.isVirtual) {
+                this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: killedPlayer.player.id }, server, null);
+            }
         }
 
         this.fightersMap.delete(roomId);
@@ -121,8 +122,7 @@ export class CombatService {
 
         gameInstance.turnTimer.resumeTimer();
         server.to(roomId).emit('endCombat', fighters);
-        console.log(player);
-        if (player.player.isVirtual) {
+        if (player && player.player.isVirtual) {
             this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
         }
         return fighters;

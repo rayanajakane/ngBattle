@@ -64,7 +64,7 @@ export class ActionHandlerService {
             this.virtualPlayerService.virtualPlayerId = player.id;
             this.virtualPlayerService.roomId = data.roomId;
             this.virtualPlayerService.server = server;
-            this.virtualPlayerService.action();
+            this.virtualPlayerService.think();
         }
     }
 
