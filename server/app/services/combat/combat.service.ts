@@ -8,12 +8,10 @@ import {
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
     ESCAPE_PROBABILITY,
-    FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
     LEFT_TILE,
     MINIMAL_BONUS_DICE,
     RIGHT_TILE,
-    SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
     WINS_TO_WIN,
 } from '@app/services/combat/constants';
@@ -214,6 +212,7 @@ export class CombatService {
             defenderRoll = this.throwDice(bonusDefenseDice, defender);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
+
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
@@ -222,9 +221,12 @@ export class CombatService {
             const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer, roomId);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
+                this.inventoryService.handleCombatInventory(defensePlayer.player);
+
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
-
+                    this.inventoryService.resetCombatBoost(playerKiller.player);
+                    this.inventoryService.resetCombatBoost(playerKilled.player);
                     // log message
                     const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
                     const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
@@ -259,6 +261,10 @@ export class CombatService {
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
+
+            this.disperseKilledPlayerObjects(server, roomId, playerKilled);
+            playerKilled.player.inventory = [];
+
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
                 killed: playerKilled,
@@ -272,14 +278,27 @@ export class CombatService {
         return [null, null, []];
     }
 
-    disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
+    disperseKilledPlayerObjects(server: Server, roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const position = player.position;
         const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
-        const randomIndex = Math.floor(Math.random() * possiblePositions.length);
-        game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
-        game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
+
+        let itemsPositions: { position: number; item: string }[] = [];
+
+        player.player.inventory.forEach((item) => {
+            const randomIndex = Math.floor(Math.random() * possiblePositions.length);
+            const randomPosition = position + possiblePositions[randomIndex];
+            possiblePositions.splice(randomIndex, 1);
+            itemsPositions.push({ position: randomPosition, item });
+        });
+
+        this.emitDisperseItemsKilledPlayer(server, roomId, itemsPositions);
+    }
+
+    emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { position: number; item: string }[]): void {
+        //TODO: emit to client to disperse
+        server.to(roomId).emit('disperseItems', itemsPositions);
     }
 
     teleportPlayerToHome(roomId: string, player: PlayerCoord): void {

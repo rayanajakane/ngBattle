@@ -1,5 +1,5 @@
 import { Coord } from '@app/data-structures/player';
-import { TileTypes } from '@app/data-structures/tile-types.enum';
+import { TileTypesValues } from '@app/data-structures/tile-types-values.enum';
 import { GameStructure, TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
 
@@ -33,8 +33,8 @@ export class MovementService {
 
     tileValue(type: string): number {
         const tileTypeMap = {
-            ice: TileTypes.ICE,
-            water: TileTypes.WATER,
+            ice: TileTypesValues.ICE,
+            water: TileTypesValues.WATER,
         };
 
         return tileTypeMap[type] ?? 1; // Default to FLOOR if type not found

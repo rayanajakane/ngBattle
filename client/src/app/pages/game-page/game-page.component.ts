@@ -1,12 +1,14 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { ChooseItemModalComponent } from '@app/components/choose-item-modal/choose-item-modal.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
@@ -46,6 +48,7 @@ import { ItemTypes } from '@common/tile-types';
         PlayerPanelComponent,
         GamePanelComponent,
         LogsComponent,
+        ChooseItemModalComponent,
     ],
 })
 export class GamePageComponent implements OnDestroy {
@@ -72,6 +75,7 @@ export class GamePageComponent implements OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private snackbar: MatSnackBar,
+        public dialog: MatDialog,
     ) {
         this.gameController.setRoom(this.route.snapshot.params['roomId'], this.route.snapshot.params['playerId']);
         this.addListeners();
@@ -124,34 +128,42 @@ export class GamePageComponent implements OnDestroy {
     }
 
     listenNewPlayerInventory() {
-        this.socketService.on('newPlayerInventory', (data: { newPlayer: PlayerCoord; dropItem?: boolean }) => {
-            this.gameController.updatePlayerCoordsList([data.newPlayer]);
+        this.socketService.on('newPlayerInventory', (data: { player: PlayerCoord; dropItem?: boolean }) => {
+            this.gameController.updatePlayerCoordsList([data.player]);
             if (!data.dropItem) {
-                this.mapService.removeItem(data.newPlayer.position);
+                this.mapService.removeItem(data.player.position);
             }
         });
     }
 
     listenItemToReplace() {
-        this.socketService.on('itemToReplace', (data: { player: PlayerCoord; item: ItemTypes }) => {
+        this.socketService.on('itemToReplace', (data: { player: PlayerCoord; newItem: ItemTypes }) => {
             this.mapService.removeItem(data.player.position);
             const inventory = data.player.player.inventory;
             if (inventory) {
-                this.inquirePlayerForItemReplacement([...inventory, data.item]);
+                this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
             }
         });
     }
 
     inquirePlayerForItemReplacement(items: ItemTypes[]) {
         // TODO: chooseItem in a modal and call chooseItem with the selected item
-        this.chooseItem(items[1]);
+        const dialogRef = this.dialog.open(ChooseItemModalComponent, {
+            data: { itemTypes: items },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.chooseItem(items, result);
+            }
+        });
     }
 
-    chooseItem(item: ItemTypes) {
+    chooseItem(items: ItemTypes[], rejectedItem: ItemTypes) {
         const player = this.gameController.findPlayerCoordById(this.gameController.playerId);
         if (player && player.player.inventory) {
-            this.mapService.placeItem(player.position, item);
-            this.gameController.requestUpdateInventory(player.player.inventory, item);
+            this.mapService.placeItem(player.position, rejectedItem);
+            this.gameController.requestUpdateInventory(items, rejectedItem);
         }
     }
 
@@ -266,6 +278,7 @@ export class GamePageComponent implements OnDestroy {
             },
         );
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
+            //TODO: clear the inventory of the killed player
             if (data.killer.player.wins < MAX_NUMBER_OF_WINS) {
                 this.handleKilledPlayer(data.killer, data.killed, data.killedOldPosition);
             }

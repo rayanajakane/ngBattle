@@ -214,8 +214,12 @@ export class GameControllerService {
         this.socketService.emit('requestDebugMode', { roomId: this.roomId, playerId: this.player.id });
     }
 
-    requestUpdateInventory(newInventory: ItemTypes[], droppedItem: ItemTypes): void {
-        this.socketService.emit('updateInventory', { roomId: this.roomId, playerId: this.player.id, newInventory, droppedItem });
+    turnOffDebugMode(): void {
+        this.socketService.emit('turnOffDebugMode', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    requestUpdateInventory(allItems: ItemTypes[], droppedItem: ItemTypes): void {
+        this.socketService.emit('updateInventory', { roomId: this.roomId, playerId: this.player.id, allItems, droppedItem });
     }
 
     requestTeleport(index: number): void {

@@ -7,28 +7,38 @@ import { Server, Socket } from 'socket.io';
 export class InventoryService {
     constructor(readonly activeGameService: ActiveGamesService) {}
 
-    handleCombatInventory(player: Player, inventory: ItemTypes[]) {
-        inventory.forEach((item) => {
+    handleCombatInventory(player: Player) {
+        player.inventory.forEach((item) => {
             if (item === ItemTypes.AC1 || item === ItemTypes.AC2) {
                 this.handleItemEffect(item, player, false);
             }
         });
     }
 
+    resetCombatBoost(player: Player) {
+        if (player.attributes.isCombatBoostedAttack) {
+            this.deactivateCombatBoostAttack(player);
+        }
+        if (player.attributes.isCombatBoostedDefense) {
+            this.deactivateCombatBoostDefense(player);
+        }
+    }
+
     handleItemEffect(item: ItemTypes, player: Player, isReset: boolean) {
         switch (item) {
             case ItemTypes.AA1:
                 this.handleAA1Item(player, isReset);
+                break;
             case ItemTypes.AA2:
                 this.handleAA2Item(player, isReset);
+                break;
             case ItemTypes.AC1:
                 this.handleAC1Item(player, isReset);
+                break;
             case ItemTypes.AC2:
                 this.handleAC2Item(player, isReset);
-            // case ItemTypes.FLAG_A:
-            //  this.handleFlagAItem();
             default:
-                return;
+                break;
         }
     }
 
@@ -58,7 +68,7 @@ export class InventoryService {
     }
 
     handleAC2Item(player: Player, isReset: boolean) {
-        if (player.attributes.currentHealth <= 2 && !player.attributes.isCombatBoostedDefense) {
+        if (player.attributes.currentHealth <= 3 && !player.attributes.isCombatBoostedDefense) {
             player.attributes.currentDefense += 2 * (isReset ? -1 : 1);
             player.attributes.isCombatBoostedDefense = !isReset;
         }
@@ -85,6 +95,8 @@ export class InventoryService {
     }
 
     addToInventoryAndEmit(server: Server, client: Socket, roomId: string, player: PlayerCoord, item: ItemTypes) {
+        // if (item === ItemTypes.STARTINGPOINT) return;
+
         const inventory = player.player.inventory;
 
         if (this.isInventoryFull(inventory)) {
@@ -98,12 +110,14 @@ export class InventoryService {
 
     emitItemToReplace(client: Socket, player: PlayerCoord, newItem: ItemTypes) {
         // TODO: emit to client to choose item to replace and to visually hide the item
-        client.emit('itemToReplace', player, newItem);
+        client.emit('itemToReplace', { player, newItem });
     }
 
-    updateInventory(server: Server, client: Socket, playerId: string, newInventory: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
+    updateInventory(server: Server, client: Socket, playerId: string, allItems: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
         const activeGame = this.activeGameService.getActiveGame(roomId);
-        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === player);
+        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+
+        const newInventory = allItems.filter((item) => item !== droppedItem);
 
         this.activeGameService.getActiveGame(roomId).game.map[player.position].item = droppedItem;
 
@@ -117,11 +131,9 @@ export class InventoryService {
             this.handleItemEffect(item, player.player, false);
         });
         this.emitNewPlayerInventory(server, roomId, player, true);
-
-        // TODO: update map with rejected item on server side
     }
 
     emitNewPlayerInventory(server: Server, roomId: string, player: PlayerCoord, dropItem?: boolean) {
-        server.to(roomId).emit('newPlayerInventory', player, dropItem);
+        server.to(roomId).emit('newPlayerInventory', { player, dropItem });
     }
 }
