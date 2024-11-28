@@ -17,7 +17,7 @@ export class ActionHandlerService {
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
-    private readonly SLIP_POURCENTAGE = 0.1;
+    private readonly SLIP_PERCENTAGE = 0.1;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TIME_BETWEEN_MOVES = 150;
 
@@ -83,7 +83,7 @@ export class ActionHandlerService {
                     pastPosition = playerPosition;
                     tileCounter++;
 
-                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.SLIP_POURCENTAGE) {
+                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.SLIP_PERCENTAGE) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
 
