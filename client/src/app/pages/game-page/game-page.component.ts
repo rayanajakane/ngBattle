@@ -265,6 +265,7 @@ export class GamePageComponent implements OnDestroy {
             },
         );
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
+            //TODO: clear the inventory of the killed player
             if (data.killer.player.wins < MAX_NUMBER_OF_WINS) {
                 this.handleKilledPlayer(data.killer, data.killed, data.killedOldPosition);
             }
