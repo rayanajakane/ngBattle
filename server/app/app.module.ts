@@ -10,6 +10,7 @@ import { Game, gameSchema } from './model/schema/game.schema';
 import { ActionButtonService } from './services/action-button/action-button.service';
 import { ActionHandlerService } from './services/action-handler/action-handler.service';
 import { ActionService } from './services/action/action.service';
+import { CombatHandlerService } from './services/combat-handler/combat-handler.service';
 import { CombatService } from './services/combat/combat.service';
 import { DebugModeService } from './services/debug-mode/debug-mode.service';
 import { GameValidationService } from './services/game-validation.service';
@@ -51,6 +52,7 @@ import { VirtualPlayerService } from './services/virtual-player/virtual-player.s
             provide: VirtualPlayerService,
             useClass: VirtualPlayerService,
         },
+        CombatHandlerService,
     ],
     exports: [ActionHandlerService],
 })
