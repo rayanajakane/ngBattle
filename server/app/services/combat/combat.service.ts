@@ -5,13 +5,13 @@ import {
     ATTACKER_INDEX,
     BOOSTED_BONUS_DICE,
     COMBAT_FIGHTERS_NUMBER,
-    DEFAULT_BONUS_DICE,
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
     ESCAPE_PROBABILITY,
     FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
     LEFT_TILE,
+    MINIMAL_BONUS_DICE,
     RIGHT_TILE,
     SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
@@ -199,14 +199,14 @@ export class CombatService {
         return fighters?.[currentTurnIndex];
     }
 
-    checkAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): [boolean, number[]] {
-        let bonusAttackDice: number = DEFAULT_BONUS_DICE;
-        let bonusDefenseDice: number = DEFAULT_BONUS_DICE;
+    checkAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord, roomId: string): [boolean, number[]] {
+        let bonusAttackDice: number = BOOSTED_BONUS_DICE;
+        let bonusDefenseDice: number = MINIMAL_BONUS_DICE;
         let attackerRoll: number;
         let defenderRoll: number;
         if (attacker.player.attributes.dice === 'attack') bonusAttackDice = BOOSTED_BONUS_DICE;
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
-        if (this.debugModeService.isDebugModeActive()) {
+        if (this.debugModeService.getDebugMode(roomId)) {
             attackerRoll = bonusAttackDice;
             defenderRoll = bonusDefenseDice;
         } else {
@@ -219,7 +219,7 @@ export class CombatService {
 
     attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord, boolean] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
-            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
+            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer, roomId);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {

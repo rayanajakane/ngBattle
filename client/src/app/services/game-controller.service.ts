@@ -211,11 +211,11 @@ export class GameControllerService {
     }
 
     requestDebugMode(): void {
-        this.socketService.emit('debugMode', { roomId: this.roomId, playerId: this.player.id });
+        this.socketService.emit('requestDebugMode', { roomId: this.roomId, playerId: this.player.id });
     }
 
-    requestStopDebugMode(): void {
-        this.socketService.emit('stopDebugMode', { roomId: this.roomId, playerId: this.player.id });
+    turnOffDebugMode(): void {
+        this.socketService.emit('turnOffDebugMode', { roomId: this.roomId, playerId: this.player.id });
     }
 
     requestUpdateInventory(newInventory: ItemTypes[], droppedItem: ItemTypes): void {

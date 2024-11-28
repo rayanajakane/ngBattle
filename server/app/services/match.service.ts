@@ -41,6 +41,7 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
+            inventory: [],
         };
         room.players.push(player);
 
@@ -95,6 +96,7 @@ export class MatchService {
             isActive: false,
             abandoned: false,
             wins: 0,
+            inventory: [],
         };
         room.players.push(player);
 

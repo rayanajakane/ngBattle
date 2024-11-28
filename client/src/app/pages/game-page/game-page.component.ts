@@ -147,11 +147,7 @@ export class GamePageComponent implements OnDestroy {
     }
 
     handleKeyDPressed() {
-        if (this.gameController.isDebugModeActive) {
-            this.gameController.requestStopDebugMode();
-        } else {
-            this.gameController.requestDebugMode();
-        }
+        this.gameController.requestDebugMode();
     }
 
     initiateGameSetup(game: GameStructure) {
@@ -282,16 +278,10 @@ export class GamePageComponent implements OnDestroy {
     }
 
     listenDebugMode() {
-        this.socketService.on('startDebugMode', () => {
-            this.gameController.isDebugModeActive = true;
-            this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
-        });
-    }
-
-    listenStopDebugMode() {
-        this.socketService.on('stopDebugMode', () => {
-            this.gameController.isDebugModeActive = false;
-            this.snackbar.open("Le mode débogage a été désactivé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+        this.socketService.on('responseDebugMode', (data: { isDebugMode: boolean }) => {
+            this.gameController.isDebugModeActive = data.isDebugMode;
+            console.log('Debug mode received from server:', data.isDebugMode);
+            // this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
         });
     }
 
@@ -462,6 +452,8 @@ export class GamePageComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
+        this.gameController.turnOffDebugMode();
+        this.gameController.isDebugModeActive = false;
         this.mapService.resetMap();
         this.socketService.disconnect();
     }
