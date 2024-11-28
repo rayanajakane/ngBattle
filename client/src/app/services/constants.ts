@@ -26,6 +26,7 @@ export const MOCK_PLAYER: Player = {
     isActive: false,
     abandoned: false,
     wins: 0,
+    inventory: [],
 };
 
 export const MOCK_PLAYER_TWO: Player = {
@@ -37,6 +38,7 @@ export const MOCK_PLAYER_TWO: Player = {
     isActive: false,
     abandoned: false,
     wins: 0,
+    inventory: [],
 };
 
 export const MOCK_PLAYER_COORD = { player: MOCK_PLAYER, position: 1 };
