@@ -2,14 +2,17 @@ import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
 import { MatchService } from '@app/services/match.service';
+import { MovementService } from '@app/services/movement/movement.service';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { InventoryService } from '../inventory/inventory.service';
+
 @Injectable()
 export class ActionHandlerService {
     constructor(
+        private readonly movementService: MovementService,
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
@@ -87,7 +90,7 @@ export class ActionHandlerService {
 
                     this.syncDelay(this.TIME_BETWEEN_MOVES);
                     this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
-                    if (!isDebugMode) activeGame.currentPlayerMoveBudget--;
+                    if (!isDebugMode) activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
                     activeGame.game.map[pastPosition].hasPlayer = false;
@@ -96,17 +99,19 @@ export class ActionHandlerService {
 
                     pastPosition = playerPosition;
 
-                    if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
-                        activeGame.currentPlayerMoveBudget = 0;
-                        iceSlip = true;
-                    }
-
                     tileItem = gameMap[playerPosition].item;
+
                     if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
                         this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
                         gameMap[playerPosition].item = ItemTypes.EMPTY;
                         isItemAddedToInventory = true;
                     }
+
+                    if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
+                        activeGame.currentPlayerMoveBudget = 0;
+                        iceSlip = true;
+                    }
+
                     //TODO: put back the object if inventory is full
                 }
             });
@@ -172,13 +177,18 @@ export class ActionHandlerService {
         const activeGame = this.activeGamesService.getActiveGameByPlayerId(playerId);
         if (!activeGame) return;
 
+        this.combatService.disperseKilledPlayerObjects(
+            server,
+            activeGame.roomId,
+            activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId),
+        );
+
         const roomId = activeGame.roomId;
         const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
         const message = `${playerName} a quitté la partie`;
         server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
         const activePlayerId = activeGame.playersCoord[activeGame.turn].player.id;
-        // const killedPlayer = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
         if (this.combatService.fightersMap.get(roomId)) {
             const fighters = this.combatService.fightersMap.get(roomId);
             fighters.forEach((fighter) => {

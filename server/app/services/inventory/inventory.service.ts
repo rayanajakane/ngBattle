@@ -28,16 +28,17 @@ export class InventoryService {
         switch (item) {
             case ItemTypes.AA1:
                 this.handleAA1Item(player, isReset);
+                break;
             case ItemTypes.AA2:
                 this.handleAA2Item(player, isReset);
+                break;
             case ItemTypes.AC1:
                 this.handleAC1Item(player, isReset);
+                break;
             case ItemTypes.AC2:
                 this.handleAC2Item(player, isReset);
-            // case ItemTypes.FLAG_A:
-            //  this.handleFlagAItem();
             default:
-                return;
+                break;
         }
     }
 
@@ -67,7 +68,7 @@ export class InventoryService {
     }
 
     handleAC2Item(player: Player, isReset: boolean) {
-        if (player.attributes.currentHealth >= 2 && !player.attributes.isCombatBoostedDefense) {
+        if (player.attributes.currentHealth <= 3 && !player.attributes.isCombatBoostedDefense) {
             player.attributes.currentDefense += 2 * (isReset ? -1 : 1);
             player.attributes.isCombatBoostedDefense = !isReset;
         }
