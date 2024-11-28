@@ -1,12 +1,14 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { ChooseItemModalComponent } from '@app/components/choose-item-modal/choose-item-modal.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
@@ -46,6 +48,7 @@ import { ItemTypes } from '@common/tile-types';
         PlayerPanelComponent,
         GamePanelComponent,
         LogsComponent,
+        ChooseItemModalComponent,
     ],
 })
 export class GamePageComponent implements OnDestroy {
@@ -72,6 +75,7 @@ export class GamePageComponent implements OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private snackbar: MatSnackBar,
+        public dialog: MatDialog,
     ) {
         this.gameController.setRoom(this.route.snapshot.params['roomId'], this.route.snapshot.params['playerId']);
         this.addListeners();
@@ -131,7 +135,15 @@ export class GamePageComponent implements OnDestroy {
 
     inquirePlayerForItemReplacement(items: ItemTypes[]) {
         // TODO: chooseItem in a modal and call chooseItem with the selected item
-        this.chooseItem(items, items[1]);
+        const dialogRef = this.dialog.open(ChooseItemModalComponent, {
+            data: { itemTypes: items },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.chooseItem(items, result);
+            }
+        });
     }
 
     chooseItem(items: ItemTypes[], rejectedItem: ItemTypes) {
