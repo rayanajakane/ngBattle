@@ -18,7 +18,7 @@ export class GameControllerService {
     fighters: PlayerCoord[] = [];
     isDebugModeActive = false;
 
-    inventory: ItemTypes[] = [ItemTypes.EMPTY, ItemTypes.EMPTY];
+    // inventory: ItemTypes[] = [ItemTypes.EMPTY, ItemTypes.EMPTY];
     itemCount: number = 0;
     constructor(private readonly socketService: SocketService) {}
 
@@ -27,40 +27,39 @@ export class GameControllerService {
         this.playerId = playerId;
     }
 
-    isInventoryFull(): boolean {
-        return this.itemCount === 2;
-    }
+    // isInventoryFull(): boolean {
+    //     return this.itemCount === 2;
+    // }
 
-    addItemToInventory(itemType: ItemTypes): void {
-        if (this.itemCount === 2) {
-            throw new Error('Cannot add more than 2 items');
-        }
-        if (this.inventory[0] === ItemTypes.EMPTY) {
-            this.inventory[0] = itemType;
-        } else if (this.inventory[1] === ItemTypes.EMPTY) {
-            this.inventory[1] = itemType;
-        }
-        this.incrementItemCount();
-    }
+    // addItemToInventory(itemType: ItemTypes): void {
+    //     if (this.itemCount === 2) {
+    //         throw new Error('Cannot add more than 2 items');
+    //     }
+    //     if (this.inventory[0] === ItemTypes.EMPTY) {
+    //         this.inventory[0] = itemType;
+    //     } else if (this.inventory[1] === ItemTypes.EMPTY) {
+    //         this.inventory[1] = itemType;
+    //     }
+    //     this.incrementItemCount();
+    // }
 
-    removeItemByType(itemType: ItemTypes): void {
-        let item = this.inventory.find((item, index) => {
-            if (item === itemType) {
-                this.inventory[index] = ItemTypes.EMPTY;
-                this.decrementItemCount();
-                return true;
-            }
-            return false;
-        });
-        if (!item) {
-            throw new Error('Item not found in inventory');
-        }
-    }
+    // removeItemByType(itemType: ItemTypes): void {
+    //     let item = this.inventory.find((item, index) => {
+    //         if (item === itemType) {
+    //             this.inventory[index] = ItemTypes.EMPTY;
+    //             this.decrementItemCount();
+    //             return true;
+    //         }
+    //         return false;
+    //     });
+    //     if (!item) {
+    //         throw new Error('Item not found in inventory');
+    //     }
+    // }
 
-    setInventory(inventory: ItemTypes[]): void {
-        this.inventory = inventory;
-        this.itemCount = inventory.filter((item) => item !== ItemTypes.EMPTY).length;
-    }
+    // setInventory(inventory: ItemTypes[]): void {
+    //     this.player.inventory = inventory;
+    // }
 
     // removeItem(): ItemTypes {
     //     if (this.itemCount === 0) {
@@ -76,19 +75,21 @@ export class GameControllerService {
     //     return item;
     // }
 
-    incrementItemCount(): void {
-        this.itemCount++;
-    }
+    // incrementItemCount(): void {
+    //     this.itemCount++;
+    // }
 
-    decrementItemCount(): void {
-        this.itemCount--;
-    }
+    // decrementItemCount(): void {
+    //     this.itemCount--;
+    // }
 
     initializePlayers(playerCoords: PlayerCoord[], turn: number) {
         this.playerCoords = playerCoords;
         for (const playerCoord of this.playerCoords) {
             if (playerCoord.player.id === this.playerId) {
                 this.player = playerCoord.player;
+                // player.inventory should be initialized on server side
+                this.player.inventory = [ItemTypes.EMPTY, ItemTypes.EMPTY];
                 break;
             }
         }
@@ -215,5 +216,9 @@ export class GameControllerService {
 
     requestStopDebugMode(): void {
         this.socketService.emit('stopDebugMode', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    requestUpdateInventory(newInventory: ItemTypes[], droppedItem: ItemTypes): void {
+        this.socketService.emit('updateInventory', { roomId: this.roomId, playerId: this.player.id, newInventory, droppedItem });
     }
 }

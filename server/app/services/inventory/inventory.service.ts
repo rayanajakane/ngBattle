@@ -92,7 +92,7 @@ export class InventoryService {
         } else {
             inventory.push(item);
             this.handleItemEffect(item, player.player, false);
-            this.emitNewPlayerAttributes(server, roomId, player);
+            this.emitNewPlayerInventory(server, roomId, player);
         }
     }
 
@@ -101,7 +101,10 @@ export class InventoryService {
         client.emit('itemToReplace', player, newItem);
     }
 
-    updateInventory(server: Server, client: Socket, player: PlayerCoord, newInventory: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
+    updateInventory(server: Server, client: Socket, playerId: string, newInventory: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
+        const activeGame = this.activeGameService.getActiveGame(roomId);
+        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === player);
+
         this.activeGameService.getActiveGame(roomId).game.map[player.position].item = droppedItem;
 
         player.player.inventory.forEach((item) => {
@@ -113,10 +116,12 @@ export class InventoryService {
         player.player.inventory.forEach((item) => {
             this.handleItemEffect(item, player.player, false);
         });
-        this.emitNewPlayerAttributes(server, roomId, player);
+        this.emitNewPlayerInventory(server, roomId, player, true);
+
+        // TODO: update map with rejected item on server side
     }
 
-    emitNewPlayerAttributes(server: Server, roomId: string, player: PlayerCoord) {
-        server.to(roomId).emit('newPlayerAttributes', player);
+    emitNewPlayerInventory(server: Server, roomId: string, player: PlayerCoord, dropItem?: boolean) {
+        server.to(roomId).emit('newPlayerInventory', player, dropItem);
     }
 }
