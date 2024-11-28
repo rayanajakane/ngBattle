@@ -9,7 +9,7 @@ export interface Player {
     isActive: boolean;
     abandoned: boolean;
     wins: number;
-    inventory?: ItemTypes[];
+    inventory: ItemTypes[];
     homePosition?: number;
 }
 

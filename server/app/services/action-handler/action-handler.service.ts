@@ -54,10 +54,6 @@ export class ActionHandlerService {
         server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
     }
 
-    handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {
-        client.emit('availableMovesOnBudget', this.action.availablePlayerMovesOnBudget(data.playerId, data.roomId, data.currentBudget));
-    }
-
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
         const playerId = data.playerId;
         const roomId = data.roomId;
@@ -74,10 +70,12 @@ export class ActionHandlerService {
             let pastPosition = startPosition;
             let tileItem: string = '';
 
-            const slippingChance = this.inventoryService.getSlippingChance(player.player);
+            // const slippingChance = this.inventoryService.getSlippingChance(player.player);
+            const slippingChance = this.SLIP_PERCENTAGE;
+            const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
             //TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
-            if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance) {
+            if (!isDebugMode && gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                 activeGame.currentPlayerMoveBudget = 0;
                 iceSlip = true;
             }
@@ -96,13 +94,9 @@ export class ActionHandlerService {
 
                     pastPosition = playerPosition;
 
-                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
+                    if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
-
-                        if (this.debugModeService.isDebugModeActive()) {
-                            iceSlip = false;
-                        }
                     }
 
                     tileItem = gameMap[playerPosition].item;

@@ -2,16 +2,19 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class DebugModeService {
-    private isDebugMode = false;
-
-    debugModeOn(): void {
-        this.isDebugMode = true;
+    private isDebugModeHashMap: Map<string, boolean> = new Map<string, boolean>();
+    debugModeOn(roomId: string): void {
+        this.isDebugModeHashMap.set(roomId, true);
+    }
+    debugModeOff(roomId): void {
+        console.log('debugModeOff');
+        this.isDebugModeHashMap.set(roomId, false);
+    }
+    switchDebugMode(roomId): void {
+        this.isDebugModeHashMap.set(roomId, !this.isDebugModeHashMap.get(roomId));
     }
 
-    debugModeOff(): void {
-        this.isDebugMode = false;
-    }
-    isDebugModeActive(): boolean {
-        return this.isDebugMode;
+    getDebugMode(roomId): boolean {
+        return this.isDebugModeHashMap.get(roomId);
     }
 }

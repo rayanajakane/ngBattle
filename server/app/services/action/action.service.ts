@@ -3,7 +3,7 @@ import { MovementService } from '@app/services/movement/movement.service';
 import { GameStructure } from '@common/game-structure';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
-
+import { DebugModeService } from '../debug-mode/debug-mode.service';
 @Injectable()
 export class ActionService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -11,6 +11,7 @@ export class ActionService {
     constructor(
         private readonly movement: MovementService,
         private readonly activeGamesService: ActiveGamesService,
+        private readonly debug: DebugModeService,
     ) {}
 
     nextTurn(roomId: string, lastTurn: boolean): void {
@@ -42,9 +43,11 @@ export class ActionService {
         const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
-        const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
+        const isDebugMode = this.debug.getDebugMode(roomId);
+        const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition, isDebugMode);
 
-        gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
+        // ADD COND for moveBudget
+        if (!isDebugMode) gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 
         return shortestPath.path;
     }
@@ -53,16 +56,9 @@ export class ActionService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const isDebugMode = this.debug.getDebugMode(roomId);
 
-        return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
-    }
-
-    availablePlayerMovesOnBudget(playerId: string, roomId: string, moveBudget: number): { [key: number]: number[] } {
-        const gameInstance = this.activeGamesService.getActiveGame(roomId);
-        const game = gameInstance.game;
-        const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
-
-        return this.movement.availableMoves(moveBudget, game, playerPosition);
+        return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition, isDebugMode);
     }
 
     interactWithDoor(roomId: string, playerId: string, doorPosition: number): boolean {

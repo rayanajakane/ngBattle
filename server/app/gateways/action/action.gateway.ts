@@ -25,14 +25,6 @@ export class ActionGateway implements OnGatewayInit {
         this.actionHandler.handleStartTurn(data, this.server, client);
     }
 
-    @SubscribeMessage('getAvailableMovesOnBudget')
-    handleGetAvailableMovesOnBudget(
-        @MessageBody() data: { roomId: string; playerId: string; currentBudget: number },
-        @ConnectedSocket() client: Socket,
-    ) {
-        this.actionHandler.handleGetAvailableMovesOnBudget(data, client);
-    }
-
     @SubscribeMessage('move')
     handleMove(@MessageBody() data: { roomId: string; playerId: string; endPosition: number }, @ConnectedSocket() client: Socket) {
         this.actionHandler.handleMove(data, this.server, client);
@@ -53,22 +45,18 @@ export class ActionGateway implements OnGatewayInit {
         this.actionHandler.handleInteractDoor(data, this.server, client);
     }
 
-    @SubscribeMessage('debugMode')
+    @SubscribeMessage('requestDebugMode')
     handleDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
-        this.debugModeService.debugModeOn();
+        this.debugModeService.switchDebugMode(data.roomId);
         const formattedTime = this.actionHandler.getCurrentTimeFormatted();
-        this.server
-            .to(data.roomId)
-            .emit('newLog', { date: formattedTime, message: 'Mode débogage est allumé!', receiver: data.playerId, exclusive: false });
+        const logMessage = 'Mode débogage est ' + (this.debugModeService.getDebugMode(data.roomId) ? 'activé' : 'désactivé');
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: logMessage, receiver: data.playerId, exclusive: false });
+        this.server.to(data.roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(data.roomId) });
     }
 
-    @SubscribeMessage('stopDebugMode')
-    handleStopDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
-        this.debugModeService.debugModeOff();
-        const formattedTime = this.actionHandler.getCurrentTimeFormatted();
-        this.server
-            .to(data.roomId)
-            .emit('newLog', { date: formattedTime, message: 'Mode débogage est éteint!', receiver: data.playerId, exclusive: false });
+    @SubscribeMessage('turnOffDebugMode')
+    handleTurnOffDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
+        this.debugModeService.debugModeOff(data.roomId);
     }
 
     afterInit(server: Server) {
