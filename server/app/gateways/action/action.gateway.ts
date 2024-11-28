@@ -8,6 +8,7 @@ import { Server, Socket } from 'socket.io';
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ActionGateway implements OnGatewayInit {
     @WebSocketServer() private server: Server;
+    gateway: import('http').Server<typeof import('http').IncomingMessage, typeof import('http').ServerResponse>;
 
     constructor(
         private readonly actionHandler: ActionHandlerService,
