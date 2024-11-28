@@ -1,5 +1,9 @@
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { GameService } from '@app/services/game.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ActionGateway } from './action.gateway';
 
@@ -10,12 +14,20 @@ describe('ActionGateway', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 DebugModeService,
+                InventoryService,
+                ActiveGamesService,
                 ActionGateway,
+                GameService,
+                UniqueItemRandomizerService,
                 {
                     provide: ActionHandlerService,
                     useValue: {
                         handleGameSetup: jest.fn(),
                     },
+                },
+                {
+                    provide: 'GameModel',
+                    useValue: {},
                 },
             ],
         }).compile();
