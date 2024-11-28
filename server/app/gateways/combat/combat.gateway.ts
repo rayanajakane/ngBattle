@@ -82,6 +82,9 @@ export class CombatGateway {
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(data.roomId, defender);
                 this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
+                if (defender.player.isVirtual) {
+                    this.handleAttack(null, { roomId: data.roomId, playerId: defender.player.id });
+                }
             }
         }
     }
@@ -95,7 +98,7 @@ export class CombatGateway {
         const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
-            const resetFighters = this.combatService.endCombat(data.roomId);
+            const resetFighters = this.combatService.endCombat(data.roomId, this.server);
             this.server.to(data.roomId).emit('endCombat', resetFighters);
 
             const message = `${player.player.name} a réussi à s'échapper du combat`;
@@ -122,7 +125,7 @@ export class CombatGateway {
     @SubscribeMessage('endCombat')
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         const player = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
-        const fighters = this.combatService.endCombat(data.roomId, player);
+        const fighters = this.combatService.endCombat(data.roomId, this.server, player);
         this.server.to(data.roomId).emit('endCombat', { playerId: data.playerId, attacker: fighters[0], defender: fighters[1] });
     }
 

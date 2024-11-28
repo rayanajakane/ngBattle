@@ -1,3 +1,4 @@
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatTimerService } from '@app/services/combat-timer/combat-timer.service';
 import {
@@ -18,14 +19,17 @@ import {
 import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 @Injectable()
 export class CombatService {
     private fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
-    constructor(@Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService) {}
+    constructor(
+        @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
+        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandler: ActionHandlerService,
+    ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
     // with a setPlayerTurn method with more verification
@@ -76,7 +80,7 @@ export class CombatService {
         }
     }
 
-    endCombat(roomId: string, player?: PlayerCoord): PlayerCoord[] {
+    endCombat(roomId: string, server: Server, player?: PlayerCoord): PlayerCoord[] {
         // inc wins if a player leaves game
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
@@ -92,11 +96,20 @@ export class CombatService {
                 this.resetHealth(fighter);
             });
         }
+
+        const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
+        if (killedPlayer.player.isVirtual) {
+            this.actionHandler.handleStartTurn({ roomId: roomId, playerId: killedPlayer.player.id }, server, null);
+        }
+
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
 
         gameInstance.turnTimer.resumeTimer();
-
+        console.log(player);
+        if (player.player.isVirtual) {
+            this.actionHandler.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
+        }
         return fighters;
     }
 
@@ -151,6 +164,8 @@ export class CombatService {
 
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
+        if (player.player.isVirtual) {
+        }
     }
 
     startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction, server: Server): void {
@@ -197,7 +212,7 @@ export class CombatService {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const killedPlayerOldPosition = defensePlayer.position;
-                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer);
+                    const [playerKiller, playerKilled, fighters] = this.killPlayer(roomId, defensePlayer, server);
                     server.to(roomId).emit('killedPlayer', {
                         killer: playerKiller,
                         killed: playerKilled,
@@ -230,7 +245,7 @@ export class CombatService {
         }
     }
 
-    killPlayer(roomId: string, player: PlayerCoord): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
+    killPlayer(roomId: string, player: PlayerCoord, server: Server): [PlayerCoord, PlayerCoord, PlayerCoord[]] {
         const playerKilled: PlayerCoord = player;
         const playerKiller: PlayerCoord = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
         if (playerKiller && playerKilled) {
@@ -239,7 +254,7 @@ export class CombatService {
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
-            const fighters = this.endCombat(roomId, playerKiller);
+            const fighters = this.endCombat(roomId, server, playerKiller);
             return [playerKiller, playerKilled, fighters];
         }
         return [null, null, []];
