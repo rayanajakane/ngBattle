@@ -171,7 +171,7 @@ export class ActionHandlerService {
                 message = `Porte a été ouverte par ${playerName}`;
             }
 
-            client.emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
+            server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
         }
     }
 
