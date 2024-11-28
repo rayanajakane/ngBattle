@@ -10,7 +10,7 @@ import { ItemTypes } from '@common/tile-types';
     styleUrl: './inventory.component.scss',
 })
 export class InventoryComponent {
-    @Input() items: ItemTypes[];
+    @Input() items: ItemTypes[] | undefined;
 
     constructor() {}
 
