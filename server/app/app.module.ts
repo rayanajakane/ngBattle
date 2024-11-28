@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game.controller';
 import { ActionGateway } from './gateways/action/action.gateway';
 import { CombatGateway } from './gateways/combat/combat.gateway';
+import { InventoryGateway } from './gateways/inventory/inventory.gateway';
 import { MatchGateway } from './gateways/match/match.gateway';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { ActionButtonService } from './services/action-button/action-button.service';
@@ -40,6 +41,7 @@ import { UniqueItemRandomizerService } from './services/unique-item-randomiser/u
         ActionService,
         ActionGateway,
         CombatGateway,
+        InventoryGateway,
         ActiveGamesService,
         CombatService,
         DebugModeService,

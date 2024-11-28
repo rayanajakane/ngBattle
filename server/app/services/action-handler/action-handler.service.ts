@@ -66,6 +66,7 @@ export class ActionHandlerService {
 
             const gameMap = activeGame.game.map;
             let iceSlip = false;
+            let isItemAddedToInventory = false;
 
             let pastPosition = startPosition;
             let tileItem: string = '';
@@ -81,11 +82,12 @@ export class ActionHandlerService {
             }
 
             playerPositions.forEach((playerPosition, index) => {
-                if (index !== 0 && !iceSlip && !tileItem) {
+                if (index !== 0 && !iceSlip && !isItemAddedToInventory) {
                     //TODO: check for a synchronous way to do this (remove set timeout)
-                    setTimeout(() => {
-                        this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
-                    }, this.TIME_BETWEEN_MOVES);
+
+                    this.syncDelay(this.TIME_BETWEEN_MOVES);
+                    this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
+                    if (!isDebugMode) activeGame.currentPlayerMoveBudget--;
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
                     activeGame.game.map[pastPosition].hasPlayer = false;
@@ -100,22 +102,21 @@ export class ActionHandlerService {
                     }
 
                     tileItem = gameMap[playerPosition].item;
-                    if (tileItem !== ItemTypes.EMPTY) {
+                    if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
                         this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
-                        tileItem = ItemTypes.EMPTY;
+                        gameMap[playerPosition].item = ItemTypes.EMPTY;
+                        isItemAddedToInventory = true;
                     }
                     //TODO: put back the object if inventory is full
                 }
             });
 
-            setTimeout(() => {
-                client.emit('endMove', {
-                    availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-                    currentMoveBudget: activeGame.currentPlayerMoveBudget,
-                    hasSlipped: iceSlip,
-                    //TODO: send inventory
-                });
-            }, this.TIME_BETWEEN_MOVES * playerPositions.length);
+            client.emit('endMove', {
+                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                hasSlipped: iceSlip,
+                //TODO: send inventory
+            });
         }
     }
 
@@ -212,5 +213,10 @@ export class ActionHandlerService {
             playerId,
             newPlayerPosition,
         });
+    }
+
+    private syncDelay(ms: number) {
+        const end = Date.now() + ms;
+        while (Date.now() < end) continue;
     }
 }

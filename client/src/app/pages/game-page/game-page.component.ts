@@ -111,34 +111,34 @@ export class GamePageComponent implements OnDestroy {
     }
 
     listenNewPlayerInventory() {
-        this.socketService.on('newPlayerInventory', (data: { newPlayer: PlayerCoord; dropItem?: boolean }) => {
-            this.gameController.updatePlayerCoordsList([data.newPlayer]);
+        this.socketService.on('newPlayerInventory', (data: { player: PlayerCoord; dropItem?: boolean }) => {
+            this.gameController.updatePlayerCoordsList([data.player]);
             if (!data.dropItem) {
-                this.mapService.removeItem(data.newPlayer.position);
+                this.mapService.removeItem(data.player.position);
             }
         });
     }
 
     listenItemToReplace() {
-        this.socketService.on('itemToReplace', (data: { player: PlayerCoord; item: ItemTypes }) => {
+        this.socketService.on('itemToReplace', (data: { player: PlayerCoord; newItem: ItemTypes }) => {
             this.mapService.removeItem(data.player.position);
             const inventory = data.player.player.inventory;
             if (inventory) {
-                this.inquirePlayerForItemReplacement([...inventory, data.item]);
+                this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
             }
         });
     }
 
     inquirePlayerForItemReplacement(items: ItemTypes[]) {
         // TODO: chooseItem in a modal and call chooseItem with the selected item
-        this.chooseItem(items[1]);
+        this.chooseItem(items, items[1]);
     }
 
-    chooseItem(item: ItemTypes) {
+    chooseItem(items: ItemTypes[], rejectedItem: ItemTypes) {
         const player = this.gameController.findPlayerCoordById(this.gameController.playerId);
         if (player && player.player.inventory) {
-            this.mapService.placeItem(player.position, item);
-            this.gameController.requestUpdateInventory(player.player.inventory, item);
+            this.mapService.placeItem(player.position, rejectedItem);
+            this.gameController.requestUpdateInventory(items, rejectedItem);
         }
     }
 
@@ -280,7 +280,6 @@ export class GamePageComponent implements OnDestroy {
     listenDebugMode() {
         this.socketService.on('responseDebugMode', (data: { isDebugMode: boolean }) => {
             this.gameController.isDebugModeActive = data.isDebugMode;
-            console.log('Debug mode received from server:', data.isDebugMode);
             // this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
         });
     }

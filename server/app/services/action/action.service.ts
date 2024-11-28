@@ -47,7 +47,7 @@ export class ActionService {
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition, isDebugMode);
 
         // ADD COND for moveBudget
-        if (!isDebugMode) gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
+        // if (!isDebugMode) gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 
         return shortestPath.path;
     }
