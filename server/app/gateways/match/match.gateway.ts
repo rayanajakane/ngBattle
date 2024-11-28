@@ -33,10 +33,11 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
 
     @SubscribeMessage('joinRoom')
     handleJoinRoom(
-        @MessageBody() data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute; isVirtual: boolean },
+        @MessageBody()
+        data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute; isVirtual: boolean; virtualProfile: string },
         @ConnectedSocket() client: Socket,
     ) {
-        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes };
+        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes, virtualProfile: data.virtualProfile };
         this.matchService.joinRoom(this.server, client, data.roomId, playerData, data.isVirtual);
     }
 

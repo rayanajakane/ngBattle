@@ -8,6 +8,7 @@ export interface Player {
     abandoned: boolean;
     wins: number;
     isVirtual: boolean;
+    virtualProfile?: string;
     inventory?: string[];
     homePosition?: number;
 }

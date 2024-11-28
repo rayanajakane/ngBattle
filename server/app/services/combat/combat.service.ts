@@ -18,6 +18,7 @@ import {
     WINS_TO_WIN,
 } from '@app/services/combat/constants';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
@@ -31,8 +32,9 @@ export class CombatService {
     private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
-        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
         @Inject(DebugModeService) private readonly debugModeService: DebugModeService,
+        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
+        @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
@@ -95,12 +97,6 @@ export class CombatService {
                 this.resetHealth(fighter);
             });
         }
-        if (player) {
-            const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
-            if (killedPlayer.player.isVirtual) {
-                this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: killedPlayer.player.id }, server, null);
-            }
-        }
 
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
@@ -122,8 +118,15 @@ export class CombatService {
 
         gameInstance.turnTimer.resumeTimer();
         server.to(roomId).emit('endCombat', fighters);
-        if (player && player.player.isVirtual) {
-            this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
+        if (player) {
+            if (player.player.isVirtual) {
+                this.virtualPlayerService.think();
+                //this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
+            }
+            const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
+            if (killedPlayer.player.isVirtual) {
+                this.actionHandlerService.handleEndTurn({ roomId: roomId, playerId: killedPlayer.player.id, lastTurn: false }, server);
+            }
         }
         return fighters;
     }
@@ -178,8 +181,6 @@ export class CombatService {
 
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
-        if (player.player.isVirtual) {
-        }
     }
 
     startCombatAction(roomId: string, player: PlayerCoord, combatAction: CombatAction, server: Server): void {

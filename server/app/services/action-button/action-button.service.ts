@@ -4,13 +4,13 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { TileStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 @Injectable()
 export class ActionButtonService {
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(ActionService) private readonly actionService: ActionService,
-        @Inject(CombatService) private readonly combatService: CombatService,
+        @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
     ) {}
 
     getAvailableIndexes(roomId: string, activePlayer: PlayerCoord): number[] {

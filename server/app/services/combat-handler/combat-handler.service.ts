@@ -2,6 +2,7 @@ import { ActionButtonService } from '@app/services/action-button/action-button.s
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -11,9 +12,10 @@ import { Server, Socket } from 'socket.io';
 export class CombatHandlerService {
     constructor(
         private readonly activeGameService: ActiveGamesService,
-        private readonly combatService: CombatService,
         private readonly actionButtonService: ActionButtonService,
+        @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
+        @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
 
     handleStartAction(roomId: string, playerId: string, client: Socket) {
@@ -50,7 +52,7 @@ export class CombatHandlerService {
         }
     }
 
-    handleCombatAttack(roomId: string, playerId: string, server: Server) {
+    async handleCombatAttack(roomId: string, playerId: string, server: Server) {
         if (this.combatService.getCurrentTurnPlayer(roomId).player.id === playerId) {
             const initialPlayer = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
             const targetPlayer = this.combatService.getFighters(roomId).find((player) => player.player.id !== playerId);
@@ -83,21 +85,16 @@ export class CombatHandlerService {
                 this.combatService.startCombatTurn(roomId, defender);
                 server.to(roomId).emit('changeCombatTurn', defender.player.id);
                 if (defender.player.isVirtual) {
-                    // add logic for escape for defensive vp
-                    this.handleCombatEscape(roomId, defender.player.id, server);
-                    // this.handleCombatAttack(roomId, defender.player.id, server);
+                    await this.virtualPlayerService.fight(isAttackSuccessful);
                 }
             }
         }
     }
 
-    handleCombatEscape(roomId: string, playerId: string, server: Server) {
+    async handleCombatEscape(roomId: string, playerId: string, server: Server) {
         const fighter = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
         const defender = this.combatService.getFighters(roomId).find((player) => player.player.id !== playerId);
 
-        if (fighter.player.isVirtual) {
-            console.log('virtual player escape attempt');
-        }
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(roomId, fighter);
         server.to(roomId).emit('didEscape', { playerId: playerId, remainingEscapeChances, hasEscaped: escapeResult });
         const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
@@ -106,13 +103,19 @@ export class CombatHandlerService {
             console.log('escape successful');
             const message = `${fighter.player.name} a réussi à s'échapper du combat`;
             server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
-            this.combatService.endCombat(roomId, server);
+            this.combatService.endCombat(roomId, server, fighter);
         } else {
             console.log('escape failed');
             const message = `${fighter.player.name} a échoué à s'échapper du combat`;
             server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
-            this.combatService.startCombatTurn(roomId, defender);
-            server.to(roomId).emit('changeCombatTurn', defender.player.id);
+            if (!defender.player.isVirtual) {
+                this.combatService.startCombatTurn(roomId, defender);
+                server.to(roomId).emit('changeCombatTurn', defender.player.id);
+            } else if (defender.player.isVirtual) {
+                console.log('virtual player attakcs');
+                server.to(roomId).emit('changeCombatTurn', defender.player.id);
+                await this.virtualPlayerService.fight(false);
+            }
         }
     }
 

@@ -77,7 +77,7 @@ export class MatchService {
         server: Server,
         client: Socket,
         roomId: string,
-        playerData: { playerName: string; avatar: string; attributes: PlayerAttribute },
+        playerData: { playerName: string; avatar: string; attributes: PlayerAttribute; virtualProfile: string },
         isVirtual: boolean,
     ) {
         const room = this.rooms.get(roomId);
@@ -104,8 +104,10 @@ export class MatchService {
             abandoned: false,
             wins: 0,
             isVirtual,
+            virtualProfile: playerData.virtualProfile,
         };
         room.players.push(player);
+        console.log(player);
 
         if (room.players.length >= room.maxPlayers) {
             room.isLocked = true;

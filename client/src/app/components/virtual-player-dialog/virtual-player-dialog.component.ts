@@ -85,6 +85,7 @@ export class VirtualPlayerDialogComponent {
             abandoned: false,
             wins: 0,
             isVirtual: true,
+            virtualProfile: this.characterProfile,
             inventory: [],
             homePosition: 0,
         };
@@ -101,6 +102,7 @@ export class VirtualPlayerDialogComponent {
             avatar: this.virtualAvatar.name,
             attributes: this.virtualPlayer.attributes,
             isVirtual: true,
+            virtualProfile: this.characterProfile,
         });
     }
 
