@@ -1,5 +1,6 @@
 import { GameService } from '@app/services/game.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { ActiveGamesService } from './active-games.service';
 
 describe('ActiveGamesService', () => {
@@ -7,7 +8,7 @@ describe('ActiveGamesService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [ActiveGamesService, GameService, { provide: 'GameModel', useValue: {} }],
+            providers: [ActiveGamesService, UniqueItemRandomizerService, GameService, { provide: 'GameModel', useValue: {} }],
         }).compile();
 
         service = module.get<ActiveGamesService>(ActiveGamesService);
