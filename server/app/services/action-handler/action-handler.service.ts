@@ -19,7 +19,7 @@ export class ActionHandlerService {
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
-    private readonly SLIP_POURCENTAGE = 0.1;
+    private readonly SLIP_PERCENTAGE = 0.1;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     //TODO: move to a utils file
     private readonly TIME_BETWEEN_MOVES = 150;
@@ -62,7 +62,8 @@ export class ActionHandlerService {
         const playerId = data.playerId;
         const roomId = data.roomId;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
-        const startPosition = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
+        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        const startPosition = player.position;
 
         if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
             const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
@@ -73,7 +74,10 @@ export class ActionHandlerService {
             let pastPosition = startPosition;
             let tileItem: string = '';
 
-            if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < this.SLIP_POURCENTAGE) {
+            const slippingChance = this.inventoryService.getSlippingChance(player.player);
+
+            //TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
+            if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                 activeGame.currentPlayerMoveBudget = 0;
                 iceSlip = true;
             }
@@ -91,7 +95,7 @@ export class ActionHandlerService {
 
                     pastPosition = playerPosition;
 
-                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.SLIP_POURCENTAGE) {
+                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
 
@@ -99,10 +103,10 @@ export class ActionHandlerService {
                             iceSlip = false;
                         }
                     }
+
                     tileItem = gameMap[playerPosition].item;
-                    if (tileItem) {
-                        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
-                        this.inventoryService.addToInventory(playerPosition, player, tileItem as ItemTypes);
+                    if (tileItem !== ItemTypes.EMPTY) {
+                        this.inventoryService.addToInventory(playerPosition, player.player, tileItem as ItemTypes);
                         tileItem = ItemTypes.EMPTY;
                     }
                     //TODO: put back the object if inventory is full

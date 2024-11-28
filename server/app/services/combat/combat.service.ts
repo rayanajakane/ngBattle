@@ -23,6 +23,7 @@ import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class CombatService {
@@ -33,6 +34,7 @@ export class CombatService {
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
         @Inject(DebugModeService) private readonly debugModeService: DebugModeService,
+        @Inject(InventoryService) private readonly inventoryService: InventoryService,
     ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
@@ -208,8 +210,8 @@ export class CombatService {
             attackerRoll = bonusAttackDice;
             defenderRoll = bonusDefenseDice;
         } else {
-            attackerRoll = this.throwDice(bonusAttackDice);
-            defenderRoll = this.throwDice(bonusDefenseDice);
+            attackerRoll = this.throwDice(bonusAttackDice, attacker);
+            defenderRoll = this.throwDice(bonusDefenseDice, defender);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
@@ -297,8 +299,12 @@ export class CombatService {
         }
     }
 
-    private throwDice(diceSize: number): number {
-        return Math.floor(Math.random() * diceSize) + 1;
+    private throwDice(diceSize: number, fighter: PlayerCoord): number {
+        if (this.inventoryService.hasAF2Item(fighter.player)) {
+            return Math.random() > 0.5 ? diceSize : 1;
+        } else {
+            return Math.floor(Math.random() * diceSize) + 1;
+        }
     }
 
     private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {

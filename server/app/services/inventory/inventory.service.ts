@@ -1,10 +1,10 @@
-import { PlayerCoord } from '@common/player';
+import { Player } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class InventoryService {
-    handleCombatInventory(player: PlayerCoord, inventory: ItemTypes[]) {
+    handleCombatInventory(player: Player, inventory: ItemTypes[]) {
         inventory.forEach((item) => {
             if (item === ItemTypes.AC1 || item === ItemTypes.AC2) {
                 this.handleItemEffect(item, player, false);
@@ -12,7 +12,7 @@ export class InventoryService {
         });
     }
 
-    handleItemEffect(item: ItemTypes, player: PlayerCoord, isReset: boolean) {
+    handleItemEffect(item: ItemTypes, player: Player, isReset: boolean) {
         switch (item) {
             case ItemTypes.AA1:
                 this.handleAA1Item(player, isReset);
@@ -22,12 +22,8 @@ export class InventoryService {
                 this.handleAC1Item(player, isReset);
             case ItemTypes.AC2:
                 this.handleAC2Item(player, isReset);
-            // case ItemTypes.AF1:
-            //     return this.handleAF1Item();
-            // case ItemTypes.AF2:
-            //     return this.handleAF2Item();
             // case ItemTypes.FLAG_A:
-            //     return this.handleFlagAItem();
+            //  this.handleFlagAItem();
             default:
                 return;
         }
@@ -42,43 +38,51 @@ export class InventoryService {
         return inventory.length >= 2;
     }
 
-    handleAA1Item(player: PlayerCoord, isReset: boolean) {
-        player.player.attributes.defense += 2 * (isReset ? -1 : 1);
+    handleAA1Item(player: Player, isReset: boolean) {
+        player.attributes.defense += 2 * (isReset ? -1 : 1);
     }
 
-    handleAA2Item(player: PlayerCoord, isReset: boolean) {
-        player.player.attributes.speed += 2 * (isReset ? -1 : 1);
-        player.player.attributes.health -= 1 * (isReset ? -1 : 1);
+    handleAA2Item(player: Player, isReset: boolean) {
+        player.attributes.speed += 2 * (isReset ? -1 : 1);
+        player.attributes.health -= 1 * (isReset ? -1 : 1);
     }
 
-    handleAC1Item(player: PlayerCoord, isReset: boolean) {
-        if (player.player.attributes.currentHealth <= 2 && !player.player.attributes.isCombatBoostedAttack) {
-            player.player.attributes.currentAttack += 2 * (isReset ? -1 : 1);
-            player.player.attributes.isCombatBoostedAttack = !isReset;
+    handleAC1Item(player: Player, isReset: boolean) {
+        if (player.attributes.currentHealth <= 2 && !player.attributes.isCombatBoostedAttack) {
+            player.attributes.currentAttack += 2 * (isReset ? -1 : 1);
+            player.attributes.isCombatBoostedAttack = !isReset;
         }
     }
 
-    handleAC2Item(player: PlayerCoord, isReset: boolean) {
-        if (player.player.attributes.currentHealth <= 2 && !player.player.attributes.isCombatBoostedSpeed) {
-            player.player.attributes.currentSpeed += 2 * (isReset ? -1 : 1);
-            player.player.attributes.isCombatBoostedSpeed = !isReset;
+    handleAC2Item(player: Player, isReset: boolean) {
+        if (player.attributes.currentHealth <= 2 && !player.attributes.isCombatBoostedDefense) {
+            player.attributes.currentDefense += 2 * (isReset ? -1 : 1);
+            player.attributes.isCombatBoostedDefense = !isReset;
         }
     }
 
-    // TODO: call this function when player finishes a combat
-    deactivateCombatBoostAttack(player: PlayerCoord) {
-        player.player.attributes.currentAttack -= 2;
-        player.player.attributes.isCombatBoostedAttack = false;
+    getSlippingChance(player: Player): number {
+        return player.inventory.includes(ItemTypes.AF1) ? 0 : 0.1;
+    }
+
+    hasAF2Item(player: Player): boolean {
+        return player.inventory.includes(ItemTypes.AF2);
     }
 
     // TODO: call this function when player finishes a combat
-    deactivateCombatBoostSpeed(player: PlayerCoord) {
-        player.player.attributes.currentSpeed -= 2;
-        player.player.attributes.isCombatBoostedSpeed = false;
+    deactivateCombatBoostAttack(player: Player) {
+        player.attributes.currentAttack -= 2;
+        player.attributes.isCombatBoostedAttack = false;
     }
 
-    addToInventory(playerPosition: number, player: PlayerCoord, item: ItemTypes) {
-        const inventory = player.player.inventory;
+    // TODO: call this function when player finishes a combat
+    deactivateCombatBoostDefense(player: Player) {
+        player.attributes.currentSpeed -= 2;
+        player.attributes.isCombatBoostedDefense = false;
+    }
+
+    addToInventory(playerPosition: number, player: Player, item: ItemTypes) {
+        const inventory = player.inventory;
 
         if (this.isInventoryFull(inventory)) {
             this.listenForItemReplace(player, inventory, item);
@@ -90,21 +94,21 @@ export class InventoryService {
         }
     }
 
-    emitItemToReplace(player: PlayerCoord, newItem: ItemTypes) {
+    emitItemToReplace(player: Player, newItem: ItemTypes) {
         // TODO: emit to client to choose item to replace
     }
 
-    emitNewPlayerAttributes(player: PlayerCoord) {}
+    emitNewPlayerAttributes(player: Player) {}
 
-    listenForItemReplace(player: PlayerCoord, newInventory: ItemTypes[], dropedItem: ItemTypes) {
+    listenForItemReplace(player: Player, newInventory: ItemTypes[], droppedItem: ItemTypes) {
         // TODO: listen for item to replace emit from client with socket.once
 
-        player.player.inventory.forEach((item) => {
+        player.inventory.forEach((item) => {
             this.handleItemEffect(item, player, true);
         });
-        player.player.inventory = newInventory;
+        player.inventory = newInventory;
 
-        player.player.inventory.forEach((item) => {
+        player.inventory.forEach((item) => {
             this.handleItemEffect(item, player, false);
         });
 

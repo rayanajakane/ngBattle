@@ -25,7 +25,7 @@ export interface PlayerAttribute {
     dice: string;
     escape?: number;
     isCombatBoostedAttack?: boolean;
-    isCombatBoostedSpeed?: boolean;
+    isCombatBoostedDefense?: boolean;
 }
 
 export interface PlayerCoord {
