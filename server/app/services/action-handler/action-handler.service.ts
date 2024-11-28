@@ -84,6 +84,7 @@ export class ActionHandlerService {
 
             playerPositions.forEach((playerPosition, index) => {
                 if (index !== 0 && !iceSlip && !tileItem) {
+                    //TODO: check for a synchronous way to do this (remove set timeout)
                     setTimeout(() => {
                         this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                     }, this.TIME_BETWEEN_MOVES);
@@ -106,7 +107,7 @@ export class ActionHandlerService {
 
                     tileItem = gameMap[playerPosition].item;
                     if (tileItem !== ItemTypes.EMPTY) {
-                        this.inventoryService.addToInventory(playerPosition, player.player, tileItem as ItemTypes);
+                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
                         tileItem = ItemTypes.EMPTY;
                     }
                     //TODO: put back the object if inventory is full

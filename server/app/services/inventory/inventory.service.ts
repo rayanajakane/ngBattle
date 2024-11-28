@@ -1,9 +1,12 @@
-import { Player } from '@common/player';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
-
+import { Server, Socket } from 'socket.io';
 @Injectable()
 export class InventoryService {
+    constructor(readonly activeGameService: ActiveGamesService) {}
+
     handleCombatInventory(player: Player, inventory: ItemTypes[]) {
         inventory.forEach((item) => {
             if (item === ItemTypes.AC1 || item === ItemTypes.AC2) {
@@ -81,37 +84,39 @@ export class InventoryService {
         player.attributes.isCombatBoostedDefense = false;
     }
 
-    addToInventory(playerPosition: number, player: Player, item: ItemTypes) {
-        const inventory = player.inventory;
+    addToInventoryAndEmit(server: Server, client: Socket, roomId: string, player: PlayerCoord, item: ItemTypes) {
+        const inventory = player.player.inventory;
 
         if (this.isInventoryFull(inventory)) {
-            this.listenForItemReplace(player, inventory, item);
-            this.emitItemToReplace(player, item);
+            this.emitItemToReplace(client, player, item);
         } else {
             inventory.push(item);
-            this.handleItemEffect(item, player, false);
-            this.emitNewPlayerAttributes(player);
+            this.handleItemEffect(item, player.player, false);
+            this.emitNewPlayerAttributes(server, roomId, player);
         }
     }
 
-    emitItemToReplace(player: Player, newItem: ItemTypes) {
-        // TODO: emit to client to choose item to replace
+    emitItemToReplace(client: Socket, player: PlayerCoord, newItem: ItemTypes) {
+        // TODO: emit to client to choose item to replace and to visually hide the item
+        client.emit('itemToReplace', player, newItem);
     }
 
-    emitNewPlayerAttributes(player: Player) {}
+    updateInventory(server: Server, client: Socket, player: PlayerCoord, newInventory: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
+        this.activeGameService.getActiveGame(roomId).game.map[player.position].item = droppedItem;
 
-    listenForItemReplace(player: Player, newInventory: ItemTypes[], droppedItem: ItemTypes) {
-        // TODO: listen for item to replace emit from client with socket.once
-
-        player.inventory.forEach((item) => {
-            this.handleItemEffect(item, player, true);
-        });
-        player.inventory = newInventory;
-
-        player.inventory.forEach((item) => {
-            this.handleItemEffect(item, player, false);
+        player.player.inventory.forEach((item) => {
+            this.handleItemEffect(item, player.player, true);
         });
 
-        this.emitNewPlayerAttributes(player);
+        player.player.inventory = newInventory;
+
+        player.player.inventory.forEach((item) => {
+            this.handleItemEffect(item, player.player, false);
+        });
+        this.emitNewPlayerAttributes(server, roomId, player);
+    }
+
+    emitNewPlayerAttributes(server: Server, roomId: string, player: PlayerCoord) {
+        server.to(roomId).emit('newPlayerAttributes', player);
     }
 }
