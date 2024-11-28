@@ -108,6 +108,19 @@ export class GamePageComponent implements OnDestroy {
         this.listenDebugMode();
         this.listenNewPlayerInventory();
         this.listenItemToReplace();
+
+        this.listenTeleportation();
+    }
+
+    listenTeleportation() {
+        this.socketService.on(
+            'teleportResponse',
+            (data: { playerId: string; newPosition: number; availableMoves: ShortestPathByTile; currentPlayerMoveBudget: number }) => {
+                console.log('teleportResponse', data);
+                this.updatePlayerPosition(data.playerId, data.newPosition);
+                if (this.gameController.isActivePlayer()) this.handleEndMove(data.availableMoves, data.currentPlayerMoveBudget, false);
+            },
+        );
     }
 
     listenNewPlayerInventory() {
@@ -281,7 +294,11 @@ export class GamePageComponent implements OnDestroy {
         this.socketService.on('responseDebugMode', (data: { isDebugMode: boolean }) => {
             this.gameController.isDebugModeActive = data.isDebugMode;
             console.log('Debug mode received from server:', data.isDebugMode);
-            // this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+            this.snackbar.open(
+                `Le mode débogage a été ${this.gameController.isDebugModeActive ? 'activé' : 'désactivé'} par l'administrateur`,
+                'Fermer',
+                SNACKBAR_PARAMETERS as MatSnackBarConfig,
+            );
         });
     }
 
@@ -452,7 +469,6 @@ export class GamePageComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.gameController.turnOffDebugMode();
         this.gameController.isDebugModeActive = false;
         this.mapService.resetMap();
         this.socketService.disconnect();

@@ -1,6 +1,10 @@
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActionService } from '@app/services/action/action.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { MatchService } from '@app/services/match.service';
 import { PlayerAttribute } from '@common/player';
+import { TileTypes } from '@common/tile-types';
 import { Inject } from '@nestjs/common';
 import {
     ConnectedSocket,
@@ -19,7 +23,10 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
 
     constructor(
         @Inject() private readonly matchService: MatchService,
-        private readonly actionHandler: ActionHandlerService,
+        private readonly actionHandlerService: ActionHandlerService,
+        private readonly action: ActionService,
+        private debugModeService: DebugModeService,
+        private activeGamesService: ActiveGamesService,
     ) {}
 
     @SubscribeMessage('createRoom')
@@ -95,12 +102,57 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         this.matchService.loadAllMessages(client, data.roomId);
     }
 
-    afterInit(server: Server) {
-        this.server = server;
+    @SubscribeMessage('requestDebugMode')
+    handleDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
+        this.debugModeService.switchDebugMode(data.roomId);
+        const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
+        const logMessage = 'Mode débogage est ' + (this.debugModeService.getDebugMode(data.roomId) ? 'activé' : 'désactivé');
+        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: logMessage, receiver: data.playerId, exclusive: false });
+        this.server.to(data.roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(data.roomId) });
+    }
+
+    @SubscribeMessage('teleportPlayer')
+    handleTeleportPlayer(@MessageBody() data: { roomId: string; playerId: string; index: number }) {
+        if (this.debugModeService.getDebugMode(data.roomId)) {
+            console.log('REQUETE RECU VOILA  ', data);
+            const gameInstance = this.activeGamesService.getActiveGame(data.roomId);
+            const playerStart = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId);
+            const playerStartIndex = playerStart.position;
+            const currentPlayerMoveBudget = gameInstance.currentPlayerMoveBudget;
+            const map = gameInstance.game.map;
+            if (!map[data.index].hasPlayer && map[data.index].tileType !== TileTypes.WALL && map[data.index].tileType !== TileTypes.DOORCLOSED) {
+                map[playerStartIndex].hasPlayer = false;
+                map[data.index].hasPlayer = true;
+                gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).position = data.index;
+                const availableMoves = this.action.availablePlayerMoves(data.playerId, data.roomId);
+                this.server.to(data.roomId).emit('teleportResponse', {
+                    playerId: data.playerId,
+                    newPosition: data.index,
+                    availableMoves: availableMoves,
+                    currentPlayerMoveBudget: currentPlayerMoveBudget,
+                });
+            }
+        }
     }
 
     handleDisconnect(client: Socket) {
-        this.actionHandler.handleQuitGame(this.server, client);
+        let roomId = '';
+        let isAdmin = false;
+        this.matchService.rooms.forEach((room) => {
+            let player = room.players.find((player) => player.id === client.id);
+            if (player) {
+                roomId = room.id;
+                isAdmin = player.isAdmin;
+            }
+        });
+        if (isAdmin) {
+            this.debugModeService.debugModeOff(roomId);
+            this.server.to(roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(roomId) });
+        }
+        this.actionHandlerService.handleQuitGame(this.server, client);
         this.matchService.leaveAllRooms(this.server, client);
+    }
+    afterInit(server: Server) {
+        this.server = server;
     }
 }

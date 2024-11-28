@@ -75,7 +75,7 @@ export class ActionHandlerService {
             const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
             //TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
-            if (!isDebugMode && gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance) {
+            if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance && !isDebugMode) {
                 activeGame.currentPlayerMoveBudget = 0;
                 iceSlip = true;
             }
@@ -94,7 +94,7 @@ export class ActionHandlerService {
 
                     pastPosition = playerPosition;
 
-                    if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
+                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
                     }
