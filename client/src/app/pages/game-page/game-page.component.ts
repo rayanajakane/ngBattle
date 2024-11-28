@@ -131,6 +131,7 @@ export class GamePageComponent implements OnDestroy {
 
     inquirePlayerForItemReplacement(items: ItemTypes[]) {
         // TODO: chooseItem in a modal and call chooseItem with the selected item
+        this.chooseItem(items[1]);
     }
 
     chooseItem(item: ItemTypes) {
