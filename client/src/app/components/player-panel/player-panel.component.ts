@@ -14,8 +14,8 @@ export class PlayerPanelComponent implements OnInit {
     @Input() speed?: string;
     @Input() attack?: number;
     @Input() defense?: number;
-    @Input() movementPoints: number | '--';
-    @Input() nActions: number | '--';
+    @Input() movementPoints: number;
+    @Input() nActions: number;
     @Input() selectedAvatar: string;
     @Input() bonusDice: string;
 

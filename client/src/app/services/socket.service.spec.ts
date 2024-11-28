@@ -57,7 +57,7 @@ describe('SocketService', () => {
         expect(socketStub.once).toHaveBeenCalledWith(event, action);
     });
 
-    it('should return socket id', () => {
+    it('should return the socket id', () => {
         const socketId = '12345';
         socketStub.id = socketId;
         service.socket = socketStub;

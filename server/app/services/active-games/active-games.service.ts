@@ -1,17 +1,17 @@
 import { GameInstance } from '@app/data-structures/game-instance';
+import { CHANCES } from '@app/services/active-games/constants';
+import { CombatTimerService } from '@app/services/combat-timer/combat-timer.service';
 import { GameService } from '@app/services/game.service';
+import { TimerService } from '@app/services/timer/timer.service';
 import { GameStructure } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { CombatTimerService } from '../combat-timer/combat-timer.service';
-import { TimerService } from '../timer/timer.service';
 
 @Injectable()
 export class ActiveGamesService {
-    constructor(private readonly gameService: GameService) {}
     activeGames: GameInstance[] = [];
-    private readonly CHANCES: number = 0.5;
+    constructor(private readonly gameService: GameService) {}
 
     findStartingPositions(game: GameStructure): number[] {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
@@ -72,7 +72,7 @@ export class ActiveGamesService {
                         if (speedA !== speedB) {
                             return speedB - speedA;
                         }
-                        return Math.random() - this.CHANCES;
+                        return Math.random() - CHANCES;
                     });
                     this.activeGames[activeGameIndex].playersCoord = playerCoord;
                     this.activeGames[activeGameIndex].turn = 0;
@@ -94,5 +94,13 @@ export class ActiveGamesService {
 
     getActiveGame(roomId: string): GameInstance {
         return this.activeGames.find((instance) => instance.roomId === roomId);
+    }
+
+    getActiveGameByPlayerId(playerId: string): GameInstance {
+        return this.activeGames.find((instance) => instance.playersCoord.find((player) => player.player.id === playerId));
+    }
+
+    removeGameInstance(roomId: string): void {
+        this.activeGames = this.activeGames.filter((instance) => instance.roomId !== roomId);
     }
 }

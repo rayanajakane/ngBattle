@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, inject } from '@angular/core';
+import { AVATARS_LIST } from '@app/components/avatar-slider/constant';
 import { DragDropService } from '@app/services/drag-drop.service';
 import { TilePreview } from '@common/game-structure';
 import { TileTypes } from '@common/tile-types';
@@ -52,8 +53,9 @@ export class TileBasicComponent implements OnChanges {
     }
 
     setAvatarImage() {
-        if (this.avatar) {
-            this.avatarUrl = `./../../../assets/characters/${this.chooseAvatar(this.avatar)}.png`;
+        const avatarNumber = this.chooseAvatar(this.avatar);
+        if (avatarNumber && parseInt(avatarNumber, 10) > 0 && parseInt(avatarNumber, 10) < AVATARS_LIST.length + 1) {
+            this.avatarUrl = `./assets/characters/${avatarNumber}.png`;
         } else {
             this.avatarUrl = '';
         }
@@ -70,34 +72,7 @@ export class TileBasicComponent implements OnChanges {
         }
     }
 
-    chooseAvatar(avatar: string) {
-        switch (avatar) {
-            case 'Avatar 1':
-                return '1';
-            case 'Avatar 2':
-                return '2';
-            case 'Avatar 3':
-                return '3';
-            case 'Avatar 4':
-                return '4';
-            case 'Avatar 5':
-                return '5';
-            case 'Avatar 6':
-                return '6';
-            case 'Avatar 7':
-                return '7';
-            case 'Avatar 8':
-                return '8';
-            case 'Avatar 9':
-                return '9';
-            case 'Avatar 10':
-                return '10';
-            case 'Avatar 11':
-                return '11';
-            case 'Avatar 12':
-                return '12';
-            default:
-                return '';
-        }
+    chooseAvatar(avatar: string | undefined) {
+        return avatar ? avatar.split(' ')[1] : '';
     }
 }

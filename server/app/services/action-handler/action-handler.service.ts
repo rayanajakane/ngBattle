@@ -1,9 +1,11 @@
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatService } from '@app/services/combat/combat.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { MatchService } from '@app/services/match.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { TileTypes } from '@common/tile-types';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
 export class ActionHandlerService {
@@ -11,25 +13,19 @@ export class ActionHandlerService {
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
-        @Inject(forwardRef(() => VirtualPlayerService))
-        private readonly virtualPlayerService: VirtualPlayerService,
+        private readonly debugModeService: DebugModeService,
+        @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
+        @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
-    private readonly TEN_POURCENT = 0.1;
+    private readonly SLIP_PERCENTAGE = 0.1;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly TIME_BETWEEN_MOVES = 150;
 
     getCurrentTimeFormatted(): string {
         const currentTime = new Date();
         return currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }); // HH:MM:SS in EST
-    }
-
-    private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
-        server.to(roomId).emit('playerPositionUpdate', {
-            playerId,
-            newPlayerPosition,
-        });
     }
 
     handleGameSetup(server: Server, roomId: string) {
@@ -105,9 +101,13 @@ export class ActionHandlerService {
                     pastPosition = playerPosition;
                     tileCounter++;
 
-                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.TEN_POURCENT) {
+                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.SLIP_PERCENTAGE) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
+
+                        if (this.debugModeService.isDebugModeActive()) {
+                            iceSlip = false;
+                        }
                     }
                 }
             });
@@ -175,19 +175,51 @@ export class ActionHandlerService {
         }
     }
 
-    handleQuitGame(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
-        const activeGame = this.activeGamesService.getActiveGame(data.roomId);
-        const roomId = data.roomId;
-        const playerId = data.playerId;
+    handleQuitGame(server: Server, client: Socket) {
+        const playerId = client.id;
+        const activeGame = this.activeGamesService.getActiveGameByPlayerId(playerId);
+        if (!activeGame) return;
 
-        server.to(roomId).emit('quitGame', playerId);
-
+        const roomId = activeGame.roomId;
         const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
         const message = `${playerName} a quitté la partie`;
         server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
-        // if (activeGame.playersCoord[activeGame.turn].player.id === playerId) {
-        //     this.handleEndTurn({ ...data, lastTurn: true }, server);
-        // }
+        const activePlayerId = activeGame.playersCoord[activeGame.turn].player.id;
+        // const killedPlayer = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        if (this.combatService.fightersMap.get(roomId)) {
+            const fighters = this.combatService.fightersMap.get(roomId);
+            fighters.forEach((fighter) => {
+                if (fighter.player.id === playerId) {
+                    this.combatService.killPlayer(roomId, fighter, server);
+                }
+            });
+        }
+
+        if (activePlayerId === playerId) {
+            this.handleEndTurn({ roomId, playerId, lastTurn: true }, server);
+        } else {
+            this.action.quitGame(roomId, playerId);
+        }
+
+        server.to(roomId).emit('quitGame', playerId);
+
+        if (activeGame.playersCoord.length === 1) {
+            const lastManStanding = activeGame.playersCoord[0].player.name;
+            const logMessage = `Partie terminée: ${lastManStanding} a gagné la partie. Joueurs restants: ${lastManStanding}`;
+            server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: logMessage });
+
+            server.to(roomId).emit('lastManStanding');
+
+            // remove game from server
+            this.activeGamesService.removeGameInstance(roomId);
+        }
+    }
+
+    private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
+        server.to(roomId).emit('playerPositionUpdate', {
+            playerId,
+            newPlayerPosition,
+        });
     }
 }

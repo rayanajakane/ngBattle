@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
@@ -9,40 +9,30 @@ import { Player, PlayerCoord } from '@common/player';
 export class GameControllerService {
     activePlayer: Player;
     player: Player;
-
     playerCoords: PlayerCoord[];
     afklist: PlayerCoord[] = [];
-    playersInitialized: boolean = false;
-
     roomId: string;
     playerId: string;
-
     turn: number = 0;
-
     fighters: PlayerCoord[] = [];
+    isDebugModeActive = false;
 
-    private readonly socketService = inject(SocketService);
+    constructor(private readonly socketService: SocketService) {}
 
-    constructor() {}
-
-    setFighters(fighters: PlayerCoord[]): void {
-        this.fighters = fighters;
+    setRoom(roomId: string, playerId: string): void {
+        this.roomId = roomId;
+        this.playerId = playerId;
     }
 
-    getFighters(): PlayerCoord[] {
-        return this.fighters;
-    }
-
-    resetFighters(): void {
-        this.fighters = [];
-    }
-
-    isFighter(fighters: PlayerCoord[]): boolean {
-        return fighters.some((fighter) => fighter.player.id === this.player.id);
-    }
-
-    isInCombat(): boolean {
-        return this.fighters.length > 0;
+    initializePlayers(playerCoords: PlayerCoord[], turn: number) {
+        this.playerCoords = playerCoords;
+        for (const playerCoord of this.playerCoords) {
+            if (playerCoord.player.id === this.playerId) {
+                this.player = playerCoord.player;
+                break;
+            }
+        }
+        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
     }
 
     updatePlayerCoords(playerCoord: PlayerCoord): void {
@@ -65,10 +55,6 @@ export class GameControllerService {
         });
     }
 
-    // setActiveFighter(index: number): void {
-    //     this.activePlayer = this.fighters[index].player;
-    // }
-
     getPlayerCoords(): PlayerCoord[] {
         return this.playerCoords;
     }
@@ -77,27 +63,11 @@ export class GameControllerService {
         return this.playerCoords.find((playerCoord) => playerCoord.player.id === playerId);
     }
 
-    findPlayerCoordByPosition(position: number): PlayerCoord | undefined {
-        return this.playerCoords.find((playerCoord) => playerCoord.position === position);
-    }
-
-    setRoomId(roomId: string): void {
-        this.roomId = roomId;
-    }
-
-    setPlayerId(playerId: string): void {
-        this.playerId = playerId;
-    }
-
     setActivePlayer(activePlayerId: string): void {
         const activePlayer = this.findPlayerCoordById(activePlayerId)?.player;
         if (activePlayer) {
             this.activePlayer = activePlayer;
         }
-    }
-
-    setPlayer(player: Player): void {
-        this.player = player;
     }
 
     isActivePlayer(): boolean {
@@ -116,23 +86,31 @@ export class GameControllerService {
         }
     }
 
-    requestGameSetup(isAdmin: boolean): void {
-        if (isAdmin) {
-            setTimeout(() => {
-                this.socketService.emit('gameSetup', this.roomId);
-            }, DELAY);
-        }
+    setFighters(fighters: PlayerCoord[]): void {
+        this.fighters = fighters;
     }
 
-    initializePlayers(playerCoords: PlayerCoord[], turn: number) {
-        this.playerCoords = playerCoords;
-        for (const playerCoord of this.playerCoords) {
-            if (playerCoord.player.id === this.playerId) {
-                this.player = playerCoord.player;
-                break;
-            }
-        }
-        this.activePlayer = this.playerCoords[turn].player; // the array playerCoords is set in order of player turns
+    resetFighters(): void {
+        this.fighters = [];
+    }
+
+    isFighter(fighters: PlayerCoord[]): boolean {
+        return fighters.some((fighter) => fighter.player.id === this.player.id);
+    }
+
+    isInCombat(): boolean {
+        return this.fighters.length > 0;
+    }
+
+    updateActiveFighter(playerCoords: PlayerCoord[], playerId: string): void {
+        this.updatePlayerCoordsList(playerCoords);
+        this.setActivePlayer(playerId);
+    }
+
+    requestGameSetup(): void {
+        setTimeout(() => {
+            this.socketService.emit('gameSetup', this.roomId);
+        }, DELAY);
     }
 
     requestStartTurn(): void {
@@ -146,7 +124,7 @@ export class GameControllerService {
     }
 
     requestEndTurn(lastTurn: boolean = false): void {
-        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player.id, lastTurn: lastTurn });
+        this.socketService.emit('endTurn', { roomId: this.roomId, playerId: this.player.id, lastTurn });
     }
 
     requestStartAction(): void {
@@ -155,7 +133,10 @@ export class GameControllerService {
         }
     }
 
-    // change back-end
+    requestCheckAction(): void {
+        this.socketService.emit('checkAction', { roomId: this.roomId, playerId: this.player.id });
+    }
+
     requestAction(target: number): void {
         this.socketService.emit('action', { roomId: this.roomId, playerId: this.player.id, target });
     }
@@ -168,9 +149,11 @@ export class GameControllerService {
         this.socketService.emit('getAvailableMovesOnBudget', { roomId: this.roomId, playerId: this.player.id, currentBudget });
     }
 
-    requestEndCombatTurn(): void {}
+    requestDebugMode(): void {
+        this.socketService.emit('debugMode', { roomId: this.roomId, playerId: this.player.id });
+    }
 
-    requestQuitGame(): void {
-        this.socketService.emit('quitGame', { roomId: this.roomId, playerId: this.player.id });
+    requestStopDebugMode(): void {
+        this.socketService.emit('stopDebugMode', { roomId: this.roomId, playerId: this.player.id });
     }
 }

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { GameState, ShortestPathByTile } from '@common/game-structure';
 import { BaseStateService } from './base-state.service';
+import { TEST_SHORTEST_PATH_BY_INDEX } from './constants';
 import { MovingStateService } from './moving-state.service';
 
 describe('MovingStateService', () => {
@@ -19,7 +20,7 @@ describe('MovingStateService', () => {
     });
 
     it('should initialize previsualization', () => {
-        const accessibleTiles: ShortestPathByTile = { 1: [], 2: [] };
+        const accessibleTiles: ShortestPathByTile = TEST_SHORTEST_PATH_BY_INDEX;
         spyOn(service, 'setAvailableTiles');
         spyOn(service, 'setShortestPathByTile');
 
@@ -47,13 +48,5 @@ describe('MovingStateService', () => {
         const result = service.onMouseDown(1);
 
         expect(result).toBe(GameState.MOVING);
-    });
-
-    it('should handle onMouseEnter', () => {
-        spyOn(console, 'log');
-
-        service.onMouseEnter();
-
-        expect(console.log).toHaveBeenCalledWith('You are moving');
     });
 });

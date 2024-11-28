@@ -1,12 +1,11 @@
+import { INTERVAL_DURATION, TIME, TIME_NO_ESCAPE } from '@app/services/combat-timer/constants';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
 @Injectable()
 export class CombatTimerService {
-    private static readonly TIME = 5;
-    private static readonly TIME_NO_ESCAPE = 3;
     private intervalId: NodeJS.Timeout | null = null;
-    private currentTime: number = CombatTimerService.TIME;
+    private currentTime: number = TIME;
     private server: Server;
     private roomId: string;
 
@@ -22,11 +21,20 @@ export class CombatTimerService {
         this.startInterval(hasEscape);
     }
 
+    resetTimer(): void {
+        this.clearTimer();
+        this.server.to(this.roomId).emit('CombatTimerUpdate', this.currentTime);
+    }
+
+    onDestroy(): void {
+        this.clearTimer();
+    }
+
     private setTimer(hasEscape: boolean): void {
         if (hasEscape) {
-            this.currentTime = CombatTimerService.TIME;
+            this.currentTime = TIME;
         } else {
-            this.currentTime = CombatTimerService.TIME_NO_ESCAPE;
+            this.currentTime = TIME_NO_ESCAPE;
         }
     }
     private startInterval(hasEscape: boolean): void {
@@ -40,20 +48,13 @@ export class CombatTimerService {
                 this.server.to(this.roomId).emit('CombatTimerUpdate', 0);
                 this.server.to(this.roomId).emit('endCombatTimer');
             }
-        }, 1000);
+        }, INTERVAL_DURATION);
     }
-    resetTimer(): void {
-        this.clearTimer();
-        this.server.to(this.roomId).emit('CombatTimerUpdate', this.currentTime);
-    }
+
     private clearTimer(): void {
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
-    }
-
-    onDestroy(): void {
-        this.clearTimer();
     }
 }
