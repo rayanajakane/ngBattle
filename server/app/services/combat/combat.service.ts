@@ -280,6 +280,8 @@ export class CombatService {
         player.player.inventory.forEach((item) => {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
             const randomPosition = position + possiblePositions[randomIndex];
+            game.map[randomPosition].item = item;
+
             possiblePositions.splice(randomIndex, 1);
             itemsPositions.push({ position: randomPosition, item });
         });
