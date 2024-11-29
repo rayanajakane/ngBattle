@@ -8,6 +8,7 @@ import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameTile, TimerState } from '@common/game-structure';
+import { ItemTypes } from '@common/tile-types';
 import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS } from './constant';
 import { GamePageComponent } from './game-page.component';
 
@@ -57,6 +58,7 @@ describe('GamePageComponent', () => {
             'changePlayerPosition',
             'toggleDoor',
             'removePlayerById',
+            'replaceRandomItems',
         ]);
         const socketSpy = jasmine.createSpyObj('SocketService', ['once', 'on', 'disconnect']);
         const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -131,7 +133,11 @@ describe('GamePageComponent', () => {
 
     it('should handle game setup', () => {
         const playerCoords = MOCK_PLAYER_COORDS;
-        component.handleGameSetup(playerCoords, 1);
+        const randomizedItemsPlacement = [
+            { idx: 0, item: ItemTypes.AA1 },
+            { idx: 1, item: ItemTypes.FLAG_A },
+        ];
+        component.handleGameSetup(playerCoords, 1, randomizedItemsPlacement);
         expect(gameControllerService.initializePlayers).toHaveBeenCalledWith(playerCoords, 1);
         expect(component.playersInitialized).toBeTrue();
         expect(mapGameService.initializePlayersPositions).toHaveBeenCalledWith(playerCoords);
@@ -164,14 +170,21 @@ describe('GamePageComponent', () => {
     });
 
     it('should listen for game setup and handle it', () => {
-        const mockData = { playerCoords: MOCK_PLAYER_COORDS, turn: 1 };
+        const mockData = {
+            playerCoords: MOCK_PLAYER_COORDS,
+            turn: 1,
+            randomizedItemsPlacement: [
+                { idx: 0, item: ItemTypes.AA1 },
+                { idx: 1, item: ItemTypes.FLAG_A },
+            ],
+        };
         spyOn(component, 'handleGameSetup');
 
         component.listenGameSetup();
         socketService.once.calls.mostRecent().args[1](mockData);
 
         expect(socketService.once).toHaveBeenCalledWith('gameSetup', jasmine.any(Function));
-        expect(component.handleGameSetup).toHaveBeenCalledWith(mockData.playerCoords, mockData.turn);
+        expect(component.handleGameSetup).toHaveBeenCalledWith(mockData.playerCoords, mockData.turn, mockData.randomizedItemsPlacement);
     });
 
     it('should listen for startTurn and handle it', () => {
@@ -989,5 +1002,49 @@ describe('GamePageComponent', () => {
         component.redirectEndGame(mockEndGameMessage);
         expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
         expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should handle game setup and replace random items', () => {
+        const playerCoords = MOCK_PLAYER_COORDS;
+        const turn = 1;
+        const randomizedItemsPlacement = [
+            { idx: 0, item: ItemTypes.AA1 },
+            { idx: 1, item: ItemTypes.FLAG_A },
+        ];
+
+        component.handleGameSetup(playerCoords, turn, randomizedItemsPlacement);
+
+        expect(mapGameService.replaceRandomItems).toHaveBeenCalledWith(randomizedItemsPlacement);
+        expect(gameControllerService.initializePlayers).toHaveBeenCalledWith(playerCoords, turn);
+        expect(component.playersInitialized).toBeTrue();
+        expect(mapGameService.initializePlayersPositions).toHaveBeenCalledWith(playerCoords);
+        expect(mapGameService.setState).toHaveBeenCalledWith(GameState.NOTPLAYING);
+        expect(component.timerState).toBe(TimerState.COOLDOWN);
+    });
+
+    it('should handle game setup and set playersInitialized to true', () => {
+        const playerCoords = MOCK_PLAYER_COORDS;
+        const turn = 1;
+        const randomizedItemsPlacement = [
+            { idx: 0, item: ItemTypes.AA1 },
+            { idx: 1, item: ItemTypes.FLAG_A },
+        ];
+
+        component.handleGameSetup(playerCoords, turn, randomizedItemsPlacement);
+
+        expect(component.playersInitialized).toBeTrue();
+    });
+
+    it('should handle game setup and set timerState to COOLDOWN', () => {
+        const playerCoords = MOCK_PLAYER_COORDS;
+        const turn = 1;
+        const randomizedItemsPlacement = [
+            { idx: 0, item: ItemTypes.AA1 },
+            { idx: 1, item: ItemTypes.FLAG_A },
+        ];
+
+        component.handleGameSetup(playerCoords, turn, randomizedItemsPlacement);
+
+        expect(component.timerState).toBe(TimerState.COOLDOWN);
     });
 });

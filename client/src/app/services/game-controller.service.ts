@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,8 @@ export class GameControllerService {
     fighters: PlayerCoord[] = [];
     isDebugModeActive = false;
 
+    // inventory: ItemTypes[] = [ItemTypes.EMPTY, ItemTypes.EMPTY];
+    itemCount: number = 0;
     constructor(private readonly socketService: SocketService) {}
 
     setRoom(roomId: string, playerId: string): void {
@@ -24,11 +27,69 @@ export class GameControllerService {
         this.playerId = playerId;
     }
 
+    // isInventoryFull(): boolean {
+    //     return this.itemCount === 2;
+    // }
+
+    // addItemToInventory(itemType: ItemTypes): void {
+    //     if (this.itemCount === 2) {
+    //         throw new Error('Cannot add more than 2 items');
+    //     }
+    //     if (this.inventory[0] === ItemTypes.EMPTY) {
+    //         this.inventory[0] = itemType;
+    //     } else if (this.inventory[1] === ItemTypes.EMPTY) {
+    //         this.inventory[1] = itemType;
+    //     }
+    //     this.incrementItemCount();
+    // }
+
+    // removeItemByType(itemType: ItemTypes): void {
+    //     let item = this.inventory.find((item, index) => {
+    //         if (item === itemType) {
+    //             this.inventory[index] = ItemTypes.EMPTY;
+    //             this.decrementItemCount();
+    //             return true;
+    //         }
+    //         return false;
+    //     });
+    //     if (!item) {
+    //         throw new Error('Item not found in inventory');
+    //     }
+    // }
+
+    // setInventory(inventory: ItemTypes[]): void {
+    //     this.player.inventory = inventory;
+    // }
+
+    // removeItem(): ItemTypes {
+    //     if (this.itemCount === 0) {
+    //         throw new Error('Cannot remove more items');
+    //     }
+    //     const item = this.inventory[1] !== ItemTypes.EMPTY ? this.inventory[1] : this.inventory[0];
+    //     if (this.inventory[1] !== ItemTypes.EMPTY) {
+    //         this.inventory[1] = ItemTypes.EMPTY;
+    //     } else if (this.inventory[0] !== ItemTypes.EMPTY) {
+    //         this.inventory[0] = ItemTypes.EMPTY;
+    //     }
+    //     this.decrementItemCount();
+    //     return item;
+    // }
+
+    // incrementItemCount(): void {
+    //     this.itemCount++;
+    // }
+
+    // decrementItemCount(): void {
+    //     this.itemCount--;
+    // }
+
     initializePlayers(playerCoords: PlayerCoord[], turn: number) {
         this.playerCoords = playerCoords;
         for (const playerCoord of this.playerCoords) {
             if (playerCoord.player.id === this.playerId) {
                 this.player = playerCoord.player;
+                // player.inventory should be initialized on server side
+                this.player.inventory = [ItemTypes.EMPTY, ItemTypes.EMPTY];
                 break;
             }
         }
@@ -150,10 +211,14 @@ export class GameControllerService {
     }
 
     requestDebugMode(): void {
-        this.socketService.emit('debugMode', { roomId: this.roomId, playerId: this.player.id });
+        this.socketService.emit('requestDebugMode', { roomId: this.roomId, playerId: this.player.id });
     }
 
-    requestStopDebugMode(): void {
-        this.socketService.emit('stopDebugMode', { roomId: this.roomId, playerId: this.player.id });
+    turnOffDebugMode(): void {
+        this.socketService.emit('turnOffDebugMode', { roomId: this.roomId, playerId: this.player.id });
+    }
+
+    requestUpdateInventory(allItems: ItemTypes[], droppedItem: ItemTypes): void {
+        this.socketService.emit('updateInventory', { roomId: this.roomId, playerId: this.player.id, allItems, droppedItem });
     }
 }

@@ -59,9 +59,9 @@ export class TileInfoModalComponent {
                 return 'Objet aléatoire';
             case ItemTypes.STARTINGPOINT:
                 return 'Point de départ';
-            case ItemTypes.FLAGA:
+            case ItemTypes.FLAG_A:
                 return 'Drapeau A';
-            case ItemTypes.FLAGB:
+            case ItemTypes.FLAG_B:
                 return 'Drapeau B';
             default:
                 return 'Aucun objet';

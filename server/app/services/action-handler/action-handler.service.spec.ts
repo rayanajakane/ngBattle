@@ -4,7 +4,9 @@ import { ActiveGamesService } from '@app/services/active-games/active-games.serv
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { MatchService } from '@app/services/match.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { InventoryService } from '../inventory/inventory.service';
 
 describe('ActionHandlerService', () => {
     let service: ActionHandlerService;
@@ -13,6 +15,9 @@ describe('ActionHandlerService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 CombatService,
+                UniqueItemRandomizerService,
+                InventoryService,
+                UniqueItemRandomizerService,
                 DebugModeService,
                 ActionHandlerService,
                 {

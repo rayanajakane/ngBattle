@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameController } from './controllers/game.controller';
 import { ActionGateway } from './gateways/action/action.gateway';
 import { CombatGateway } from './gateways/combat/combat.gateway';
+import { InventoryGateway } from './gateways/inventory/inventory.gateway';
 import { MatchGateway } from './gateways/match/match.gateway';
 import { Game, gameSchema } from './model/schema/game.schema';
 import { ActionButtonService } from './services/action-button/action-button.service';
@@ -15,9 +16,11 @@ import { CombatService } from './services/combat/combat.service';
 import { DebugModeService } from './services/debug-mode/debug-mode.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
+import { InventoryService } from './services/inventory/inventory.service';
 import { MapValidationService } from './services/map-validation.service';
 import { MatchService } from './services/match.service';
 import { MovementService } from './services/movement/movement.service';
+import { UniqueItemRandomizerService } from './services/unique-item-randomiser/unique-item-randomiser.service';
 import { VirtualPlayerService } from './services/virtual-player/virtual-player.service';
 @Module({
     imports: [
@@ -40,9 +43,12 @@ import { VirtualPlayerService } from './services/virtual-player/virtual-player.s
         ActionService,
         ActionGateway,
         CombatGateway,
+        InventoryGateway,
         ActiveGamesService,
         CombatService,
         DebugModeService,
+        UniqueItemRandomizerService,
+        InventoryService,
         VirtualPlayerService,
         {
             provide: ActionHandlerService,

@@ -2,17 +2,22 @@ import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
 import { MatchService } from '@app/services/match.service';
+import { MovementService } from '@app/services/movement/movement.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
-import { TileTypes } from '@common/tile-types';
+import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
 @Injectable()
 export class ActionHandlerService {
     constructor(
+        private readonly movementService: MovementService,
         private readonly action: ActionService,
         private readonly match: MatchService,
         private readonly activeGamesService: ActiveGamesService,
+        private readonly inventoryService: InventoryService,
         private readonly debugModeService: DebugModeService,
         @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
@@ -21,6 +26,7 @@ export class ActionHandlerService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly SLIP_PERCENTAGE = 0.1;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
+    //TODO: move to a utils file
     private readonly TIME_BETWEEN_MOVES = 150;
 
     getCurrentTimeFormatted(): string {
@@ -45,7 +51,7 @@ export class ActionHandlerService {
         const activeGame = this.activeGamesService.getActiveGame(data.roomId);
         const player = activeGame.playersCoord[activeGame.turn].player;
 
-        activeGame.currentPlayerMoveBudget = parseInt(player.attributes.speed, 10);
+        activeGame.currentPlayerMoveBudget = player.attributes.speed;
         activeGame.currentPlayerActionPoint = 1;
 
         if (!player.isVirtual) {
@@ -68,10 +74,6 @@ export class ActionHandlerService {
         }
     }
 
-    handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {
-        client.emit('availableMovesOnBudget', this.action.availablePlayerMovesOnBudget(data.playerId, data.roomId, data.currentBudget));
-    }
-
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
         const playerId = data.playerId;
         const roomId = data.roomId;
@@ -84,14 +86,28 @@ export class ActionHandlerService {
 
             const gameMap = activeGame.game.map;
             let iceSlip = false;
+            let isItemAddedToInventory = false;
 
             let pastPosition = startPosition;
-            let tileCounter = 0;
-            playerPositions.forEach((playerPosition) => {
-                if (!iceSlip) {
-                    setTimeout(() => {
-                        this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
-                    }, this.TIME_BETWEEN_MOVES);
+            let tileItem: string = '';
+
+            // const slippingChance = this.inventoryService.getSlippingChance(player.player);
+            const slippingChance = this.SLIP_PERCENTAGE;
+            const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
+
+            //TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
+            if (!isDebugMode && gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance) {
+                activeGame.currentPlayerMoveBudget = 0;
+                iceSlip = true;
+            }
+
+            playerPositions.forEach((playerPosition, index) => {
+                if (index !== 0 && !iceSlip && !isItemAddedToInventory) {
+                    //TODO: check for a synchronous way to do this (remove set timeout)
+
+                    this.syncDelay(this.TIME_BETWEEN_MOVES);
+                    this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
+                    if (!isDebugMode) activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
                     activeGame.game.map[pastPosition].hasPlayer = false;
@@ -99,27 +115,30 @@ export class ActionHandlerService {
                     activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
 
                     pastPosition = playerPosition;
-                    tileCounter++;
 
-                    if (gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < this.SLIP_PERCENTAGE) {
+                    tileItem = gameMap[playerPosition].item;
+
+                    if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
+                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
+                        gameMap[playerPosition].item = ItemTypes.EMPTY;
+                        isItemAddedToInventory = true;
+                    }
+
+                    if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
-
-                        if (this.debugModeService.isDebugModeActive()) {
-                            iceSlip = false;
-                        }
                     }
+
+                    //TODO: put back the object if inventory is full
                 }
             });
 
             if (!playerCoord.player.isVirtual) {
-                setTimeout(() => {
-                    client.emit('endMove', {
-                        availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-                        currentMoveBudget: activeGame.currentPlayerMoveBudget,
-                        hasSlipped: iceSlip,
-                    });
-                }, this.TIME_BETWEEN_MOVES * tileCounter);
+                client.emit('endMove', {
+                    availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                    currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                    hasSlipped: iceSlip,
+                });
             }
         }
     }
@@ -180,13 +199,18 @@ export class ActionHandlerService {
         const activeGame = this.activeGamesService.getActiveGameByPlayerId(playerId);
         if (!activeGame) return;
 
+        this.combatService.disperseKilledPlayerObjects(
+            server,
+            activeGame.roomId,
+            activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId),
+        );
+
         const roomId = activeGame.roomId;
         const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
         const message = `${playerName} a quitté la partie`;
         server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
 
         const activePlayerId = activeGame.playersCoord[activeGame.turn].player.id;
-        // const killedPlayer = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
         if (this.combatService.fightersMap.get(roomId)) {
             const fighters = this.combatService.fightersMap.get(roomId);
             fighters.forEach((fighter) => {
@@ -221,5 +245,10 @@ export class ActionHandlerService {
             playerId,
             newPlayerPosition,
         });
+    }
+
+    private syncDelay(ms: number) {
+        const end = Date.now() + ms;
+        while (Date.now() < end) continue;
     }
 }

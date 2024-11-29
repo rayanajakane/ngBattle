@@ -1,12 +1,14 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { ChooseItemModalComponent } from '@app/components/choose-item-modal/choose-item-modal.component';
 import { CombatInterfaceComponent } from '@app/components/combat-interface/combat-interface.component';
 import { GameMapComponent } from '@app/components/game-map/game-map.component';
 import { GamePanelComponent } from '@app/components/game-panel/game-panel.component';
@@ -22,6 +24,7 @@ import { MapGameService } from '@app/services/map-game.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, ShortestPathByTile, TimerState } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 
 // Game Page is complex and has many functionalities, so it is normal to have a high number of lines
 /* eslint-disable max-lines */
@@ -45,6 +48,7 @@ import { PlayerCoord } from '@common/player';
         PlayerPanelComponent,
         GamePanelComponent,
         LogsComponent,
+        ChooseItemModalComponent,
     ],
 })
 export class GamePageComponent implements OnDestroy {
@@ -71,6 +75,7 @@ export class GamePageComponent implements OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private snackbar: MatSnackBar,
+        public dialog: MatDialog,
     ) {
         this.gameController.setRoom(this.route.snapshot.params['roomId'], this.route.snapshot.params['playerId']);
         this.addListeners();
@@ -105,6 +110,48 @@ export class GamePageComponent implements OnDestroy {
         this.listenEndGameEvents();
 
         this.listenDebugMode();
+        this.listenNewPlayerInventory();
+        this.listenItemToReplace();
+    }
+
+    listenNewPlayerInventory() {
+        this.socketService.on('newPlayerInventory', (data: { player: PlayerCoord; dropItem?: boolean }) => {
+            this.gameController.updatePlayerCoordsList([data.player]);
+            if (!data.dropItem) {
+                this.mapService.removeItem(data.player.position);
+            }
+        });
+    }
+
+    listenItemToReplace() {
+        this.socketService.on('itemToReplace', (data: { player: PlayerCoord; newItem: ItemTypes }) => {
+            this.mapService.removeItem(data.player.position);
+            const inventory = data.player.player.inventory;
+            if (inventory) {
+                this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
+            }
+        });
+    }
+
+    inquirePlayerForItemReplacement(items: ItemTypes[]) {
+        // TODO: chooseItem in a modal and call chooseItem with the selected item
+        const dialogRef = this.dialog.open(ChooseItemModalComponent, {
+            data: { itemTypes: items },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.chooseItem(items, result);
+            }
+        });
+    }
+
+    chooseItem(items: ItemTypes[], rejectedItem: ItemTypes) {
+        const player = this.gameController.findPlayerCoordById(this.gameController.playerId);
+        if (player && player.player.inventory) {
+            this.mapService.placeItem(player.position, rejectedItem);
+            this.gameController.requestUpdateInventory(items, rejectedItem);
+        }
     }
 
     async getGame(gameId: string) {
@@ -112,11 +159,7 @@ export class GamePageComponent implements OnDestroy {
     }
 
     handleKeyDPressed() {
-        if (this.gameController.isDebugModeActive) {
-            this.gameController.requestStopDebugMode();
-        } else {
-            this.gameController.requestDebugMode();
-        }
+        this.gameController.requestDebugMode();
     }
 
     initiateGameSetup(game: GameStructure) {
@@ -127,9 +170,19 @@ export class GamePageComponent implements OnDestroy {
     }
 
     listenGameSetup() {
-        this.socketService.once('gameSetup', (data: { playerCoords: PlayerCoord[]; turn: number }) => {
-            this.handleGameSetup(data.playerCoords, data.turn);
-        });
+        this.socketService.once(
+            'gameSetup',
+            (data: {
+                playerCoords: PlayerCoord[];
+                turn: number;
+                randomizedItemsPlacement: {
+                    idx: number;
+                    item: ItemTypes;
+                }[];
+            }) => {
+                this.handleGameSetup(data.playerCoords, data.turn, data.randomizedItemsPlacement);
+            },
+        );
     }
 
     listenTurns() {
@@ -212,6 +265,7 @@ export class GamePageComponent implements OnDestroy {
             },
         );
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
+            //TODO: clear the inventory of the killed player
             if (data.killer.player.wins < MAX_NUMBER_OF_WINS) {
                 this.handleKilledPlayer(data.killer, data.killed, data.killedOldPosition);
             }
@@ -237,20 +291,21 @@ export class GamePageComponent implements OnDestroy {
     }
 
     listenDebugMode() {
-        this.socketService.on('startDebugMode', () => {
-            this.gameController.isDebugModeActive = true;
-            this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+        this.socketService.on('responseDebugMode', (data: { isDebugMode: boolean }) => {
+            this.gameController.isDebugModeActive = data.isDebugMode;
+            // this.snackbar.open("Le mode débogage a été activé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
         });
     }
 
-    listenStopDebugMode() {
-        this.socketService.on('stopDebugMode', () => {
-            this.gameController.isDebugModeActive = false;
-            this.snackbar.open("Le mode débogage a été désactivé par l'administrateur", 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
-        });
-    }
-
-    handleGameSetup(playerCoords: PlayerCoord[], turn: number) {
+    handleGameSetup(
+        playerCoords: PlayerCoord[],
+        turn: number,
+        randomizedItemsPlacement: {
+            idx: number;
+            item: ItemTypes;
+        }[],
+    ) {
+        this.mapService.replaceRandomItems(randomizedItemsPlacement);
         this.gameController.initializePlayers(playerCoords, turn);
         this.playersInitialized = true;
         this.mapService.initializePlayersPositions(playerCoords);
@@ -409,6 +464,8 @@ export class GamePageComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
+        this.gameController.turnOffDebugMode();
+        this.gameController.isDebugModeActive = false;
         this.mapService.resetMap();
         this.socketService.disconnect();
     }

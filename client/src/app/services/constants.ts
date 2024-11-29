@@ -8,6 +8,7 @@ export const DEFAULT_MAP_SIZE_MEDIUM = 15;
 export const DEFAULT_STARTING_COUNTER_TWO = 2;
 export const DEFAULT_STARTING_COUNTER_FOUR = 4;
 export const DEFAULT_STARTING_COUNTER_SIX = 6;
+export const DEFAULT_STARTING_COUNTER_ONE = 1;
 
 export const TEST_AVAILABLE_TILES = [1, 2, 3];
 export const RANDOM_TILE_INDEX = 4;
@@ -25,6 +26,7 @@ export const MOCK_PLAYER: Player = {
     isActive: false,
     abandoned: false,
     wins: 0,
+    inventory: [],
     isVirtual: false,
 };
 
@@ -37,6 +39,7 @@ export const MOCK_PLAYER_TWO: Player = {
     isActive: false,
     abandoned: false,
     wins: 0,
+    inventory: [],
     isVirtual: false,
 };
 

@@ -4,7 +4,7 @@
             <mat-grid-tile
                 id="AA1"
                 (mousedown)="startDragging('AA1')"
-                matTooltip="Changement 1 de l'attribut du personnage !"
+                matTooltip="Bouclier: Ajoute 2 points de défense au personnage !"
                 matTooltipPosition="above"
             >
                 <img src="./assets/AA1_transparent.png" alt="AA1" class="drag-image" />
@@ -12,7 +12,7 @@
             <mat-grid-tile
                 id="AA2"
                 (mousedown)="startDragging('AA2')"
-                matTooltip="Changement 2 de l'attribut du personnage !"
+                matTooltip="Collier: Ajoute 2 points de vitesse et enlève 1 point de vie au personnage !"
                 matTooltipPosition="above"
             >
                 <img src="./assets/AA2_transparent.png" alt="AA2" class="drag-image" />
@@ -20,7 +20,7 @@
             <mat-grid-tile
                 id="AC1"
                 (mousedown)="startDragging('AC1')"
-                matTooltip="Changement 1 de la condition du personnage !"
+                matTooltip="Anneau: Ajoute 2 points d'attaque si les points de vie du personnage tombent en bas de 2 points de vie"
                 matTooltipPosition="left"
             >
                 <img src="./assets/AC1_transparent.png" alt="AC1" class="drag-image" />
@@ -28,15 +28,25 @@
             <mat-grid-tile
                 id="AC2"
                 (mousedown)="startDragging('AC2')"
-                matTooltip="Changement 2 de la condition du personnage !"
+                matTooltip="Parchemin: Ajoute 2 points de défense si les points de vie du personnage tombent en bas de 3 points de vie"
                 matTooltipPosition="right"
             >
                 <img src="./assets/AC2_transparent.png" alt="TESTER ICI" class="drag-image" />
             </mat-grid-tile>
-            <mat-grid-tile id="AF1" (mousedown)="startDragging('AF1')" matTooltip="Changement 1 du fonctionnement !" matTooltipPosition="left">
+            <mat-grid-tile
+                id="AF1"
+                (mousedown)="startDragging('AF1')"
+                matTooltip="Potion: Le personnage ne peut pas glisser sur la glace !"
+                matTooltipPosition="left"
+            >
                 <img src="./assets/AF1_transparent.png" alt="AF1" class="drag-image" />
             </mat-grid-tile>
-            <mat-grid-tile id="AF2" (mousedown)="startDragging('AF2')" matTooltip="Changement 2 du fonctionnement !" matTooltipPosition="right">
+            <mat-grid-tile
+                id="AF2"
+                (mousedown)="startDragging('AF2')"
+                matTooltip="Capsule: Permet d'avoir soit le maximum ou le minimum lors du lancement d'un dé"
+                matTooltipPosition="right"
+            >
                 <img src="./assets/AF2_transparent.png" alt="AF2" class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile
@@ -45,12 +55,7 @@
                 matTooltip="Item aléatoire à découvrir !"
                 matTooltipPosition="left"
             >
-                <span
-                    [matBadge]="this.dragDropService.randomItemCounter"
-                    matBadgeSize="medium"
-                    matBadgeOverlap="false"
-                    matBadgePosition="above"
-                ></span>
+                <span [matBadge]="this.dragDropService.itemCounter" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
                 <img
                     src="./assets/item-aleatoire_transparent.png
                 "
@@ -65,7 +70,7 @@
                 matTooltipPosition="right"
             >
                 <span
-                    [matBadge]="this.dragDropService.startingPointNumberCounter"
+                    [matBadge]="this.dragDropService.startingPointCounter"
                     matBadgeSize="medium"
                     matBadgeOverlap="false"
                     matBadgePosition="above"
@@ -73,6 +78,7 @@
                 <img src="./assets/startingPoint_transparent.png" alt="COMPTEUR " class="drag-image" />
             </mat-grid-tile>
             <mat-grid-tile id="drapeau-A" (mousedown)="startDragging('drapeau-A')" matTooltip="Premier Drapeau !" matTooltipPosition="below">
+                <span [matBadge]="this.dragDropService.flagACounter" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
                 <img
                     src="./assets/drapeau-A_transparent.png
                 "
@@ -81,6 +87,7 @@
                 />
             </mat-grid-tile>
             <mat-grid-tile id="drapeau-B" (mousedown)="startDragging('drapeau-B')" matTooltip="Deuxième Drapeau !" matTooltipPosition="below">
+                <span [matBadge]="this.dragDropService.flagBCounter" matBadgeSize="medium" matBadgeOverlap="false" matBadgePosition="above"></span>
                 <img src="./assets/drapeau-B_transparent.png" alt="Drapeau B" class="drag-image" />
             </mat-grid-tile>
         </mat-grid-list>

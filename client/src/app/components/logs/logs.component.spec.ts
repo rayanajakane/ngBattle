@@ -84,7 +84,7 @@ describe('LogsComponent', () => {
             avatar: 'avatar.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -121,7 +121,7 @@ describe('LogsComponent', () => {
             avatar: 'avatar.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -150,7 +150,7 @@ describe('LogsComponent', () => {
             avatar: 'avatar.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',

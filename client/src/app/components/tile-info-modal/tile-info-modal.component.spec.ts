@@ -53,8 +53,8 @@ describe('TileInfoModalComponent', () => {
         expect(component.chooseObjectName(ItemTypes.AF2)).toBe('Arme de jet 2');
         expect(component.chooseObjectName(ItemTypes.RANDOMITEM)).toBe('Objet aléatoire');
         expect(component.chooseObjectName(ItemTypes.STARTINGPOINT)).toBe('Point de départ');
-        expect(component.chooseObjectName(ItemTypes.FLAGA)).toBe('Drapeau A');
-        expect(component.chooseObjectName(ItemTypes.FLAGB)).toBe('Drapeau B');
+        expect(component.chooseObjectName(ItemTypes.FLAG_A)).toBe('Drapeau A');
+        expect(component.chooseObjectName(ItemTypes.FLAG_B)).toBe('Drapeau B');
         expect(component.chooseObjectName('Unknown')).toBe('Aucun objet');
     });
 });

@@ -1,3 +1,5 @@
+import { ItemTypes } from '@common/tile-types';
+
 export interface Player {
     id: string;
     name: string;
@@ -9,21 +11,23 @@ export interface Player {
     wins: number;
     isVirtual: boolean;
     virtualProfile?: string;
-    inventory?: string[];
+    inventory: ItemTypes[];
     homePosition?: number;
 }
 
 export interface PlayerAttribute {
     health: number; // maxHealth
     currentHealth?: number;
-    speed: string; // maxSpeed
-    currentSpeed?: string;
+    speed: number; // maxSpeed
+    currentSpeed?: number;
     attack: number; // maxAttack
     currentAttack?: number;
     defense: number; // maxDefense
     currentDefense?: number;
     dice: string;
     escape?: number;
+    isCombatBoostedAttack?: boolean;
+    isCombatBoostedDefense?: boolean;
 }
 
 export interface PlayerCoord {

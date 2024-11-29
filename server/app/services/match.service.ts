@@ -42,6 +42,7 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
+            inventory: [],
             isVirtual: false,
         };
         room.players.push(player);
@@ -103,6 +104,7 @@ export class MatchService {
             isActive: false,
             abandoned: false,
             wins: 0,
+            inventory: [],
             isVirtual,
             virtualProfile: playerData.virtualProfile,
         };

@@ -5,13 +5,18 @@ import { GameService } from '@app/services/game.service';
 import { TimerService } from '@app/services/timer/timer.service';
 import { GameStructure } from '@common/game-structure';
 import { Player, PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 
 @Injectable()
 export class ActiveGamesService {
+    constructor(
+        private readonly gameService: GameService,
+        private readonly uniqueItemRandomizer: UniqueItemRandomizerService,
+    ) {}
     activeGames: GameInstance[] = [];
-    constructor(private readonly gameService: GameService) {}
 
     findStartingPositions(game: GameStructure): number[] {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);
@@ -38,7 +43,7 @@ export class ActiveGamesService {
 
         if (startingPositions.length > 0) {
             startingPositions.forEach((position) => {
-                game.map[position].item = '';
+                game.map[position].item = ItemTypes.EMPTY;
             });
         }
 
@@ -62,8 +67,8 @@ export class ActiveGamesService {
                     playerCoord = this.randomizePlayerPosition(game, players);
                     const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
                     playerCoord.sort((a, b) => {
-                        const speedA = parseInt(a.player.attributes.speed, 10);
-                        const speedB = parseInt(b.player.attributes.speed, 10);
+                        const speedA = a.player.attributes.speed;
+                        const speedB = b.player.attributes.speed;
 
                         // used when player is killed and has to respawn back home
                         a.player.homePosition = a.position;
@@ -81,9 +86,12 @@ export class ActiveGamesService {
 
                     this.activeGames[activeGameIndex].turnTimer.startTimer();
 
+                    const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
+
                     server.to(roomId).emit('gameSetup', {
                         playerCoords: playerCoord,
                         turn: this.activeGames[activeGameIndex].turn,
+                        randomizedItemsPlacement: randomizedItemsPlacement,
                     });
 
                     resolve();

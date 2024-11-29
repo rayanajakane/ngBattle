@@ -5,15 +5,13 @@ import {
     ATTACKER_INDEX,
     BOOSTED_BONUS_DICE,
     COMBAT_FIGHTERS_NUMBER,
-    DEFAULT_BONUS_DICE,
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
     ESCAPE_PROBABILITY,
-    FIRST_INVENTORY_SLOT,
     ICE_PENALTY,
     LEFT_TILE,
+    MINIMAL_BONUS_DICE,
     RIGHT_TILE,
-    SECOND_INVENTORY_SLOT,
     SUCCESSFUL_ATTACK_DAMAGE,
     WINS_TO_WIN,
 } from '@app/services/combat/constants';
@@ -24,6 +22,7 @@ import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class CombatService {
@@ -35,6 +34,7 @@ export class CombatService {
         @Inject(DebugModeService) private readonly debugModeService: DebugModeService,
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
+        @Inject(InventoryService) private readonly inventoryService: InventoryService,
     ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
@@ -209,32 +209,36 @@ export class CombatService {
         return fighters?.[currentTurnIndex];
     }
 
-    checkAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord): [boolean, number[]] {
-        let bonusAttackDice: number = DEFAULT_BONUS_DICE;
-        let bonusDefenseDice: number = DEFAULT_BONUS_DICE;
+    checkAttackSuccessful(attacker: PlayerCoord, defender: PlayerCoord, roomId: string): [boolean, number[]] {
+        let bonusAttackDice: number = BOOSTED_BONUS_DICE;
+        let bonusDefenseDice: number = MINIMAL_BONUS_DICE;
         let attackerRoll: number;
         let defenderRoll: number;
         if (attacker.player.attributes.dice === 'attack') bonusAttackDice = BOOSTED_BONUS_DICE;
         else if (defender.player.attributes.dice === 'defense') bonusDefenseDice = BOOSTED_BONUS_DICE;
-        if (this.debugModeService.isDebugModeActive()) {
+        if (this.debugModeService.getDebugMode(roomId)) {
             attackerRoll = bonusAttackDice;
             defenderRoll = bonusDefenseDice;
         } else {
-            attackerRoll = this.throwDice(bonusAttackDice);
-            defenderRoll = this.throwDice(bonusDefenseDice);
+            attackerRoll = this.throwDice(bonusAttackDice, attacker);
+            defenderRoll = this.throwDice(bonusDefenseDice, defender);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
+
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
     attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord, boolean] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
-            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
+            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer, roomId);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
+                this.inventoryService.handleCombatInventory(defensePlayer.player);
+
                 if (defensePlayer.player.attributes.currentHealth <= 0) {
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
-
+                    this.inventoryService.resetCombatBoost(playerKiller.player);
+                    this.inventoryService.resetCombatBoost(playerKilled.player);
                     // log message
                     const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
                     const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
@@ -270,6 +274,10 @@ export class CombatService {
             this.resetAllAttributes(roomId, playerKilled);
             this.teleportPlayerToHome(roomId, playerKilled);
             this.resetAllAttributes(roomId, playerKiller);
+
+            this.disperseKilledPlayerObjects(server, roomId, playerKilled);
+            playerKilled.player.inventory = [];
+
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
                 killed: playerKilled,
@@ -283,14 +291,27 @@ export class CombatService {
         return [null, null, []];
     }
 
-    disperseKilledPlayerObjects(roomId: string, player: PlayerCoord): void {
+    disperseKilledPlayerObjects(server: Server, roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const position = player.position;
         const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
-        const randomIndex = Math.floor(Math.random() * possiblePositions.length);
-        game.map[position].item = player.player.inventory[FIRST_INVENTORY_SLOT];
-        game.map[randomIndex].item = player.player.inventory[SECOND_INVENTORY_SLOT];
+
+        let itemsPositions: { position: number; item: string }[] = [];
+
+        player.player.inventory.forEach((item) => {
+            const randomIndex = Math.floor(Math.random() * possiblePositions.length);
+            const randomPosition = position + possiblePositions[randomIndex];
+            possiblePositions.splice(randomIndex, 1);
+            itemsPositions.push({ position: randomPosition, item });
+        });
+
+        this.emitDisperseItemsKilledPlayer(server, roomId, itemsPositions);
+    }
+
+    emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { position: number; item: string }[]): void {
+        //TODO: emit to client to disperse
+        server.to(roomId).emit('disperseItems', itemsPositions);
     }
 
     teleportPlayerToHome(roomId: string, player: PlayerCoord): void {
@@ -310,8 +331,12 @@ export class CombatService {
         }
     }
 
-    private throwDice(diceSize: number): number {
-        return Math.floor(Math.random() * diceSize) + 1;
+    private throwDice(diceSize: number, fighter: PlayerCoord): number {
+        if (this.inventoryService.hasAF2Item(fighter.player)) {
+            return Math.random() > 0.5 ? diceSize : 1;
+        } else {
+            return Math.floor(Math.random() * diceSize) + 1;
+        }
     }
 
     private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {

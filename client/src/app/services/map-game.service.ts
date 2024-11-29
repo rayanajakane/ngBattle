@@ -8,6 +8,7 @@ import { CombatStateService } from './combat-state.service';
 import { MapBaseService } from './map-base.service';
 import { MovingStateService } from './moving-state.service';
 import { NotPlayingStateService } from './not-playing-state.service';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -46,6 +47,17 @@ export class MapGameService extends MapBaseService {
             default:
                 this.currentState = this.notPlaying;
         }
+    }
+
+    replaceRandomItems(
+        randomizedItemsPlacement: {
+            idx: number;
+            item: ItemTypes;
+        }[],
+    ) {
+        randomizedItemsPlacement.forEach((itemPlacement) => {
+            this.placeItem(itemPlacement.idx, itemPlacement.item);
+        });
     }
 
     setTiles(tiles: GameTile[]): void {
@@ -183,7 +195,7 @@ export class MapGameService extends MapBaseService {
     removeUnusedStartingPoints(): void {
         this.tiles.forEach((tile) => {
             if (tile.item === ItemTypes.STARTINGPOINT && !tile.hasPlayer) {
-                tile.item = '';
+                tile.item = ItemTypes.EMPTY;
             }
         });
     }
@@ -194,5 +206,13 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
+    }
+
+    placeItem(index: number, item: string): void {
+        this.tiles[index].item = item;
+    }
+
+    removeItem(index: number): void {
+        this.tiles[index].item = '';
     }
 }

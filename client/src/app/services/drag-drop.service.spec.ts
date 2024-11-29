@@ -51,85 +51,94 @@ describe('DragDropService', () => {
         expect(service.transparentImage).toBe('');
     });
 
-    it('should set the multiple item counter based on map size', () => {
-        const tilesSmall = createTiles(MAP_SIZE_SMALL);
-        service.setMultipleItemCounter(MAP_SIZE_SMALL, tilesSmall);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_TWO);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_TWO);
-
-        const tilesMedium = createTiles(MAP_SIZE_MEDIUM);
-        service.setMultipleItemCounter(MAP_SIZE_MEDIUM, tilesMedium);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_FOUR);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_FOUR);
-
-        const tilesLarge = createTiles(MAP_SIZE_LARGE);
-        service.setMultipleItemCounter(MAP_SIZE_LARGE, tilesLarge);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_SIX);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_SIX);
-    });
-
-    it('should set the multiple item counter based on map content ', () => {
-        const tiles = createTiles(MAP_SIZE_SMALL);
-        tiles[0].item = 'startingPoint';
-        tiles[1].item = 'item-aleatoire';
-        service.setMultipleItemCounter(MAP_SIZE_SMALL, tiles);
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_TWO - 1);
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_COUNTER_TWO - 1);
-    });
-
-    it('should set the multiple item counter to zero if placedStartingPoints too high ', () => {
-        const tiles = createTiles(MAP_SIZE_SMALL);
-        tiles[0].item = 'startingPoint';
-        tiles[1].item = 'startingPoint';
-        tiles[2].item = 'startingPoint';
-
-        tiles[3].item = 'item-aleatoire';
-        tiles[4].item = 'item-aleatoire';
-        tiles[5].item = 'item-aleatoire';
-
-        service.setMultipleItemCounter(MAP_SIZE_SMALL, tiles);
-        expect(service.startingPointNumberCounter).toBe(0);
-        expect(service.randomItemCounter).toBe(0);
-    });
-
     it('should reduce the number of starting points', () => {
         const STARTING_COUNTER = 5;
         const REDUCE_COUNTER = 4;
-        service.startingPointNumberCounter = STARTING_COUNTER;
-        service.reduceNumberStartingPoints();
-        expect(service.startingPointNumberCounter).toBe(REDUCE_COUNTER);
+        service.startingPointCounter = STARTING_COUNTER;
+        service.reduceStartingPointCounter();
+        expect(service.startingPointCounter).toBe(REDUCE_COUNTER);
         const REDUCE_COUNTER_ZERO = 0;
-        service.startingPointNumberCounter = REDUCE_COUNTER_ZERO;
-        service.reduceNumberStartingPoints();
-        expect(service.startingPointNumberCounter).toBe(REDUCE_COUNTER_ZERO);
-    });
-
-    it('should reduce the number of random items', () => {
-        const RANDOM_ITEM_COUNTER = 5;
-        const RANDOM_ITEM_REDUCE_COUNTER = 4;
-        const RANDOM_ITEM_NULL = 0;
-        service.randomItemCounter = RANDOM_ITEM_COUNTER;
-        service.reduceNumberRandomItem();
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_REDUCE_COUNTER);
-
-        service.randomItemCounter = RANDOM_ITEM_NULL;
-        service.reduceNumberRandomItem();
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_NULL);
+        service.startingPointCounter = REDUCE_COUNTER_ZERO;
+        service.reduceStartingPointCounter();
+        expect(service.startingPointCounter).toBe(REDUCE_COUNTER_ZERO);
     });
 
     it('should increment the number of starting points', () => {
         const STARTING_COUNTER = 5;
         const STARTING_COUNTER_INCREMENT = 6;
-        service.startingPointNumberCounter = STARTING_COUNTER;
+        service.startingPointCounter = STARTING_COUNTER;
         service.incrementNumberStartingPoints();
-        expect(service.startingPointNumberCounter).toBe(STARTING_COUNTER_INCREMENT);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_INCREMENT);
     });
 
-    it('should increment the number of random items', () => {
-        const RANDOM_ITEM_COUNTER = 5;
-        const RANDOM_ITEM_INCREMENT = 6;
-        service.randomItemCounter = RANDOM_ITEM_COUNTER;
-        service.incrementNumberRandomItem();
-        expect(service.randomItemCounter).toBe(RANDOM_ITEM_INCREMENT);
+    it('should set multiple item counter based on map size', () => {
+        const tilesSmall = createTiles(MAP_SIZE_SMALL);
+        service.setMultipleItemCounter(MAP_SIZE_SMALL, tilesSmall);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_TWO);
+        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_TWO);
+
+        const tilesMedium = createTiles(MAP_SIZE_MEDIUM);
+        service.setMultipleItemCounter(MAP_SIZE_MEDIUM, tilesMedium);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_FOUR);
+        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_FOUR);
+
+        const tilesLarge = createTiles(MAP_SIZE_LARGE);
+        service.setMultipleItemCounter(MAP_SIZE_LARGE, tilesLarge);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_SIX);
+        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_SIX);
+    });
+
+    it('should count starting points correctly', () => {
+        const tiles = createTiles(MAP_SIZE_SMALL);
+        tiles[0].item = 'startingPoint';
+        tiles[1].item = 'startingPoint';
+        const count = service.countStartingPoints(tiles);
+        expect(count).toBe(2);
+    });
+
+    it('should count placed random items correctly', () => {
+        const tiles = createTiles(MAP_SIZE_SMALL);
+        tiles[0].item = 'item-aleatoire';
+        tiles[1].item = 'item-aleatoire';
+        tiles[2].item = 'item-aleatoire';
+        const count = service.countPlacedRandomItems(tiles);
+        expect(count).toBe(3);
+    });
+
+    it('should handle flag counters correctly', () => {
+        service.flagACounter = 1;
+        service.flagBCounter = 1;
+
+        service.reduceFlagACounter();
+        service.reduceFlagBCounter();
+        expect(service.flagACounter).toBe(0);
+        expect(service.flagBCounter).toBe(0);
+
+        service.incrementFlagACounter();
+        service.incrementFlagBCounter();
+        expect(service.flagACounter).toBe(1);
+        expect(service.flagBCounter).toBe(1);
+
+        // Should not increment above 1
+        service.incrementFlagACounter();
+        service.incrementFlagBCounter();
+        expect(service.flagACounter).toBe(1);
+        expect(service.flagBCounter).toBe(1);
+    });
+
+    it('should reduce item counter', () => {
+        service.itemCounter = 5;
+        service.reduceItemCounter();
+        expect(service.itemCounter).toBe(4);
+
+        service.itemCounter = 0;
+        service.reduceItemCounter();
+        expect(service.itemCounter).toBe(0);
+    });
+
+    it('should increment item counter', () => {
+        service.itemCounter = 5;
+        service.incrementNumberItem();
+        expect(service.itemCounter).toBe(6);
     });
 });

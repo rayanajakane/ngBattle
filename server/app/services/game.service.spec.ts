@@ -2,7 +2,16 @@ import { Game } from '@app/model/schema/game.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model, Query } from 'mongoose';
+import { ActionHandlerService } from './action-handler/action-handler.service';
+import { ActionService } from './action/action.service';
+import { ActiveGamesService } from './active-games/active-games.service';
+import { CombatService } from './combat/combat.service';
+import { DebugModeService } from './debug-mode/debug-mode.service';
 import { GameService } from './game.service';
+import { InventoryService } from './inventory/inventory.service';
+import { MatchService } from './match.service';
+import { MovementService } from './movement/movement.service';
+import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
 
 const gameData = {
     id: '123',
@@ -44,6 +53,15 @@ describe('GameService', () => {
                         exec: jest.fn(),
                     },
                 },
+                ActionHandlerService,
+                ActionService,
+                MatchService,
+                ActiveGamesService,
+                InventoryService,
+                DebugModeService,
+                CombatService,
+                MovementService,
+                UniqueItemRandomizerService,
             ],
         }).compile();
 

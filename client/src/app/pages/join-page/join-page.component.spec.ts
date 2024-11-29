@@ -67,7 +67,7 @@ describe('JoinPageComponent', () => {
     it('should receive attributes from child', () => {
         const attributesFromChild: PlayerAttribute = {
             health: 10,
-            speed: '8',
+            speed: 8,
             attack: 7,
             defense: 5,
             dice: '6',

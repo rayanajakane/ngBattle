@@ -1,7 +1,11 @@
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CombatService } from '../combat/combat.service';
+import { InventoryService } from '../inventory/inventory.service';
 import { ActionService } from './action.service';
 
 /* eslint-disable */
@@ -16,12 +20,23 @@ describe('ActionService', () => {
             providers: [
                 ActionService,
                 ActiveGamesService,
+                UniqueItemRandomizerService,
+                InventoryService,
+                DebugModeService,
+
                 {
                     provide: GameService,
                     useValue: {
                         get: jest.fn(),
                     },
                 },
+                {
+                    provide: CombatService,
+                    useValue: {
+                        get: jest.fn(),
+                    },
+                },
+                DebugModeService,
                 {
                     provide: MovementService,
                     useValue: {

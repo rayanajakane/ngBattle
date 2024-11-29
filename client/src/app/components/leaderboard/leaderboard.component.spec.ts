@@ -28,7 +28,7 @@ describe('LeaderboardComponent', () => {
             avatar: 'avatar1.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -46,7 +46,7 @@ describe('LeaderboardComponent', () => {
             avatar: 'avatar2.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -64,7 +64,7 @@ describe('LeaderboardComponent', () => {
             avatar: 'avatar3.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -96,7 +96,7 @@ describe('LeaderboardComponent', () => {
             avatar: 'avatar1.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -114,7 +114,7 @@ describe('LeaderboardComponent', () => {
             avatar: 'avatar2.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',
@@ -132,7 +132,7 @@ describe('LeaderboardComponent', () => {
             avatar: 'avatar3.png',
             attributes: {
                 health: 10,
-                speed: '8',
+                speed: 8,
                 attack: 7,
                 defense: 5,
                 dice: '6',

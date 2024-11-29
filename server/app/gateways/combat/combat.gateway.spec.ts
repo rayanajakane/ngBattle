@@ -5,6 +5,7 @@ import { ActiveGamesService } from '@app/services/active-games/active-games.serv
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
 import { MatchService } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -23,6 +24,7 @@ describe('CombatGateway', () => {
                 DebugModeService,
                 MovementService,
                 CombatGateway,
+                InventoryService,
                 {
                     provide: CombatService,
                     useValue: {

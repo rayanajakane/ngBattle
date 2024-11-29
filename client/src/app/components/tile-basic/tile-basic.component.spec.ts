@@ -31,8 +31,8 @@ describe('TileBasicComponent', () => {
             ItemTypes.AF2,
             ItemTypes.RANDOMITEM,
             ItemTypes.STARTINGPOINT,
-            ItemTypes.FLAGA,
-            ItemTypes.FLAGB,
+            ItemTypes.FLAG_A,
+            ItemTypes.FLAG_B,
         ];
         component.itemType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
         component.setItemImage();
