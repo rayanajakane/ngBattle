@@ -2,6 +2,7 @@ import { ActionButtonService } from '@app/services/action-button/action-button.s
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -15,6 +16,7 @@ export class CombatGateway {
         private readonly combatService: CombatService,
         private readonly actionButtonService: ActionButtonService,
         private readonly actionHandlerService: ActionHandlerService,
+        private readonly logService: LogSenderService,
     ) {}
 
     @SubscribeMessage('startAction')
@@ -40,11 +42,7 @@ export class CombatGateway {
                 .to(data.roomId)
                 .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: initialPlayer.player.id });
 
-            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-            const message = `Combat entre ${firstTurnPlayer.player.name} et ${secondTurnPlayer.player.name} a été débuté`;
-            this.server
-                .to(data.roomId)
-                .emit('newLog', { date: formattedTime, message, sender: firstTurnPlayer.player.id, receiver: secondTurnPlayer.player.id });
+            this.logService.sendStartCombatLog(this.server, data.roomId, firstTurnPlayer.player, secondTurnPlayer.player);
         } else if (
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(data.roomId).game.map[data.target].tileType === TileTypes.DOOROPEN
@@ -75,14 +73,15 @@ export class CombatGateway {
                 isAttackSuccessful,
             });
 
-            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-            const attackResult = isAttackSuccessful ? 'réussi' : 'échoué';
-            const message = `${initialPlayer.player.name} attaque ${defender.player.name}. \n L'attaque a ${attackResult}. \n
-            Jet de dé attaquant: ${attackerDice}.\n Jet de dé défenseur: ${defenderDice}\n
-            calcul: ${initialPlayer.player.attributes.attack + attackerDice} vs ${defender.player.attributes.defense + defenderDice}`;
-            this.server
-                .to(data.roomId)
-                .emit('newLog', { date: formattedTime, message, sender: initialPlayer.player.id, receiver: defender.player.id, exclusive: true });
+            this.logService.sendAttackActionLog(
+                this.server,
+                data.roomId,
+                initialPlayer.player,
+                defender.player,
+                attackerDice,
+                defenderDice,
+                isAttackSuccessful,
+            );
 
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(data.roomId, defender);
@@ -97,20 +96,17 @@ export class CombatGateway {
         const fighter = this.activeGameService.getActiveGame(data.roomId).playersCoord.find((player) => player.player.id === data.playerId);
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(data.roomId, fighter);
         this.server.to(data.roomId).emit('didEscape', { playerId: data.playerId, remainingEscapeChances, hasEscaped: escapeResult });
-        const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
             this.combatService.endCombat(data.roomId, this.server);
 
-            const message = `${fighter.player.name} a réussi à s'échapper du combat`;
-            this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
+            this.logService.sendEscapedCombat(this.server, data.roomId, fighter.player);
         } else {
             const defender = this.combatService.getFighters(data.roomId).find((player) => player.player.id !== data.playerId);
             this.combatService.startCombatTurn(data.roomId, defender);
             this.server.to(data.roomId).emit('changeCombatTurn', defender.player.id);
 
-            const message = `${fighter.player.name} a échoué à s'échapper du combat`;
-            this.server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId, exclusive: true });
+            this.logService.sendHasNotEscapedCombat(this.server, data.roomId, fighter.player);
         }
     }
 

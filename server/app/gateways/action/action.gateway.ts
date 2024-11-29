@@ -1,6 +1,7 @@
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -14,6 +15,7 @@ export class ActionGateway implements OnGatewayInit {
         private readonly actionHandler: ActionHandlerService,
         private readonly inventoryService: InventoryService,
         private debugModeService: DebugModeService,
+        private logSenderService: LogSenderService,
     ) {}
 
     @SubscribeMessage('gameSetup')
@@ -49,9 +51,9 @@ export class ActionGateway implements OnGatewayInit {
     @SubscribeMessage('requestDebugMode')
     handleDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
         this.debugModeService.switchDebugMode(data.roomId);
-        const formattedTime = this.actionHandler.getCurrentTimeFormatted();
-        const logMessage = 'Mode débogage est ' + (this.debugModeService.getDebugMode(data.roomId) ? 'activé' : 'désactivé');
-        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: logMessage, receiver: data.playerId, exclusive: false });
+        const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
+
+        this.logSenderService.sendDebugModeLog(this.server, data.roomId, data.playerId, isDebugMode);
         this.server.to(data.roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(data.roomId) });
     }
 
