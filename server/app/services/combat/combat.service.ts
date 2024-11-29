@@ -325,7 +325,7 @@ export class CombatService {
         const mapLength = gameInstance.game.map.length;
 
         let n = 0;
-        while (verifiedPositions.length === 0) {
+        while (verifiedPositions.length < 2) {
             n++;
 
             // Check right movement
