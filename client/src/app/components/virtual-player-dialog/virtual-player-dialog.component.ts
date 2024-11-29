@@ -76,7 +76,7 @@ export class VirtualPlayerDialogComponent {
             avatar: this.virtualAvatar.name,
             attributes: {
                 health: health,
-                speed: speed.toString(),
+                speed: speed,
                 attack: 4,
                 defense: 4,
                 dice: dice,

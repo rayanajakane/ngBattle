@@ -119,7 +119,7 @@ export class ActionHandlerService {
                     tileItem = gameMap[playerPosition].item;
 
                     if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
-                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
+                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, playerCoord, tileItem as ItemTypes);
                         gameMap[playerPosition].item = ItemTypes.EMPTY;
                         isItemAddedToInventory = true;
                     }

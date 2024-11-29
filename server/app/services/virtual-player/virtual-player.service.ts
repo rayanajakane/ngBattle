@@ -8,6 +8,7 @@ import { Server } from 'socket.io';
 import { ActionButtonService } from '../action-button/action-button.service';
 import { CombatHandlerService } from '../combat-handler/combat-handler.service';
 import { MovementService } from '../movement/movement.service';
+import { AGGRESIVE_PRIORITY_ITEMS, DEFENSIVE_PRIORITY_ITEMS } from './constants';
 
 @Injectable()
 export class VirtualPlayerService {
@@ -103,22 +104,35 @@ export class VirtualPlayerService {
         let pathsToItems = [];
         gameStructureOpenedDoors.map.forEach((tile) => {
             if (tile.item != '' && tile.item != 'startingPoint') {
-                console.log('Found item');
                 const budget = gameInstance.currentPlayerMoveBudget;
-                const item = this.movementService.shortestPath(budget, gameStructureOpenedDoors, virtualPlayerCoord.position, tile.idx);
-                console.log('item', item);
+                const item = this.movementService.shortestPath(budget, gameStructureOpenedDoors, virtualPlayerCoord.position, tile.idx, false);
                 pathsToItems.push([item.path, tile.item]);
             }
         });
 
-        if (pathsToItems.length === 0) {
-            console.log('No items found');
+        const validPaths = pathsToItems.filter((path) => path[0].length !== 0);
+        if (validPaths.length === 0) {
+            console.log('No valid paths to items found');
             this.move();
+            return;
         }
 
-        // find the right item
-        const chosenItemPath = pathsToItems[0][0];
-        console.log('Chosen item path', chosenItemPath);
+        let itemPriorities;
+        if (this.isDefensive()) {
+            itemPriorities = DEFENSIVE_PRIORITY_ITEMS;
+        } else {
+            itemPriorities = AGGRESIVE_PRIORITY_ITEMS;
+        }
+
+        validPaths.sort((a, b) => {
+            const itemA = a[1];
+            const itemB = b[1];
+            const priorityA = itemPriorities.indexOf(itemA);
+            const priorityB = itemPriorities.indexOf(itemB);
+            return priorityA - priorityB;
+        });
+
+        const chosenItemPath = validPaths[0][0];
 
         // make sure player doesn't go through door
         const map = gameInstance.game.map;
@@ -136,11 +150,15 @@ export class VirtualPlayerService {
 
         doorsToOpen.forEach((doorCoords) => {
             this.moveToDoor(doorCoords[0]);
-            setTimeout(() => {
-                this.interactWithDoor(doorCoords[1]);
-            }, 1000);
-            this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
+            this.interactWithDoor(doorCoords[1]);
         });
+
+        this.actionHandler.handleMove(
+            { roomId: this.roomId, playerId: this.virtualPlayerId, endPosition: chosenItemPath[chosenItemPath.length - 1] },
+            this.server,
+            null,
+        );
+        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
     moveToDoor(tileBeforeDoor: number) {
