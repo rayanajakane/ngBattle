@@ -110,7 +110,9 @@ export class InventoryService {
 
     emitItemToReplace(client: Socket, player: PlayerCoord, newItem: ItemTypes) {
         // TODO: emit to client to choose item to replace and to visually hide the item
-        client.emit('itemToReplace', { player, newItem });
+        if (!player.player.isVirtual) {
+            client.emit('itemToReplace', { player, newItem });
+        }
     }
 
     updateInventory(server: Server, client: Socket, playerId: string, allItems: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
