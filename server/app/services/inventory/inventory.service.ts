@@ -100,7 +100,7 @@ export class InventoryService {
         const inventory = player.player.inventory;
 
         if (this.isInventoryFull(inventory)) {
-            this.emitItemToReplace(client, player, item);
+            this.emitItemToReplace(server, player, item, roomId);
         } else {
             inventory.push(item);
             this.handleItemEffect(item, player.player, false);
@@ -108,11 +108,9 @@ export class InventoryService {
         }
     }
 
-    emitItemToReplace(client: Socket, player: PlayerCoord, newItem: ItemTypes) {
+    emitItemToReplace(server: Server, player: PlayerCoord, newItem: ItemTypes, roomId: string) {
         // TODO: emit to client to choose item to replace and to visually hide the item
-        if (!player.player.isVirtual) {
-            client.emit('itemToReplace', { player, newItem });
-        }
+        server.to(roomId).emit('itemToReplace', { player, newItem });
     }
 
     updateInventory(server: Server, client: Socket, playerId: string, allItems: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
@@ -132,10 +130,10 @@ export class InventoryService {
         player.player.inventory.forEach((item) => {
             this.handleItemEffect(item, player.player, false);
         });
-        this.emitNewPlayerInventory(server, roomId, player, true);
+        this.emitNewPlayerInventory(server, roomId, player, droppedItem);
     }
 
-    emitNewPlayerInventory(server: Server, roomId: string, player: PlayerCoord, dropItem?: boolean) {
+    emitNewPlayerInventory(server: Server, roomId: string, player: PlayerCoord, dropItem?: ItemTypes) {
         server.to(roomId).emit('newPlayerInventory', { player, dropItem });
     }
 }

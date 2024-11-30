@@ -221,4 +221,8 @@ export class GameControllerService {
     requestUpdateInventory(allItems: ItemTypes[], droppedItem: ItemTypes): void {
         this.socketService.emit('updateInventory', { roomId: this.roomId, playerId: this.player.id, allItems, droppedItem });
     }
+
+    requestTeleport(index: number): void {
+        this.socketService.emit('teleportPlayer', { roomId: this.roomId, playerId: this.player.id, index });
+    }
 }

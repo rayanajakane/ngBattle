@@ -21,6 +21,7 @@ export class SocketService {
     }
 
     disconnect() {
+        console.log(this.id());
         this.socket.disconnect();
     }
 

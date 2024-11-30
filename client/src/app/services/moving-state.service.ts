@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TileInfoModalComponent } from '@app/components/tile-info-modal/tile-info-modal.component';
 import { GameState, GameTile, ShortestPathByTile } from '@common/game-structure';
+import { ItemTypes, TileTypes } from '@common/tile-types';
 import { BaseStateService } from './base-state.service';
 
 @Injectable({
@@ -28,14 +29,17 @@ export class MovingStateService extends BaseStateService {
 
     onRightClick(tile: GameTile): void {
         if (this.gameController.isActivePlayer()) {
-            if (this.gameController.isDebugModeActive) {
-                this.resetMovementPrevisualization();
-                this.gameController.requestMove(tile.idx);
-            } else {
+            if (this.gameController.isDebugModeActive && this.checkIfTileIsValid(tile)) {
+                this.gameController.requestTeleport(tile.idx);
+            } else if (!this.gameController.isDebugModeActive) {
                 this.dialog.open(TileInfoModalComponent, {
                     data: { tile },
                 });
             }
         }
+    }
+
+    checkIfTileIsValid(tile: GameTile): boolean {
+        return tile.tileType !== TileTypes.DOORCLOSED && tile.tileType !== TileTypes.WALL && !tile.hasPlayer && tile.item === ItemTypes.EMPTY;
     }
 }

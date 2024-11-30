@@ -54,9 +54,11 @@ export abstract class BaseStateService {
 
     onRightClick(tile: GameTile): void {
         if (this.gameController.isActivePlayer()) {
-            this.dialog.open(TileInfoModalComponent, {
-                data: { tile },
-            });
+            if (!this.gameController.isDebugModeActive) {
+                this.dialog.open(TileInfoModalComponent, {
+                    data: { tile },
+                });
+            }
         }
     }
     /* eslint-disable */ // intentionnaly left empty to do nothing if not reimplemented by child class

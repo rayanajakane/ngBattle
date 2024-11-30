@@ -48,11 +48,12 @@ export class ActionService {
         const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
-        const isDebugMode = this.debug.getDebugMode(roomId);
-        const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition, isDebugMode);
+        // const isDebugMode = this.debug.getDebugMode(roomId);
+        const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
 
         // ADD COND for moveBudget
-        // if (!isDebugMode) gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
+
+        gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 
         return shortestPath.path;
     }
@@ -61,9 +62,8 @@ export class ActionService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;
         const playerPosition = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position;
-        const isDebugMode = this.debug.getDebugMode(roomId);
 
-        return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition, isDebugMode);
+        return this.movement.availableMoves(gameInstance.currentPlayerMoveBudget, game, playerPosition);
     }
 
     interactWithDoor(roomId: string, playerId: string, doorPosition: number): boolean {

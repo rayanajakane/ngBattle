@@ -9,7 +9,7 @@ export class MovementService {
     // placeholder for now
     private invalidTileTypes: string[] = ['wall', 'doorClosed'];
 
-    isValidPosition(moveBudget: number, game: GameStructure, coord: Coord, isDebugMode: boolean): boolean {
+    isValidPosition(moveBudget: number, game: GameStructure, coord: Coord): boolean {
         const mapSize: number = parseInt(game.mapSize, 10);
         const mapTile: TileStructure = game.map[coord.y * mapSize + coord.x];
 
@@ -25,7 +25,7 @@ export class MovementService {
 
         // Check if the player's move speed is sufficient
         // Add !isDebugOn &&
-        if (!isDebugMode && moveBudget < coord.distance) {
+        if (moveBudget < coord.distance) {
             return false;
         }
         return true;
@@ -54,7 +54,7 @@ export class MovementService {
         game: GameStructure,
         startPosition: number,
         endPosition: number,
-        isDebugMode: boolean,
+        // isDebugMode: boolean,
     ): { moveCost: number; path: number[] } {
         const mapSize = parseInt(game.mapSize, 10);
         const startCoord = this.convertToCoord(startPosition, mapSize);
@@ -90,7 +90,7 @@ export class MovementService {
                 // TODO: replace the tileValue function with enums of tile types holding the values
                 const totalDistance = current.distance + this.tileValue(map[y * mapSize + x].tileType);
 
-                if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance } as Coord, isDebugMode)) {
+                if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance } as Coord)) {
                     queue.push({
                         x,
                         y,
@@ -109,7 +109,7 @@ export class MovementService {
         return { moveCost, path };
     }
 
-    availableMoves(moveBudget: number, game: GameStructure, startPosition: number, isDebugMode: boolean): { [key: number]: number[] } {
+    availableMoves(moveBudget: number, game: GameStructure, startPosition: number): { [key: number]: number[] } {
         const startCoord = this.convertToCoord(startPosition, parseInt(game.mapSize, 10));
 
         const map = game.map;
@@ -136,7 +136,7 @@ export class MovementService {
 
                 const totalDistance = current.distance + this.tileValue(map[y * mapSize + x].tileType);
 
-                if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance }, isDebugMode)) {
+                if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance })) {
                     queue.push({ x, y, distance: totalDistance });
                     coordPath.push({ x, y });
                     visited[x][y] = true;
@@ -148,7 +148,7 @@ export class MovementService {
 
         const temp = coordPath.reduce((structure, coord) => {
             const endPosition = this.convertToPosition(coord, mapSize);
-            structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition, isDebugMode).path;
+            structure[endPosition] = this.shortestPath(moveBudget, game, startPosition, endPosition).path;
             return structure;
         }, {});
 

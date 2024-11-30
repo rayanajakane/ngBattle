@@ -297,19 +297,19 @@ export class CombatService {
         const position = player.position;
         const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
 
-        let itemsPositions: { position: number; item: string }[] = [];
+        let itemsPositions: { idx: number; item: string }[] = [];
 
         player.player.inventory.forEach((item) => {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
             const randomPosition = position + possiblePositions[randomIndex];
             possiblePositions.splice(randomIndex, 1);
-            itemsPositions.push({ position: randomPosition, item });
+            itemsPositions.push({ idx: randomPosition, item });
         });
 
         this.emitDisperseItemsKilledPlayer(server, roomId, itemsPositions);
     }
 
-    emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { position: number; item: string }[]): void {
+    emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { idx: number; item: string }[]): void {
         //TODO: emit to client to disperse
         server.to(roomId).emit('disperseItems', itemsPositions);
     }
