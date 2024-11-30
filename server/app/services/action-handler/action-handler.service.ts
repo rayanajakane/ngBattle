@@ -90,7 +90,7 @@ export class ActionHandlerService {
 
                     this.syncDelay(this.TIME_BETWEEN_MOVES);
                     this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
-                    if (!isDebugMode) activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
+                    activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
                     activeGame.game.map[pastPosition].hasPlayer = false;
