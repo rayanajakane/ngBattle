@@ -115,6 +115,7 @@ export class GamePageComponent implements OnDestroy {
 
         this.listenTeleportation();
         this.listenDisperseItems();
+        this.listenVPItemToReplace();
     }
 
     listenDisperseItems() {
@@ -135,9 +136,11 @@ export class GamePageComponent implements OnDestroy {
     }
 
     listenNewPlayerInventory() {
-        this.socketService.on('newPlayerInventory', (data: { player: PlayerCoord; dropItem?: boolean }) => {
+        this.socketService.on('newPlayerInventory', (data: { player: PlayerCoord; dropItem?: ItemTypes }) => {
             this.gameController.updatePlayerCoordsList([data.player]);
-            if (!data.dropItem) {
+            if (data.dropItem) {
+                this.mapService.placeItem(data.player.position, data.dropItem);
+            } else {
                 this.mapService.removeItem(data.player.position);
             }
         });
@@ -145,11 +148,19 @@ export class GamePageComponent implements OnDestroy {
 
     listenItemToReplace() {
         this.socketService.on('itemToReplace', (data: { player: PlayerCoord; newItem: ItemTypes }) => {
-            this.mapService.removeItem(data.player.position);
-            const inventory = data.player.player.inventory;
-            if (inventory) {
-                this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
+            if (this.gameController.isActivePlayer()) {
+                const inventory = data.player.player.inventory;
+                if (inventory) {
+                    this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
+                }
             }
+        });
+    }
+
+    listenVPItemToReplace() {
+        this.socketService.on('vpItemToReplace', (data: { player: PlayerCoord; newItem: ItemTypes }) => {
+            this.mapService.removeItem(data.player.position);
+            this.mapService.placeItem(data.player.position, data.newItem);
         });
     }
 
