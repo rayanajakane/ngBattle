@@ -470,6 +470,8 @@ export class GamePageComponent implements OnDestroy {
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.switchToMovingStateRoutine(shortestPathByTile);
         } else if (this.remainingActions !== -1 && this.remainingActions > 0) {
+            console.log('endMovement', 'requestCheckAction');
+            this.mapService.resetMap();
             this.gameController.requestCheckAction();
         } else {
             this.mapService.resetMovementPrevisualization();

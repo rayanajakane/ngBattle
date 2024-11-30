@@ -40,6 +40,11 @@ export class MovingStateService extends BaseStateService {
     }
 
     checkIfTileIsValid(tile: GameTile): boolean {
-        return tile.tileType !== TileTypes.DOORCLOSED && tile.tileType !== TileTypes.WALL && !tile.hasPlayer && tile.item === ItemTypes.EMPTY;
+        return (
+            tile.tileType !== TileTypes.DOORCLOSED &&
+            tile.tileType !== TileTypes.WALL &&
+            !tile.hasPlayer &&
+            (tile.item === ItemTypes.EMPTY || tile.item === ItemTypes.STARTINGPOINT)
+        );
     }
 }
