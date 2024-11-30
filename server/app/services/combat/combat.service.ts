@@ -332,16 +332,15 @@ export class CombatService {
         const mapSize = parseInt(game.mapSize, 10);
         const verifiedPositions = [];
         const mapLength = gameInstance.game.map.length;
-
         let n = 0;
         while (verifiedPositions.length === 0) {
             n++;
-
             // Check right movement
             if (position % mapSize < mapSize) {
                 if (
                     game.map[position + RIGHT_TILE * n].tileType !== TileTypes.WALL &&
-                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.DOORCLOSED
+                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position + RIGHT_TILE * n].hasPlayer == false
                 ) {
                     verifiedPositions.push(RIGHT_TILE * n);
                 }
@@ -351,7 +350,8 @@ export class CombatService {
             if (position % mapSize <= 0) {
                 if (
                     game.map[position + LEFT_TILE * n].tileType !== TileTypes.WALL &&
-                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.DOORCLOSED
+                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position + LEFT_TILE * n].hasPlayer === false
                 ) {
                     verifiedPositions.push(LEFT_TILE * n);
                 }
@@ -361,7 +361,8 @@ export class CombatService {
             if (position - mapSize * n >= 0) {
                 if (
                     game.map[position - mapSize * n].tileType !== TileTypes.WALL &&
-                    game.map[position - mapSize * n].tileType !== TileTypes.DOORCLOSED
+                    game.map[position - mapSize * n].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position - mapSize * n].hasPlayer === false
                 ) {
                     verifiedPositions.push(n * mapSize * -1);
                 }
@@ -371,7 +372,8 @@ export class CombatService {
             if (position + mapSize * n < mapLength) {
                 if (
                     game.map[position + mapSize * n].tileType !== TileTypes.WALL &&
-                    game.map[position + mapSize * n].tileType !== TileTypes.DOORCLOSED
+                    game.map[position + mapSize * n].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position + mapSize * n].hasPlayer === false
                 ) {
                     verifiedPositions.push(mapSize * n);
                 }

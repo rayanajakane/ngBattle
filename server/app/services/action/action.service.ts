@@ -43,10 +43,7 @@ export class ActionService {
         const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
-        // const isDebugMode = this.debug.getDebugMode(roomId);
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
-
-        // ADD COND for moveBudget
 
         gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 

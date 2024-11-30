@@ -39,7 +39,6 @@ export class CombatGateway {
             this.server
                 .to(data.roomId)
                 .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: initialPlayer.player.id });
-
             const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
             const message = `Combat entre ${firstTurnPlayer.player.name} et ${secondTurnPlayer.player.name} a été débuté`;
             this.server
