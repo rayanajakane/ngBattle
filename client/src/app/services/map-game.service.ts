@@ -50,12 +50,12 @@ export class MapGameService extends MapBaseService {
     }
 
     replaceRandomItems(
-        randomizedItemsPlacement: {
+        itemsPositions: {
             idx: number;
             item: ItemTypes;
         }[],
     ) {
-        randomizedItemsPlacement.forEach((itemPlacement) => {
+        itemsPositions.forEach((itemPlacement) => {
             this.placeItem(itemPlacement.idx, itemPlacement.item);
         });
     }

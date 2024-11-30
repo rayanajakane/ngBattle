@@ -114,6 +114,13 @@ export class GamePageComponent implements OnDestroy {
         this.listenItemToReplace();
 
         this.listenTeleportation();
+        this.listenDisperseItems();
+    }
+
+    listenDisperseItems() {
+        this.socketService.on('disperseItems', (itemsPositions: { idx: number; item: ItemTypes }[]) => {
+            this.mapService.replaceRandomItems(itemsPositions);
+        });
     }
 
     listenTeleportation() {
