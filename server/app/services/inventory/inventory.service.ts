@@ -110,6 +110,8 @@ export class InventoryService {
 
     emitItemToReplace(server: Server, player: PlayerCoord, newItem: ItemTypes, roomId: string) {
         // TODO: emit to client to choose item to replace and to visually hide the item
+        const activeGame = this.activeGameService.getActiveGame(roomId);
+        activeGame.turnTimer.pauseTimer();
         server.to(roomId).emit('itemToReplace', { player, newItem });
     }
 
@@ -126,10 +128,10 @@ export class InventoryService {
         });
 
         player.player.inventory = newInventory;
-
         player.player.inventory.forEach((item) => {
             this.handleItemEffect(item, player.player, false);
         });
+        activeGame.turnTimer.resumeTimer();
         this.emitNewPlayerInventory(server, roomId, player, droppedItem);
     }
 
