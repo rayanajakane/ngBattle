@@ -503,7 +503,7 @@ export class GamePageComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.gameController.isDebugModeActive = false;
-        this.mapService.resetMap();
+        this.mapService.resetPlayerView();
         this.socketService.disconnect();
     }
 }
