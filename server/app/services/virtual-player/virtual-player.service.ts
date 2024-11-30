@@ -115,10 +115,12 @@ export class VirtualPlayerService {
 
         // find Shortest path to each item
         let pathsToItems = [];
+        console.log('Finding paths to items');
         gameStructureOpenedDoors.map.forEach((tile) => {
             if (tile.item != '' && tile.item != 'startingPoint') {
                 const budget = gameInstance.currentPlayerMoveBudget;
                 const item = this.movementService.shortestPath(budget, gameStructureOpenedDoors, virtualPlayerCoord.position, tile.idx, false);
+                console.log('Item:', item);
                 pathsToItems.push([item.path, tile.item]);
             }
         });
@@ -137,6 +139,7 @@ export class VirtualPlayerService {
             itemPriorities = AGGRESIVE_PRIORITY_ITEMS;
         }
 
+        // sort items by priority
         validPaths.sort((a, b) => {
             const itemA = a[1];
             const itemB = b[1];
@@ -145,15 +148,39 @@ export class VirtualPlayerService {
             return priorityA - priorityB;
         });
 
+        // get highest priority item
         const chosenItem = validPaths[0];
+        console.log('Chosen item:', chosenItem);
         const chosenItemPath = chosenItem[0];
-        const verifiedInventory = this.verifyInventoryPriority(chosenItem[1]);
-        if (!verifiedInventory[0]) {
-            this.move();
-            return;
+        const chosenItemName = chosenItem[1];
+
+        let lowestPriorityItem;
+        let itemReplace = false;
+        const inventory = virtualPlayerCoord.player.inventory;
+        if (this.inventoryService.isInventoryFull(inventory)) {
+            // Find the lowest priority item in the inventory
+            let lowestPriorityItem = inventory[0];
+            let lowestPriorityIndex = 0;
+            for (let i = 1; i < inventory.length; i++) {
+                if (itemPriorities.indexOf(inventory[i]) > itemPriorities.indexOf(lowestPriorityItem)) {
+                    lowestPriorityItem = inventory[i];
+                    lowestPriorityIndex = i;
+                }
+            }
+            // Compare the priority of the chosen item with the lowest priority item in the inventory
+            if (itemPriorities.indexOf(chosenItemName) < itemPriorities.indexOf(lowestPriorityItem)) {
+                // Drop the lowest priority item and pick up the chosen item
+                itemReplace = true;
+                //this.replaceItem(lowestPriorityItem, chosenItemName);
+                // inventory.splice(lowestPriorityIndex, 1);
+            } else {
+                // Do not pick up the chosen item
+                console.log('Not picking up item');
+                this.move();
+                return;
+            }
         }
 
-        // make sure player doesn't go through door
         const map = gameInstance.game.map;
         const doorIndexes = map.filter((tile) => tile.tileType === 'doorClosed').map((tile) => tile.idx);
         const doorsToOpen = [];
@@ -172,57 +199,31 @@ export class VirtualPlayerService {
             this.interactWithDoor(doorCoords[1]);
         });
 
-        if (virtualPlayerCoord.player.inventory.length === 2) {
-            this.pickUpItem(verifiedInventory[1], chosenItem[1]);
-        }
+        console.log('Moving to item', chosenItemName);
         this.actionHandler.handleMove(
             { roomId: this.roomId, playerId: this.virtualPlayerId, endPosition: chosenItemPath[chosenItemPath.length - 1] },
             this.server,
             null,
         );
+
+        console.log('ItemReplace?:', itemReplace);
+        if (itemReplace) {
+            this.replaceItem(lowestPriorityItem, chosenItemName);
+        }
+
+        console.log('inventory:', inventory);
         this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
-    verifyInventoryPriority(item: ItemTypes): [boolean, ItemTypes?] {
+    replaceItem(droppedItem, collectedItem: ItemTypes) {
         const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const inventory = virtualPlayerCoord.player.inventory;
-        console.log(inventory);
-        if (inventory.length === 2) {
-            console.log('Inventory full');
-            inventory.forEach((inventoryItem) => {
-                if (this.isDefensive()) {
-                    if (DEFENSIVE_PRIORITY_ITEMS.indexOf(inventoryItem) < DEFENSIVE_PRIORITY_ITEMS.indexOf(item)) {
-                        return [false, null];
-                    }
-                    return [true, inventoryItem];
-                    // inventory.push(item);
-                    // this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, inventory, inventoryItem, this.roomId);
-                } else {
-                    if (AGGRESIVE_PRIORITY_ITEMS.indexOf(inventoryItem) < AGGRESIVE_PRIORITY_ITEMS.indexOf(item)) {
-                        return [false, null];
-                    }
-                    return [true, inventoryItem];
-                    // inventory.push(item);
-                    // this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, inventory, inventoryItem, this.roomId);
-                }
-            });
-        }
-        return [true, null];
-    }
-
-    pickUpItem(inventoryItem, item: ItemTypes) {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
-        if (!gameInstance) {
-            return;
-        }
-        const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
-        const inventory = virtualPlayerCoord.player.inventory;
-        inventory.push(item);
-        this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, inventory, inventoryItem, this.roomId);
+        inventory.push(collectedItem);
+        this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, inventory, droppedItem, this.roomId);
     }
 
     moveToDoor(tileBeforeDoor: number) {

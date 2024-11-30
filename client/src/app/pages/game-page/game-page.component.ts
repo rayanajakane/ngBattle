@@ -133,6 +133,8 @@ export class GamePageComponent implements OnDestroy {
         });
     }
 
+    listenVPItemToReplace() {}
+
     inquirePlayerForItemReplacement(items: ItemTypes[]) {
         // TODO: chooseItem in a modal and call chooseItem with the selected item
         const dialogRef = this.dialog.open(ChooseItemModalComponent, {
