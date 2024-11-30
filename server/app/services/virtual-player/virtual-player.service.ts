@@ -52,6 +52,7 @@ export class VirtualPlayerService {
             this.moveToItems();
             //this.move();
         }
+        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
     // decides if VP attacks or escapes
@@ -88,7 +89,6 @@ export class VirtualPlayerService {
         const accessibleTiles = Object.keys(availablePlayerMoves).map(Number);
         endPosition = accessibleTiles[Math.floor(Math.random() * accessibleTiles.length)];
         this.actionHandler.handleMove({ roomId: this.roomId, playerId: this.virtualPlayerId, endPosition }, this.server, null);
-        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
     startAttack(targetPlayerCoord: PlayerCoord) {
@@ -97,33 +97,14 @@ export class VirtualPlayerService {
     }
 
     moveToItems() {
-        // open all closed doors on a copy of the map
-        console.log('Started move to items logic');
         const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
 
-        let gameStructureOpenedDoors = JSON.parse(JSON.stringify(gameInstance.game)) as GameStructure;
-        gameStructureOpenedDoors.map.forEach((tile) => {
-            if (tile.tileType === 'doorClosed') {
-                console.log('Opening door');
-                tile.tileType = 'doorOpen';
-            }
-        });
-
-        // find Shortest path to each item
-        let pathsToItems = [];
-        console.log('Finding paths to items');
-        gameStructureOpenedDoors.map.forEach((tile) => {
-            if (tile.item != '' && tile.item != 'startingPoint') {
-                const budget = gameInstance.currentPlayerMoveBudget;
-                const item = this.movementService.shortestPath(budget, gameStructureOpenedDoors, virtualPlayerCoord.position, tile.idx);
-                console.log('Item:', item);
-                pathsToItems.push([item.path, tile.item]);
-            }
-        });
+        const gameStructureOpenedDoors = this.openAllDoors(gameInstance.game);
+        const pathsToItems = this.findPathsToItems(gameStructureOpenedDoors, virtualPlayerCoord.position, gameInstance.currentPlayerMoveBudget);
 
         const validPaths = pathsToItems.filter((path) => path[0].length !== 0);
         if (validPaths.length === 0) {
@@ -132,14 +113,8 @@ export class VirtualPlayerService {
             return;
         }
 
-        let itemPriorities;
-        if (this.isDefensive()) {
-            itemPriorities = DEFENSIVE_PRIORITY_ITEMS;
-        } else {
-            itemPriorities = AGGRESIVE_PRIORITY_ITEMS;
-        }
+        const itemPriorities = this.isDefensive() ? DEFENSIVE_PRIORITY_ITEMS : AGGRESIVE_PRIORITY_ITEMS;
 
-        // sort items by priority
         validPaths.sort((a, b) => {
             const itemA = a[1];
             const itemB = b[1];
@@ -148,47 +123,77 @@ export class VirtualPlayerService {
             return priorityA - priorityB;
         });
 
-        // get highest priority item
         const chosenItem = validPaths[0];
         console.log('Chosen item:', chosenItem);
         const chosenItemPath = chosenItem[0];
         const chosenItemName = chosenItem[1];
 
         let lowestPriorityItem;
-        let itemReplace = false;
+        let willReplaceItem = false;
         const inventory = virtualPlayerCoord.player.inventory;
         console.log('Inventory:', inventory);
         if (this.inventoryService.isInventoryFull(inventory)) {
-            // Find the lowest priority item in the inventory
             console.log('Inventory is full');
-            lowestPriorityItem = inventory[0];
-            let lowestPriorityIndex = 0;
-            for (let i = 1; i < inventory.length; i++) {
-                if (itemPriorities.indexOf(inventory[i]) > itemPriorities.indexOf(lowestPriorityItem)) {
-                    lowestPriorityItem = inventory[i];
-                    lowestPriorityIndex = i;
-                }
-            }
-            // Compare the priority of the chosen item with the lowest priority item in the inventory
+            lowestPriorityItem = this.findLowestPriorityItem(inventory, itemPriorities);
             if (itemPriorities.indexOf(chosenItemName) < itemPriorities.indexOf(lowestPriorityItem)) {
-                // Drop the lowest priority item and pick up the chosen item
-                itemReplace = true;
-                //this.replaceItem(lowestPriorityItem, chosenItemName);
-                // inventory.splice(lowestPriorityIndex, 1);
+                willReplaceItem = true;
             } else {
-                // Do not pick up the chosen item
                 console.log('Not picking up item');
                 this.move();
                 return;
             }
         }
 
-        const map = gameInstance.game.map;
+        console.log('Moving to item', chosenItemName);
+        this.moveThroughDoors(virtualPlayerCoord.position, chosenItemPath, gameInstance.game.map);
+
+        console.log('ItemReplace?:', willReplaceItem);
+        console.log('Lowest priority item:', lowestPriorityItem);
+        if (willReplaceItem) {
+            this.replaceItem(lowestPriorityItem, chosenItemName);
+        }
+    }
+
+    openAllDoors(game: GameStructure): GameStructure {
+        let gameStructureOpenedDoors = JSON.parse(JSON.stringify(game)) as GameStructure;
+        gameStructureOpenedDoors.map.forEach((tile) => {
+            if (tile.tileType === 'doorClosed') {
+                console.log('Opening door');
+                tile.tileType = 'doorOpen';
+            }
+        });
+        return gameStructureOpenedDoors;
+    }
+
+    findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+        let pathsToItems = [];
+        console.log('Finding paths to items');
+        gameStructure.map.forEach((tile) => {
+            if (tile.item != '' && tile.item != 'startingPoint') {
+                const item = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
+                console.log('Item:', item);
+                pathsToItems.push([item.path, tile.item]);
+            }
+        });
+        return pathsToItems;
+    }
+
+    findLowestPriorityItem(inventory: string[], itemPriorities: string[]): string {
+        let lowestPriorityItem = inventory[0];
+        for (let i = 1; i < inventory.length; i++) {
+            if (itemPriorities.indexOf(inventory[i]) > itemPriorities.indexOf(lowestPriorityItem)) {
+                lowestPriorityItem = inventory[i];
+            }
+        }
+        return lowestPriorityItem;
+    }
+
+    moveThroughDoors(startPosition: number, path: number[], map: any[]): void {
         const doorIndexes = map.filter((tile) => tile.tileType === 'doorClosed').map((tile) => tile.idx);
         const doorsToOpen = [];
 
-        let lastIndexBeforeDoor = virtualPlayerCoord.position;
-        for (const index of chosenItemPath) {
+        let lastIndexBeforeDoor = startPosition;
+        for (const index of path) {
             if (doorIndexes.includes(index)) {
                 doorsToOpen.push([lastIndexBeforeDoor, index]);
             } else {
@@ -197,23 +202,11 @@ export class VirtualPlayerService {
         }
 
         doorsToOpen.forEach((doorCoords) => {
-            this.moveToDoor(doorCoords[0]);
-            this.interactWithDoor(doorCoords[1]);
+            this.moveToDoor(doorCoords[0]); // move to tile before door
+            this.interactWithDoor(doorCoords[1]); // open door
         });
-
-        console.log('Moving to item', chosenItemName);
-        this.actionHandler.handleMove(
-            { roomId: this.roomId, playerId: this.virtualPlayerId, endPosition: chosenItemPath[chosenItemPath.length - 1] },
-            this.server,
-            null,
-        );
-
-        console.log('ItemReplace?:', itemReplace);
-        console.log('Lowest priority item:', lowestPriorityItem);
-        if (itemReplace) {
-            this.replaceItem(lowestPriorityItem, chosenItemName);
-        }
-        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
+        // move to item after all doors are opened
+        this.actionHandler.handleMove({ roomId: this.roomId, playerId: this.virtualPlayerId, endPosition: path[path.length - 1] }, this.server, null);
     }
 
     replaceItem(droppedItem, collectedItem: ItemTypes) {
