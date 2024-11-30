@@ -119,7 +119,7 @@ export class VirtualPlayerService {
         gameStructureOpenedDoors.map.forEach((tile) => {
             if (tile.item != '' && tile.item != 'startingPoint') {
                 const budget = gameInstance.currentPlayerMoveBudget;
-                const item = this.movementService.shortestPath(budget, gameStructureOpenedDoors, virtualPlayerCoord.position, tile.idx, false);
+                const item = this.movementService.shortestPath(budget, gameStructureOpenedDoors, virtualPlayerCoord.position, tile.idx);
                 console.log('Item:', item);
                 pathsToItems.push([item.path, tile.item]);
             }
@@ -157,9 +157,11 @@ export class VirtualPlayerService {
         let lowestPriorityItem;
         let itemReplace = false;
         const inventory = virtualPlayerCoord.player.inventory;
+        console.log('Inventory:', inventory);
         if (this.inventoryService.isInventoryFull(inventory)) {
             // Find the lowest priority item in the inventory
-            let lowestPriorityItem = inventory[0];
+            console.log('Inventory is full');
+            lowestPriorityItem = inventory[0];
             let lowestPriorityIndex = 0;
             for (let i = 1; i < inventory.length; i++) {
                 if (itemPriorities.indexOf(inventory[i]) > itemPriorities.indexOf(lowestPriorityItem)) {
@@ -207,11 +209,10 @@ export class VirtualPlayerService {
         );
 
         console.log('ItemReplace?:', itemReplace);
+        console.log('Lowest priority item:', lowestPriorityItem);
         if (itemReplace) {
             this.replaceItem(lowestPriorityItem, chosenItemName);
         }
-
-        console.log('inventory:', inventory);
         this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
@@ -221,9 +222,8 @@ export class VirtualPlayerService {
             return;
         }
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
-        const inventory = virtualPlayerCoord.player.inventory;
-        inventory.push(collectedItem);
-        this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, inventory, droppedItem, this.roomId);
+        const allItems = [...virtualPlayerCoord.player.inventory, collectedItem];
+        this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, allItems, droppedItem, this.roomId);
     }
 
     moveToDoor(tileBeforeDoor: number) {

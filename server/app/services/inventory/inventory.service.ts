@@ -131,6 +131,8 @@ export class InventoryService {
             this.handleItemEffect(item, player.player, false);
         });
         this.emitNewPlayerInventory(server, roomId, player, droppedItem);
+
+        console.log('inventory', player.player.inventory);
     }
 
     emitNewPlayerInventory(server: Server, roomId: string, player: PlayerCoord, dropItem?: ItemTypes) {
