@@ -18,9 +18,13 @@ import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
+import { ActionStateService } from '@app/services/action-state.service';
+import { CombatStateService } from '@app/services/combat-state.service';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
+import { MovingStateService } from '@app/services/moving-state.service';
+import { NotPlayingStateService } from '@app/services/not-playing-state.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, ShortestPathByTile, TimerState } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
@@ -50,6 +54,7 @@ import { ItemTypes } from '@common/tile-types';
         LogsComponent,
         ChooseItemModalComponent,
     ],
+    providers: [GameControllerService, MapGameService, NotPlayingStateService, MovingStateService, ActionStateService, CombatStateService],
 })
 export class GamePageComponent implements OnDestroy {
     mapSize: number;
@@ -501,8 +506,8 @@ export class GamePageComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.gameController.isDebugModeActive = false;
-        this.mapService.resetPlayerView();
+        // this.gameController.isDebugModeActive = false;
+        // this.mapService.resetPlayerView();
         this.socketService.disconnect();
     }
 }

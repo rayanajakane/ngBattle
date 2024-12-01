@@ -4,9 +4,7 @@ import { TileInfoModalComponent } from '@app/components/tile-info-modal/tile-inf
 import { GameState, GameTile, ShortestPathByTile } from '@common/game-structure';
 import { GameControllerService } from './game-controller.service';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export abstract class BaseStateService {
     availableTiles: number[] = [];
     shortestPathByTile: ShortestPathByTile = {};

@@ -5,9 +5,7 @@ import { GameState, GameTile, ShortestPathByTile } from '@common/game-structure'
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { BaseStateService } from './base-state.service';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class MovingStateService extends BaseStateService {
     constructor(protected dialog: MatDialog) {
         super(dialog);

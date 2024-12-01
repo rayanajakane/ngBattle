@@ -4,9 +4,7 @@ import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class GameControllerService {
     activePlayer: Player;
     player: Player;
