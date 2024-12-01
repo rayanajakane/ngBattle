@@ -57,8 +57,18 @@ export class VirtualPlayerService {
             return;
         }
         if (!this.moveToItems()) {
+            const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+            if (nearbyPlayers.length > 0) {
+                console.log('Found players nearby before movging:', nearbyPlayers);
+                const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
+                this.startAttack(randomPlayerCoord);
+                return;
+            }
             if (this.moveToPlayers()) {
-                const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+                const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+                const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
+                const newVirtualPlayerPosition = virtualPlayerCoord.position;
+                const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
                 console.log('Nearby players:', nearbyPlayers);
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
                 this.startAttack(randomPlayerCoord);
@@ -74,10 +84,21 @@ export class VirtualPlayerService {
             this.move();
             return;
         }
-        if (!this.moveToPlayers()) {
+        // check if there are players nearby without having to move
+        const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+        if (nearbyPlayers.length > 0) {
+            console.log('Found players nearby before movging:', nearbyPlayers);
+            const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
+            this.startAttack(randomPlayerCoord);
+            return;
+        } else if (!this.moveToPlayers()) {
             if (!this.moveToItems()) this.move();
         } else {
-            const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+            console.log('Moved to players');
+            const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+            const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
+            const newVirtualPlayerPosition = virtualPlayerCoord.position;
+            const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
             console.log('Nearby players:', nearbyPlayers);
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             this.startAttack(randomPlayerCoord);
@@ -91,7 +112,6 @@ export class VirtualPlayerService {
             return;
         }
         await this.waitRandomTime();
-        console.log('Done waiting');
         if (this.isDefensive() && attacked) {
             this.combatHandlerService.handleCombatEscape(this.roomId, this.virtualPlayerId, this.server);
         } else {
@@ -101,7 +121,6 @@ export class VirtualPlayerService {
 
     waitRandomTime() {
         const waitTime = Math.floor(Math.random() * 2000) + 1000;
-        console.log('Waiting for ' + waitTime + 'ms');
         return new Promise((resolve) => setTimeout(resolve, waitTime));
     }
 
@@ -121,7 +140,6 @@ export class VirtualPlayerService {
     }
 
     startAttack(targetPlayerCoord: PlayerCoord) {
-        console.log(targetPlayerCoord);
         this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
         this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
     }
@@ -138,7 +156,6 @@ export class VirtualPlayerService {
 
         const validPaths = pathsToItems.filter((path) => path[0].length !== 0);
         if (validPaths.length === 0) {
-            console.log('No valid paths to items found');
             return false;
         }
 
@@ -153,30 +170,23 @@ export class VirtualPlayerService {
         });
 
         const chosenItem = validPaths[0];
-        console.log('Chosen item:', chosenItem);
         const chosenItemPath = chosenItem[0];
         const chosenItemName = chosenItem[1];
 
         let lowestPriorityItem;
         let willReplaceItem = false;
         const inventory = virtualPlayerCoord.player.inventory;
-        console.log('Inventory:', inventory);
         if (this.inventoryService.isInventoryFull(inventory)) {
-            console.log('Inventory is full');
             lowestPriorityItem = this.findLowestPriorityItem(inventory, itemPriorities);
             if (itemPriorities.indexOf(chosenItemName) < itemPriorities.indexOf(lowestPriorityItem)) {
                 willReplaceItem = true;
             } else {
-                console.log('Not picking up item');
                 return false;
             }
         }
 
-        console.log('Moving to item', chosenItemName);
         this.moveThroughDoors(virtualPlayerCoord.position, chosenItemPath, gameInstance.game.map);
 
-        console.log('ItemReplace?:', willReplaceItem);
-        console.log('Lowest priority item:', lowestPriorityItem);
         if (willReplaceItem) {
             this.replaceItem(lowestPriorityItem, chosenItemName);
         }
@@ -202,33 +212,54 @@ export class VirtualPlayerService {
         validPaths.sort((a, b) => a.length - b.length);
         const chosenPlayerPath = validPaths[0];
 
-        console.log('Moving to player');
         this.moveThroughDoors(virtualPlayerCoord.position, chosenPlayerPath, gameInstance.game.map);
         return true;
     }
 
     findPathsToPlayers(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
         let pathsToPlayers = [];
+        const adjacentTiles = this.getAdjacentTiles(startPosition);
+
         gameStructure.map.forEach((tile) => {
-            if (tile.hasPlayer && tile.idx !== startPosition) {
-                console.log(tile);
-                console.log(startPosition);
-                console.log(budget);
+            if (
+                tile.tileType !== 'wall' &&
+                tile.idx !== startPosition &&
+                !adjacentTiles.includes(tile.idx) &&
+                this.actionButtonService.getPlayersAround(this.roomId, tile.idx).length > 0
+            ) {
                 const player = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
-                console.log('Player:', player);
                 pathsToPlayers.push(player.path);
             }
         });
+        console.log('Paths to players:', pathsToPlayers);
         return pathsToPlayers;
+    }
+
+    getAdjacentTiles(position: number) {
+        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const mapSize = parseInt(gameInstance.game.mapSize, 10);
+        const mapLength = gameInstance.game.map.length;
+
+        const isRightValid = position % mapSize !== mapSize - 1;
+        const isLeftValid = position % mapSize !== 0;
+        const isUpValid = position - mapSize >= 0;
+        const isDownValid = position + mapSize < mapLength;
+
+        const adjacentTiles = [];
+
+        isRightValid ? adjacentTiles.push(position + 1) : null;
+        isLeftValid ? adjacentTiles.push(position - 1) : null;
+        isUpValid ? adjacentTiles.push(position - mapSize) : null;
+        isDownValid ? adjacentTiles.push(position + mapSize) : null;
+
+        return adjacentTiles;
     }
 
     findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
         let pathsToItems = [];
-        console.log('Finding paths to items');
         gameStructure.map.forEach((tile) => {
             if (tile.item != '' && tile.item != 'startingPoint') {
                 const item = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
-                console.log('Item:', item);
                 pathsToItems.push([item.path, tile.item]);
             }
         });
@@ -288,7 +319,6 @@ export class VirtualPlayerService {
     }
 
     moveToDoor(tileBeforeDoor: number) {
-        console.log('Moving to door', tileBeforeDoor);
         this.actionHandler.handleMove({ roomId: this.roomId, playerId: this.virtualPlayerId, endPosition: tileBeforeDoor }, this.server, null);
     }
 
