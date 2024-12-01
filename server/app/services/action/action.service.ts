@@ -48,12 +48,9 @@ export class ActionService {
         const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
 
-        // const isDebugMode = this.debug.getDebugMode(roomId);
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
 
-        // ADD COND for moveBudget
-
-        gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
+        //gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 
         return shortestPath.path;
     }
@@ -88,6 +85,9 @@ export class ActionService {
             }
 
             gameInstance.currentPlayerActionPoint -= 1;
+
+            gameInstance.globalStatsService.addUsedDoor(doorPosition);
+
             return true;
         }
         return false;

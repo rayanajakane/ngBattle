@@ -5,9 +5,7 @@ import { GameState, GameTile, ShortestPathByTile } from '@common/game-structure'
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { BaseStateService } from './base-state.service';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class MovingStateService extends BaseStateService {
     constructor(protected dialog: MatDialog) {
         super(dialog);
@@ -40,6 +38,11 @@ export class MovingStateService extends BaseStateService {
     }
 
     checkIfTileIsValid(tile: GameTile): boolean {
-        return tile.tileType !== TileTypes.DOORCLOSED && tile.tileType !== TileTypes.WALL && !tile.hasPlayer && tile.item === ItemTypes.EMPTY;
+        return (
+            tile.tileType !== TileTypes.DOORCLOSED &&
+            tile.tileType !== TileTypes.WALL &&
+            !tile.hasPlayer &&
+            (tile.item === ItemTypes.EMPTY || tile.item === ItemTypes.STARTINGPOINT)
+        );
     }
 }

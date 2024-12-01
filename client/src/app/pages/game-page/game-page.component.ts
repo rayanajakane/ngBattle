@@ -17,13 +17,18 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
+import { MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
+import { ActionStateService } from '@app/services/action-state.service';
+import { CombatStateService } from '@app/services/combat-state.service';
 import { GameControllerService } from '@app/services/game-controller.service';
 import { HttpClientService } from '@app/services/http-client.service';
 import { MapGameService } from '@app/services/map-game.service';
+import { MovingStateService } from '@app/services/moving-state.service';
+import { NotPlayingStateService } from '@app/services/not-playing-state.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, ShortestPathByTile, TimerState } from '@common/game-structure';
-import { PlayerCoord } from '@common/player';
+import { GlobalStats } from '@common/global-stats';
+import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 
 // Game Page is complex and has many functionalities, so it is normal to have a high number of lines
@@ -50,6 +55,7 @@ import { ItemTypes } from '@common/tile-types';
         LogsComponent,
         ChooseItemModalComponent,
     ],
+    providers: [GameControllerService, MapGameService, NotPlayingStateService, MovingStateService, ActionStateService, CombatStateService],
 })
 export class GamePageComponent implements OnDestroy {
     mapSize: number;
@@ -66,6 +72,7 @@ export class GamePageComponent implements OnDestroy {
     remainingEscapeChances: number = -1;
     combatInitiatorId: string = '';
     isAdmin = false;
+    gameFinished = false;
     readonly gameController = inject(GameControllerService);
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
@@ -165,7 +172,6 @@ export class GamePageComponent implements OnDestroy {
     }
 
     inquirePlayerForItemReplacement(items: ItemTypes[]) {
-        // TODO: chooseItem in a modal and call chooseItem with the selected item
         const dialogRef = this.dialog.open(ChooseItemModalComponent, {
             data: { itemTypes: items },
         });
@@ -316,8 +322,8 @@ export class GamePageComponent implements OnDestroy {
         this.socketService.on('lastManStanding', () => {
             this.redirectLastManStanding();
         });
-        this.socketService.on('endGame', (endGameMessage: string) => {
-            this.redirectEndGame(endGameMessage);
+        this.socketService.on('endGame', (data: { globalStats: GlobalStats; players: Player[]; endGameMessage: string }) => {
+            this.redirectEndGame(data.globalStats, data.players, data.endGameMessage);
         });
     }
 
@@ -444,13 +450,6 @@ export class GamePageComponent implements OnDestroy {
         this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
 
-    redirectEndGame(endGameMessage: string) {
-        setTimeout(() => {
-            this.router.navigate(['/home']);
-        }, ENDGAME_DELAY);
-        this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
-    }
-
     endTurn() {
         if (this.gameController.isActivePlayer()) {
             this.resetPlayerView();
@@ -470,6 +469,8 @@ export class GamePageComponent implements OnDestroy {
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.switchToMovingStateRoutine(shortestPathByTile);
         } else if (this.remainingActions !== -1 && this.remainingActions > 0) {
+            console.log('endMovement', 'requestCheckAction');
+            this.mapService.resetMap();
             this.gameController.requestCheckAction();
         } else {
             this.mapService.resetMovementPrevisualization();
@@ -497,11 +498,30 @@ export class GamePageComponent implements OnDestroy {
 
     quitGame() {
         this.router.navigate(['/home']);
+        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
+    }
+    redirectEndGame(globalStats: GlobalStats, players: Player[], endGameMessage: string) {
+        let navData;
+        console.log('players', players);
+        console.log('players[0].stats', players[0].stats);
+        console.log('globalStats', globalStats);
+        this.gameFinished = true;
+        setTimeout(() => {
+            navData = {
+                roomId: this.gameController.roomId,
+                characterName: this.gameController.player.name,
+                globalStats: globalStats,
+                players: players,
+            };
+            const navDataString = JSON.stringify(navData);
+            this.router.navigate(['/gameEnd'], { queryParams: { data: navDataString } });
+        }, 1000);
+        this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
 
     ngOnDestroy() {
-        this.gameController.isDebugModeActive = false;
-        this.mapService.resetMap();
-        this.socketService.disconnect();
+        // this.gameController.isDebugModeActive = false;
+        // this.mapService.resetPlayerView();
+        if (!this.gameFinished) this.socketService.disconnect();
     }
 }

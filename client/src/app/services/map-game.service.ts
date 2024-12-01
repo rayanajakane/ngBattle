@@ -9,9 +9,7 @@ import { MapBaseService } from './map-base.service';
 import { MovingStateService } from './moving-state.service';
 import { NotPlayingStateService } from './not-playing-state.service';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class MapGameService extends MapBaseService {
     tiles: GameTile[];
     availableTiles: number[] = [];

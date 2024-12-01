@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlayerAttribute, PlayerCoord } from '@common/player';
+
+import { PlayerAttribute, PlayerCoord, PlayerStats } from '@common/player';
 import { GamePanelComponent } from './game-panel.component';
 describe('GamePanelComponent', () => {
     let component: GamePanelComponent;
@@ -19,6 +20,7 @@ describe('GamePanelComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            stats: {} as PlayerStats,
             isVirtual: false,
         };
         fixture.detectChanges();

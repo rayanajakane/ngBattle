@@ -1,5 +1,5 @@
 import { GameStructure } from '@common/game-structure';
-import { Player, PlayerAttribute } from '@common/player';
+import { Player, PlayerAttribute, PlayerStats } from '@common/player';
 
 /* eslint-disable */
 export const DEFAULT_STARTING_POINT_NUMBER = 5;
@@ -27,6 +27,7 @@ export const MOCK_PLAYER: Player = {
     abandoned: false,
     wins: 0,
     inventory: [],
+    stats: {} as PlayerStats,
     isVirtual: false,
 };
 
@@ -40,6 +41,7 @@ export const MOCK_PLAYER_TWO: Player = {
     abandoned: false,
     wins: 0,
     inventory: [],
+    stats: {} as PlayerStats,
     isVirtual: false,
 };
 

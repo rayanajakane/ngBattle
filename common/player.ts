@@ -13,6 +13,7 @@ export interface Player {
     virtualProfile?: string;
     inventory: ItemTypes[];
     homePosition?: number;
+    stats: PlayerStats;
     actionNumber?: number;
 }
 
@@ -34,4 +35,16 @@ export interface PlayerAttribute {
 export interface PlayerCoord {
     player: Player;
     position: number;
+}
+
+export interface PlayerStats {
+    combatCount: number;
+    escapeCount: number;
+    victoryCount: number;
+    defeatCount: number;
+    totalHealthLost: number;
+    totalHealthTaken: number;
+    uniqueItemsCollected: number;
+    visitedTilesPercent: number;
+    visitedTiles: Set<number>;
 }
