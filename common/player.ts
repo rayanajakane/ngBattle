@@ -30,6 +30,7 @@ export interface PlayerAttribute {
     escape?: number;
     isCombatBoostedAttack?: boolean;
     isCombatBoostedDefense?: boolean;
+    itemsHeld?: Set<ItemTypes>;
 }
 
 export interface PlayerCoord {

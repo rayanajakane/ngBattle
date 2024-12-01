@@ -116,7 +116,13 @@ export class InventoryService {
             inventory.push(item);
             this.handleItemEffect(item, player.player, false, server, roomId);
             this.emitNewPlayerInventory(server, roomId, player);
+            this.setItemsHeldAttribute(player.player, item);
         }
+    }
+
+    setItemsHeldAttribute(player: Player, item: ItemTypes) {
+        player.attributes.itemsHeld.add(item);
+        player.stats.uniqueItemsCollected = player.attributes.itemsHeld.size;
     }
 
     emitItemToReplace(server: Server, player: PlayerCoord, newItem: ItemTypes, roomId: string) {

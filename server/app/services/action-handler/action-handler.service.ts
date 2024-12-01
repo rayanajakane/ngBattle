@@ -121,6 +121,9 @@ export class ActionHandlerService {
 
                     tileItem = gameMap[playerPosition].item;
 
+                    if (tileItem === ItemTypes.FLAG_A)
+                        this.activeGamesService.getActiveGame(roomId).globalStatsService.addPlayerHeldFlag(player.player);
+
                     if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
                         this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
                         gameMap[playerPosition].item = ItemTypes.EMPTY;

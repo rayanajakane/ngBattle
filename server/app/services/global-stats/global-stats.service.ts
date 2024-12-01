@@ -1,4 +1,5 @@
 import { GlobalStats } from '@common/global-stats';
+import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -7,6 +8,8 @@ export class GlobalStatsService {
 
     visitedIndex: Set<number>;
     usedDoors: Set<number>;
+
+    playerHeldFlag: Set<Player>;
 
     maxNbDoors: number;
     maxNbTiles: number;
@@ -52,6 +55,11 @@ export class GlobalStatsService {
 
     addUsedDoor(doorIndex: number): void {
         this.usedDoors.add(doorIndex);
+    }
+
+    addPlayerHeldFlag(player: Player): void {
+        this.playerHeldFlag.add(player);
+        this.globalStats.nbPlayersHeldFlag = this.playerHeldFlag.size;
     }
 
     //TODO: call the function to get percent at the end of the game
