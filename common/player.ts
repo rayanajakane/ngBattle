@@ -13,6 +13,7 @@ export interface Player {
     virtualProfile?: string;
     inventory: ItemTypes[];
     homePosition?: number;
+    actionNumber?: number;
 }
 
 export interface PlayerAttribute {

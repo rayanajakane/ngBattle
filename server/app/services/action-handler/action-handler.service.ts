@@ -67,6 +67,7 @@ export class ActionHandlerService {
         server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
 
         if (player.isVirtual) {
+            player.actionNumber = 1;
             this.virtualPlayerService.virtualPlayerId = player.id;
             this.virtualPlayerService.roomId = data.roomId;
             this.virtualPlayerService.server = server;
@@ -154,6 +155,7 @@ export class ActionHandlerService {
             this.action.nextTurn(roomId, data.lastTurn);
 
             if (activeGame.playersCoord.length > 0) {
+                console.log('next turn pid:', activeGame.playersCoord[activeGame.turn].player.id);
                 server.to(roomId).emit('endTurn', activeGame.playersCoord[activeGame.turn].player.id);
             }
 

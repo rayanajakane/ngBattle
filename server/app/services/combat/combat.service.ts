@@ -125,6 +125,7 @@ export class CombatService {
             }
             const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
             if (killedPlayer.player.isVirtual) {
+                console.log('killed player id', killedPlayer.player.id);
                 this.actionHandlerService.handleEndTurn({ roomId: roomId, playerId: killedPlayer.player.id, lastTurn: false }, server);
             }
         }
@@ -245,6 +246,19 @@ export class CombatService {
                     server
                         .to(roomId)
                         .emit('newLog', { date: formattedTime, message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
+
+                    // make virtual player think
+                    if (playerKiller.player.isVirtual) {
+                        this.virtualPlayerService.roomId = roomId;
+                        this.virtualPlayerService.virtualPlayerId = playerKiller.player.id;
+                        this.virtualPlayerService.server = server;
+                        this.virtualPlayerService.think();
+                    } else if (playerKilled.player.isVirtual) {
+                        const activeGame = this.activeGamesService.getActiveGame(roomId);
+                        if (activeGame.playersCoord[activeGame.turn].player.id === playerKilled.player.id) {
+                            this.actionHandlerService.handleEndTurn({ roomId: roomId, playerId: playerKilled.player.id, lastTurn: false }, server);
+                        }
+                    }
 
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }

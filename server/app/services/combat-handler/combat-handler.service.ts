@@ -107,6 +107,12 @@ export class CombatHandlerService {
             const message = `${fighter.player.name} a réussi à s'échapper du combat`;
             server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
             this.combatService.endCombat(roomId, server, fighter);
+            if (defender.player.isVirtual) {
+                this.virtualPlayerService.roomId = roomId;
+                this.virtualPlayerService.virtualPlayerId = defender.player.id;
+                this.virtualPlayerService.server = server;
+                this.virtualPlayerService.think();
+            }
         } else {
             console.log('escape failed');
             const message = `${fighter.player.name} a échoué à s'échapper du combat`;

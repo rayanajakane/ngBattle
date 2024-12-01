@@ -48,10 +48,14 @@ export class VirtualPlayerService {
             this.aggressiveThink(virtualPlayerPosition);
         }
 
-        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
+        if (this.activeGames.getActiveGame(this.roomId)) {
+            this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
+        }
     }
 
     defensiveThink(position: number) {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
+
         if (Math.random() < 0.1) {
             this.move();
             return;
@@ -61,7 +65,9 @@ export class VirtualPlayerService {
             if (nearbyPlayers.length > 0) {
                 console.log('Found players nearby before movging:', nearbyPlayers);
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
-                this.startAttack(randomPlayerCoord);
+                if (this.canDoAction(this.virtualPlayerId)) {
+                    this.startAttack(randomPlayerCoord);
+                }
                 return;
             }
             if (this.moveToPlayers()) {
@@ -71,7 +77,9 @@ export class VirtualPlayerService {
                 const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
                 console.log('Nearby players:', nearbyPlayers);
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
-                this.startAttack(randomPlayerCoord);
+                if (this.canDoAction(this.virtualPlayerId)) {
+                    this.startAttack(randomPlayerCoord);
+                }
             } else {
                 this.move();
                 return;
@@ -80,13 +88,15 @@ export class VirtualPlayerService {
     }
 
     aggressiveThink(position: number) {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
+
         if (Math.random() < 0.1) {
             this.move();
             return;
         }
         // check if there are players nearby without having to move
         const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
-        if (nearbyPlayers.length > 0) {
+        if (nearbyPlayers.length > 0 && this.canDoAction(this.virtualPlayerId)) {
             console.log('Found players nearby before movging:', nearbyPlayers);
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             this.startAttack(randomPlayerCoord);
@@ -100,8 +110,11 @@ export class VirtualPlayerService {
             const newVirtualPlayerPosition = virtualPlayerCoord.position;
             const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
             console.log('Nearby players:', nearbyPlayers);
+            if (nearbyPlayers.length === 0) return;
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
-            this.startAttack(randomPlayerCoord);
+            if (this.canDoAction(this.virtualPlayerId)) {
+                this.startAttack(randomPlayerCoord);
+            }
         }
     }
 
@@ -126,12 +139,16 @@ export class VirtualPlayerService {
 
     isDefensive() {
         const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        if (!gameInstance) {
+            return;
+        }
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const profile = virtualPlayerCoord.player.virtualProfile;
         return profile === 'defensive';
     }
 
     move() {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
         const availablePlayerMoves = this.actionService.availablePlayerMoves(this.virtualPlayerId, this.roomId);
         let endPosition: number;
         const accessibleTiles = Object.keys(availablePlayerMoves).map(Number);
@@ -140,8 +157,14 @@ export class VirtualPlayerService {
     }
 
     startAttack(targetPlayerCoord: PlayerCoord) {
-        this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
-        this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
+        if (this.canDoAction(this.virtualPlayerId)) {
+            this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
+            this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
+            this.useActionNumber(this.virtualPlayerId);
+        } else {
+            this.move();
+        }
     }
 
     moveToItems() {
@@ -217,6 +240,8 @@ export class VirtualPlayerService {
     }
 
     findPathsToPlayers(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
+
         let pathsToPlayers = [];
         const adjacentTiles = this.getAdjacentTiles(startPosition);
 
@@ -237,6 +262,9 @@ export class VirtualPlayerService {
 
     getAdjacentTiles(position: number) {
         const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        if (!gameInstance) {
+            return;
+        }
         const mapSize = parseInt(gameInstance.game.mapSize, 10);
         const mapLength = gameInstance.game.map.length;
 
@@ -256,6 +284,7 @@ export class VirtualPlayerService {
     }
 
     findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
         let pathsToItems = [];
         gameStructure.map.forEach((tile) => {
             if (tile.item != '' && tile.item != 'startingPoint') {
@@ -288,6 +317,7 @@ export class VirtualPlayerService {
     }
 
     moveThroughDoors(startPosition: number, path: number[], map: any[]): void {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
         const doorIndexes = map.filter((tile) => tile.tileType === 'doorClosed').map((tile) => tile.idx);
         const doorsToOpen = [];
 
@@ -302,6 +332,7 @@ export class VirtualPlayerService {
 
         doorsToOpen.forEach((doorCoords) => {
             this.moveToDoor(doorCoords[0]); // move to tile before door
+            if (!this.canDoAction(this.virtualPlayerId)) return;
             this.interactWithDoor(doorCoords[1]); // open door
         });
         // move to item after all doors are opened
@@ -309,6 +340,7 @@ export class VirtualPlayerService {
     }
 
     replaceItem(droppedItem, collectedItem: ItemTypes) {
+        if (!this.activeGames.getActiveGame(this.roomId)) return;
         const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
@@ -324,5 +356,26 @@ export class VirtualPlayerService {
 
     interactWithDoor(doorPosition: number) {
         this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, doorPosition, null, this.server);
+        this.useActionNumber(this.virtualPlayerId);
+    }
+
+    canDoAction(playerId: string): boolean {
+        const virtualPlayer = this.activeGames.activeGames
+            .find((instance) => instance.roomId === this.roomId)
+            .playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        if (virtualPlayer.player.actionNumber > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    useActionNumber(playerId: string): void {
+        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        if (!gameInstance) {
+            return;
+        }
+        const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        virtualPlayerCoord.player.actionNumber = 0;
     }
 }
