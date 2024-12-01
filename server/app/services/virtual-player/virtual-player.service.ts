@@ -40,19 +40,48 @@ export class VirtualPlayerService {
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const virtualPlayerPosition = virtualPlayerCoord.position;
 
-        const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, virtualPlayerPosition);
-
         await this.waitRandomTime();
 
-        if (nearbyPlayers.length > 0 && !this.isDefensive()) {
+        if (this.isDefensive()) {
+            this.defensiveThink(virtualPlayerPosition);
+        } else {
+            this.aggressiveThink(virtualPlayerPosition);
+        }
+
+        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
+    }
+
+    defensiveThink(position: number) {
+        if (Math.random() < 0.1) {
+            this.move();
+            return;
+        }
+        if (!this.moveToItems()) {
+            if (this.moveToPlayers()) {
+                const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+                console.log('Nearby players:', nearbyPlayers);
+                const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
+                this.startAttack(randomPlayerCoord);
+            } else {
+                this.move();
+                return;
+            }
+        }
+    }
+
+    aggressiveThink(position: number) {
+        if (Math.random() < 0.1) {
+            this.move();
+            return;
+        }
+        if (!this.moveToPlayers()) {
+            if (!this.moveToItems()) this.move();
+        } else {
+            const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+            console.log('Nearby players:', nearbyPlayers);
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             this.startAttack(randomPlayerCoord);
-        } else {
-            console.log('Moving to items');
-            this.moveToItems();
-            //this.move();
         }
-        this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
     }
 
     // decides if VP attacks or escapes
@@ -92,6 +121,7 @@ export class VirtualPlayerService {
     }
 
     startAttack(targetPlayerCoord: PlayerCoord) {
+        console.log(targetPlayerCoord);
         this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
         this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
     }
@@ -109,8 +139,7 @@ export class VirtualPlayerService {
         const validPaths = pathsToItems.filter((path) => path[0].length !== 0);
         if (validPaths.length === 0) {
             console.log('No valid paths to items found');
-            this.move();
-            return;
+            return false;
         }
 
         const itemPriorities = this.isDefensive() ? DEFENSIVE_PRIORITY_ITEMS : AGGRESIVE_PRIORITY_ITEMS;
@@ -139,8 +168,7 @@ export class VirtualPlayerService {
                 willReplaceItem = true;
             } else {
                 console.log('Not picking up item');
-                this.move();
-                return;
+                return false;
             }
         }
 
@@ -152,17 +180,46 @@ export class VirtualPlayerService {
         if (willReplaceItem) {
             this.replaceItem(lowestPriorityItem, chosenItemName);
         }
+        return true;
     }
 
-    openAllDoors(game: GameStructure): GameStructure {
-        let gameStructureOpenedDoors = JSON.parse(JSON.stringify(game)) as GameStructure;
-        gameStructureOpenedDoors.map.forEach((tile) => {
-            if (tile.tileType === 'doorClosed') {
-                console.log('Opening door');
-                tile.tileType = 'doorOpen';
+    moveToPlayers() {
+        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        if (!gameInstance) {
+            return;
+        }
+        const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
+
+        const gameStructureOpenedDoors = this.openAllDoors(gameInstance.game);
+        const pathsToPlayers = this.findPathsToPlayers(gameStructureOpenedDoors, virtualPlayerCoord.position, gameInstance.currentPlayerMoveBudget);
+
+        const validPaths = pathsToPlayers.filter((path) => path.length !== 0);
+        if (validPaths.length === 0) {
+            console.log('No valid paths to players found');
+            return false;
+        }
+
+        validPaths.sort((a, b) => a.length - b.length);
+        const chosenPlayerPath = validPaths[0];
+
+        console.log('Moving to player');
+        this.moveThroughDoors(virtualPlayerCoord.position, chosenPlayerPath, gameInstance.game.map);
+        return true;
+    }
+
+    findPathsToPlayers(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+        let pathsToPlayers = [];
+        gameStructure.map.forEach((tile) => {
+            if (tile.hasPlayer && tile.idx !== startPosition) {
+                console.log(tile);
+                console.log(startPosition);
+                console.log(budget);
+                const player = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
+                console.log('Player:', player);
+                pathsToPlayers.push(player.path);
             }
         });
-        return gameStructureOpenedDoors;
+        return pathsToPlayers;
     }
 
     findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
@@ -176,6 +233,17 @@ export class VirtualPlayerService {
             }
         });
         return pathsToItems;
+    }
+
+    // this is necessary since the shortest path function does not take into account closed doors
+    openAllDoors(game: GameStructure): GameStructure {
+        let gameStructureOpenedDoors = JSON.parse(JSON.stringify(game)) as GameStructure;
+        gameStructureOpenedDoors.map.forEach((tile) => {
+            if (tile.tileType === 'doorClosed') {
+                tile.tileType = 'doorOpen';
+            }
+        });
+        return gameStructureOpenedDoors;
     }
 
     findLowestPriorityItem(inventory: string[], itemPriorities: string[]): string {
