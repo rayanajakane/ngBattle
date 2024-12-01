@@ -235,7 +235,7 @@ export class CombatService {
 
     attack(roomId: string, attackPlayer: PlayerCoord, defensePlayer: PlayerCoord, server: Server): [number, number, string, PlayerCoord, boolean] {
         if (this.isPlayerInCombat(roomId, attackPlayer) && this.isPlayerInCombat(roomId, defensePlayer)) {
-            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer);
+            const checkAttack = this.checkAttackSuccessful(attackPlayer, defensePlayer, roomId);
             if (checkAttack[0]) {
                 defensePlayer.player.attributes.currentHealth -= SUCCESSFUL_ATTACK_DAMAGE;
                 if (defensePlayer.player.attributes.currentHealth <= 0) {

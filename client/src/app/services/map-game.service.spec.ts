@@ -1,25 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { GameState, GameTile, ShortestPathByTile, TilePreview } from '@common/game-structure';
-import { Player, PlayerAttribute, PlayerCoord } from '@common/player';
+import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { ActionStateService } from './action-state.service';
 import { CombatStateService } from './combat-state.service';
-import { TEST_SHORTEST_PATH_BY_INDEX } from './constants';
+import { MOCK_PLAYER, TEST_SHORTEST_PATH_BY_INDEX } from './constants';
 import { MapGameService } from './map-game.service';
 import { MovingStateService } from './moving-state.service';
 import { NotPlayingStateService } from './not-playing-state.service';
 
-const player1: Player = {
-    id: '1',
-    name: 'player1',
-    isAdmin: false,
-    avatar: '1',
-    attributes: {} as PlayerAttribute,
-    isActive: false,
-    abandoned: true,
-    wins: 0,
-    stats: {} as PlayerStats,
-};
+const player1: Player = MOCK_PLAYER;
 
 /* eslint-disable */ // Magic numbers are used for testing purposes
 

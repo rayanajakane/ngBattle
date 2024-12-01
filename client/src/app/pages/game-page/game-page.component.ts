@@ -17,7 +17,7 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
+import { MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
 import { ActionStateService } from '@app/services/action-state.service';
 import { CombatStateService } from '@app/services/combat-state.service';
 import { GameControllerService } from '@app/services/game-controller.service';
@@ -72,6 +72,7 @@ export class GamePageComponent implements OnDestroy {
     remainingEscapeChances: number = -1;
     combatInitiatorId: string = '';
     isAdmin = false;
+    gameFinished = false;
     readonly gameController = inject(GameControllerService);
     private readonly httpService = inject(HttpClientService);
     private readonly mapService = inject(MapGameService);
@@ -321,8 +322,8 @@ export class GamePageComponent implements OnDestroy {
         this.socketService.on('lastManStanding', () => {
             this.redirectLastManStanding();
         });
-        this.socketService.on('endGame', (endGameMessage: string) => {
-            this.redirectEndGame(endGameMessage);
+        this.socketService.on('endGame', (data: { globalStats: GlobalStats; players: Player[]; endGameMessage: string }) => {
+            this.redirectEndGame(data.globalStats, data.players, data.endGameMessage);
         });
     }
 
@@ -449,13 +450,6 @@ export class GamePageComponent implements OnDestroy {
         this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
 
-    redirectEndGame(endGameMessage: string) {
-        setTimeout(() => {
-            this.router.navigate(['/home']);
-        }, ENDGAME_DELAY);
-        this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
-    }
-
     endTurn() {
         if (this.gameController.isActivePlayer()) {
             this.resetPlayerView();
@@ -504,17 +498,14 @@ export class GamePageComponent implements OnDestroy {
 
     quitGame() {
         this.router.navigate(['/home']);
-        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', {
-            duration: SNACKBAR_DURATION,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-        });
+        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
     redirectEndGame(globalStats: GlobalStats, players: Player[], endGameMessage: string) {
         let navData;
         console.log('players', players);
         console.log('players[0].stats', players[0].stats);
         console.log('globalStats', globalStats);
+        this.gameFinished = true;
         setTimeout(() => {
             navData = {
                 roomId: this.gameController.roomId,
@@ -525,17 +516,12 @@ export class GamePageComponent implements OnDestroy {
             const navDataString = JSON.stringify(navData);
             this.router.navigate(['/gameEnd'], { queryParams: { data: navDataString } });
         }, 1000);
-        this.snackbar.open(endGameMessage, 'Fermer', {
-            duration: SNACKBAR_DURATION,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-        });
+        this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
-
 
     ngOnDestroy() {
         // this.gameController.isDebugModeActive = false;
         // this.mapService.resetPlayerView();
-        this.socketService.disconnect();
+        if (!this.gameFinished) this.socketService.disconnect();
     }
 }

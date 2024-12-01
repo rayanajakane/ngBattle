@@ -96,9 +96,10 @@ export class ActionHandlerService {
                     this.syncDelay(this.TIME_BETWEEN_MOVES);
                     this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                     activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
-                    player.stats.visitedTilesPercent = (player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;
-                    console.log('Visited Tiles: ', player.stats.visitedTilesPercent);
-                    console.log('Visited Tiles: ', player.stats.visitedTiles);
+                    player.player.stats.visitedTilesPercent =
+                        (player.player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;
+                    console.log('Visited Tiles: ', player.player.stats.visitedTilesPercent);
+                    console.log('Visited Tiles: ', player.player.stats.visitedTiles);
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
                     activeGame.game.map[pastPosition].hasPlayer = false;

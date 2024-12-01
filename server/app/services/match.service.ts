@@ -107,6 +107,18 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
+            inventory: [],
+            stats: {
+                combatCount: 0,
+                escapeCount: 0,
+                victoryCount: 0,
+                defeatCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                visitedTilesPercent: 0,
+                visitedTiles: new Set<number>(),
+            },
         };
         room.players.push(player);
 

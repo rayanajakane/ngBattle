@@ -98,8 +98,6 @@ export class ActiveGamesService {
 
             const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
 
-            const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
-
             //TODO: move to action-handler service
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
