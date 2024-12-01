@@ -292,11 +292,13 @@ export class CombatService {
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
             this.resetAllAttributes(roomId, playerKilled);
-            this.teleportPlayerToHome(roomId, playerKilled);
+
             this.resetAllAttributes(roomId, playerKiller);
 
             this.disperseKilledPlayerObjects(server, roomId, playerKilled);
             playerKilled.player.inventory = [];
+
+            this.teleportPlayerToHome(roomId, playerKilled);
 
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
