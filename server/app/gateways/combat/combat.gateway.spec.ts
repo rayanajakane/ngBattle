@@ -2,12 +2,15 @@ import { ActionButtonService } from '@app/services/action-button/action-button.s
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatHandlerService } from '@app/services/combat-handler/combat-handler.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
 import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CombatGateway } from './combat.gateway';
 describe('CombatGateway', () => {
@@ -21,8 +24,21 @@ describe('CombatGateway', () => {
                 GameService,
                 ActionHandlerService,
                 MatchService,
+                LogSenderService,
                 DebugModeService,
                 MovementService,
+                {
+                    provide: CombatHandlerService,
+                    useValue: {},
+                },
+                {
+                    provide: VirtualPlayerService,
+                    useValue: {
+                        createVirtualPlayer: jest.fn(),
+                        deleteVirtualPlayer: jest.fn(),
+                        updateVirtualPlayer: jest.fn(),
+                    },
+                },
                 CombatGateway,
                 InventoryService,
                 {

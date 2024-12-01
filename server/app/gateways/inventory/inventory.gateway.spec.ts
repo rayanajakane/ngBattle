@@ -2,6 +2,7 @@ import { ActionHandlerService } from '@app/services/action-handler/action-handle
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { GameService } from '@app/services/game.service';
 import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'http';
@@ -18,6 +19,7 @@ describe('InventoryGateway', () => {
                 InventoryGateway,
                 InventoryService,
                 ActiveGamesService,
+                LogSenderService,
                 {
                     provide: ActionHandlerService,
                     useValue: {

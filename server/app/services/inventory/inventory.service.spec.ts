@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ActiveGamesService } from '../active-games/active-games.service';
 import { GameService } from '../game.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { InventoryService } from './inventory.service';
 
@@ -12,6 +13,7 @@ describe('InventoryService', () => {
             providers: [
                 InventoryService,
                 ActiveGamesService,
+                LogSenderService,
                 UniqueItemRandomizerService,
                 GameService,
                 {

@@ -1,8 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
+import { ActionHandlerService } from './action-handler/action-handler.service';
+import { ActiveGamesService } from './active-games/active-games.service';
 import { GameService } from './game.service';
+import { LogSenderService } from './log-sender/log-sender.service';
 import { MatchService } from './match.service';
+import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -23,6 +27,22 @@ describe('MatchService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchService,
+                {
+                    provide: LogSenderService,
+                    useValue: {},
+                },
+                {
+                    provide: ActiveGamesService,
+                    useValue: {},
+                },
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
+                {
+                    provide: UniqueItemRandomizerService,
+                    useValue: {},
+                },
                 {
                     provide: GameService,
                     useValue: {
