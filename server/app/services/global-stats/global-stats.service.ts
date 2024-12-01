@@ -6,10 +6,10 @@ import { Injectable } from '@nestjs/common';
 export class GlobalStatsService {
     globalStats: GlobalStats;
 
-    visitedIndex: Set<number>;
-    usedDoors: Set<number>;
+    visitedIndex: Set<number> = new Set<number>();
+    usedDoors: Set<number> = new Set<number>();
 
-    playerHeldFlag: Set<Player>;
+    playerHeldFlag: Set<Player> = new Set<Player>();
 
     maxNbDoors: number;
     maxNbTiles: number;

@@ -137,7 +137,7 @@ export class ActionHandlerService {
                 }
             });
 
-            if (!player.player.isVirtual) {
+            if (!player.player.isVirtual && !ctfWinCondition) {
                 client.emit('endMove', {
                     availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
                     currentMoveBudget: activeGame.currentPlayerMoveBudget,

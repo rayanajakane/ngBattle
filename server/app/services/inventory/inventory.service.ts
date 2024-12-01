@@ -121,6 +121,9 @@ export class InventoryService {
     }
 
     setItemsHeldAttribute(player: Player, item: ItemTypes) {
+        if (!player.attributes.itemsHeld) {
+            player.attributes.itemsHeld = new Set<ItemTypes>();
+        }
         player.attributes.itemsHeld.add(item);
         player.stats.uniqueItemsCollected = player.attributes.itemsHeld.size;
     }

@@ -8,6 +8,9 @@
             [class.active]="activePlayer && activePlayer.id === element.id"
             [class.abandoned]="afkPlayerIds.includes(element.id)"
         >
+            @if (hasFlag(element)) {
+            <mat-icon aria-hidden="false" aria-label="Flag icon" fontIcon="flag"></mat-icon>
+            }
             {{ element.isAdmin ? 'Organisateur' : 'Joueur' }}
         </td>
     </ng-container>
