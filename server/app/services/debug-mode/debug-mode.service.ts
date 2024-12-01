@@ -7,7 +7,6 @@ export class DebugModeService {
         this.isDebugModeHashMap.set(roomId, true);
     }
     debugModeOff(roomId): void {
-        console.log('debugModeOff');
         this.isDebugModeHashMap.set(roomId, false);
     }
     switchDebugMode(roomId): void {

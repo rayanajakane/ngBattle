@@ -7,12 +7,14 @@ import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { LogSenderService } from '../log-sender/log-sender.service';
 
 @Injectable()
 export class CombatHandlerService {
     constructor(
         private readonly activeGameService: ActiveGamesService,
         private readonly actionButtonService: ActionButtonService,
+        private readonly logService: LogSenderService,
         @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
@@ -38,11 +40,7 @@ export class CombatHandlerService {
                 .to(roomId)
                 .emit('startCombat', { attacker: firstTurnPlayer, defender: secondTurnPlayer, combatInitiatorId: initialPlayer.player.id });
 
-            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-            const message = `Combat entre ${firstTurnPlayer.player.name} et ${secondTurnPlayer.player.name} a été débuté`;
-            server
-                .to(roomId)
-                .emit('newLog', { date: formattedTime, message, sender: firstTurnPlayer.player.id, receiver: secondTurnPlayer.player.id });
+            this.logService.sendStartCombatLog(server, roomId, firstTurnPlayer.player, secondTurnPlayer.player);
         } else if (
             this.activeGameService.getActiveGame(roomId).game.map[target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(roomId).game.map[target].tileType === TileTypes.DOOROPEN
@@ -72,14 +70,15 @@ export class CombatHandlerService {
                 isAttackSuccessful,
             });
 
-            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-            const attackResult = isAttackSuccessful ? 'réussi' : 'échoué';
-            const message = `${initialPlayer.player.name} attaque ${defender.player.name}. \n L'attaque a ${attackResult}. \n
-            Jet de dé attaquant: ${attackerDice}.\n Jet de dé défenseur: ${defenderDice}\n
-            calcul: ${initialPlayer.player.attributes.attack + attackerDice} vs ${defender.player.attributes.defense + defenderDice}`;
-            server
-                .to(roomId)
-                .emit('newLog', { date: formattedTime, message, sender: initialPlayer.player.id, receiver: defender.player.id, exclusive: true });
+            this.logService.sendAttackActionLog(
+                server,
+                roomId,
+                initialPlayer.player,
+                defender.player,
+                attackerDice,
+                defenderDice,
+                isAttackSuccessful,
+            );
 
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(roomId, defender);
@@ -100,12 +99,9 @@ export class CombatHandlerService {
 
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(roomId, fighter);
         server.to(roomId).emit('didEscape', { playerId: playerId, remainingEscapeChances, hasEscaped: escapeResult });
-        const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
 
         if (escapeResult) {
-            console.log('escape successful');
-            const message = `${fighter.player.name} a réussi à s'échapper du combat`;
-            server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
+            this.logService.sendEscapedCombat(server, roomId, fighter.player);
             this.combatService.endCombat(roomId, server, fighter);
             if (defender.player.isVirtual) {
                 this.virtualPlayerService.roomId = roomId;
@@ -114,9 +110,7 @@ export class CombatHandlerService {
                 this.virtualPlayerService.think();
             }
         } else {
-            console.log('escape failed');
-            const message = `${fighter.player.name} a échoué à s'échapper du combat`;
-            server.to(roomId).emit('newLog', { date: formattedTime, message, receiver: defender.player.id, sender: playerId, exclusive: true });
+            this.logService.sendHasNotEscapedCombat(server, roomId, fighter.player);
             if (!defender.player.isVirtual) {
                 this.combatService.startCombatTurn(roomId, defender);
                 server.to(roomId).emit('changeCombatTurn', defender.player.id);

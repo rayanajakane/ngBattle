@@ -17,6 +17,7 @@ import { DebugModeService } from './services/debug-mode/debug-mode.service';
 import { GameValidationService } from './services/game-validation.service';
 import { GameService } from './services/game.service';
 import { InventoryService } from './services/inventory/inventory.service';
+import { LogSenderService } from './services/log-sender/log-sender.service';
 import { MapValidationService } from './services/map-validation.service';
 import { MatchService } from './services/match.service';
 import { MovementService } from './services/movement/movement.service';
@@ -59,6 +60,7 @@ import { VirtualPlayerService } from './services/virtual-player/virtual-player.s
             useClass: VirtualPlayerService,
         },
         CombatHandlerService,
+        LogSenderService,
     ],
     exports: [ActionHandlerService],
 })

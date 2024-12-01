@@ -51,5 +51,4 @@ export class CombatGateway {
     handleWinnerPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         this.combatHandlerService.handleWinnerPlayer(data.roomId, data.playerId, client);
     }
-    // disperseKilledPlayerObjects (sprint 3)
 }

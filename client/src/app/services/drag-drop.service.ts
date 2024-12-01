@@ -16,7 +16,6 @@ export class DragDropService {
     startingPointCounter: number = DEFAULT_STARTING_COUNTER_TWO;
     itemCounter: number = DEFAULT_STARTING_COUNTER_TWO;
     flagACounter: number = DEFAULT_STARTING_COUNTER_ONE;
-    flagBCounter: number = DEFAULT_STARTING_COUNTER_ONE;
 
     draggedTile: string = '';
     transparentImage: string = '';
@@ -43,6 +42,7 @@ export class DragDropService {
             startingCounter = DEFAULT_STARTING_COUNTER_SIX;
         }
 
+        this.flagACounter = 1;
         this.startingPointCounter = startingCounter - placedStartingPoints < 0 ? 0 : startingCounter - placedStartingPoints;
         this.itemCounter = startingCounter - placedRandomItems < 0 ? 0 : startingCounter - placedRandomItems;
     }
@@ -68,10 +68,6 @@ export class DragDropService {
     reduceFlagACounter() {
         if (this.flagACounter > 0) this.flagACounter--;
     }
-    reduceFlagBCounter() {
-        if (this.flagBCounter > 0) this.flagBCounter--;
-    }
-
     incrementNumberStartingPoints() {
         this.startingPointCounter++;
     }
@@ -80,8 +76,5 @@ export class DragDropService {
     }
     incrementFlagACounter() {
         if (this.flagACounter === 0) this.flagACounter++;
-    }
-    incrementFlagBCounter() {
-        if (this.flagBCounter === 0) this.flagBCounter++;
     }
 }

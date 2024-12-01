@@ -49,3 +49,8 @@ export enum TimerState {
     COOLDOWN,
     COMBAT,
 }
+
+export enum GameMode {
+    ClASSIC = 'classic',
+    CTF = 'ctf',
+}

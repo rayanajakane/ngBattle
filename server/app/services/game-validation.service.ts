@@ -17,13 +17,20 @@ export class GameValidationService {
 
     async validateNewGame(game: GameStructure): Promise<string[]> {
         this.errors = [];
-
         this.validateProperties(game);
         this.validateMap(game);
         this.validateGameName(game);
+        this.validateCtfGameMode(game);
         await this.validateUniqueChecks(game);
 
         return this.errors;
+    }
+
+    validateCtfGameMode(game: GameStructure) {
+        if (game.gameType !== 'ctf') return;
+        if (!game.map.find((tile) => tile.item === 'drapeau-A')) {
+            this.errors.push("Il n'y a pas de drapeau sur la carte");
+        }
     }
 
     async validateUpdatedGame(game: GameStructure): Promise<string[]> {
@@ -32,6 +39,7 @@ export class GameValidationService {
         this.validateProperties(game);
         this.validateMap(game);
         this.validateGameName(game);
+        this.validateCtfGameMode(game);
         await this.validateUniqueNameUpdate(game.gameName, game.id);
 
         return this.errors;

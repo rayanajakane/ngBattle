@@ -1,5 +1,7 @@
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
 import { PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
@@ -13,7 +15,9 @@ export class ActionGateway implements OnGatewayInit {
     constructor(
         private readonly actionHandler: ActionHandlerService,
         private readonly inventoryService: InventoryService,
-        private readonly matchService: MatchService,
+        private logSenderService: LogSenderService,
+        private matchService: MatchService,
+        private debugModeService: DebugModeService,
     ) {}
 
     @SubscribeMessage('gameSetup')

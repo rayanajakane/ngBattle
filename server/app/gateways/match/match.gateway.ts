@@ -2,6 +2,7 @@ import { ActionHandlerService } from '@app/services/action-handler/action-handle
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
 import { PlayerAttribute } from '@common/player';
 import { TileTypes } from '@common/tile-types';
@@ -27,6 +28,7 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         private readonly action: ActionService,
         private debugModeService: DebugModeService,
         private activeGamesService: ActiveGamesService,
+        private logService: LogSenderService,
     ) {}
 
     @SubscribeMessage('createRoom')
@@ -106,9 +108,7 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     @SubscribeMessage('requestDebugMode')
     handleDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
         this.debugModeService.switchDebugMode(data.roomId);
-        const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-        const logMessage = 'Mode débogage est ' + (this.debugModeService.getDebugMode(data.roomId) ? 'activé' : 'désactivé');
-        this.server.to(data.roomId).emit('newLog', { date: formattedTime, message: logMessage, receiver: data.playerId, exclusive: false });
+        this.logService.sendDebugModeLog(this.server, data.roomId, data.playerId, this.debugModeService.getDebugMode(data.roomId));
         this.server.to(data.roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(data.roomId) });
     }
 

@@ -5,6 +5,7 @@ import { GameStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 export interface GameInstance {
     roomId: string;
+    // gameMode: GameMode;
     game: GameStructure;
     turnTimer?: TimerService;
     combatTimer?: CombatTimerService;

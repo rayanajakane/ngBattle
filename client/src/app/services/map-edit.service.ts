@@ -65,8 +65,7 @@ export class MapEditService extends MapBaseService {
         return (
             (itemType === ItemTypes.STARTINGPOINT && this.dragDropService.startingPointCounter === 0) ||
             (this.isItemType(itemType) && this.dragDropService.itemCounter === 0) ||
-            (itemType === ItemTypes.FLAG_A && this.dragDropService.flagACounter === 0) ||
-            (itemType === ItemTypes.FLAG_B && this.dragDropService.flagBCounter === 0)
+            (itemType === ItemTypes.FLAG_A && this.dragDropService.flagACounter === 0)
         );
     }
 
@@ -89,8 +88,6 @@ export class MapEditService extends MapBaseService {
             this.dragDropService.incrementNumberItem();
         } else if (currentItemType === ItemTypes.FLAG_A) {
             this.dragDropService.incrementFlagACounter();
-        } else if (currentItemType === ItemTypes.FLAG_B) {
-            this.dragDropService.incrementFlagBCounter();
         }
         if (currentItemType !== ItemTypes.STARTINGPOINT) {
             this.dragDropService.reduceStartingPointCounter();
@@ -102,8 +99,6 @@ export class MapEditService extends MapBaseService {
             this.dragDropService.incrementNumberItem();
         } else if (currentItemType === ItemTypes.STARTINGPOINT) {
             this.dragDropService.incrementNumberStartingPoints();
-        } else if (currentItemType === ItemTypes.FLAG_B) {
-            this.dragDropService.incrementFlagBCounter();
         }
         if (currentItemType !== ItemTypes.FLAG_A) {
             this.dragDropService.reduceFlagACounter();
@@ -118,9 +113,6 @@ export class MapEditService extends MapBaseService {
         } else if (currentItemType === ItemTypes.FLAG_A) {
             this.dragDropService.incrementFlagACounter();
         }
-        if (currentItemType !== ItemTypes.FLAG_B) {
-            this.dragDropService.reduceFlagBCounter();
-        }
     }
 
     setItemCounterHandler(currentItemType: string) {
@@ -128,8 +120,6 @@ export class MapEditService extends MapBaseService {
             this.dragDropService.incrementNumberStartingPoints();
         } else if (currentItemType === ItemTypes.FLAG_A) {
             this.dragDropService.incrementFlagACounter();
-        } else if (currentItemType === ItemTypes.FLAG_B) {
-            this.dragDropService.incrementFlagBCounter();
         }
         if (!this.isItemType(currentItemType)) {
             this.dragDropService.reduceItemCounter();
@@ -180,8 +170,6 @@ export class MapEditService extends MapBaseService {
             this.dragDropService.incrementNumberStartingPoints();
         } else if (currentItemType === ItemTypes.FLAG_A) {
             this.dragDropService.incrementFlagACounter();
-        } else if (currentItemType === ItemTypes.FLAG_B) {
-            this.dragDropService.incrementFlagBCounter();
         } else if (this.isItemType(currentItemType)) {
             this.dragDropService.incrementNumberItem();
         }

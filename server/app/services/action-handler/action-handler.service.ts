@@ -6,9 +6,11 @@ import { InventoryService } from '@app/services/inventory/inventory.service';
 import { MatchService } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
+import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { LogSenderService } from '../log-sender/log-sender.service';
 
 @Injectable()
 export class ActionHandlerService {
@@ -19,6 +21,7 @@ export class ActionHandlerService {
         private readonly activeGamesService: ActiveGamesService,
         private readonly inventoryService: InventoryService,
         private readonly debugModeService: DebugModeService,
+        private readonly logSenderService: LogSenderService,
         @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
@@ -28,11 +31,6 @@ export class ActionHandlerService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     //TODO: move to a utils file
     private readonly TIME_BETWEEN_MOVES = 150;
-
-    getCurrentTimeFormatted(): string {
-        const currentTime = new Date();
-        return currentTime.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false }); // HH:MM:SS in EST
-    }
 
     handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
@@ -66,11 +64,7 @@ export class ActionHandlerService {
                 currentMoveBudget: activeGame.currentPlayerMoveBudget,
             });
         }
-        const formattedTime = this.getCurrentTimeFormatted();
-        const playerName = player.name;
-
-        const message = `Début de tour de ${playerName}`;
-        server.to(data.roomId).emit('newLog', { date: formattedTime, message, receiver: data.playerId });
+        this.logSenderService.sendStartTurnLog(server, data.roomId, player);
 
         if (player.isVirtual) {
             player.actionNumber = 1;
@@ -107,10 +101,9 @@ export class ActionHandlerService {
                 iceSlip = true;
             }
 
+            let ctfWinCondition = false;
             playerPositions.forEach((playerPosition, index) => {
-                if (index !== 0 && !iceSlip && !isItemAddedToInventory) {
-                    //TODO: check for a synchronous way to do this (remove set timeout)
-
+                if (index !== 0 && !iceSlip && !isItemAddedToInventory && !ctfWinCondition) {
                     this.syncDelay(this.TIME_BETWEEN_MOVES);
                     this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                     activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
@@ -121,10 +114,10 @@ export class ActionHandlerService {
 
                     activeGame.game.map[playerPosition].hasPlayer = true;
                     activeGame.game.map[pastPosition].hasPlayer = false;
-
                     activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
-
                     pastPosition = playerPosition;
+
+                    ctfWinCondition = this.isOnHomePosition(player.player, playerPosition);
 
                     tileItem = gameMap[playerPosition].item;
 
@@ -138,8 +131,6 @@ export class ActionHandlerService {
                         activeGame.currentPlayerMoveBudget = 0;
                         iceSlip = true;
                     }
-
-                    //TODO: put back the object if inventory is full
                 }
             });
 
@@ -150,7 +141,12 @@ export class ActionHandlerService {
                     hasSlipped: iceSlip,
                 });
             }
+            if (ctfWinCondition) this.action.endGame(roomId, server, player);
         }
+    }
+
+    isOnHomePosition(player: Player, position: number): boolean {
+        return player.inventory.includes(ItemTypes.FLAG_A) && position === player.homePosition;
     }
 
     handleEndTurn(data: { roomId: string; playerId: string; lastTurn: boolean }, server: Server) {
@@ -191,17 +187,11 @@ export class ActionHandlerService {
             availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
         });
 
-        const playerName = this.activeGamesService.getActiveGame(roomId).playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId)
-            .player.name;
+        const player = this.activeGamesService
+            .getActiveGame(roomId)
+            .playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).player;
 
-        let message = '';
-        if (map[doorPosition].tileType === TileTypes.DOOROPEN) {
-            message = `Porte a été ouverte par ${playerName}`;
-        } else if (map[doorPosition].tileType === TileTypes.DOORCLOSED) {
-            message = `Porte a été fermée par ${playerName}`;
-        }
-
-        server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: data.playerId });
+        this.logSenderService.sendDoorInteractionLog(server, roomId, player, map[doorPosition].tileType as TileTypes);
     }
 
     handleQuitGame(server: Server, client: Socket) {
@@ -209,16 +199,16 @@ export class ActionHandlerService {
         const activeGame = this.activeGamesService.getActiveGameByPlayerId(playerId);
         if (!activeGame) return;
 
+        const roomId = activeGame.roomId;
+        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player;
+
         this.combatService.disperseKilledPlayerObjects(
             server,
             activeGame.roomId,
             activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId),
         );
 
-        const roomId = activeGame.roomId;
-        const playerName = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).player.name;
-        const message = `${playerName} a quitté la partie`;
-        server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message, receiver: playerId });
+        this.logSenderService.sendQuitGameLog(server, roomId, player);
 
         const activePlayerId = activeGame.playersCoord[activeGame.turn].player.id;
         if (this.combatService.fightersMap.get(roomId)) {
@@ -239,9 +229,7 @@ export class ActionHandlerService {
         server.to(roomId).emit('quitGame', playerId);
 
         if (activeGame.playersCoord.length === 1) {
-            const lastManStanding = activeGame.playersCoord[0].player.name;
-            const logMessage = `Partie terminée: ${lastManStanding} a gagné la partie. Joueurs restants: ${lastManStanding}`;
-            server.to(roomId).emit('newLog', { date: this.getCurrentTimeFormatted(), message: logMessage });
+            this.logSenderService.sendEndGameLog(server, roomId, activeGame.playersCoord[0].player.name);
 
             server.to(roomId).emit('lastManStanding');
 

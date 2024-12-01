@@ -3,9 +3,13 @@ import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { LogSenderService } from '../log-sender/log-sender.service';
 @Injectable()
 export class InventoryService {
-    constructor(readonly activeGameService: ActiveGamesService) {}
+    constructor(
+        readonly activeGameService: ActiveGamesService,
+        readonly logSenderService: LogSenderService,
+    ) {}
 
     handleCombatInventory(player: Player) {
         player.inventory.forEach((item) => {
@@ -24,7 +28,7 @@ export class InventoryService {
         }
     }
 
-    handleItemEffect(item: ItemTypes, player: Player, isReset: boolean) {
+    handleItemEffect(item: ItemTypes, player: Player, isReset: boolean, server?: Server, roomId?: string) {
         switch (item) {
             case ItemTypes.AA1:
                 this.handleAA1Item(player, isReset);
@@ -37,6 +41,9 @@ export class InventoryService {
                 break;
             case ItemTypes.AC2:
                 this.handleAC2Item(player, isReset);
+                break;
+            case ItemTypes.FLAG_A:
+                this.handleFlagItem(server, roomId, player);
             default:
                 break;
         }
@@ -74,6 +81,10 @@ export class InventoryService {
         }
     }
 
+    handleFlagItem(server: Server, roomId: string, player: Player) {
+        this.logSenderService.sendFlagHasBeenPickedUp(server, roomId, player.name);
+    }
+
     getSlippingChance(player: Player): number {
         return player.inventory.includes(ItemTypes.AF1) ? 0 : 0.1;
     }
@@ -103,7 +114,7 @@ export class InventoryService {
             this.emitItemToReplace(server, player, item, roomId);
         } else {
             inventory.push(item);
-            this.handleItemEffect(item, player.player, false);
+            this.handleItemEffect(item, player.player, false, server, roomId);
             this.emitNewPlayerInventory(server, roomId, player);
         }
     }

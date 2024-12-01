@@ -23,6 +23,7 @@ import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { InventoryService } from '../inventory/inventory.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 
 @Injectable()
 export class CombatService {
@@ -35,6 +36,7 @@ export class CombatService {
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
         @Inject(InventoryService) private readonly inventoryService: InventoryService,
+        @Inject(LogSenderService) private readonly logSender: LogSenderService,
     ) {}
 
     // You can also replace this.currentTurnMap.set(roomId, index)
@@ -105,14 +107,7 @@ export class CombatService {
         this.currentTurnMap.delete(roomId);
 
         if (player && player.player.wins === WINS_TO_WIN) {
-            let playersLeft = '';
-            gameInstance.playersCoord.forEach((p) => {
-                playersLeft = playersLeft.concat(`${p.player.name} `);
-            });
-            playersLeft = playersLeft.concat('.');
-            const logMessage = `Partie terminée: ${player.player.name} a gagné la partie. Joueurs restants: ${playersLeft}`;
-            const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-            server.to(roomId).emit('newLog', { date: formattedTime, message: logMessage });
+            this.logSender.sendEndGameLog(server, roomId, player.player.name);
 
             const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
             const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
@@ -255,12 +250,8 @@ export class CombatService {
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
                     this.inventoryService.resetCombatBoost(playerKiller.player);
                     this.inventoryService.resetCombatBoost(playerKilled.player);
-                    // log message
-                    const formattedTime = this.actionHandlerService.getCurrentTimeFormatted();
-                    const message = `Fin du combat: ${playerKiller.player.name} a tué ${playerKilled.player.name}`;
-                    server
-                        .to(roomId)
-                        .emit('newLog', { date: formattedTime, message, sender: playerKiller.player.id, receiver: playerKilled.player.id });
+
+                    this.logSender.sendKillLog(server, roomId, playerKiller.player, playerKilled.player);
 
                     // make virtual player think
                     if (playerKiller.player.isVirtual) {
@@ -333,6 +324,8 @@ export class CombatService {
         player.player.inventory.forEach((item) => {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
             const randomPosition = position + possiblePositions[randomIndex];
+            game.map[randomPosition].item = item;
+
             possiblePositions.splice(randomIndex, 1);
             itemsPositions.push({ idx: randomPosition, item });
         });
@@ -377,7 +370,7 @@ export class CombatService {
         const verifiedPositions = [];
         const mapLength = gameInstance.game.map.length;
         let n = 0;
-        while (verifiedPositions.length === 0) {
+        while (verifiedPositions.length < 2) {
             n++;
             // Check right movement
             if (position % mapSize < mapSize) {

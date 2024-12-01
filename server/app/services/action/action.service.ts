@@ -1,9 +1,12 @@
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { GameStructure } from '@common/game-structure';
+import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
+import { Server } from 'socket.io';
 import { DebugModeService } from '../debug-mode/debug-mode.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 @Injectable()
 export class ActionService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -12,6 +15,7 @@ export class ActionService {
         private readonly movement: MovementService,
         private readonly activeGamesService: ActiveGamesService,
         private readonly debug: DebugModeService,
+        private readonly logSenderService: LogSenderService,
     ) {}
 
     nextTurn(roomId: string, lastTurn: boolean): void {
@@ -101,5 +105,15 @@ export class ActionService {
         gameInstance.game.map[playerPosition].hasPlayer = false;
 
         playerCoord.splice(playerIndex, 1);
+    }
+
+    endGame(roomId: string, server: Server, player: PlayerCoord): void {
+        this.logSenderService.sendEndGameLog(server, roomId, player.player.name);
+        const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
+        const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
+        server
+            .to(roomId)
+            .emit('endGame', { globalStats: globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
+        this.activeGamesService.removeGameInstance(roomId);
     }
 }
