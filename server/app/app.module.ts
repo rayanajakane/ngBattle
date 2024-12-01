@@ -32,6 +32,7 @@ import { VirtualPlayerService } from './services/virtual-player/virtual-player.s
     controllers: [GameController],
     providers: [
         ActionButtonService,
+        DebugModeService,
         ActiveGamesService,
         GameService,
         GameValidationService,
@@ -47,7 +48,6 @@ import { VirtualPlayerService } from './services/virtual-player/virtual-player.s
         InventoryGateway,
         ActiveGamesService,
         CombatService,
-        DebugModeService,
         UniqueItemRandomizerService,
         InventoryService,
         VirtualPlayerService,

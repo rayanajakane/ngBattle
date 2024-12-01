@@ -5,7 +5,6 @@ import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
 import { PlayerAttribute } from '@common/player';
-import { TileTypes } from '@common/tile-types';
 import { Inject } from '@nestjs/common';
 import {
     ConnectedSocket,
@@ -114,26 +113,7 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
 
     @SubscribeMessage('teleportPlayer')
     handleTeleportPlayer(@MessageBody() data: { roomId: string; playerId: string; index: number }) {
-        if (this.debugModeService.getDebugMode(data.roomId)) {
-            console.log('REQUETE RECU VOILA  ', data);
-            const gameInstance = this.activeGamesService.getActiveGame(data.roomId);
-            const playerStart = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId);
-            const playerStartIndex = playerStart.position;
-            const currentPlayerMoveBudget = gameInstance.currentPlayerMoveBudget;
-            const map = gameInstance.game.map;
-            if (!map[data.index].hasPlayer && map[data.index].tileType !== TileTypes.WALL && map[data.index].tileType !== TileTypes.DOORCLOSED) {
-                map[playerStartIndex].hasPlayer = false;
-                map[data.index].hasPlayer = true;
-                gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === data.playerId).position = data.index;
-                const availableMoves = this.action.availablePlayerMoves(data.playerId, data.roomId);
-                this.server.to(data.roomId).emit('teleportResponse', {
-                    playerId: data.playerId,
-                    newPosition: data.index,
-                    availableMoves: availableMoves,
-                    currentPlayerMoveBudget: currentPlayerMoveBudget,
-                });
-            }
-        }
+        this.debugModeService.handleTeleportPlayer(data, this.server);
     }
 
     handleDisconnect(client: Socket) {
@@ -146,10 +126,7 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
                 isAdmin = player.isAdmin;
             }
         });
-        if (isAdmin) {
-            this.debugModeService.debugModeOff(roomId);
-            this.server.to(roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(roomId) });
-        }
+        this.debugModeService.handleDisconnect(this.server, client, isAdmin, roomId);
         this.actionHandlerService.handleQuitGame(this.server, client);
         this.matchService.leaveAllRooms(this.server, client);
     }

@@ -330,7 +330,6 @@ export class GamePageComponent implements OnDestroy {
     listenDebugMode() {
         this.socketService.on('responseDebugMode', (data: { isDebugMode: boolean }) => {
             this.gameController.isDebugModeActive = data.isDebugMode;
-            console.log('Debug mode received from server:', data.isDebugMode);
             this.snackbar.open(
                 `Le mode débogage a été ${this.gameController.isDebugModeActive ? 'activé' : 'désactivé'} par l'administrateur`,
                 'Fermer',
