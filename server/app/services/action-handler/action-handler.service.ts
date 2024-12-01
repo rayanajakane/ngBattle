@@ -241,6 +241,10 @@ export class ActionHandlerService {
         }
     }
 
+    handleGetAvailableMovesOnBudget(data: { roomId: string; playerId: string; currentBudget: number }, client: Socket) {
+        client.emit('availableMovesOnBudget', this.action.availablePlayerMovesOnBudget(data.playerId, data.roomId, data.currentBudget));
+    }
+
     private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
         server.to(roomId).emit('playerPositionUpdate', {
             playerId,
