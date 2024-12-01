@@ -109,7 +109,7 @@ export class MatchService {
         const player: Player = {
             id: isVirtual ? generateID() : client.id,
             name: checkedPlayerName,
-            isAdmin: true,
+            isAdmin: false,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
             isActive: true,

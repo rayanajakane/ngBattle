@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Avatar } from '@app/interfaces/avatar';
 import { DEFAULT_AVATAR_LIST } from '@app/services/constants';
 import { SocketService } from '@app/services/socket.service';
-import { Player } from '@common/player';
+import { Player, PlayerStats } from '@common/player';
 import { v4 as generateID } from 'uuid';
 
 @Component({
@@ -87,6 +87,7 @@ export class VirtualPlayerDialogComponent {
             isVirtual: true,
             virtualProfile: this.characterProfile,
             inventory: [],
+            stats: {} as PlayerStats,
             homePosition: 0,
         };
     }

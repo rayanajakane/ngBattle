@@ -85,8 +85,8 @@ export class ActionHandlerService {
         const playerId = data.playerId;
         const roomId = data.roomId;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
-        const playerCoord = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
-        const startPosition = playerCoord.position;
+        const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
+        const startPosition = player.position;
 
         if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
             const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
@@ -129,7 +129,7 @@ export class ActionHandlerService {
                     tileItem = gameMap[playerPosition].item;
 
                     if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
-                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, playerCoord, tileItem as ItemTypes);
+                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
                         gameMap[playerPosition].item = ItemTypes.EMPTY;
                         isItemAddedToInventory = true;
                     }
@@ -143,7 +143,7 @@ export class ActionHandlerService {
                 }
             });
 
-            if (!playerCoord.player.isVirtual) {
+            if (!player.player.isVirtual) {
                 client.emit('endMove', {
                     availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
                     currentMoveBudget: activeGame.currentPlayerMoveBudget,
