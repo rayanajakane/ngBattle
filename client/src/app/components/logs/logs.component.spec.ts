@@ -2,6 +2,7 @@ import { ChangeDetectorRef, ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogMessage } from '@app/interfaces/message';
 import { SocketService } from '@app/services/socket.service';
+import { PlayerStats } from '@common/player';
 import { LogsComponent } from './logs.component';
 
 describe('LogsComponent', () => {
@@ -92,6 +93,7 @@ describe('LogsComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            stats: {} as PlayerStats,
         };
 
         component.logsContainer = {

@@ -8,6 +8,7 @@ import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
+import { GlobalStatsService } from '../global-stats/global-stats.service';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 
 @Injectable()
@@ -60,10 +61,15 @@ export class ActiveGamesService {
 
     gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): void {
         let playerCoord: PlayerCoord[] = [];
+
         this.checkGameInstance(roomId, gameId).then(() => {
             const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
             playerCoord = this.randomizePlayerPosition(game, players);
+            const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
+            const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
             const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
+
+            // TODO: Create a function
             playerCoord.sort((a, b) => {
                 const speedA = a.player.attributes.speed;
                 const speedB = b.player.attributes.speed;
@@ -77,15 +83,24 @@ export class ActiveGamesService {
                 }
                 return Math.random() - CHANCES;
             });
+
+            //TODO: Create a function
             this.activeGames[activeGameIndex].playersCoord = playerCoord;
             this.activeGames[activeGameIndex].turn = 0;
             this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
             this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
+            this.activeGames[activeGameIndex].maxNbTiles = maxNbTiles;
+            this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
+            // TODO: uncomment when the a end game state is implemented
+            this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
 
             this.activeGames[activeGameIndex].turnTimer.startTimer();
 
             const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
 
+            const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
+
+            //TODO: move to action-handler service
             server.to(roomId).emit('gameSetup', {
                 playerCoords: playerCoord,
                 turn: this.activeGames[activeGameIndex].turn,

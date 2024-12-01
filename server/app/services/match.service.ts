@@ -42,6 +42,17 @@ export class MatchService {
             abandoned: true,
             wins: 0,
             inventory: [],
+            stats: {
+                combatCount: 0,
+                escapeCount: 0,
+                victoryCount: 0,
+                defeatCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                visitedTilesPercent: 0,
+                visitedTiles: new Set<number>(),
+            },
         };
         room.players.push(player);
 
@@ -90,13 +101,12 @@ export class MatchService {
         const player: Player = {
             id: client.id,
             name: checkedPlayerName,
-            isAdmin: false,
+            isAdmin: true,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
-            isActive: false,
-            abandoned: false,
+            isActive: true,
+            abandoned: true,
             wins: 0,
-            inventory: [],
         };
         room.players.push(player);
 

@@ -27,7 +27,8 @@ import { MovingStateService } from '@app/services/moving-state.service';
 import { NotPlayingStateService } from '@app/services/not-playing-state.service';
 import { SocketService } from '@app/services/socket.service';
 import { GameState, GameStructure, GameTile, ShortestPathByTile, TimerState } from '@common/game-structure';
-import { PlayerCoord } from '@common/player';
+import { GlobalStats } from '@common/global-stats';
+import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 
 // Game Page is complex and has many functionalities, so it is normal to have a high number of lines
@@ -503,7 +504,34 @@ export class GamePageComponent implements OnDestroy {
 
     quitGame() {
         this.router.navigate(['/home']);
+        this.snackbar.open('Tous les autres joueurs ont quitté la partie', 'Fermer', {
+            duration: SNACKBAR_DURATION,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+        });
     }
+    redirectEndGame(globalStats: GlobalStats, players: Player[], endGameMessage: string) {
+        let navData;
+        console.log('players', players);
+        console.log('players[0].stats', players[0].stats);
+        console.log('globalStats', globalStats);
+        setTimeout(() => {
+            navData = {
+                roomId: this.gameController.roomId,
+                characterName: this.gameController.player.name,
+                globalStats: globalStats,
+                players: players,
+            };
+            const navDataString = JSON.stringify(navData);
+            this.router.navigate(['/gameEnd'], { queryParams: { data: navDataString } });
+        }, 1000);
+        this.snackbar.open(endGameMessage, 'Fermer', {
+            duration: SNACKBAR_DURATION,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
+        });
+    }
+
 
     ngOnDestroy() {
         // this.gameController.isDebugModeActive = false;

@@ -18,6 +18,7 @@ const player1: Player = {
     isActive: false,
     abandoned: true,
     wins: 0,
+    stats: {} as PlayerStats,
 };
 
 /* eslint-disable */ // Magic numbers are used for testing purposes
