@@ -614,4 +614,21 @@ describe('CombatService', () => {
         expect(result).toBeGreaterThanOrEqual(1);
         expect(result).toBeLessThanOrEqual(diceSize);
     });
+
+    it('should emit disperseItems event with correct parameters', () => {
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const roomId = 'room1';
+        const itemsPositions = [
+            { idx: 1, item: 'item1' },
+            { idx: 2, item: 'item2' },
+        ];
+
+        service['emitDisperseItemsKilledPlayer'](server, roomId, itemsPositions);
+
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('disperseItems', itemsPositions);
+    });
 });
