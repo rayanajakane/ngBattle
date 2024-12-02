@@ -39,8 +39,6 @@ export class CombatService {
         @Inject(LogSenderService) private readonly logSender: LogSenderService,
     ) {}
 
-    // You can also replace this.currentTurnMap.set(roomId, index)
-    // with a setPlayerTurn method with more verification
     isPlayerInCombat(roomId: string, player: PlayerCoord): boolean {
         const fighters = this.fightersMap.get(roomId);
         return fighters ? fighters.some((fighter) => fighter.player.id === player.player.id) : false;
@@ -55,7 +53,6 @@ export class CombatService {
         gameInstance.turnTimer.pauseTimer();
 
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
-            // setup current attributes for each player in combat
             fighters.forEach((fighter) => {
                 if (fighter.player.attributes.currentHealth === undefined) {
                     fighter.player.attributes.currentHealth = fighter.player.attributes.health;
@@ -69,15 +66,11 @@ export class CombatService {
                 if (fighter.player.attributes.currentSpeed === undefined) {
                     fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
                 }
-                // verifies if player is on ice
                 this.applyIceDisadvantage(roomId, fighter);
             });
-
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
             gameInstance.combatTimer.startTimer(true);
-
-            // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
             firstPlayer.player.stats.combatCount++;
@@ -91,13 +84,11 @@ export class CombatService {
     }
 
     endCombat(roomId: string, server: Server, player?: PlayerCoord): PlayerCoord[] {
-        // inc wins if a player leaves game
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
 
         const fighters = this.fightersMap.get(roomId);
         if (fighters.length !== 0) {
-            // reset health no matter how combat ended
             fighters.forEach((fighter) => {
                 this.resetHealth(fighter);
             });
@@ -108,7 +99,6 @@ export class CombatService {
 
         if (player && player.player.wins === WINS_TO_WIN) {
             this.logSender.sendEndGameLog(server, roomId, player.player.name);
-
             const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
             const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
             console.log('allPlayers:', allPlayers[0].stats.visitedTiles);
@@ -134,7 +124,7 @@ export class CombatService {
 
     applyIceDisadvantage(roomId: string, player: PlayerCoord): void {
         if (this.isPlayerOnIce(roomId, player)) {
-            // verify if attributes are > 0
+            // TODO: verify if attributes are > 0
             player.player.attributes.currentAttack -= ICE_PENALTY;
             player.player.attributes.currentDefense -= ICE_PENALTY;
         }
@@ -149,7 +139,6 @@ export class CombatService {
     }
 
     escape(roomId: string, player: PlayerCoord): [PlayerAttribute['escape'], boolean] {
-        // only the player's turn can escape
         if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
             return [player.player.attributes.escape, false];
         }
@@ -162,7 +151,6 @@ export class CombatService {
             player.player.attributes.escape--;
             player.player.stats.escapeCount++;
             console.log('escape left:', player.player.stats.escapeCount);
-            // this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
     }
@@ -179,7 +167,6 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const hasEscape = player.player.attributes.escape > 0;
         gameInstance.combatTimer.startTimer(hasEscape);
-
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
     }
@@ -196,10 +183,8 @@ export class CombatService {
     endCombatTurn(roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
-
         if (!this.isPlayerInCombat(roomId, player)) return;
         const currentTurnIndex = this.currentTurnMap.get(roomId);
-
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
     }
@@ -225,7 +210,6 @@ export class CombatService {
             defenderRoll = this.throwDice(bonusDefenseDice, defender);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
-
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
@@ -238,10 +222,7 @@ export class CombatService {
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
                     this.inventoryService.resetCombatBoost(playerKiller.player);
                     this.inventoryService.resetCombatBoost(playerKilled.player);
-
                     this.logSender.sendKillLog(server, roomId, playerKiller.player, playerKilled.player);
-
-                    // make virtual player think
                     if (playerKiller.player.isVirtual) {
                         this.virtualPlayerService.roomId = roomId;
                         this.virtualPlayerService.virtualPlayerId = playerKiller.player.id;
@@ -257,7 +238,6 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
-
             this.logSender.sendAttackActionLog(
                 server,
                 roomId,
@@ -291,22 +271,16 @@ export class CombatService {
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
             this.resetAllAttributes(roomId, playerKilled);
-
             this.resetAllAttributes(roomId, playerKiller);
-
             this.disperseKilledPlayerObjects(server, roomId, playerKilled);
             playerKilled.player.inventory = [];
-
             this.teleportPlayerToHome(roomId, playerKilled);
-
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
                 killed: playerKilled,
                 killedOldPosition,
             });
-
             const fighters = this.endCombat(roomId, server, playerKiller);
-
             playerKilled.player.stats.defeatCount++;
             console.log('defeat:', playerKilled.player.stats.defeatCount);
             return [playerKiller, playerKilled, fighters];
@@ -319,9 +293,7 @@ export class CombatService {
         const game = gameInstance.game;
         const position = player.position;
         const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
-
         const itemsPositions: { idx: number; item: string }[] = [];
-
         player.player.inventory.forEach((item) => {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
             const randomPosition = position + possiblePositions[randomIndex];
@@ -335,7 +307,6 @@ export class CombatService {
     }
 
     emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { idx: number; item: string }[]): void {
-        // TODO: emit to client to disperse
         server.to(roomId).emit('disperseItems', itemsPositions);
     }
 
@@ -348,7 +319,6 @@ export class CombatService {
             player.position = playerHomePosition;
             game.map[playerHomePosition].hasPlayer = true;
         } else {
-            // if the home position taken, find a new position near home position
             const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
             const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
             player.position = playerHomePosition + verifiedPositions[randomIndex];
@@ -373,7 +343,6 @@ export class CombatService {
         let n = 0;
         while (verifiedPositions.length < 2) {
             n++;
-            // Check right movement
             if (position % mapSize < mapSize) {
                 if (
                     game.map[position + RIGHT_TILE * n].tileType !== TileTypes.WALL &&
@@ -383,8 +352,6 @@ export class CombatService {
                     verifiedPositions.push(RIGHT_TILE * n);
                 }
             }
-
-            // Check left movement
             if (position % mapSize <= 0) {
                 if (
                     game.map[position + LEFT_TILE * n].tileType !== TileTypes.WALL &&
@@ -394,8 +361,6 @@ export class CombatService {
                     verifiedPositions.push(LEFT_TILE * n);
                 }
             }
-
-            // Check upward movement
             if (position - mapSize * n >= 0) {
                 if (
                     game.map[position - mapSize * n].tileType !== TileTypes.WALL &&
@@ -405,8 +370,6 @@ export class CombatService {
                     verifiedPositions.push(n * mapSize * -1);
                 }
             }
-
-            // Check downward movement
             if (position + mapSize * n < mapLength) {
                 if (
                     game.map[position + mapSize * n].tileType !== TileTypes.WALL &&
