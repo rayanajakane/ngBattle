@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
 import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
+import { COOLDOWN_TIME, INITIAL_TIME, INTERVAL_DURATION } from './constants';
 import { TimerService } from './timer.service';
 /* eslint-disable */
 describe('TimerService', () => {
@@ -33,241 +34,144 @@ describe('TimerService', () => {
         expect(service).toBeDefined();
     });
 
-    // afterEach(() => {
-    //     jest.clearAllTimers();
-    //     jest.useRealTimers();
-    // });
+    it('should start cooldown timer first', () => {
+        service.startTimer();
+        expect(service['currentTime']).toBe(COOLDOWN_TIME);
+        expect(service['isCooldown']).toBe(true);
+    });
 
-    // it('should initialize with correct values', () => {
-    //     expect(service['currentTime']).toBe(30);
-    //     expect(service['isPaused']).toBe(false);
-    //     expect(service['isCooldown']).toBe(false);
-    // });
+    it('should emit timer updates during cooldown', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        expect(mockTo).toHaveBeenCalledWith('testRoom');
+        expect(mockEmit).toHaveBeenCalledWith('timerUpdate', COOLDOWN_TIME - 1);
+    });
 
-    // describe('startTimer', () => {
-    //     it('should start cooldown timer first', () => {
-    //         service.startTimer();
-    //         expect(service['currentTime']).toBe(3);
-    //         expect(service['isCooldown']).toBe(true);
-    //     });
+    it('should clear timer if already running', () => {
+        service.startTimer();
+        service.startTimer();
+        expect(service['currentTime']).toBe(COOLDOWN_TIME);
+    });
+    it('should pause running timer', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.pauseTimer();
+        expect(service['isPaused']).toBe(true);
+        expect(service['intervalId']).toBeNull();
+    });
 
-    //     it('should emit timer updates during cooldown', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         expect(mockTo).toHaveBeenCalledWith('testRoom');
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 2);
-    //     });
+    it('should not pause if timer is already paused', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.pauseTimer();
+        const intervalIdBefore = service['intervalId'];
+        service.pauseTimer();
+        expect(service['isPaused']).toBe(true);
+        expect(service['intervalId']).toBe(intervalIdBefore);
+    });
 
-    //     it('should transition from cooldown to main timer', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(3000);
-    //         expect(mockEmit).toHaveBeenCalledWith('endCooldown');
-    //         expect(service['currentTime']).toBe(30);
-    //         expect(service['isCooldown']).toBe(false);
-    //     });
+    it('should not pause if timer is not running', () => {
+        service.pauseTimer();
+        expect(service['isPaused']).toBe(false);
+        expect(service['intervalId']).toBeNull();
+    });
 
-    //     it('should clear timer if already running', () => {
-    //         service.startTimer();
-    //         service.startTimer();
-    //         expect(service['currentTime']).toBe(3); // Should restart cooldown
-    //     });
-    // });
+    it('should initialize main timer correctly', () => {
+        service['startMainTimer']();
+        expect(service['currentTime']).toBe(INITIAL_TIME);
+        expect(service['isPaused']).toBe(false);
+        expect(service['isCooldown']).toBe(false);
+    });
 
-    // describe('startInterval', () => {
-    //     it('should decrement time every second', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(29);
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(28);
-    //     });
+    it('should call startInterval when starting main timer', () => {
+        const startIntervalSpy = jest.spyOn<any, any>(service, 'startInterval');
+        service['startMainTimer']();
+        expect(startIntervalSpy).toHaveBeenCalled();
+    });
 
-    //     it('should emit timer updates', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(1000);
-    //         expect(mockTo).toHaveBeenCalledWith('testRoom');
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 29);
-    //     });
+    it('should reset the timer correctly', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.resetTimer();
+        expect(service['currentTime']).toBe(INITIAL_TIME);
+        expect(service['isCooldown']).toBe(false);
+        expect(service['intervalId']).toBeNull();
+    });
 
-    //     it('should clear timer when time reaches 0', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(33000);
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 0);
-    //         expect(mockEmit).toHaveBeenCalledWith('endTimer');
-    //         expect(service['intervalId']).toBeNull();
-    //     });
+    it('should clear the timer when destroyed', () => {
+        const clearTimerSpy = jest.spyOn<any, any>(service, 'clearTimer');
+        service.onDestroy();
+        expect(clearTimerSpy).toHaveBeenCalled();
+    });
 
-    //     it('should emit timer update with 0 when time reaches 0', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(33000);
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 0);
-    //     });
+    it('should set intervalId to null when destroyed', () => {
+        service.startTimer();
+        service.onDestroy();
+        expect(service['intervalId']).toBeNull();
+    });
 
-    //     it('should emit endTimer when time reaches 0', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(33000);
-    //         expect(mockEmit).toHaveBeenCalledWith('endTimer');
-    //     });
-    // });
+    it('should set isPaused to false when destroyed', () => {
+        service.startTimer();
+        service.onDestroy();
+        expect(service['isPaused']).toBe(false);
+    });
 
-    // describe('pauseTimer', () => {
-    //     it('should pause running timer', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         service.pauseTimer();
-    //         expect(service['isPaused']).toBe(true);
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(2); // Time shouldn't change while paused
-    //     });
-    // });
+    it('should not emit any events when destroyed', () => {
+        service.onDestroy();
+        expect(mockEmit).not.toHaveBeenCalled();
+    });
+    it('should clear timer, emit endCooldown, and start main timer if in cooldown', () => {
+        service['isCooldown'] = true;
+        service['currentTime'] = 0;
+        const clearTimerSpy = jest.spyOn<any, any>(service, 'clearTimer');
+        const startMainTimerSpy = jest.spyOn<any, any>(service, 'startMainTimer');
 
-    // describe('resumeTimer', () => {
-    //     it('should resume paused timer', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         service.pauseTimer();
-    //         service.resumeTimer();
-    //         expect(service['isPaused']).toBe(false);
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(1);
-    //     });
-    // });
+        service['startInterval']();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
 
-    // describe('resetTimer', () => {
-    //     it('should reset to initial state', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         service.resetTimer();
-    //         expect(service['currentTime']).toBe(30);
-    //         expect(service['isCooldown']).toBe(false);
-    //         expect(service['isPaused']).toBe(false);
-    //     });
-    // });
+        expect(clearTimerSpy).toHaveBeenCalled();
+        expect(mockTo).toHaveBeenCalledWith('testRoom');
+        expect(mockEmit).toHaveBeenCalledWith('endCooldown');
+        expect(startMainTimerSpy).toHaveBeenCalled();
+    });
 
-    // describe('timer completion', () => {
-    //     it('should emit endTimer when main timer completes', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(3000); // Complete cooldown
-    //         jest.advanceTimersByTime(30000); // Complete main timer
-    //         expect(mockEmit).toHaveBeenCalledWith('endTimer');
-    //     });
-    // });
+    it('should clear timer, emit timerUpdate with 0, and emit endTimer if not in cooldown', () => {
+        service['isCooldown'] = false;
+        service['currentTime'] = 0;
+        const clearTimerSpy = jest.spyOn<any, any>(service, 'clearTimer');
 
-    // describe('startTimer', () => {
-    //     it('should start cooldown timer first', () => {
-    //         service.startTimer();
-    //         expect(service['currentTime']).toBe(3);
-    //         expect(service['isCooldown']).toBe(true);
-    //     });
+        service['startInterval']();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
 
-    //     it('should emit timer updates during cooldown', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         expect(mockTo).toHaveBeenCalledWith('testRoom');
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 2);
-    //     });
+        expect(clearTimerSpy).toHaveBeenCalled();
+        expect(mockTo).toHaveBeenCalledWith('testRoom');
+        expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 0);
+        expect(mockEmit).toHaveBeenCalledWith('endTimer');
+    });
+    it('should resume the timer if it is paused', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.pauseTimer();
+        service.resumeTimer();
+        expect(service['isPaused']).toBe(false);
+        expect(service['intervalId']).not.toBeNull();
+    });
 
-    //     it('should transition from cooldown to main timer', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(3000);
-    //         expect(mockEmit).toHaveBeenCalledWith('endCooldown');
-    //         expect(service['currentTime']).toBe(30);
-    //         expect(service['isCooldown']).toBe(false);
-    //     });
+    it('should not resume the timer if it is not paused', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        const intervalIdBefore = service['intervalId'];
+        service.resumeTimer();
+        expect(service['isPaused']).toBe(false);
+        expect(service['intervalId']).toBe(intervalIdBefore);
+    });
 
-    //     it('should clear timer if already running', () => {
-    //         service.startTimer();
-    //         service.startTimer();
-    //         expect(service['currentTime']).toBe(3); // Should restart cooldown
-    //     });
-    // });
-
-    // describe('startInterval', () => {
-    //     it('should decrement time every second', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(29);
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(28);
-    //     });
-
-    //     it('should emit timer updates', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(1000);
-    //         expect(mockTo).toHaveBeenCalledWith('testRoom');
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 29);
-    //     });
-
-    //     it('should clear timer when time reaches 0', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(33000);
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 0);
-    //         expect(mockEmit).toHaveBeenCalledWith('endTimer');
-    //         expect(service['intervalId']).toBeNull();
-    //     });
-
-    //     it('should emit timer update with 0 when time reaches 0', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(33000);
-    //         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 0);
-    //     });
-
-    //     it('should emit endTimer when time reaches 0', () => {
-    //         service['startInterval']();
-    //         jest.advanceTimersByTime(33000);
-    //         expect(mockEmit).toHaveBeenCalledWith('endTimer');
-    //     });
-    // });
-
-    // describe('pauseTimer', () => {
-    //     it('should pause running timer', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         service.pauseTimer();
-    //         expect(service['isPaused']).toBe(true);
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(2); // Time shouldn't change while paused
-    //     });
-    // });
-
-    // describe('resumeTimer', () => {
-    //     it('should resume paused timer', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         service.pauseTimer();
-    //         service.resumeTimer();
-    //         expect(service['isPaused']).toBe(false);
-    //         jest.advanceTimersByTime(1000);
-    //         expect(service['currentTime']).toBe(1);
-    //     });
-    // });
-
-    // describe('resetTimer', () => {
-    //     it('should reset to initial state', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(1000);
-    //         service.resetTimer();
-    //         expect(service['currentTime']).toBe(30);
-    //         expect(service['isCooldown']).toBe(false);
-    //         expect(service['isPaused']).toBe(false);
-    //     });
-    // });
-
-    // describe('timer completion', () => {
-    //     it('should emit endTimer when main timer completes', () => {
-    //         service.startTimer();
-    //         jest.advanceTimersByTime(3000); // Complete cooldown
-    //         jest.advanceTimersByTime(30000); // Complete main timer
-    //         expect(mockEmit).toHaveBeenCalledWith('endTimer');
-    //     });
-    // });
-
-    // describe('onDestroy', () => {
-    //     it('should clear timer on destroy', () => {
-    //         service.startTimer();
-    //         service.onDestroy();
-    //         expect(service['intervalId']).toBeNull();
-    //         expect(service['isPaused']).toBe(false);
-    //     });
-    // });
+    it('should call startInterval when resuming the timer', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.pauseTimer();
+        const startIntervalSpy = jest.spyOn<any, any>(service, 'startInterval');
+        service.resumeTimer();
+        expect(startIntervalSpy).toHaveBeenCalled();
+    });
 });

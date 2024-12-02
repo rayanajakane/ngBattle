@@ -5,7 +5,7 @@ import { Model, Query } from 'mongoose';
 import { GameValidationService } from './game-validation.service';
 import { MapValidationService } from './map-validation.service';
 import { PROPERTIES_TO_CHECK } from './validation-constants';
-
+/* eslint-disable */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -270,5 +270,36 @@ describe('GameValidationService', () => {
         const game = { map: [{}, {}], mapSize: '3' };
         service.validateMapServices(game as any);
         expect(service.errors.length).toBe(1);
+    });
+    it('should add an error if there is no flag on the map for CTF game mode', () => {
+        const game = {
+            gameName: 'CTFGame',
+            id: '123',
+            gameDescription: 'A CTF game',
+            mapSize: '10',
+            gameType: 'ctf',
+            creationDate: '2023-01-01',
+            map: [], // No flag on the map
+            isVisible: true,
+            lastModified: '2023-01-01',
+        };
+        service.validateCtfGameMode(game as any);
+        expect(service.errors).toContain("Il n'y a pas de drapeau sur la carte");
+    });
+
+    it('should not add an error if there is a flag on the map for CTF game mode', () => {
+        const game = {
+            gameName: 'CTFGame',
+            id: '123',
+            gameDescription: 'A CTF game',
+            mapSize: '10',
+            gameType: 'classic',
+            creationDate: '2023-01-01',
+            map: [{ item: 'drapeau-A' }], // Flag on the map
+            isVisible: true,
+            lastModified: '2023-01-01',
+        };
+        service.validateCtfGameMode(game as any);
+        expect(service.errors).not.toContain("Il n'y a pas de drapeau sur la carte");
     });
 });

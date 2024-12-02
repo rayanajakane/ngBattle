@@ -9,7 +9,7 @@ import { LogSenderService } from './log-sender/log-sender.service';
 import { MatchService } from './match.service';
 import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
 import { VirtualPlayerService } from './virtual-player/virtual-player.service';
-
+/* eslint-disable */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-empty-function */
