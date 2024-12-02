@@ -15,7 +15,7 @@ import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-it
 export class ActiveGamesService {
     constructor(
         private readonly gameService: GameService,
-        private readonly uniqueItemRandomizer: UniqueItemRandomizerService,
+        readonly uniqueItemRandomizer: UniqueItemRandomizerService,
     ) {}
     activeGames: GameInstance[] = [];
 
@@ -69,28 +69,15 @@ export class ActiveGamesService {
                     const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
                     const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
                     const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
-                    playerCoord.sort((a, b) => {
-                        const speedA = a.player.attributes.speed;
-                        const speedB = b.player.attributes.speed;
+                    playerCoord = this.sortPlayersBySpeed(playerCoord);
 
-                        // used when player is killed and has to respawn back home
-                        a.player.homePosition = a.position;
-                        b.player.homePosition = b.position;
-
-                        if (speedA !== speedB) {
-                            return speedB - speedA;
-                        }
-                        return Math.random() - CHANCES;
-                    });
                     this.activeGames[activeGameIndex].playersCoord = playerCoord;
                     this.activeGames[activeGameIndex].turn = 0;
                     this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
                     this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
                     this.activeGames[activeGameIndex].maxNbTiles = maxNbTiles;
                     this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
-                    // TODO: uncomment when the a end game state is implemented
                     this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
-
                     this.activeGames[activeGameIndex].turnTimer.startTimer();
 
                     const randomizedItemsPlacement = this.uniqueItemRandomizer.randomizeUniqueItems(game.map);
@@ -104,6 +91,18 @@ export class ActiveGamesService {
                     resolve();
                 })
                 .catch(reject);
+        });
+    }
+
+    sortPlayersBySpeed(playersCoord: PlayerCoord[]): PlayerCoord[] {
+        return playersCoord.sort((a, b) => {
+            const speedA = a.player.attributes.speed;
+            const speedB = b.player.attributes.speed;
+
+            if (speedA !== speedB) {
+                return speedB - speedA;
+            }
+            return Math.random() - CHANCES;
         });
     }
 
