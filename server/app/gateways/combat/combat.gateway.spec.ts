@@ -13,6 +13,7 @@ import { MovementService } from '@app/services/movement/movement.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CombatGateway } from './combat.gateway';
+/* eslint-disable */
 describe('CombatGateway', () => {
     let gateway: CombatGateway;
     // let actionButtonService: ActionButtonService;

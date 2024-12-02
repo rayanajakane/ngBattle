@@ -8,7 +8,7 @@ import { ActiveGamesService } from '../active-games/active-games.service';
 import { GameService } from '../game.service';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { LogSenderService } from './log-sender.service';
-
+/* eslint-disable */
 describe('LogSenderService', () => {
     let service: LogSenderService;
 

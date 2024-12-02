@@ -13,7 +13,7 @@ import { MovementService } from '../movement/movement.service';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
 import { CombatHandlerService } from './combat-handler.service';
-
+/* eslint-disable */
 describe('CombatHandlerService', () => {
     let service: CombatHandlerService;
 

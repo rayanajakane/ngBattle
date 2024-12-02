@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import { ActionHandlerService } from '../action-handler/action-handler.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 import { CombatTimerService } from './combat-timer.service';
-
+/* eslint-disable */
 describe('CombatTimerService', () => {
     let service: CombatTimerService;
     let mockServer: Server;
