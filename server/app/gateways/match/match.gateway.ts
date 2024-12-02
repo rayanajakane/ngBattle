@@ -120,7 +120,7 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         let roomId = '';
         let isAdmin = false;
         this.matchService.rooms.forEach((room) => {
-            let player = room.players.find((player) => player.id === client.id);
+            const player = room.players.find((player) => player.id === client.id);
             if (player) {
                 roomId = room.id;
                 isAdmin = player.isAdmin;

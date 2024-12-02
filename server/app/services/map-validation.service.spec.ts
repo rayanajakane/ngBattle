@@ -13,7 +13,13 @@ describe('MapValidationService', () => {
     beforeEach(async () => {
         service = new MapValidationService();
         const module: TestingModule = await Test.createTestingModule({
-            providers: [LogSenderService, ActiveGamesService, GameService, UniqueItemRandomizerService, { provide: 'GameModel', useValue: {} }],
+            providers: [
+                ActiveGamesService,
+                { provide: LogSenderService, useValue: {} },
+                GameService,
+                UniqueItemRandomizerService,
+                { provide: 'GameModel', useValue: {} },
+            ],
         }).compile();
     });
 

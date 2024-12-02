@@ -4,7 +4,7 @@ import { GameService } from '../game.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { InventoryService } from './inventory.service';
-
+import { ActionHandlerService } from '../action-handler/action-handler.service';
 describe('InventoryService', () => {
     let service: InventoryService;
 
@@ -13,9 +13,16 @@ describe('InventoryService', () => {
             providers: [
                 InventoryService,
                 ActiveGamesService,
-                LogSenderService,
+                {
+                    provide: LogSenderService,
+                    useValue: {},
+                },
                 UniqueItemRandomizerService,
                 GameService,
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
                 {
                     provide: 'GameModel',
                     useValue: {},

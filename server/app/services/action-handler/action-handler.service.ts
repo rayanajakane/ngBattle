@@ -21,7 +21,8 @@ export class ActionHandlerService {
         private readonly activeGamesService: ActiveGamesService,
         private readonly inventoryService: InventoryService,
         private readonly debugModeService: DebugModeService,
-        private readonly logSenderService: LogSenderService,
+        @Inject(forwardRef(() => LogSenderService)) private readonly logSenderService: LogSenderService,
+        // private readonly logSenderService: LogSenderService,
         @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
     ) {}
@@ -89,13 +90,13 @@ export class ActionHandlerService {
             let isItemAddedToInventory = false;
 
             let pastPosition = startPosition;
-            let tileItem: string = '';
+            let tileItem = '';
 
             // const slippingChance = this.inventoryService.getSlippingChance(player.player);
             const slippingChance = this.SLIP_PERCENTAGE;
             const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
-            //TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
+            // TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
             if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance && !isDebugMode) {
                 activeGame.currentPlayerMoveBudget = 0;
                 iceSlip = true;

@@ -22,7 +22,11 @@ describe('ActionHandlerService', () => {
                 UniqueItemRandomizerService,
                 InventoryService,
                 UniqueItemRandomizerService,
-                LogSenderService,
+
+                {
+                    provide: LogSenderService,
+                    useValue: {}, // Mock or actual implementation
+                },
                 DebugModeService,
                 ActionHandlerService,
                 {

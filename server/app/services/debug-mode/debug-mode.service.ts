@@ -40,8 +40,8 @@ export class DebugModeService {
                 server.to(data.roomId).emit('teleportResponse', {
                     playerId: data.playerId,
                     newPosition: data.index,
-                    availableMoves: availableMoves,
-                    currentPlayerMoveBudget: currentPlayerMoveBudget,
+                    availableMoves,
+                    currentPlayerMoveBudget,
                 });
             }
         }

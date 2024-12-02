@@ -113,11 +113,9 @@ export class CombatService {
             const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
             console.log('allPlayers:', allPlayers[0].stats.visitedTiles);
             console.log('globalStats:', globalStats);
-            server
-                .to(roomId)
-                .emit('endGame', { globalStats: globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
-            //TODO: Delete game instance later
-            //this.activeGamesService.removeGameInstance(roomId);
+            server.to(roomId).emit('endGame', { globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
+            // TODO: Delete game instance later
+            // this.activeGamesService.removeGameInstance(roomId);
             return;
         }
 
@@ -126,12 +124,12 @@ export class CombatService {
         if (player) {
             if (player.player.isVirtual) {
                 this.virtualPlayerService.think();
-                //this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
+                // this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
             }
             const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
             if (killedPlayer.player.isVirtual) {
                 console.log('killed player id', killedPlayer.player.id);
-                this.actionHandlerService.handleEndTurn({ roomId: roomId, playerId: killedPlayer.player.id, lastTurn: false }, server);
+                this.actionHandlerService.handleEndTurn({ roomId, playerId: killedPlayer.player.id, lastTurn: false }, server);
             }
         }
         return fighters;
@@ -262,7 +260,7 @@ export class CombatService {
                     } else if (playerKilled.player.isVirtual) {
                         const activeGame = this.activeGamesService.getActiveGame(roomId);
                         if (activeGame.playersCoord[activeGame.turn].player.id === playerKilled.player.id) {
-                            this.actionHandlerService.handleEndTurn({ roomId: roomId, playerId: playerKilled.player.id, lastTurn: false }, server);
+                            this.actionHandlerService.handleEndTurn({ roomId, playerId: playerKilled.player.id, lastTurn: false }, server);
                         }
                     }
 
@@ -321,7 +319,7 @@ export class CombatService {
         const position = player.position;
         const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
 
-        let itemsPositions: { idx: number; item: string }[] = [];
+        const itemsPositions: { idx: number; item: string }[] = [];
 
         player.player.inventory.forEach((item) => {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
@@ -336,7 +334,7 @@ export class CombatService {
     }
 
     emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { idx: number; item: string }[]): void {
-        //TODO: emit to client to disperse
+        // TODO: emit to client to disperse
         server.to(roomId).emit('disperseItems', itemsPositions);
     }
 

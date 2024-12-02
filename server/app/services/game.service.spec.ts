@@ -9,9 +9,11 @@ import { CombatService } from './combat/combat.service';
 import { DebugModeService } from './debug-mode/debug-mode.service';
 import { GameService } from './game.service';
 import { InventoryService } from './inventory/inventory.service';
+import { LogSenderService } from './log-sender/log-sender.service';
 import { MatchService } from './match.service';
 import { MovementService } from './movement/movement.service';
 import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
+import { VirtualPlayerService } from './virtual-player/virtual-player.service';
 
 const gameData = {
     id: '123',
@@ -53,7 +55,19 @@ describe('GameService', () => {
                         exec: jest.fn(),
                     },
                 },
-                ActionHandlerService,
+                {
+                    provide: LogSenderService,
+                    useValue: {},
+                },
+                {
+                    provide: VirtualPlayerService,
+                    useValue: {},
+                },
+
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
                 ActionService,
                 MatchService,
                 ActiveGamesService,

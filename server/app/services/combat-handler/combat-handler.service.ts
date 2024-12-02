@@ -45,7 +45,7 @@ export class CombatHandlerService {
             this.activeGameService.getActiveGame(roomId).game.map[target].tileType === TileTypes.DOORCLOSED ||
             this.activeGameService.getActiveGame(roomId).game.map[target].tileType === TileTypes.DOOROPEN
         ) {
-            const newData = { roomId: roomId, playerId: playerId, doorPosition: target };
+            const newData = { roomId, playerId, doorPosition: target };
             this.actionHandlerService.handleInteractDoor(newData, server, client);
         }
     }
@@ -98,7 +98,7 @@ export class CombatHandlerService {
         const defender = this.combatService.getFighters(roomId).find((player) => player.player.id !== playerId);
 
         const [remainingEscapeChances, escapeResult] = this.combatService.escape(roomId, fighter);
-        server.to(roomId).emit('didEscape', { playerId: playerId, remainingEscapeChances, hasEscaped: escapeResult });
+        server.to(roomId).emit('didEscape', { playerId, remainingEscapeChances, hasEscaped: escapeResult });
 
         if (escapeResult) {
             this.logService.sendEscapedCombat(server, roomId, fighter.player);
@@ -128,7 +128,7 @@ export class CombatHandlerService {
     handleStartCombatTurn(roomId: string, playerId: string, combatAction: CombatAction, server: Server) {
         const fighter = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
         this.combatService.startCombatTurn(roomId, fighter);
-        server.to(roomId).emit('changeCombatTurn', { playerId: playerId, combatAction: combatAction });
+        server.to(roomId).emit('changeCombatTurn', { playerId, combatAction });
     }
 
     handleEndCombat(roomId: string, playerId: string, server: Server) {
@@ -140,6 +140,6 @@ export class CombatHandlerService {
     handleWinnerPlayer(roomId: string, playerId: string, client: Socket) {
         const fighter = this.activeGameService.getActiveGame(roomId).playersCoord.find((player) => player.player.id === playerId);
         this.combatService.setWinner(roomId, fighter);
-        client.emit('winnerPlayer', { roomId: roomId, playerId: playerId });
+        client.emit('winnerPlayer', { roomId, playerId });
     }
 }

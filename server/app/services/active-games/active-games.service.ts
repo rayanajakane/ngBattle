@@ -59,15 +59,15 @@ export class ActiveGamesService {
         }
     }
 
-    gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): Promise<void> {
+    async gameSetup(server: Server, roomId: string, gameId: string, players: Player[]): Promise<void> {
         return new Promise((resolve, reject) => {
             let playerCoord: PlayerCoord[] = [];
             this.checkGameInstance(roomId, gameId)
                 .then(() => {
                     const game = this.activeGames.find((instance) => instance.roomId === roomId).game as GameStructure;
                     playerCoord = this.randomizePlayerPosition(game, players);
-					const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
-            		const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
+                    const maxNbDoors = game.map.filter((tile) => tile.tileType === 'doorOpen' || tile.tileType === 'doorClosed').length;
+                    const maxNbTiles = game.map.filter((tile) => tile.tileType !== 'wall').length;
                     const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
                     playerCoord.sort((a, b) => {
                         const speedA = a.player.attributes.speed;
@@ -86,10 +86,10 @@ export class ActiveGamesService {
                     this.activeGames[activeGameIndex].turn = 0;
                     this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
                     this.activeGames[activeGameIndex].combatTimer = new CombatTimerService(server, roomId);
-					this.activeGames[activeGameIndex].maxNbTiles = maxNbTiles;
-            		this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
-            		// TODO: uncomment when the a end game state is implemented
-            		this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
+                    this.activeGames[activeGameIndex].maxNbTiles = maxNbTiles;
+                    this.activeGames[activeGameIndex].globalStatsService = new GlobalStatsService(maxNbDoors, maxNbTiles);
+                    // TODO: uncomment when the a end game state is implemented
+                    this.activeGames[activeGameIndex].globalStatsService.startTimerInterval();
 
                     this.activeGames[activeGameIndex].turnTimer.startTimer();
 
@@ -98,7 +98,7 @@ export class ActiveGamesService {
                     server.to(roomId).emit('gameSetup', {
                         playerCoords: playerCoord,
                         turn: this.activeGames[activeGameIndex].turn,
-                        randomizedItemsPlacement: randomizedItemsPlacement,
+                        randomizedItemsPlacement,
                     });
 
                     resolve();

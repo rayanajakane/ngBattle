@@ -54,7 +54,7 @@ export class ActionService {
 
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
 
-        //gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
+        // gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
 
         return shortestPath.path;
     }
@@ -119,9 +119,7 @@ export class ActionService {
         this.logSenderService.sendEndGameLog(server, roomId, player.player.name);
         const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
         const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
-        server
-            .to(roomId)
-            .emit('endGame', { globalStats: globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
+        server.to(roomId).emit('endGame', { globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
         this.activeGamesService.removeGameInstance(roomId);
     }
 }

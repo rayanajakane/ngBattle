@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
+import { ActionHandlerService } from '../action-handler/action-handler.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 import { CombatTimerService } from './combat-timer.service';
 
 describe('CombatTimerService', () => {
@@ -23,6 +25,14 @@ describe('CombatTimerService', () => {
                 {
                     provide: CombatTimerService,
                     useFactory: () => new CombatTimerService(mockServer, mockRoomId),
+                },
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
+                {
+                    provide: LogSenderService,
+                    useValue: {},
                 },
             ],
         }).compile();

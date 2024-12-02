@@ -37,7 +37,7 @@ export class ActionGateway implements OnGatewayInit {
 
     @SubscribeMessage('itemReplace')
     itemReplace(@MessageBody() data: { player: PlayerCoord; newInventory: ItemTypes[]; dropedItem: ItemTypes }, @ConnectedSocket() client: Socket) {
-        //this.inventoryService.listenForItemReplace(data, this.server, client);
+        // this.inventoryService.listenForItemReplace(data, this.server, client);
     }
 
     @SubscribeMessage('endTurn')

@@ -61,7 +61,7 @@ export class LogSenderService {
 
     sendFlagHasBeenPickedUp(server: Server, roomId: string, playerName: string): void {
         const message = `Le Drapeau à été ramassé par ${playerName}`;
-        //TODO: verify if right structure to emit to front end
+        // TODO: verify if right structure to emit to front end
         this.emitLogToRoom(server, roomId, message);
     }
 

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
+import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
 import { TimerService } from './timer.service';
 /* eslint-disable */
 describe('TimerService', () => {
@@ -14,11 +13,11 @@ describe('TimerService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 {
-                    provide: ActionHandlerService,
+                    provide: TimerService,
                     useValue: {},
                 },
                 {
-                    provide: LogSenderService,
+                    provide: VirtualPlayerService,
                     useValue: {},
                 },
             ],

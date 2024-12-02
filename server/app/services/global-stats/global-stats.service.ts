@@ -48,7 +48,7 @@ export class GlobalStatsService {
         this.visitedIndex.add(tileIndex);
     }
 
-    //TODO: call the function to get percent at the end of the game
+    // TODO: call the function to get percent at the end of the game
     getVisitedPercent(): number {
         return (this.visitedIndex.size / this.maxNbTiles) * 100;
     }
@@ -62,12 +62,12 @@ export class GlobalStatsService {
         this.globalStats.nbPlayersHeldFlag = this.playerHeldFlag.size;
     }
 
-    //TODO: call the function to get percent at the end of the game
+    // TODO: call the function to get percent at the end of the game
     getUsedDoorsPercent(): number {
         return (this.usedDoors.size / this.maxNbDoors) * 100;
     }
 
-    //TODO: call the function to get the final stats at the end of the game
+    // TODO: call the function to get the final stats at the end of the game
     getFinalStats(): GlobalStats {
         this.globalStats.visitedTilesPercent = this.getVisitedPercent();
         this.globalStats.usedDoorsPercent = this.getUsedDoorsPercent();
@@ -75,5 +75,5 @@ export class GlobalStatsService {
         return this.globalStats;
     }
 
-    //TODO: add the functions to update the stats when a player holds the flag
+    // TODO: add the functions to update the stats when a player holds the flag
 }

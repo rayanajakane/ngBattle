@@ -47,7 +47,7 @@ describe('MatchGateway', () => {
                 ActiveGamesService,
                 DebugModeService,
                 MovementService,
-                LogSenderService,
+                { provide: LogSenderService, useValue: jest.fn() },
                 GameService,
                 UniqueItemRandomizerService,
                 { provide: 'GameModel', useValue: jest.fn() },

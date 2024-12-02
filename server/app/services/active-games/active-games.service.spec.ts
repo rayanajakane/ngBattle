@@ -8,7 +8,12 @@ describe('ActiveGamesService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [ActiveGamesService, UniqueItemRandomizerService, GameService, { provide: 'GameModel', useValue: {} }],
+            providers: [
+                ActiveGamesService,
+                { provide: UniqueItemRandomizerService, useValue: {} },
+                { provide: GameService, useValue: {} },
+                { provide: 'GameModel', useValue: {} },
+            ],
         }).compile();
 
         service = module.get<ActiveGamesService>(ActiveGamesService);

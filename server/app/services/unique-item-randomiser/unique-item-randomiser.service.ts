@@ -23,7 +23,7 @@ export class UniqueItemRandomizerService {
 
     private getAvailableUniqueItems(map: TileStructure[]): ItemTypes[] {
         const uniqueItems = this.getUsedUniqueItems(map);
-        let availableUniqueItems = [ItemTypes.AA1, ItemTypes.AA2, ItemTypes.AC1, ItemTypes.AC2, ItemTypes.AF1, ItemTypes.AF2].filter(
+        const availableUniqueItems = [ItemTypes.AA1, ItemTypes.AA2, ItemTypes.AC1, ItemTypes.AC2, ItemTypes.AF1, ItemTypes.AF2].filter(
             (item) => !uniqueItems.includes(item),
         );
         return availableUniqueItems;
