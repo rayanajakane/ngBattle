@@ -22,6 +22,7 @@ describe('GamePanelComponent', () => {
             wins: 0,
             stats: {} as PlayerStats,
             isVirtual: false,
+            inventory: [],
         };
         fixture.detectChanges();
         component.mapSize = 10;

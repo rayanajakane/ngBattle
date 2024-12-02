@@ -38,6 +38,7 @@ describe('LeaderboardComponent', () => {
             wins: 5,
             stats: {} as PlayerStats,
             isVirtual: false,
+            inventory: [],
         };
 
         const player2: Player = {
@@ -57,6 +58,7 @@ describe('LeaderboardComponent', () => {
             wins: 3,
             stats: {} as PlayerStats,
             isVirtual: false,
+            inventory: [],
         };
 
         const player3: Player = {
@@ -71,10 +73,12 @@ describe('LeaderboardComponent', () => {
                 defense: 5,
                 dice: '6',
             },
+            stats: {} as PlayerStats,
             isActive: true,
             abandoned: false,
             wins: 2,
             isVirtual: false,
+            inventory: [],
         };
 
         const playerCoord1: PlayerCoord = { player: player1, position: 1 };
@@ -96,6 +100,7 @@ describe('LeaderboardComponent', () => {
             name: 'Player 1',
             isAdmin: false,
             avatar: 'avatar1.png',
+            stats: {} as PlayerStats,
             attributes: {
                 health: 10,
                 speed: 8,
@@ -107,6 +112,7 @@ describe('LeaderboardComponent', () => {
             abandoned: false,
             wins: 5,
             isVirtual: false,
+            inventory: [],
         };
 
         const player2: Player = {
@@ -114,6 +120,7 @@ describe('LeaderboardComponent', () => {
             name: 'Player 2',
             isAdmin: false,
             avatar: 'avatar2.png',
+            stats: {} as PlayerStats,
             attributes: {
                 health: 10,
                 speed: 8,
@@ -125,6 +132,7 @@ describe('LeaderboardComponent', () => {
             abandoned: false,
             wins: 3,
             isVirtual: false,
+            inventory: [],
         };
 
         const player3: Player = {
@@ -132,6 +140,7 @@ describe('LeaderboardComponent', () => {
             name: 'Player 3',
             isAdmin: false,
             avatar: 'avatar3.png',
+            stats: {} as PlayerStats,
             attributes: {
                 health: 10,
                 speed: 8,
@@ -143,6 +152,7 @@ describe('LeaderboardComponent', () => {
             abandoned: false,
             wins: 2,
             isVirtual: false,
+            inventory: [],
         };
 
         const playerCoord2: PlayerCoord = { player: player2, position: 2 };

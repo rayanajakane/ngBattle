@@ -95,6 +95,7 @@ describe('LogsComponent', () => {
             wins: 0,
             stats: {} as PlayerStats,
             isVirtual: false,
+            inventory: [],
         };
 
         component.logsContainer = {
@@ -121,6 +122,7 @@ describe('LogsComponent', () => {
             name: 'Player 1',
             isAdmin: false,
             avatar: 'avatar.png',
+            stats: {} as PlayerStats,
             attributes: {
                 health: 10,
                 speed: 8,
@@ -132,6 +134,7 @@ describe('LogsComponent', () => {
             abandoned: false,
             wins: 0,
             isVirtual: false,
+            inventory: [],
         };
 
         // Simulate receiving a log
@@ -150,6 +153,7 @@ describe('LogsComponent', () => {
             name: 'Player 1',
             isAdmin: false,
             avatar: 'avatar.png',
+            stats: {} as PlayerStats,
             attributes: {
                 health: 10,
                 speed: 8,
@@ -161,6 +165,7 @@ describe('LogsComponent', () => {
             abandoned: false,
             wins: 0,
             isVirtual: false,
+            inventory: [],
         };
 
         // Simulate receiving a log

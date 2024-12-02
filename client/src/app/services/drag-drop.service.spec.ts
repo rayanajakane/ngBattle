@@ -107,23 +107,16 @@ describe('DragDropService', () => {
 
     it('should handle flag counters correctly', () => {
         service.flagACounter = 1;
-        service.flagBCounter = 1;
 
         service.reduceFlagACounter();
-        service.reduceFlagBCounter();
         expect(service.flagACounter).toBe(0);
-        expect(service.flagBCounter).toBe(0);
 
         service.incrementFlagACounter();
-        service.incrementFlagBCounter();
         expect(service.flagACounter).toBe(1);
-        expect(service.flagBCounter).toBe(1);
 
         // Should not increment above 1
         service.incrementFlagACounter();
-        service.incrementFlagBCounter();
         expect(service.flagACounter).toBe(1);
-        expect(service.flagBCounter).toBe(1);
     });
 
     it('should reduce item counter', () => {

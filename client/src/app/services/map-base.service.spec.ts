@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { GameTile, TilePreview, TileStructure } from '@common/game-structure';
-import { Player, PlayerAttribute, PlayerStats } from '@common/player';
-import { MapBaseService } from './map-base.service';
+import { Player } from '@common/player';
 import { MOCK_PLAYER } from './constants';
+import { MapBaseService } from './map-base.service';
 describe('MapBaseService', () => {
     let service: MapBaseService;
 
