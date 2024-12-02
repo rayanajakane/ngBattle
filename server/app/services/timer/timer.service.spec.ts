@@ -1,4 +1,7 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
+import { ActionHandlerService } from '../action-handler/action-handler.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 import { TimerService } from './timer.service';
 /* eslint-disable */
 describe('TimerService', () => {
@@ -7,7 +10,19 @@ describe('TimerService', () => {
     let mockEmit: jest.Mock;
     let mockTo: jest.Mock;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
+                {
+                    provide: LogSenderService,
+                    useValue: {},
+                },
+            ],
+        }).compile();
         jest.useFakeTimers();
         mockEmit = jest.fn();
         mockTo = jest.fn().mockReturnValue({ emit: mockEmit });

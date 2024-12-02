@@ -6,6 +6,7 @@ import { UniqueItemRandomizerService } from '@app/services/unique-item-randomise
 import { Test, TestingModule } from '@nestjs/testing';
 import { CombatService } from '../combat/combat.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 import { ActionService } from './action.service';
 
 /* eslint-disable */
@@ -18,12 +19,17 @@ describe('ActionService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                ActionService,
                 ActiveGamesService,
                 UniqueItemRandomizerService,
                 InventoryService,
+                LogSenderService,
                 DebugModeService,
-
+                {
+                    provide: ActionService,
+                    useValue: {
+                        get: jest.fn(),
+                    },
+                },
                 {
                     provide: GameService,
                     useValue: {

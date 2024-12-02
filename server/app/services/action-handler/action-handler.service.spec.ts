@@ -7,6 +7,7 @@ import { MatchService } from '@app/services/match.service';
 import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { InventoryService } from '../inventory/inventory.service';
+import { LogSenderService } from '../log-sender/log-sender.service';
 
 describe('ActionHandlerService', () => {
     let service: ActionHandlerService;
@@ -14,12 +15,20 @@ describe('ActionHandlerService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                CombatService,
+                {
+                    provide: CombatService,
+                    useValue: {}, // Mock or actual implementation
+                },
                 UniqueItemRandomizerService,
                 InventoryService,
                 UniqueItemRandomizerService,
+                LogSenderService,
                 DebugModeService,
                 ActionHandlerService,
+                {
+                    provide: ActionHandlerService,
+                    useValue: {}, // Mock or actual implementation
+                },
                 {
                     provide: ActionService,
                     useValue: {}, // Mock or actual implementation
