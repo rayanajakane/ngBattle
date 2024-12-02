@@ -631,4 +631,93 @@ describe('CombatService', () => {
         expect(server.to).toHaveBeenCalledWith(roomId);
         expect(server.emit).toHaveBeenCalledWith('disperseItems', itemsPositions);
     });
+
+    it('should disperse items to random positions and update the game map', () => {
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const roomId = 'room1';
+        const player = {
+            position: 0,
+            player: {
+                inventory: ['item1', 'item2'],
+            },
+        } as any;
+        const game = {
+            map: Array(10).fill({ item: '' }),
+        };
+        const activeGame = { game } as GameInstance;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+        jest.spyOn(service as any, 'verifyPossibleObjectsPositions').mockReturnValue([1, 2]);
+
+        service.disperseKilledPlayerObjects(server, roomId, player);
+
+        expect(game.map[1].item).toBe('item2');
+        expect(game.map[2].item).toBe('item2');
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('disperseItems', [
+            { idx: 1, item: 'item1' },
+            { idx: 2, item: 'item2' },
+        ]);
+    });
+
+    it('should handle empty inventory', () => {
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const roomId = 'room1';
+        const player = {
+            position: 0,
+            player: {
+                inventory: [],
+            },
+        } as any;
+        const game = {
+            map: Array(10).fill({ item: '' }),
+        };
+        const activeGame = { game } as GameInstance;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+        jest.spyOn(service as any, 'verifyPossibleObjectsPositions').mockReturnValue([1, 2]);
+
+        service.disperseKilledPlayerObjects(server, roomId, player);
+
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('disperseItems', []);
+    });
+
+    it('should remove used positions from possiblePositions', () => {
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const roomId = 'room1';
+        const player = {
+            position: 0,
+            player: {
+                inventory: ['item1', 'item2'],
+            },
+        } as any;
+        const game = {
+            map: Array(10).fill({ item: '' }),
+        };
+        const activeGame = { game } as GameInstance;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+        const verifyPossibleObjectsPositionsSpy = jest.spyOn(service as any, 'verifyPossibleObjectsPositions').mockReturnValue([1, 2]);
+
+        service.disperseKilledPlayerObjects(server, roomId, player);
+
+        expect(verifyPossibleObjectsPositionsSpy).toHaveBeenCalledWith(roomId, player.position);
+        expect(game.map[1].item).toBe('item2');
+        expect(game.map[2].item).toBe('item2');
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('disperseItems', [
+            { idx: 1, item: 'item1' },
+            { idx: 2, item: 'item2' },
+        ]);
+    });
 });
