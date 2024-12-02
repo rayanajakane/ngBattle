@@ -49,7 +49,6 @@ describe('GlobalStatsService', () => {
                 VirtualPlayerService,
             ],
         }).compile();
-
         service = module.get<GlobalStatsService>(GlobalStatsService);
     });
 
@@ -192,6 +191,7 @@ describe('GlobalStatsService', () => {
 
             service.globalStats.matchLength = 3;
 
+            jest.useFakeTimers();
             jest.advanceTimersByTime(3000);
 
             const finalStats = service.getFinalStats();
@@ -199,6 +199,7 @@ describe('GlobalStatsService', () => {
             expect(finalStats.usedDoorsPercent).toBe(2);
             expect(finalStats.matchLength).toBe(3);
             expect(service.timerId).toBeUndefined();
+            jest.useRealTimers();
         });
     });
 });
