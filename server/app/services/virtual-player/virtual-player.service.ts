@@ -150,12 +150,21 @@ export class VirtualPlayerService {
     }
 
     move() {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
-        const availablePlayerMoves = this.actionService.availablePlayerMoves(this.virtualPlayerId, this.roomId);
+        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        if (!gameInstance) return;
+        const position = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId).position;
+        const adjacentTiles = this.getAdjacentTiles(position);
+        const doorTile = adjacentTiles.find((tile) => gameInstance.game.map[tile].tileType === 'doorClosed');
+        if (doorTile !== undefined) {
+            this.interactWithDoor(doorTile);
+        }
         // verify if there are available moves left, end turn not via `handleEndTurn`
-        let endPosition: number;
+        const availablePlayerMoves = this.actionService.availablePlayerMoves(this.virtualPlayerId, this.roomId);
         const accessibleTiles = Object.keys(availablePlayerMoves).map(Number);
+        console.log('Accessible tiles:', accessibleTiles);
+        let endPosition: number;
         endPosition = accessibleTiles[Math.floor(Math.random() * accessibleTiles.length)];
+        console.log('Moving to:', endPosition);
         this.actionHandler.handleMove({ roomId: this.roomId, playerId: this.virtualPlayerId, endPosition }, this.server, null);
     }
 
