@@ -947,80 +947,83 @@ describe('MatchService', () => {
         expect(client.emit).toHaveBeenCalledWith('maxPlayers', 2);
     });
 
-    //     it('should remove virtual player without emitting', () => {
-    //         const roomId = '123';
-    //         const playerId = '456';
+    it('should remove virtual player without emitting', () => {
+        const roomId = '123';
+        const playerId = '456';
 
-    //         const room = {
-    //             id: roomId,
-    //             players: [
-    //                 {
-    //                     id: '123',
-    //                     name: 'playerName',
-    //                     isAdmin: true,
-    //                     avatar: 'avatar',
-    //                     attributes: {
-    //                         health: 100,
-    //                         speed: 100,
-    //                         attack: 100,
-    //                         defense: 100,
-    //                         dice: '6',
-    //                     },
-    //                     abandoned: false,
-    //                     isActive: false,
-    //                     wins: 0,
-    //                     inventory: [],
-    //                     stats: {} as any,
-    //                     isVirtual: false,
-    //                 },
-    //                 {
-    //                     id: '456',
-    //                     name: 'playerName',
-    //                     isAdmin: false,
-    //                     avatar: 'avatar',
-    //                     attributes: {
-    //                         health: 100,
-    //                         speed: 100,
-    //                         attack: 100,
-    //                         defense: 100,
-    //                         dice: '6',
-    //                     },
-    //                     abandoned: false,
-    //                     isActive: false,
-    //                     wins: 0,
-    //                     inventory: [],
-    //                     stats: {} as any,
-    //                     isVirtual: true,
-    //                 },
-    //             ],
-    //         } as any;
+        const room = {
+            id: roomId,
+            players: [
+                {
+                    id: '123',
+                    name: 'playerName',
+                    isAdmin: true,
+                    avatar: 'avatar',
+                    attributes: {
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
+                        dice: '6',
+                    },
+                    abandoned: false,
+                    isActive: false,
+                    wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: false,
+                },
+                {
+                    id: '456',
+                    name: 'playerName',
+                    isAdmin: false,
+                    avatar: 'avatar',
+                    attributes: {
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
+                        dice: '6',
+                    },
+                    abandoned: false,
+                    isActive: false,
+                    wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: true,
+                },
+            ],
+        } as any;
 
-    //         service.rooms.set(roomId, room);
+        service.rooms.set(roomId, room);
 
-    //         service.kickPlayer(server, client, roomId, playerId);
+        service.kickPlayer(server, client, roomId, playerId);
 
-    //         expect(room.players).toEqual([
-    //             {
-    //                 id: '123',
-    //                 name: 'playerName',
-    //                 isAdmin: true,
-    //                 avatar: 'avatar',
-    //                 attributes: {
-    //                     health: 100,
-    //                     speed: 100,
-    //                     attack: 100,
-    //                     defense: 100,
-    //                     dice: '6',
-    //                 },
-    //                 abandoned: false,
-    //                 isActive: false,
-    //                 wins: 0,
-    //                 inventory: [],
-    //                 stats: {} as any,
-    //                 isVirtual: false,
-    //             },
-    //         ]);
-    //     });
+        expect(room.players).toEqual([
+            {
+                id: '123',
+                name: 'playerName',
+                isAdmin: true,
+                avatar: 'avatar',
+                attributes: {
+                    health: 100,
+                    speed: 100,
+                    attack: 100,
+                    defense: 100,
+                    dice: '6',
+                },
+                abandoned: false,
+                isActive: false,
+                wins: 0,
+                inventory: [],
+                stats: {} as any,
+                isVirtual: false,
+            },
+        ]);
+
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('updatePlayers', room.players);
+    });
 
     //     it('leaveRoom should return is client is undefined', () => {
     //         service.leaveRoom(server, undefined, '123');
