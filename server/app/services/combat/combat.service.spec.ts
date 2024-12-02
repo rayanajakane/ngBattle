@@ -580,4 +580,38 @@ describe('CombatService', () => {
         expect(player.player.wins).toBe(0);
         expect(player.player.stats.victoryCount).toBe(0);
     });
+
+    it('should return diceSize if fighter has AF2 item and random is greater than 0.5', () => {
+        const diceSize = 6;
+        const fighter = { player: { id: 'player1' } } as any;
+
+        jest.spyOn(service['inventoryService'], 'hasAF2Item').mockReturnValue(true);
+        jest.spyOn(Math, 'random').mockReturnValue(0.6);
+
+        const result = service['throwDice'](diceSize, fighter);
+        expect(result).toBe(diceSize);
+    });
+
+    it('should return 1 if fighter has AF2 item and random is less than or equal to 0.5', () => {
+        const diceSize = 6;
+        const fighter = { player: { id: 'player1' } } as any;
+
+        jest.spyOn(service['inventoryService'], 'hasAF2Item').mockReturnValue(true);
+        jest.spyOn(Math, 'random').mockReturnValue(0.5);
+
+        const result = service['throwDice'](diceSize, fighter);
+        expect(result).toBe(1);
+    });
+
+    it('should return a number between 1 and diceSize if fighter does not have AF2 item', () => {
+        const diceSize = 6;
+        const fighter = { player: { id: 'player1' } } as any;
+
+        jest.spyOn(service['inventoryService'], 'hasAF2Item').mockReturnValue(false);
+        jest.spyOn(Math, 'random').mockReturnValue(0.4);
+
+        const result = service['throwDice'](diceSize, fighter);
+        expect(result).toBeGreaterThanOrEqual(1);
+        expect(result).toBeLessThanOrEqual(diceSize);
+    });
 });
