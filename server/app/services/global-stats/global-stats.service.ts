@@ -24,6 +24,7 @@ export class GlobalStatsService {
 
     stopTimerInterval(): void {
         clearInterval(this.timerId);
+        this.timerId = undefined;
     }
 
     constructor(maxNbDoors: number, maxNbTiles: number) {
