@@ -17,6 +17,7 @@ export class VirtualPlayerService {
     virtualPlayerId: string;
     roomId: string;
     server: Server;
+    shouldEndTurn: boolean;
 
     constructor(
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandler: ActionHandlerService,
@@ -37,6 +38,7 @@ export class VirtualPlayerService {
         if (!gameInstance) {
             return;
         }
+        this.shouldEndTurn = true;
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const virtualPlayerPosition = virtualPlayerCoord.position;
 
@@ -48,7 +50,7 @@ export class VirtualPlayerService {
             this.aggressiveThink(virtualPlayerPosition);
         }
 
-        if (this.activeGames.getActiveGame(this.roomId)) {
+        if (this.activeGames.getActiveGame(this.roomId) && this.shouldEndTurn) {
             this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
         }
     }
@@ -150,6 +152,7 @@ export class VirtualPlayerService {
     move() {
         if (!this.activeGames.getActiveGame(this.roomId)) return;
         const availablePlayerMoves = this.actionService.availablePlayerMoves(this.virtualPlayerId, this.roomId);
+        // verify if there are available moves left, end turn not via `handleEndTurn`
         let endPosition: number;
         const accessibleTiles = Object.keys(availablePlayerMoves).map(Number);
         endPosition = accessibleTiles[Math.floor(Math.random() * accessibleTiles.length)];
@@ -158,6 +161,7 @@ export class VirtualPlayerService {
 
     startAttack(targetPlayerCoord: PlayerCoord) {
         if (!this.activeGames.getActiveGame(this.roomId)) return;
+        this.shouldEndTurn = false;
         if (this.canDoAction(this.virtualPlayerId)) {
             this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
             this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
