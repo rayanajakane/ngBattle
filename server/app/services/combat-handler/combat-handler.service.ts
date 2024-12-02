@@ -13,7 +13,7 @@ import { Server, Socket } from 'socket.io';
 export class CombatHandlerService {
     constructor(
         private readonly activeGameService: ActiveGamesService,
-        private readonly actionButtonService: ActionButtonService,
+        @Inject(forwardRef(() => ActionButtonService)) private readonly actionButtonService: ActionButtonService,
         private readonly logService: LogSenderService,
         @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
