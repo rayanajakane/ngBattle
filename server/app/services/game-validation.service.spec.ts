@@ -5,7 +5,7 @@ import { Model, Query } from 'mongoose';
 import { GameValidationService } from './game-validation.service';
 import { MapValidationService } from './map-validation.service';
 import { PROPERTIES_TO_CHECK } from './validation-constants';
-
+/* eslint-disable */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

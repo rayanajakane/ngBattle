@@ -4,7 +4,7 @@ import { GameService } from './game.service';
 import { LogSenderService } from './log-sender/log-sender.service';
 import { MapValidationService } from './map-validation.service';
 import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
-
+/* eslint-disable */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
 describe('MapValidationService', () => {

@@ -28,25 +28,21 @@ export class CombatGateway {
         this.combatHandlerService.handleCombatAttack(data.roomId, data.playerId, this.server);
     }
 
-    // escape
     @SubscribeMessage('escape')
     handleEscape(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         this.combatHandlerService.handleCombatEscape(data.roomId, data.playerId, this.server);
     }
 
-    // startCombatTurn
     @SubscribeMessage('startCombatTurn')
     handleStartCombatTurn(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string; combatAction: CombatAction }) {
         this.combatHandlerService.handleStartCombatTurn(data.roomId, data.playerId, data.combatAction, this.server);
     }
 
-    // endCombat
     @SubscribeMessage('endCombat')
     handleEndCombat(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         this.combatHandlerService.handleEndCombat(data.roomId, data.playerId, this.server);
     }
 
-    // winnerPlayer
     @SubscribeMessage('winnerPlayer')
     handleWinnerPlayer(@ConnectedSocket() client, @MessageBody() data: { roomId: string; playerId: string }) {
         this.combatHandlerService.handleWinnerPlayer(data.roomId, data.playerId, client);

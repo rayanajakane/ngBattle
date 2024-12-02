@@ -9,7 +9,7 @@ import { MovementService } from '../movement/movement.service';
 import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
 import { ActionButtonService } from './../action-button/action-button.service';
 import { GlobalStatsService } from './global-stats.service';
-
+/* eslint-disable */
 describe('GlobalStatsService', () => {
     let service: GlobalStatsService;
 

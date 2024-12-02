@@ -9,7 +9,7 @@ import { CombatService } from '../combat/combat.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
 import { CombatHandlerService } from './combat-handler.service';
-
+/* eslint-disable */
 describe('CombatHandlerService', () => {
     let service: CombatHandlerService;
     let activeGamesService: ActiveGamesService;

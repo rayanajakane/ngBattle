@@ -8,7 +8,7 @@ import { UniqueItemRandomizerService } from '@app/services/unique-item-randomise
 import { Test, TestingModule } from '@nestjs/testing';
 import { InventoryService } from '../inventory/inventory.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
-
+/* eslint-disable */
 describe('ActionHandlerService', () => {
     let service: ActionHandlerService;
 

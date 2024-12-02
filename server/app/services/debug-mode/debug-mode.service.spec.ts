@@ -8,7 +8,7 @@ import { LogSenderService } from '../log-sender/log-sender.service';
 import { MovementService } from '../movement/movement.service';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { DebugModeService } from './debug-mode.service';
-
+/* eslint-disable */
 describe('DebugModeService', () => {
     let service: DebugModeService;
 

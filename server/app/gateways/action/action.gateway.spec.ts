@@ -11,7 +11,7 @@ import { UniqueItemRandomizerService } from '@app/services/unique-item-randomise
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'http';
 import { ActionGateway } from './action.gateway';
-
+/* eslint-disable */
 describe('ActionGateway', () => {
     let gateway: ActionGateway;
     let actionHandlerService: ActionHandlerService;

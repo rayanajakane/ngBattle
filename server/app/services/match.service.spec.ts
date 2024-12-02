@@ -1,3 +1,4 @@
+import { PlayerAttribute } from '@common/player';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
@@ -8,7 +9,7 @@ import { LogSenderService } from './log-sender/log-sender.service';
 import { MatchService } from './match.service';
 import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
 import { VirtualPlayerService } from './virtual-player/virtual-player.service';
-
+/* eslint-disable */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -90,339 +91,368 @@ describe('MatchService', () => {
         expect(service).toBeDefined();
     });
 
-    // it('should create a room', async () => {
-    //     const gameId = 'gameId';
-    //     const playerName = 'playerName';
-    //     const avatar = 'avatar';
-    //     const attributes = {
-    //         health: 100,
-    //         speed: '100',
-    //         attack: 100,
-    //         defense: 100,
-    //         dice: '6',
-    //     };
+    it('should create a room', async () => {
+        const gameId = 'gameId';
+        const game = {
+            mapSize: '10',
+        } as any;
+        const maxPlayers = 2;
+        const roomId = '123';
+        const player = {
+            id: client.id,
+            name: 'playerName',
+            isAdmin: true,
+            avatar: 'avatar',
+            attributes: {
+                health: 100,
+                speed: 100,
+                attack: 100,
+                defense: 100,
+                dice: '6',
+            } as PlayerAttribute,
+            abandoned: true,
+            isActive: true,
+            wins: 0,
+            inventory: [],
+            stats: {
+                combatCount: 0,
+                defeatCount: 0,
+                escapeCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                victoryCount: 0,
+                visitedTiles: new Set(),
+                visitedTilesPercent: 0,
+            } as any,
+            isVirtual: false,
+        };
 
-    //     const game = {
-    //         mapSize: '10',
-    //     } as any;
+        const room = {
+            gameId,
+            id: roomId,
+            players: [player],
+            isLocked: false,
+            maxPlayers: 2,
+            messages: [],
+        };
 
-    //     const maxPlayers = 2;
+        jest.spyOn(service, 'generateMatchId').mockReturnValue(roomId);
+        jest.spyOn(service, 'getGame').mockResolvedValue(game);
+        jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-    //     const roomId = '123';
+        const playerData = { playerName: player.name, avatar: 'avatar', attributes: player.attributes, virtualProfile: '' };
+        await service.createRoom(server, client, gameId, playerData);
 
-    //     const player = {
-    //         id: client.id,
-    //         name: playerName,
-    //         isAdmin: true,
-    //         avatar,
-    //         attributes,
-    //         abandoned: true,
-    //         isActive: true,
-    //         wins: 0,
-    //     };
+        expect(service.rooms.get(roomId)).toEqual(room);
+        expect(client.join).toHaveBeenCalledWith(roomId);
+        expect(client.emit).toHaveBeenCalledWith('roomJoined', { roomId, playerId: client.id });
+        expect(service.updatePlayers).toHaveBeenCalledWith(server, room);
+    });
 
-    //     const room = {
-    //         gameId,
-    //         id: roomId,
-    //         players: [player],
-    //         isLocked: false,
-    //         maxPlayers,
-    //         messages: [],
-    //     };
+    it('should set max players for map size 10', () => {
+        const mapSize = '10';
 
-    //     jest.spyOn(service, 'generateMatchId').mockReturnValue(roomId);
-    //     jest.spyOn(service, 'getGame').mockResolvedValue(game);
-    //     jest.spyOn(service, 'updatePlayers').mockImplementation();
+        const maxPlayers = service.setMaxPlayers(mapSize);
 
-    //     const playerData = { playerName, avatar, attributes };
-    //     await service.createRoom(server, client, gameId, playerData);
+        expect(maxPlayers).toBe(2);
+    });
 
-    //     expect(service.rooms.get(roomId)).toEqual(room);
-    //     expect(client.join).toHaveBeenCalledWith(roomId);
-    //     expect(client.emit).toHaveBeenCalledWith('roomJoined', { roomId, playerId: client.id });
-    //     expect(service.updatePlayers).toHaveBeenCalledWith(server, room);
-    // // });
+    it('should set max players for map size 15', () => {
+        const mapSize = '15';
 
-    // it('should set max players for map size 10', () => {
-    //     const mapSize = '10';
+        const maxPlayers = service.setMaxPlayers(mapSize);
 
-    //     const maxPlayers = service.setMaxPlayers(mapSize);
+        expect(maxPlayers).toBe(4);
+    });
 
-    //     expect(maxPlayers).toBe(2);
-    // });
+    it('should set max players for map size 20', () => {
+        const mapSize = '20';
 
-    // it('should set max players for map size 15', () => {
-    //     const mapSize = '15';
+        const maxPlayers = service.setMaxPlayers(mapSize);
 
-    //     const maxPlayers = service.setMaxPlayers(mapSize);
+        expect(maxPlayers).toBe(6);
+    });
 
-    //     expect(maxPlayers).toBe(4);
-    // });
+    it('should set max players to 0 for invalid map size', () => {
+        const mapSize = '30';
 
-    // it('should set max players for map size 20', () => {
-    //     const mapSize = '20';
+        const maxPlayers = service.setMaxPlayers(mapSize);
 
-    //     const maxPlayers = service.setMaxPlayers(mapSize);
+        expect(maxPlayers).toBe(0);
+    });
 
-    //     expect(maxPlayers).toBe(6);
-    // });
+    it('should check if room code is valid and emit true', () => {
+        const roomId = '123';
 
-    // it('should set max players to 0 for invalid map size', () => {
-    //     const mapSize = '30';
+        service.rooms.set(roomId, {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: false,
+            maxPlayers: 2,
+            messages: [],
+        });
 
-    //     const maxPlayers = service.setMaxPlayers(mapSize);
+        service.isCodeValid(roomId, client);
 
-    //     expect(maxPlayers).toBe(0);
-    // });
+        expect(client.emit).toHaveBeenCalledWith('validRoom', true);
+    });
 
-    // it('should check if room code is valid and emit true', () => {
-    //     const roomId = '123';
+    it('should check if room code is valid and emit false', () => {
+        const roomId = '123';
 
-    //     service.rooms.set(roomId, {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [],
-    //         isLocked: false,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     });
+        service.rooms.set(roomId, {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: true,
+            maxPlayers: 2,
+            messages: [],
+        });
 
-    //     service.isCodeValid(roomId, client);
+        service.isCodeValid(roomId, client);
 
-    //     expect(client.emit).toHaveBeenCalledWith('validRoom', true);
-    // });
+        expect(client.emit).toHaveBeenCalledWith('validRoom', false);
+    });
 
-    // it('should check if room code is valid and emit false', () => {
-    //     const roomId = '123';
+    it('should check if room is locked and return lock status', () => {
+        const roomId = '123';
 
-    //     service.rooms.set(roomId, {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [],
-    //         isLocked: true,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     });
+        service.rooms.set(roomId, {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: true,
+            maxPlayers: 2,
+            messages: [],
+        });
 
-    //     service.isCodeValid(roomId, client);
+        service.isRoomLocked(roomId, client);
 
-    //     expect(client.emit).toHaveBeenCalledWith('validRoom', false);
-    // });
+        expect(client.emit).toHaveBeenCalledWith('isRoomLocked', true);
+    });
 
-    // it('should check if room is locked and return lock status', () => {
-    //     const roomId = '123';
+    it('should not return lock status if room does not exist', () => {
+        const roomId = '123';
 
-    //     service.rooms.set(roomId, {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [],
-    //         isLocked: true,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     });
+        service.isRoomLocked(roomId, client);
 
-    //     service.isRoomLocked(roomId, client);
+        expect(client.emit).not.toHaveBeenCalled();
+    });
 
-    //     expect(client.emit).toHaveBeenCalledWith('isRoomLocked', true);
-    // });
+    it('should get all players in room', () => {
+        const roomId = '123';
 
-    // it('should not return lock status if room does not exist', () => {
-    //     const roomId = '123';
+        service.rooms.set(roomId, {
+            gameId: 'gameId',
+            id: roomId,
+            players: [
+                {
+                    id: '123',
+                    name: 'playerName',
+                    isAdmin: true,
+                    avatar: 'avatar',
+                    attributes: {
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
+                        dice: '6',
+                    },
+                    isActive: false,
+                    abandoned: false,
+                    wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: false,
+                },
+            ],
+            isLocked: true,
+            maxPlayers: 2,
+            messages: [],
+        });
 
-    //     service.isRoomLocked(roomId, client);
+        service.getAllPlayersInRoom(roomId, client);
 
-    //     expect(client.emit).not.toHaveBeenCalled();
-    // });
+        expect(client.emit).toHaveBeenCalledWith('getPlayers', [
+            {
+                id: '123',
+                name: 'playerName',
+                isAdmin: true,
+                avatar: 'avatar',
+                attributes: {
+                    health: 100,
+                    speed: 100,
+                    attack: 100,
+                    defense: 100,
+                    dice: '6',
+                },
+                abandoned: false,
+                isActive: false,
+                wins: 0,
+                inventory: [],
+                stats: {} as any,
+                isVirtual: false,
+            },
+        ]);
+    });
 
-    // it('should get all players in room', () => {
-    //     const roomId = '123';
+    it('should not join room if room does not exist', async () => {
+        const roomId = '123';
+        const playerName = 'playerName';
+        const avatar = 'avatar';
+        const attributes = {
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
+            dice: '6',
+        };
 
-    //     service.rooms.set(roomId, {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [
-    //             {
-    //                 id: '123',
-    //                 name: 'playerName',
-    //                 isAdmin: true,
-    //                 avatar: 'avatar',
-    //                 attributes: {
-    //                     health: 100,
-    //                     speed: '100',
-    //                     attack: 100,
-    //                     defense: 100,
-    //                     dice: '6',
-    //                 },
-    //                 isActive: false,
-    //                 abandoned: false,
-    //                 wins: 0,
-    //             },
-    //         ],
-    //         isLocked: true,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     });
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
-    //     service.getAllPlayersInRoom(roomId, client);
+        expect(client.emit).toHaveBeenCalledWith('error', 'Room not found');
+    });
 
-    //     expect(client.emit).toHaveBeenCalledWith('getPlayers', [
-    //         {
-    //             id: '123',
-    //             name: 'playerName',
-    //             isAdmin: true,
-    //             avatar: 'avatar',
-    //             attributes: {
-    //                 health: 100,
-    //                 speed: '100',
-    //                 attack: 100,
-    //                 defense: 100,
-    //                 dice: '6',
-    //             },
-    //             abandoned: false,
-    //             isActive: false,
-    //             wins: 0,
-    //         },
-    //     ]);
-    // });
+    it('should not join room if room is locked', async () => {
+        const roomId = '123';
+        const playerName = 'playerName';
+        const avatar = 'avatar';
+        const attributes = {
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
+            dice: '6',
+        };
 
-    // it('should not join room if room does not exist', async () => {
-    //     const roomId = '123';
-    //     const playerName = 'playerName';
-    //     const avatar = 'avatar';
-    //     const attributes = {
-    //         health: 100,
-    //         speed: '100',
-    //         attack: 100,
-    //         defense: 100,
-    //         dice: '6',
-    //     };
+        const room = {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: true,
+            maxPlayers: 2,
+            messages: [],
+        };
 
-    //     const playerData = { playerName, avatar, attributes };
-    //     await service.joinRoom(server, client, roomId, playerData);
+        service.rooms.set(roomId, room);
 
-    //     expect(client.emit).toHaveBeenCalledWith('error', 'Room not found');
-    // });
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
-    // it('should not join room if room is locked', async () => {
-    //     const roomId = '123';
-    //     const playerName = 'playerName';
-    //     const avatar = 'avatar';
-    //     const attributes = {
-    //         health: 100,
-    //         speed: '100',
-    //         attack: 100,
-    //         defense: 100,
-    //         dice: '6',
-    //     };
+        expect(client.emit).toHaveBeenCalledWith('error', 'Room is locked');
+    });
 
-    //     const room = {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [],
-    //         isLocked: true,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     };
+    it('should join room', async () => {
+        const roomId = '123';
+        const playerName = 'playerName';
+        const avatar = 'avatar';
+        const attributes = {
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
+            dice: '6',
+        };
 
-    //     service.rooms.set(roomId, room);
+        const room = {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: false,
+            maxPlayers: 2,
+            messages: [],
+        };
 
-    //     const playerData = { playerName, avatar, attributes };
-    //     await service.joinRoom(server, client, roomId, playerData);
+        service.rooms.set(roomId, room);
 
-    //     expect(client.emit).toHaveBeenCalledWith('error', 'Room is locked');
-    // });
+        jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
+        jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-    // it('should join room', async () => {
-    //     const roomId = '123';
-    //     const playerName = 'playerName';
-    //     const avatar = 'avatar';
-    //     const attributes = {
-    //         health: 100,
-    //         speed: '100',
-    //         attack: 100,
-    //         defense: 100,
-    //         dice: '6',
-    //     };
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
-    //     const room = {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [],
-    //         isLocked: false,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     };
+        expect(room.players).toEqual([
+            {
+                id: client.id,
+                name: playerName,
+                isAdmin: false,
+                avatar,
+                attributes,
+                abandoned: true,
+                isActive: true,
+                inventory: [],
+                stats: {
+                    combatCount: 0,
+                    defeatCount: 0,
+                    escapeCount: 0,
+                    totalHealthLost: 0,
+                    totalHealthTaken: 0,
+                    uniqueItemsCollected: 0,
+                    victoryCount: 0,
+                    visitedTiles: new Set(),
+                    visitedTilesPercent: 0,
+                } as any,
+                virtualProfile: '',
+                wins: 0,
+                isVirtual: false,
+            },
+        ]);
+    });
 
-    //     service.rooms.set(roomId, room);
+    it('should lock room if max players reached', async () => {
+        const roomId = '123';
+        const playerName = 'playerName';
+        const avatar = 'avatar';
+        const attributes = {
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
+            dice: '6',
+        };
 
-    //     jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
-    //     jest.spyOn(service, 'updatePlayers').mockImplementation();
+        const room = {
+            gameId: 'gameId',
+            id: roomId,
+            players: [
+                {
+                    id: '123',
+                    name: 'playerName',
+                    isAdmin: true,
+                    avatar: 'avatar',
+                    attributes: {
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
+                        dice: '6',
+                    },
+                    isActive: true,
+                    abandoned: true,
+                    wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: false,
+                },
+            ],
+            isLocked: false,
+            maxPlayers: 2,
+            messages: [],
+        };
 
-    //     const playerData = { playerName, avatar, attributes };
-    //     await service.joinRoom(server, client, roomId, playerData);
+        service.rooms.set(roomId, room);
 
-    //     expect(room.players).toEqual([
-    //         {
-    //             id: client.id,
-    //             name: playerName,
-    //             isAdmin: false,
-    //             avatar,
-    //             attributes,
-    //             abandoned: false,
-    //             isActive: false,
-    //             wins: 0,
-    //         },
-    //     ]);
-    // });
+        jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
+        jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-    // it('should lock room if max players reached', async () => {
-    //     const roomId = '123';
-    //     const playerName = 'playerName';
-    //     const avatar = 'avatar';
-    //     const attributes = {
-    //         health: 100,
-    //         speed: '100',
-    //         attack: 100,
-    //         defense: 100,
-    //         dice: '6',
-    //     };
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
-    //     const room = {
-    //         gameId: 'gameId',
-    //         id: roomId,
-    //         players: [
-    //             {
-    //                 id: '123',
-    //                 name: 'playerName',
-    //                 isAdmin: true,
-    //                 avatar: 'avatar',
-    //                 attributes: {
-    //                     health: 100,
-    //                     speed: '100',
-    //                     attack: 100,
-    //                     defense: 100,
-    //                     dice: '6',
-    //                 },
-    //                 isActive: true,
-    //                 abandoned: true,
-    //                 wins: 0,
-    //             },
-    //         ],
-    //         isLocked: false,
-    //         maxPlayers: 2,
-    //         messages: [],
-    //     };
-
-    //     service.rooms.set(roomId, room);
-
-    //     jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
-    //     jest.spyOn(service, 'updatePlayers').mockImplementation();
-
-    //     const playerData = { playerName, avatar, attributes };
-    //     await service.joinRoom(server, client, roomId, playerData);
-
-    //     expect(room.isLocked).toBe(true);
-    // });
+        expect(room.isLocked).toBe(true);
+    });
 
     it('should update players', () => {
         const room = {
@@ -916,4 +946,84 @@ describe('MatchService', () => {
 
         expect(client.emit).toHaveBeenCalledWith('maxPlayers', 2);
     });
+
+    //     it('should remove virtual player without emitting', () => {
+    //         const roomId = '123';
+    //         const playerId = '456';
+
+    //         const room = {
+    //             id: roomId,
+    //             players: [
+    //                 {
+    //                     id: '123',
+    //                     name: 'playerName',
+    //                     isAdmin: true,
+    //                     avatar: 'avatar',
+    //                     attributes: {
+    //                         health: 100,
+    //                         speed: 100,
+    //                         attack: 100,
+    //                         defense: 100,
+    //                         dice: '6',
+    //                     },
+    //                     abandoned: false,
+    //                     isActive: false,
+    //                     wins: 0,
+    //                     inventory: [],
+    //                     stats: {} as any,
+    //                     isVirtual: false,
+    //                 },
+    //                 {
+    //                     id: '456',
+    //                     name: 'playerName',
+    //                     isAdmin: false,
+    //                     avatar: 'avatar',
+    //                     attributes: {
+    //                         health: 100,
+    //                         speed: 100,
+    //                         attack: 100,
+    //                         defense: 100,
+    //                         dice: '6',
+    //                     },
+    //                     abandoned: false,
+    //                     isActive: false,
+    //                     wins: 0,
+    //                     inventory: [],
+    //                     stats: {} as any,
+    //                     isVirtual: true,
+    //                 },
+    //             ],
+    //         } as any;
+
+    //         service.rooms.set(roomId, room);
+
+    //         service.kickPlayer(server, client, roomId, playerId);
+
+    //         expect(room.players).toEqual([
+    //             {
+    //                 id: '123',
+    //                 name: 'playerName',
+    //                 isAdmin: true,
+    //                 avatar: 'avatar',
+    //                 attributes: {
+    //                     health: 100,
+    //                     speed: 100,
+    //                     attack: 100,
+    //                     defense: 100,
+    //                     dice: '6',
+    //                 },
+    //                 abandoned: false,
+    //                 isActive: false,
+    //                 wins: 0,
+    //                 inventory: [],
+    //                 stats: {} as any,
+    //                 isVirtual: false,
+    //             },
+    //         ]);
+    //     });
+
+    //     it('leaveRoom should return is client is undefined', () => {
+    //         service.leaveRoom(server, undefined, '123');
+    //         expect(server.to).not.toHaveBeenCalled();
+    //     });
 });

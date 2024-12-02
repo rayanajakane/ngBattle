@@ -2,7 +2,7 @@ import { GameService } from '@app/services/game.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
 import { ActiveGamesService } from './active-games.service';
-
+/* eslint-disable */
 describe('ActiveGamesService', () => {
     let service: ActiveGamesService;
 

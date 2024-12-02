@@ -131,7 +131,6 @@ export class MatchService {
             virtualProfile: playerData.virtualProfile,
         };
         room.players.push(player);
-        console.log(player);
 
         if (room.players.length >= room.maxPlayers) {
             room.isLocked = true;
