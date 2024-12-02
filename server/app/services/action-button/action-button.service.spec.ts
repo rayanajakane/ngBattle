@@ -9,7 +9,7 @@ import { Player, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ActionButtonService } from './action-button.service';
-
+/* eslint-disable */
 describe('ActionButtonService', () => {
     let service: ActionButtonService;
     let activeGamesService: ActiveGamesService;

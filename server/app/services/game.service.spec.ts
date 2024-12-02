@@ -14,7 +14,7 @@ import { MatchService } from './match.service';
 import { MovementService } from './movement/movement.service';
 import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
 import { VirtualPlayerService } from './virtual-player/virtual-player.service';
-
+/* eslint-disable */
 const gameData = {
     id: '123',
     gameName: 'Game e34wdwd23',

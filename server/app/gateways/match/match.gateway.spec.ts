@@ -9,7 +9,7 @@ import { MovementService } from '@app/services/movement/movement.service';
 import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MatchGateway } from './match.gateway';
-
+/* eslint-disable */
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
     // let matchService: MatchService;

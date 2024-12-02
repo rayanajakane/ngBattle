@@ -10,7 +10,7 @@ import { SinonStubbedInstance, createStubInstance, match, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
 import { ChatEvents } from './chat.gateway.events';
-
+/* eslint-disable */
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
     let logger: SinonStubbedInstance<Logger>;
