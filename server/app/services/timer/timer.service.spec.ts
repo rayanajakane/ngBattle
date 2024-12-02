@@ -148,4 +148,30 @@ describe('TimerService', () => {
         expect(mockEmit).toHaveBeenCalledWith('timerUpdate', 0);
         expect(mockEmit).toHaveBeenCalledWith('endTimer');
     });
+    it('should resume the timer if it is paused', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.pauseTimer();
+        service.resumeTimer();
+        expect(service['isPaused']).toBe(false);
+        expect(service['intervalId']).not.toBeNull();
+    });
+
+    it('should not resume the timer if it is not paused', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        const intervalIdBefore = service['intervalId'];
+        service.resumeTimer();
+        expect(service['isPaused']).toBe(false);
+        expect(service['intervalId']).toBe(intervalIdBefore);
+    });
+
+    it('should call startInterval when resuming the timer', () => {
+        service.startTimer();
+        jest.advanceTimersByTime(INTERVAL_DURATION);
+        service.pauseTimer();
+        const startIntervalSpy = jest.spyOn<any, any>(service, 'startInterval');
+        service.resumeTimer();
+        expect(startIntervalSpy).toHaveBeenCalled();
+    });
 });
