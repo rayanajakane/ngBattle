@@ -2,12 +2,12 @@ import { ActionButtonService } from '@app/services/action-button/action-button.s
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { LogSenderService } from '../log-sender/log-sender.service';
 
 @Injectable()
 export class CombatHandlerService {
@@ -69,16 +69,6 @@ export class CombatHandlerService {
                 defenderDice,
                 isAttackSuccessful,
             });
-
-            this.logService.sendAttackActionLog(
-                server,
-                roomId,
-                initialPlayer.player,
-                defender.player,
-                attackerDice,
-                defenderDice,
-                isAttackSuccessful,
-            );
 
             if (combatStatus === 'combatTurnEnd') {
                 this.combatService.startCombatTurn(roomId, defender);

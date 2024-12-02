@@ -16,14 +16,14 @@ import {
     WINS_TO_WIN,
 } from '@app/services/combat/constants';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerAttribute, PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { InventoryService } from '../inventory/inventory.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
 
 @Injectable()
 export class CombatService {
@@ -123,17 +123,7 @@ export class CombatService {
 
         gameInstance.turnTimer.resumeTimer();
         server.to(roomId).emit('endCombat', fighters);
-        if (player) {
-            if (player.player.isVirtual) {
-                this.virtualPlayerService.think();
-                //this.actionHandlerService.handleStartTurn({ roomId: roomId, playerId: player.player.id }, server, null);
-            }
-            const killedPlayer = fighters.find((p) => p.player.id !== player.player.id);
-            if (killedPlayer.player.isVirtual) {
-                console.log('killed player id', killedPlayer.player.id);
-                this.actionHandlerService.handleEndTurn({ roomId: roomId, playerId: killedPlayer.player.id, lastTurn: false }, server);
-            }
-        }
+
         return fighters;
     }
 
@@ -269,6 +259,17 @@ export class CombatService {
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
+
+            this.logSender.sendAttackActionLog(
+                server,
+                roomId,
+                attackPlayer.player,
+                defensePlayer.player,
+                checkAttack[1][0],
+                checkAttack[1][1],
+                checkAttack[0],
+            );
+
             console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
