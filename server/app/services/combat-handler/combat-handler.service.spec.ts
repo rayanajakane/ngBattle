@@ -20,10 +20,7 @@ describe('CombatHandlerService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                {
-                    provide: CombatHandlerService,
-                    useValue: {},
-                },
+                CombatHandlerService,
                 ActiveGamesService,
                 LogSenderService,
                 MovementService,

@@ -1,4 +1,4 @@
-import { INTERVAL_DURATION, TIME } from '@app/services/combat-timer/constants';
+import { INTERVAL_DURATION, TIME, TIME_NO_ESCAPE } from '@app/services/combat-timer/constants';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
 import { ActionHandlerService } from '../action-handler/action-handler.service';
@@ -10,7 +10,6 @@ describe('CombatTimerService', () => {
     let mockServer: Server;
 
     beforeEach(async () => {
-        // Create mock server with required methods
         mockServer = {
             to: jest.fn().mockReturnThis(),
             emit: jest.fn(),
@@ -75,18 +74,6 @@ describe('CombatTimerService', () => {
             expect(service).toBeDefined();
         });
 
-        // it('should start the timer with escape', () => {
-        //     service.startTimer(true);
-        //     expect(service['currentTime']).toBe(TIME);
-        //     expect(setInterval).toHaveBeenCalledWith(expect.any(Function), INTERVAL_DURATION);
-        // });
-
-        // it('should start the timer without escape', () => {
-        //     service.startTimer(false);
-        //     expect(service['currentTime']).toBe(TIME_NO_ESCAPE);
-        //     expect(setInterval).toHaveBeenCalledWith(expect.any(Function), INTERVAL_DURATION);
-        // });
-
         it('should reset the timer', () => {
             service.resetTimer();
             expect(service['intervalId']).toBeNull();
@@ -106,13 +93,51 @@ describe('CombatTimerService', () => {
             expect(mockServer.emit).toHaveBeenCalledWith('CombatTimerUpdate', TIME - 1);
         });
 
-        // it('should emit endCombatTimer when timer reaches zero', () => {
-        //     service.startTimer(true);
-        //     service['currentTime'] = 1;
-        //     jest.advanceTimersByTime(INTERVAL_DURATION);
-        //     expect(service['currentTime']).toBe(0);
-        //     expect(mockServer.emit).toHaveBeenCalledWith('CombatTimerUpdate', 0);
-        //     expect(mockServer.emit).toHaveBeenCalledWith('endCombatTimer');
-        // });
+        it('should set currentTime to TIME when hasEscape is true', () => {
+            service['setTimer'](true);
+            expect(service['currentTime']).toBe(TIME);
+        });
+
+        it('should set currentTime to TIME_NO_ESCAPE when hasEscape is false', () => {
+            service['setTimer'](false);
+            expect(service['currentTime']).toBe(TIME_NO_ESCAPE);
+        });
+
+        it('should call clearTimer if intervalId is set', () => {
+            const clearTimerSpy = jest.spyOn(service as any, 'clearTimer');
+            service['intervalId'] = setInterval(() => {}, INTERVAL_DURATION);
+            service.startTimer(true);
+            expect(clearTimerSpy).toHaveBeenCalled();
+        });
+
+        it('should not call clearTimer if intervalId is not set', () => {
+            const clearTimerSpy = jest.spyOn(service as any, 'clearTimer');
+            service['intervalId'] = null;
+            service.startTimer(true);
+            expect(clearTimerSpy).not.toHaveBeenCalled();
+        });
+
+        it('should call startInterval with hasEscape parameter', () => {
+            const startIntervalSpy = jest.spyOn(service as any, 'startInterval');
+            const hasEscape = true;
+            service.startTimer(hasEscape);
+            expect(startIntervalSpy).toHaveBeenCalledWith(hasEscape);
+        });
+
+        it('should call clearTimer and emit CombatTimerUpdate and endCombatTimer when currentTime reaches 0', () => {
+            jest.useFakeTimers();
+            const clearTimerSpy = jest.spyOn(service as any, 'clearTimer');
+            const emitSpy = jest.spyOn(mockServer, 'emit');
+
+            service['currentTime'] = 1;
+            service['startInterval'](true);
+
+            jest.runAllTimers();
+
+            // Assertions
+            expect(clearTimerSpy).toHaveBeenCalled();
+            expect(emitSpy).toHaveBeenCalledWith('CombatTimerUpdate', 0);
+            expect(emitSpy).toHaveBeenCalledWith('endCombatTimer');
+        });
     });
 });
