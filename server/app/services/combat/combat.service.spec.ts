@@ -1152,4 +1152,55 @@ describe('CombatService', () => {
         expect(service['currentTurnMap'].has(roomId)).toBeFalsy();
         expect(result).toEqual(fighters);
     });
+    it('should set winner, reset attributes, disperse objects, teleport player, emit event, end combat, and increment defeat count', () => {
+        let server: Server;
+        server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const roomId = 'room1';
+        const playerKilled = { player: { id: 'player1', inventory: [], stats: { defeatCount: 0 } }, position: 0 } as any;
+        const playerKiller = { player: { id: 'player2' } } as any;
+        const fighters = [playerKilled, playerKiller];
+
+        service['fightersMap'].set(roomId, fighters);
+        jest.spyOn(service, 'setWinner').mockImplementation();
+        jest.spyOn(service, 'resetAllAttributes').mockImplementation();
+        jest.spyOn(service, 'disperseKilledPlayerObjects').mockImplementation();
+        jest.spyOn(service, 'teleportPlayerToHome').mockImplementation();
+        jest.spyOn(service, 'endCombat').mockReturnValue(fighters);
+
+        const result = service.killPlayer(roomId, playerKilled, server);
+
+        expect(service.setWinner).toHaveBeenCalledWith(roomId, playerKiller);
+        expect(service.resetAllAttributes).toHaveBeenCalledWith(roomId, playerKilled);
+        expect(service.resetAllAttributes).toHaveBeenCalledWith(roomId, playerKiller);
+        expect(service.disperseKilledPlayerObjects).toHaveBeenCalledWith(server, roomId, playerKilled);
+        expect(service.teleportPlayerToHome).toHaveBeenCalledWith(roomId, playerKilled);
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('killedPlayer', {
+            killer: playerKiller,
+            killed: playerKilled,
+            killedOldPosition: 0,
+        });
+        expect(service.endCombat).toHaveBeenCalledWith(roomId, server, playerKiller);
+        expect(playerKilled.player.stats.defeatCount).toBe(1);
+        expect(result).toEqual([playerKiller, playerKilled, fighters]);
+    });
+
+    it('should return [null, null, []] if playerKiller is not found', () => {
+        let server: Server;
+        server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const roomId = 'room1';
+        const playerKilled = { player: { id: 'player1' } } as any;
+
+        service['fightersMap'].set(roomId, [playerKilled]);
+
+        const result = service.killPlayer(roomId, playerKilled, server);
+
+        expect(result).toEqual([null, null, []]);
+    });
 });
