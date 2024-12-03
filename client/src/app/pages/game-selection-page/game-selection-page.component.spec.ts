@@ -81,7 +81,6 @@ describe('GameSelectionPageComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
 
-        mockElementRef.nativeElement.scrollRight = 0;
         mockElementRef.nativeElement.scrollLeft = 0;
 
         component.widgetsContent = mockElementRef;
@@ -100,6 +99,6 @@ describe('GameSelectionPageComponent', () => {
     it('should scroll right', () => {
         component.scrollRight();
         // eslint-disable-next-line
-        expect(component.widgetsContent.nativeElement.scrollRight).toBe(300);
+        expect(component.widgetsContent.nativeElement.scrollLeft).toBe(300);
     });
 });
