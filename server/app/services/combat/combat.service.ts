@@ -1,10 +1,10 @@
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
-import { CombatTimerService } from '@app/services/combat-timer/combat-timer.service';
 import {
     ATTACKER_INDEX,
     BOOSTED_BONUS_DICE,
     COMBAT_FIGHTERS_NUMBER,
+    COUNTER_INITIATOR,
     DEFAULT_ESCAPE_TOKENS,
     DEFENDER_INDEX,
     ESCAPE_PROBABILITY,
@@ -13,6 +13,8 @@ import {
     MINIMAL_BONUS_DICE,
     RIGHT_TILE,
     SUCCESSFUL_ATTACK_DAMAGE,
+    THROW_DICE_MIN,
+    THROW_DICE_RANDOM_CHANCE,
     WINS_TO_WIN,
 } from '@app/services/combat/constants';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
@@ -29,7 +31,6 @@ import { Server } from 'socket.io';
 export class CombatService {
     fightersMap: Map<string, PlayerCoord[]> = new Map(); // room id and fighters
     private currentTurnMap: Map<string, number> = new Map(); // Track current turn index by roomId
-    private combatTimerMap: Map<string, CombatTimerService> = new Map(); // Track current timer by roomId
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(DebugModeService) private readonly debugModeService: DebugModeService,
@@ -39,8 +40,6 @@ export class CombatService {
         @Inject(LogSenderService) private readonly logSender: LogSenderService,
     ) {}
 
-    // You can also replace this.currentTurnMap.set(roomId, index)
-    // with a setPlayerTurn method with more verification
     isPlayerInCombat(roomId: string, player: PlayerCoord): boolean {
         const fighters = this.fightersMap.get(roomId);
         return fighters ? fighters.some((fighter) => fighter.player.id === player.player.id) : false;
@@ -55,7 +54,6 @@ export class CombatService {
         gameInstance.turnTimer.pauseTimer();
 
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
-            // setup current attributes for each player in combat
             fighters.forEach((fighter) => {
                 if (fighter.player.attributes.currentHealth === undefined) {
                     fighter.player.attributes.currentHealth = fighter.player.attributes.health;
@@ -69,21 +67,14 @@ export class CombatService {
                 if (fighter.player.attributes.currentSpeed === undefined) {
                     fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
                 }
-                // verifies if player is on ice
                 this.applyIceDisadvantage(roomId, fighter);
             });
-
             this.fightersMap.set(roomId, fighters);
             this.setEscapeTokens(roomId);
             gameInstance.combatTimer.startTimer(true);
-
-            // Initialize turn to first player
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
             firstPlayer.player.stats.combatCount++;
-            console.log('player 1 combatcnt:', firstPlayer.player.stats.combatCount);
-            console.log('player 2 combatcnt:', secondPlayer.player.stats.combatCount);
-
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
             this.currentTurnMap.set(roomId, firstPlayerIndex);
             return [firstPlayer, secondPlayer];
@@ -91,37 +82,25 @@ export class CombatService {
     }
 
     endCombat(roomId: string, server: Server, player?: PlayerCoord): PlayerCoord[] {
-        // inc wins if a player leaves game
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
-
         const fighters = this.fightersMap.get(roomId);
         if (fighters.length !== 0) {
-            // reset health no matter how combat ended
             fighters.forEach((fighter) => {
                 this.resetHealth(fighter);
             });
         }
-
         this.fightersMap.delete(roomId);
         this.currentTurnMap.delete(roomId);
-
         if (player && player.player.wins === WINS_TO_WIN) {
             this.logSender.sendEndGameLog(server, roomId, player.player.name);
-
             const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
             const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
-            console.log('allPlayers:', allPlayers[0].stats.visitedTiles);
-            console.log('globalStats:', globalStats);
             server.to(roomId).emit('endGame', { globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
-            // TODO: Delete game instance later
-            // this.activeGamesService.removeGameInstance(roomId);
             return;
         }
-
         gameInstance.turnTimer.resumeTimer();
         server.to(roomId).emit('endCombat', fighters);
-
         return fighters;
     }
 
@@ -134,7 +113,6 @@ export class CombatService {
 
     applyIceDisadvantage(roomId: string, player: PlayerCoord): void {
         if (this.isPlayerOnIce(roomId, player)) {
-            // verify if attributes are > 0
             player.player.attributes.currentAttack -= ICE_PENALTY;
             player.player.attributes.currentDefense -= ICE_PENALTY;
         }
@@ -149,10 +127,8 @@ export class CombatService {
     }
 
     escape(roomId: string, player: PlayerCoord): [PlayerAttribute['escape'], boolean] {
-        // only the player's turn can escape
-        if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1) {
+        if (this.getCurrentTurnPlayer(roomId)?.player.id !== player.player.id || player.player.attributes.escape < 1)
             return [player.player.attributes.escape, false];
-        }
         const canPlayerEscape = this.canPlayerEscape(roomId, player);
         if (this.isPlayerInCombat(roomId, player) && !canPlayerEscape) {
             player.player.attributes.escape--;
@@ -161,8 +137,6 @@ export class CombatService {
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
             player.player.stats.escapeCount++;
-            console.log('escape left:', player.player.stats.escapeCount);
-            // this.endCombat(roomId);
             return [player.player.attributes.escape, true];
         }
     }
@@ -171,7 +145,6 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             player.player.wins++;
             player.player.stats.victoryCount++;
-            console.log('victory:', player.player.stats.victoryCount);
         }
     }
 
@@ -179,7 +152,6 @@ export class CombatService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const hasEscape = player.player.attributes.escape > 0;
         gameInstance.combatTimer.startTimer(hasEscape);
-
         const currentPlayerTurnIndex = this.fightersMap.get(roomId).findIndex((fighter) => fighter.player.id === player.player.id);
         this.currentTurnMap.set(roomId, currentPlayerTurnIndex);
     }
@@ -196,10 +168,8 @@ export class CombatService {
     endCombatTurn(roomId: string, player: PlayerCoord): void {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.combatTimer.resetTimer();
-
         if (!this.isPlayerInCombat(roomId, player)) return;
         const currentTurnIndex = this.currentTurnMap.get(roomId);
-
         const newTurnIndex = (currentTurnIndex + 1) % COMBAT_FIGHTERS_NUMBER;
         this.currentTurnMap.set(roomId, newTurnIndex);
     }
@@ -225,7 +195,6 @@ export class CombatService {
             defenderRoll = this.throwDice(bonusDefenseDice, defender);
         }
         const isAttackSuccessful = attacker.player.attributes.currentAttack + attackerRoll > defender.player.attributes.currentDefense + defenderRoll;
-
         return [isAttackSuccessful, [attackerRoll, defenderRoll]];
     }
 
@@ -238,10 +207,7 @@ export class CombatService {
                     const [playerKiller, playerKilled] = this.killPlayer(roomId, defensePlayer, server);
                     this.inventoryService.resetCombatBoost(playerKiller.player);
                     this.inventoryService.resetCombatBoost(playerKilled.player);
-
                     this.logSender.sendKillLog(server, roomId, playerKiller.player, playerKilled.player);
-
-                    // make virtual player think
                     if (playerKiller.player.isVirtual) {
                         this.virtualPlayerService.roomId = roomId;
                         this.virtualPlayerService.virtualPlayerId = playerKiller.player.id;
@@ -253,11 +219,9 @@ export class CombatService {
                             this.actionHandlerService.handleEndTurn({ roomId, playerId: playerKilled.player.id, lastTurn: false }, server);
                         }
                     }
-
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
             }
-
             this.logSender.sendAttackActionLog(
                 server,
                 roomId,
@@ -267,8 +231,6 @@ export class CombatService {
                 checkAttack[1][1],
                 checkAttack[0],
             );
-
-            console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }
@@ -291,24 +253,17 @@ export class CombatService {
         if (playerKiller && playerKilled) {
             this.setWinner(roomId, playerKiller);
             this.resetAllAttributes(roomId, playerKilled);
-
             this.resetAllAttributes(roomId, playerKiller);
-
             this.disperseKilledPlayerObjects(server, roomId, playerKilled);
             playerKilled.player.inventory = [];
-
             this.teleportPlayerToHome(roomId, playerKilled);
-
             server.to(roomId).emit('killedPlayer', {
                 killer: playerKiller,
                 killed: playerKilled,
                 killedOldPosition,
             });
-
             const fighters = this.endCombat(roomId, server, playerKiller);
-
             playerKilled.player.stats.defeatCount++;
-            console.log('defeat:', playerKilled.player.stats.defeatCount);
             return [playerKiller, playerKilled, fighters];
         }
         return [null, null, []];
@@ -319,9 +274,7 @@ export class CombatService {
         const game = gameInstance.game;
         const position = player.position;
         const possiblePositions = this.verifyPossibleObjectsPositions(roomId, position);
-
         const itemsPositions: { idx: number; item: string }[] = [];
-
         player.player.inventory.forEach((item) => {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
             const randomPosition = position + possiblePositions[randomIndex];
@@ -335,7 +288,6 @@ export class CombatService {
     }
 
     emitDisperseItemsKilledPlayer(server: Server, roomId: string, itemsPositions: { idx: number; item: string }[]): void {
-        // TODO: emit to client to disperse
         server.to(roomId).emit('disperseItems', itemsPositions);
     }
 
@@ -348,7 +300,6 @@ export class CombatService {
             player.position = playerHomePosition;
             game.map[playerHomePosition].hasPlayer = true;
         } else {
-            // if the home position taken, find a new position near home position
             const verifiedPositions = this.verifyPossibleObjectsPositions(roomId, playerHomePosition);
             const randomIndex = Math.floor(Math.random() * verifiedPositions.length);
             player.position = playerHomePosition + verifiedPositions[randomIndex];
@@ -358,9 +309,9 @@ export class CombatService {
 
     private throwDice(diceSize: number, fighter: PlayerCoord): number {
         if (this.inventoryService.hasAF2Item(fighter.player)) {
-            return Math.random() > 0.5 ? diceSize : 1;
+            return Math.random() > THROW_DICE_RANDOM_CHANCE ? diceSize : THROW_DICE_MIN;
         } else {
-            return Math.floor(Math.random() * diceSize) + 1;
+            return Math.floor(Math.random() * diceSize) + THROW_DICE_MIN;
         }
     }
 
@@ -370,50 +321,43 @@ export class CombatService {
         const mapSize = parseInt(game.mapSize, 10);
         const verifiedPositions = [];
         const mapLength = gameInstance.game.map.length;
-        let n = 0;
+        let scaleIterator = COUNTER_INITIATOR;
         while (verifiedPositions.length < 2) {
-            n++;
-            // Check right movement
+            scaleIterator++;
             if (position % mapSize < mapSize) {
                 if (
-                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.WALL &&
-                    game.map[position + RIGHT_TILE * n].tileType !== TileTypes.DOORCLOSED &&
-                    game.map[position + RIGHT_TILE * n].hasPlayer == false
+                    game.map[position + RIGHT_TILE * scaleIterator].tileType !== TileTypes.WALL &&
+                    game.map[position + RIGHT_TILE * scaleIterator].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position + RIGHT_TILE * scaleIterator].hasPlayer === false
                 ) {
-                    verifiedPositions.push(RIGHT_TILE * n);
+                    verifiedPositions.push(RIGHT_TILE * scaleIterator);
                 }
             }
-
-            // Check left movement
             if (position % mapSize <= 0) {
                 if (
-                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.WALL &&
-                    game.map[position + LEFT_TILE * n].tileType !== TileTypes.DOORCLOSED &&
-                    game.map[position + LEFT_TILE * n].hasPlayer === false
+                    game.map[position + LEFT_TILE * scaleIterator].tileType !== TileTypes.WALL &&
+                    game.map[position + LEFT_TILE * scaleIterator].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position + LEFT_TILE * scaleIterator].hasPlayer === false
                 ) {
-                    verifiedPositions.push(LEFT_TILE * n);
+                    verifiedPositions.push(LEFT_TILE * scaleIterator);
                 }
             }
-
-            // Check upward movement
-            if (position - mapSize * n >= 0) {
+            if (position - mapSize * scaleIterator >= 0) {
                 if (
-                    game.map[position - mapSize * n].tileType !== TileTypes.WALL &&
-                    game.map[position - mapSize * n].tileType !== TileTypes.DOORCLOSED &&
-                    game.map[position - mapSize * n].hasPlayer === false
+                    game.map[position - mapSize * scaleIterator].tileType !== TileTypes.WALL &&
+                    game.map[position - mapSize * scaleIterator].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position - mapSize * scaleIterator].hasPlayer === false
                 ) {
-                    verifiedPositions.push(n * mapSize * -1);
+                    verifiedPositions.push(scaleIterator * mapSize * -1);
                 }
             }
-
-            // Check downward movement
-            if (position + mapSize * n < mapLength) {
+            if (position + mapSize * scaleIterator < mapLength) {
                 if (
-                    game.map[position + mapSize * n].tileType !== TileTypes.WALL &&
-                    game.map[position + mapSize * n].tileType !== TileTypes.DOORCLOSED &&
-                    game.map[position + mapSize * n].hasPlayer === false
+                    game.map[position + mapSize * scaleIterator].tileType !== TileTypes.WALL &&
+                    game.map[position + mapSize * scaleIterator].tileType !== TileTypes.DOORCLOSED &&
+                    game.map[position + mapSize * scaleIterator].hasPlayer === false
                 ) {
-                    verifiedPositions.push(mapSize * n);
+                    verifiedPositions.push(mapSize * scaleIterator);
                 }
             }
         }

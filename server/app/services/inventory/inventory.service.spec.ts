@@ -11,15 +11,18 @@ import { InventoryService } from './inventory.service';
 /* eslint-disable */
 describe('InventoryService', () => {
     let service: InventoryService;
-
+    let activeGamesService: ActiveGamesService;
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 InventoryService,
-                ActiveGamesService,
                 {
                     provide: LogSenderService,
                     useValue: {},
+                },
+                {
+                    provide: ActiveGamesService,
+                    useValue: { getActiveGame: jest.fn() },
                 },
                 UniqueItemRandomizerService,
                 GameService,
@@ -35,10 +38,74 @@ describe('InventoryService', () => {
         }).compile();
 
         service = module.get<InventoryService>(InventoryService);
+        activeGamesService = module.get<ActiveGamesService>(ActiveGamesService);
     });
 
     it('should be defined', () => {
         expect(service).toBeDefined();
+    });
+    it('should update inventory, handle item effects, and emit new inventory', () => {
+        const server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Server;
+        const client = {} as Socket;
+        const playerId = 'playerId';
+        const allItems = [ItemTypes.AA1, ItemTypes.AA2];
+        const droppedItem = ItemTypes.AA1;
+        const roomId = 'roomId';
+        const player: PlayerCoord = { player: { id: playerId, inventory: [], attributes: {}, stats: {} }, position: 0 } as PlayerCoord;
+        const activeGame = {
+            playersCoord: [player],
+            game: { map: { 0: { item: null } } },
+            turnTimer: { pauseTimer: jest.fn(), resumeTimer: jest.fn() },
+        };
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame as any);
+        jest.spyOn(service, 'handleItemEffect').mockImplementation();
+        jest.spyOn(service, 'emitNewPlayerInventory').mockImplementation();
+
+        service.updateInventory(server, client, playerId, allItems, droppedItem, roomId);
+
+        expect(activeGamesService.getActiveGame).toHaveBeenCalledWith(roomId);
+        expect(activeGame.game.map[0].item).toBe(droppedItem);
+        expect(service.handleItemEffect).toHaveBeenCalled();
+        expect(service.handleItemEffect).toHaveBeenCalledWith(ItemTypes.AA2, player.player, false);
+        expect(service.handleItemEffect).toHaveBeenCalledWith(ItemTypes.AA2, player.player, false);
+        expect(player.player.inventory).toEqual([ItemTypes.AA2]);
+        expect(activeGame.turnTimer.resumeTimer).toHaveBeenCalled();
+        expect(service.emitNewPlayerInventory).toHaveBeenCalledWith(server, roomId, player, droppedItem);
+    });
+
+    it('should update inventory, handle item effects, and emit new inventory with multiple items', () => {
+        const server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Server;
+        const client = {} as Socket;
+        const playerId = 'playerId';
+        const allItems = [ItemTypes.AA1, ItemTypes.AA2];
+        const droppedItem = ItemTypes.AA1;
+        const roomId = 'roomId';
+        const player: PlayerCoord = {
+            player: { id: playerId, inventory: [ItemTypes.AA1, ItemTypes.AA2], attributes: {}, stats: {} },
+            position: 0,
+        } as PlayerCoord;
+        const activeGame = {
+            playersCoord: [player],
+            game: { map: { 0: { item: null } } },
+            turnTimer: { pauseTimer: jest.fn(), resumeTimer: jest.fn() },
+        };
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame as any);
+        jest.spyOn(service, 'handleItemEffect').mockImplementation();
+        jest.spyOn(service, 'emitNewPlayerInventory').mockImplementation();
+
+        service.updateInventory(server, client, playerId, allItems, droppedItem, roomId);
+
+        expect(activeGamesService.getActiveGame).toHaveBeenCalledWith(roomId);
+        expect(activeGame.game.map[0].item).toBe(droppedItem);
+        expect(service.handleItemEffect).toHaveBeenCalled();
+        expect(service.handleItemEffect).toHaveBeenCalledWith(ItemTypes.AA1, player.player, true);
+        expect(service.handleItemEffect).toHaveBeenCalledWith(ItemTypes.AA2, player.player, true);
+        expect(service.handleItemEffect).toHaveBeenCalledWith(ItemTypes.AA2, player.player, false);
+        expect(player.player.inventory).toEqual([ItemTypes.AA2]);
+        expect(activeGame.turnTimer.resumeTimer).toHaveBeenCalled();
+        expect(service.emitNewPlayerInventory).toHaveBeenCalledWith(server, roomId, player, droppedItem);
     });
 });
 describe('InventoryService', () => {
@@ -99,6 +166,32 @@ describe('InventoryService', () => {
                 position: 0,
             } as PlayerCoord;
             item = ItemTypes.AA1;
+        });
+
+        it('should emit item to replace and pause the game timer when inventory is full', () => {
+            const server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+            const client = {} as Socket;
+            const roomId = 'roomId';
+            const player: PlayerCoord = {
+                player: {
+                    inventory: [],
+                    attributes: {},
+                    stats: {},
+                },
+                position: 0,
+            } as PlayerCoord;
+            const item = ItemTypes.AA1;
+            const activeGame = {
+                turnTimer: {
+                    pauseTimer: jest.fn(),
+                },
+            };
+
+            const activeGameCalled = jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame as any);
+            service.emitItemToReplace(server, player, item, roomId);
+            expect(activeGameCalled).toHaveBeenCalled();
+            expect(activeGame.turnTimer.pauseTimer).toHaveBeenCalled();
+            expect(server.to).toHaveBeenCalledWith(roomId);
         });
 
         it('should add item to inventory and emit when inventory is not full', () => {
@@ -371,6 +464,26 @@ describe('InventoryService', () => {
                 expect(player.attributes.currentAttack).toBe(5);
                 expect(player.attributes.isCombatBoostedAttack).toBe(false);
             });
+
+            it('should decrease attack by 2 and set isCombatBoostedAttack to false when isReset is true and currentHealth is > 2', () => {
+                const player: Player = { attributes: { currentHealth: 3, currentAttack: 5, isCombatBoostedAttack: true } } as Player;
+
+                service.handleAC1Item(player, true);
+
+                expect(player.attributes.currentAttack).toBe(3);
+                expect(player.attributes.isCombatBoostedAttack).toBe(false);
+            });
+
+            it('should not change attack or isCombatBoostedAttack if currentHealth is <= 2 and isCombatBoostedDefense is true', () => {
+                const player: Player = {
+                    attributes: { currentHealth: 2, currentAttack: 5, isCombatBoostedAttack: false, isCombatBoostedDefense: true },
+                } as Player;
+
+                service.handleAC1Item(player, false);
+
+                expect(player.attributes.currentAttack).toBe(5);
+                expect(player.attributes.isCombatBoostedAttack).toBe(false);
+            });
         });
 
         describe('handleAC2Item', () => {
@@ -384,14 +497,21 @@ describe('InventoryService', () => {
             });
 
             it('should decrease defense by 2 and set isCombatBoostedDefense to false when isReset is true and currentHealth is <= 3', () => {
-                const player: Player = { attributes: { currentHealth: 4, currentDefense: 5, isCombatBoostedDefense: true } } as Player;
+                const player: Player = { attributes: { currentHealth: 3, currentDefense: 5, isCombatBoostedDefense: true } } as Player;
 
                 service.handleAC2Item(player, true);
 
                 expect(player.attributes.currentDefense).toBe(3);
                 expect(player.attributes.isCombatBoostedDefense).toBe(false);
             });
+            it('should decrease defense by 2 and set isCombatBoostedDefense to false when isReset is true and currentHealth is <= 3', () => {
+                const player: Player = { attributes: { currentHealth: 3, currentDefense: 5, isCombatBoostedDefense: false } } as Player;
 
+                service.handleAC2Item(player, true);
+
+                expect(player.attributes.currentDefense).toBe(3);
+                expect(player.attributes.isCombatBoostedDefense).toBe(false);
+            });
             it('should not change defense or isCombatBoostedDefense if currentHealth is > 3', () => {
                 const player: Player = { attributes: { currentHealth: 4, currentDefense: 5, isCombatBoostedDefense: false } } as Player;
 
@@ -470,6 +590,40 @@ describe('InventoryService', () => {
                 expect(player.attributes.currentSpeed).toBe(3);
                 expect(player.attributes.isCombatBoostedDefense).toBe(false);
             });
+        });
+
+        describe('setItemsHeldAttribute', () => {
+            it('should initialize itemsHeld if not already initialized and add item to it', () => {
+                const player: Player = { attributes: {}, stats: {} } as Player;
+                const item = ItemTypes.AA1;
+
+                service.setItemsHeldAttribute(player, item);
+
+                expect(player.attributes.itemsHeld).toBeDefined();
+                expect(player.attributes.itemsHeld.has(item)).toBe(true);
+                expect(player.stats.uniqueItemsCollected).toBe(1);
+            });
+
+            it('should add item to existing itemsHeld and update uniqueItemsCollected', () => {
+                const player: Player = { attributes: { itemsHeld: new Set<ItemTypes>([ItemTypes.AA1]) }, stats: {} } as Player;
+                const item = ItemTypes.AA2;
+
+                service.setItemsHeldAttribute(player, item);
+
+                expect(player.attributes.itemsHeld.has(item)).toBe(true);
+                expect(player.stats.uniqueItemsCollected).toBe(2);
+            });
+        });
+
+        it('should emit newPlayerInventory event with dropItem', () => {
+            const server: Server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Server;
+            const roomId = 'roomId';
+            const player: PlayerCoord = { player: { id: 'playerId' } } as PlayerCoord;
+            const dropItem = ItemTypes.AA1;
+            service.emitNewPlayerInventory(server, roomId, player, dropItem);
+
+            expect(server.to).toHaveBeenCalledWith(roomId);
+            expect(server.emit).toHaveBeenCalledWith('newPlayerInventory', { player, dropItem });
         });
     });
 });

@@ -40,6 +40,11 @@ describe('CombatTimerService', () => {
         service = module.get<CombatTimerService>(CombatTimerService);
     });
 
+    afterEach(() => {
+        jest.clearAllTimers();
+        service.resetTimer();
+    });
+
     it('should be defined', () => {
         expect(service).toBeDefined();
     });

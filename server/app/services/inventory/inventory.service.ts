@@ -70,11 +70,9 @@ export class InventoryService {
     handleAC1Item(player: Player, isReset: boolean) {
         if (player.attributes.currentHealth <= 2 && !player.attributes.isCombatBoostedDefense) {
             player.attributes.currentAttack += isReset ? -2 : 2;
-
             player.attributes.isCombatBoostedAttack = !isReset;
         } else if (isReset) {
             player.attributes.currentAttack -= 2;
-
             player.attributes.isCombatBoostedAttack = false;
         }
     }
@@ -85,7 +83,6 @@ export class InventoryService {
             player.attributes.isCombatBoostedDefense = !isReset;
         } else if (isReset) {
             player.attributes.currentDefense -= 2;
-
             player.attributes.isCombatBoostedDefense = false;
         }
     }

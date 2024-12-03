@@ -105,7 +105,6 @@ export class CombatHandlerService {
                 this.combatService.startCombatTurn(roomId, defender);
                 server.to(roomId).emit('changeCombatTurn', defender.player.id);
             } else if (defender.player.isVirtual) {
-                console.log('virtual player attakcs');
                 server.to(roomId).emit('changeCombatTurn', defender.player.id);
                 this.virtualPlayerService.roomId = roomId;
                 this.virtualPlayerService.virtualPlayerId = defender.player.id;
