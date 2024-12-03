@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { GameState, ShortestPathByTile } from '@common/game-structure';
 import { BaseStateService } from './base-state.service';
 import { TEST_SHORTEST_PATH_BY_INDEX } from './constants';
+import { GameControllerService } from './game-controller.service';
 import { MovingStateService } from './moving-state.service';
 
 describe('MovingStateService', () => {
@@ -10,7 +11,7 @@ describe('MovingStateService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [MovingStateService, { provide: BaseStateService, useValue: {} }],
+            providers: [MovingStateService, { provide: BaseStateService, useValue: {} }, GameControllerService],
         });
         service = TestBed.inject(MovingStateService);
     });

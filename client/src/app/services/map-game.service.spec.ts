@@ -63,6 +63,7 @@ describe('MapGameService', () => {
                 { provide: MovingStateService, useValue: movingStateServiceSpy },
                 { provide: ActionStateService, useValue: actionStateServiceSpy },
                 { provide: CombatStateService, useValue: combatStateServiceSpy },
+                MapGameService,
             ],
         });
         service = TestBed.inject(MapGameService);

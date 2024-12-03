@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { GameState } from '@common/game-structure';
+import { GameControllerService } from './game-controller.service';
 import { NotPlayingStateService } from './not-playing-state.service';
 
 describe('NotPlayingStateService', () => {
     let service: NotPlayingStateService;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        TestBed.configureTestingModule({
+            providers: [NotPlayingStateService, GameControllerService],
+        });
         service = TestBed.inject(NotPlayingStateService);
     });
 

@@ -2,12 +2,15 @@ import { TestBed } from '@angular/core/testing';
 
 import { GameState } from '@common/game-structure';
 import { CombatStateService } from './combat-state.service';
+import { GameControllerService } from './game-controller.service';
 
 describe('CombatStateService', () => {
     let service: CombatStateService;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        TestBed.configureTestingModule({
+            providers: [CombatStateService, GameControllerService],
+        });
         service = TestBed.inject(CombatStateService);
     });
 

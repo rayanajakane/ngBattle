@@ -13,6 +13,7 @@ describe('MapEditService', () => {
         'incrementNumberStartingPoints',
         'incrementNumberItem',
         'resetDraggedObject',
+        'reduceItemCounter',
     ]);
 
     beforeEach(() => {

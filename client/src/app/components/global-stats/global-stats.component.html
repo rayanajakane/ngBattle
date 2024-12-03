@@ -1,3 +1,4 @@
+@if (globalStats) {
 <div>
     <h2>Statistiques globales</h2>
     <p>Durée de la partie: {{ formatMatchLength(globalStats.matchLength) }}</p>
@@ -8,3 +9,4 @@
     <p>Nombre de joueurs différents ayant détenu le drapeau: {{ globalStats.nbPlayersHeldFlag }}</p>
     }
 </div>
+}

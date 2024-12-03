@@ -19,6 +19,7 @@ describe('BaseStateService', () => {
             providers: [
                 { provide: MatDialog, useValue: dialogSpyObj },
                 { provide: GameControllerService, useValue: gameControllerSpyObj },
+                BaseStateService,
             ],
         });
 
