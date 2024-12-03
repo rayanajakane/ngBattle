@@ -21,4 +21,8 @@ export class GlobalStatsComponent {
 
         return `${minutes}:${seconds}`;
     }
+
+    formatVisitedTilesPercent(visitedTilesPercent: number): string {
+        return `${visitedTilesPercent.toFixed(2)}%`;
+    }
 }
