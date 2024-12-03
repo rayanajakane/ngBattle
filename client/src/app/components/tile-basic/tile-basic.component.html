@@ -1,5 +1,5 @@
 <div class="tile">
-    @if (!this.isToolbarTile) {
+    @if (!this.isToolbarTile && transparentImage) {
     <img
         [src]="this.transparentImage"
         alt="{{ this.itemType }}"

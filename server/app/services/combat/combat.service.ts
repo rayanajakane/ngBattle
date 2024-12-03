@@ -1,4 +1,3 @@
-import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import {
     ATTACKER_INDEX,
@@ -34,7 +33,6 @@ export class CombatService {
     constructor(
         @Inject(ActiveGamesService) private readonly activeGamesService: ActiveGamesService,
         @Inject(DebugModeService) private readonly debugModeService: DebugModeService,
-        @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandlerService: ActionHandlerService,
         @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
         @Inject(InventoryService) private readonly inventoryService: InventoryService,
         @Inject(LogSenderService) private readonly logSender: LogSenderService,
@@ -206,7 +204,7 @@ export class CombatService {
                     } else if (playerKilled.player.isVirtual) {
                         const activeGame = this.activeGamesService.getActiveGame(roomId);
                         if (activeGame.playersCoord[activeGame.turn].player.id === playerKilled.player.id)
-                            this.actionHandlerService.handleEndTurn({ roomId, playerId: playerKilled.player.id, lastTurn: false }, server);
+                            this.virtualPlayerService.handleVirtualPlayerTurn(roomId, playerKilled.player.id);
                     }
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
@@ -300,6 +298,7 @@ export class CombatService {
         else return Math.floor(Math.random() * diceSize) + THROW_DICE_MIN;
     }
 
+    // eslint-disable-next-line complexity
     private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game = gameInstance.game;

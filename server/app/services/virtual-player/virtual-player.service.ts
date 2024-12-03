@@ -384,4 +384,8 @@ export class VirtualPlayerService {
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
         virtualPlayerCoord.player.actionNumber = 0;
     }
+
+    handleVirtualPlayerTurn(roomId: string, virtualPlayerId: string) {
+        this.actionHandler.handleEndTurn({ roomId: roomId, playerId: virtualPlayerId, lastTurn: false }, this.server);
+    }
 }

@@ -951,4 +951,14 @@ describe('VirtualPlayerService', () => {
 
         expect(combatHandlerService.handleAction).toHaveBeenCalledWith('room1', 'vp1', 1, null, service.server);
     });
+
+    it('should handle virtual player turn', () => {
+        service.roomId = 'room1';
+        service.virtualPlayerId = 'vp1';
+        service.server = {} as Server;
+
+        service.handleVirtualPlayerTurn('room1', 'vp1');
+
+        expect(actionHandlerService.handleEndTurn).toHaveBeenCalledWith({ roomId: 'room1', playerId: 'vp1', lastTurn: false }, service.server);
+    });
 });

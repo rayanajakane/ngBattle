@@ -1,6 +1,6 @@
 mat-card {
     border-radius: 30px;
-    background-color: #3f3a61;
+    background-color: #7d77a5;
     color: white;
 }
 
@@ -18,6 +18,11 @@ mat-card-header {
 img {
     width: 100%;
     height: 100%;
+}
+
+.visible-icon {
+    width: 30px;
+    height: 30px;
 }
 
 mat-card-actions {
