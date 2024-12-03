@@ -3,6 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { GlobalStatsComponent } from '@app/components/global-stats/global-stats.component';
 import { SocketService } from '@app/services/socket.service';
+import { GlobalStats } from '@common/global-stats';
 import { of } from 'rxjs';
 import { GameEndPageComponent } from './game-end-page.component';
 
@@ -47,7 +48,7 @@ describe('GameEndPageComponent', () => {
         expect(component.roomId).toBe('testRoom');
         expect(component.characterName).toBe('testName');
         expect(component.playerList).toEqual([]);
-        expect(component.globalStats).toEqual({ visitedTilesPercent: 0 } as unknown);
+        expect(component.globalStats).toEqual({ visitedTilesPercent: 0 } as GlobalStats);
     });
 
     it('should call socketService.disconnect on leaveRoom', () => {
