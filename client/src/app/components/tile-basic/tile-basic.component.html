@@ -1,5 +1,5 @@
 <div class="tile">
-    @if (!this.isToolbarTile && transparentImage) {
+    @if (!this.isToolbarTile) { @if (transparentImage) {
     <img
         [src]="this.transparentImage"
         alt="{{ this.itemType }}"
@@ -7,7 +7,9 @@
         [ngClass]="choosePreviewClass()"
         draggable="true"
     />
-    @if (this.avatar) {
+    } @else {
+    <img id="white" src="./assets/transparent.png" [ngClass]="choosePreviewClass()" draggable="true" />
+    } @if (this.avatar) {
     <img class="transparent" [src]="this.avatarUrl" alt="{{ 'Avatar' + this.avatar }}" />
     } }
     <img [src]="imageUrl" alt="{{ this.tileType }}" draggable="false" />
