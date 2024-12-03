@@ -1358,4 +1358,15 @@ describe('CombatService', () => {
 
         expect(result).toEqual([1, false]);
     });
+
+    it("should return false if it is not the player's turn", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
+
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(undefined);
+
+        const result = service.escape(roomId, player);
+
+        expect(result).toEqual([1, false]);
+    });
 });

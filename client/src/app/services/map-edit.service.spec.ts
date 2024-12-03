@@ -15,6 +15,7 @@ describe('MapEditService', () => {
         'reduceItemCounter',
         'reduceStartingPointCounter',
         'reduceFlagACounter',
+        'incrementFlagACounter',
     ]);
 
     beforeEach(() => {
@@ -347,26 +348,6 @@ describe('MapEditService', () => {
         expect(endItemDragSpy).toHaveBeenCalledWith(0);
     });
 
-    // it('onMouseUp should call setItemType if isDraggingItem is false and left button is released', () => {
-    //     const setItemTypeSpy = spyOn(service, 'setItemType');
-    //     service.isDraggingItem = false;
-    //     const mockEvent = new MouseEvent('mouseup', { button: 0 });
-
-    //     service.onMouseUp(0, mockEvent);
-
-    //     expect(setItemTypeSpy).toHaveBeenCalledWith(0, service.dragDropService.draggedTile);
-    // });
-
-    // it('onMouseUp should not call setItemType if the right button is released', () => {
-    //     const setItemTypeSpy = spyOn(service, 'setItemType');
-    //     service.isDraggingItem = false;
-    //     const mockEvent = new MouseEvent('mouseup', { button: 2 });
-
-    //     service.onMouseUp(0, mockEvent);
-
-    //     expect(setItemTypeSpy).not.toHaveBeenCalled();
-    // });
-
     it('onMouseEnter should call placeTile if isMouseDown is true and isLeftClick is true', () => {
         const placeTileSpy = spyOn(service, 'placeTile');
         const mockEvent = new MouseEvent('mouseenter');
@@ -535,6 +516,75 @@ describe('MapEditService', () => {
         dragDropServiceSpy.draggedTile = 'test-item';
         dragDropServiceSpy.itemCounter = 1;
         expect(service.canItemBePlaced(0, 'test-item')).toBeTrue();
+    });
+
+    it('canItemBePlaced should return false if draggedTile is empty', () => {
+        service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = '';
+        expect(service.canItemBePlaced(0, 'test-item')).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if tile type is wall', () => {
+        service.tiles = [{ idx: 0, tileType: TileTypes.WALL, item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = 'test-item';
+        expect(service.canItemBePlaced(0, 'test-item')).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if tile type is doorClosed', () => {
+        service.tiles = [{ idx: 0, tileType: TileTypes.DOORCLOSED, item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = 'test-item';
+        expect(service.canItemBePlaced(0, 'test-item')).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if tile type is doorOpen', () => {
+        service.tiles = [{ idx: 0, tileType: TileTypes.DOOROPEN, item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = 'test-item';
+        expect(service.canItemBePlaced(0, 'test-item')).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if no available counter for itemType', () => {
+        service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = ItemTypes.AA1;
+        dragDropServiceSpy.itemCounter = 0;
+        expect(service.canItemBePlaced(0, ItemTypes.AA1)).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if unique item already placed', () => {
+        service.tiles = [
+            { idx: 0, tileType: 'ice', item: ItemTypes.AA1, hasPlayer: false },
+            { idx: 1, tileType: 'ice', item: '', hasPlayer: false },
+        ];
+        dragDropServiceSpy.draggedTile = 'test-item';
+        dragDropServiceSpy.itemCounter = 1;
+        expect(service.canItemBePlaced(1, ItemTypes.AA1)).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if itemType is startingPoint and startingPointCounter is 0', () => {
+        service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = ItemTypes.STARTINGPOINT;
+        dragDropServiceSpy.startingPointCounter = 0;
+        expect(service.canItemBePlaced(0, ItemTypes.STARTINGPOINT)).toBeFalse();
+    });
+
+    it('canItemBePlaced should return false if itemType is flagA and flagACounter is 0', () => {
+        service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = ItemTypes.FLAG_A;
+        dragDropServiceSpy.flagACounter = 0;
+        expect(service.canItemBePlaced(0, ItemTypes.FLAG_A)).toBeFalse();
+    });
+
+    it('canItemBePlaced should return true if itemType is flagA and flagACounter is greater than 0', () => {
+        service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = ItemTypes.FLAG_A;
+        dragDropServiceSpy.flagACounter = 1;
+        expect(service.canItemBePlaced(0, ItemTypes.FLAG_A)).toBeTrue();
+    });
+
+    it('canItemBePlaced should return true if itemType is startingPoint and startingPointCounter is greater than 0', () => {
+        service.tiles = [{ idx: 0, tileType: 'ice', item: '', hasPlayer: false }];
+        dragDropServiceSpy.draggedTile = ItemTypes.STARTINGPOINT;
+        dragDropServiceSpy.startingPointCounter = 1;
+        expect(service.canItemBePlaced(0, ItemTypes.STARTINGPOINT)).toBeTrue();
     });
 
     it('setStartingPointCounterHandler should increment item counter if current item is itemType', () => {
