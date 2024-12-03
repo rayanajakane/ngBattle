@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Player, PlayerCoord, PlayerStats } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 import { LeaderboardComponent } from './leaderboard.component';
 
 describe('LeaderboardComponent', () => {
@@ -165,5 +166,53 @@ describe('LeaderboardComponent', () => {
 
         expect(component.dataSource).toEqual([player1, player2, player3]);
         expect(component.afkPlayerIds).toEqual([player3.id]);
+    });
+
+    it('should return true if player has FLAG_A in inventory', () => {
+        const player: Player = {
+            id: '1',
+            name: 'Player 1',
+            isAdmin: false,
+            avatar: 'avatar1.png',
+            stats: {} as PlayerStats,
+            attributes: {
+                health: 10,
+                speed: 8,
+                attack: 7,
+                defense: 5,
+                dice: '6',
+            },
+            isActive: true,
+            abandoned: false,
+            wins: 5,
+            isVirtual: false,
+            inventory: [ItemTypes.FLAG_A],
+        };
+
+        expect(component.hasFlag(player)).toBe(true);
+    });
+
+    it('should return false if player does not have FLAG_A in inventory', () => {
+        const player: Player = {
+            id: '1',
+            name: 'Player 1',
+            isAdmin: false,
+            avatar: 'avatar1.png',
+            stats: {} as PlayerStats,
+            attributes: {
+                health: 10,
+                speed: 8,
+                attack: 7,
+                defense: 5,
+                dice: '6',
+            },
+            isActive: true,
+            abandoned: false,
+            wins: 5,
+            isVirtual: false,
+            inventory: [],
+        };
+
+        expect(component.hasFlag(player)).toBe(false);
     });
 });

@@ -71,23 +71,6 @@ describe('DragDropService', () => {
         expect(service.startingPointCounter).toBe(STARTING_COUNTER_INCREMENT);
     });
 
-    it('should set multiple item counter based on map size', () => {
-        const tilesSmall = createTiles(MAP_SIZE_SMALL);
-        service.setMultipleItemCounter(MAP_SIZE_SMALL, tilesSmall);
-        expect(service.startingPointCounter).toBe(STARTING_COUNTER_TWO);
-        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_TWO);
-
-        const tilesMedium = createTiles(MAP_SIZE_MEDIUM);
-        service.setMultipleItemCounter(MAP_SIZE_MEDIUM, tilesMedium);
-        expect(service.startingPointCounter).toBe(STARTING_COUNTER_FOUR);
-        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_FOUR);
-
-        const tilesLarge = createTiles(MAP_SIZE_LARGE);
-        service.setMultipleItemCounter(MAP_SIZE_LARGE, tilesLarge);
-        expect(service.startingPointCounter).toBe(STARTING_COUNTER_SIX);
-        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_SIX);
-    });
-
     it('should count starting points correctly', () => {
         const tiles = createTiles(MAP_SIZE_SMALL);
         tiles[0].item = 'startingPoint';
@@ -133,5 +116,59 @@ describe('DragDropService', () => {
         service.itemCounter = 5;
         service.incrementNumberItem();
         expect(service.itemCounter).toBe(6);
+    });
+
+    it('should set multiple item counter correctly for small map size', () => {
+        const tiles = createTiles(MAP_SIZE_SMALL);
+        tiles[0].item = 'startingPoint';
+        tiles[1].item = 'item-aleatoire';
+
+        service.setMultipleItemCounter(MAP_SIZE_SMALL, tiles);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_TWO - 1);
+        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_TWO - 1);
+        expect(service.flagACounter).toBe(1);
+    });
+
+    it('should set multiple item counter correctly for medium map size', () => {
+        const tiles = createTiles(MAP_SIZE_MEDIUM);
+        tiles[0].item = 'startingPoint';
+        tiles[1].item = 'startingPoint';
+        tiles[2].item = 'item-aleatoire';
+        tiles[3].item = 'item-aleatoire';
+
+        service.setMultipleItemCounter(MAP_SIZE_MEDIUM, tiles);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_FOUR - 2);
+        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_FOUR - 2);
+        expect(service.flagACounter).toBe(1);
+    });
+
+    it('should set multiple item counter correctly for large map size', () => {
+        const tiles = createTiles(MAP_SIZE_LARGE);
+        tiles[0].item = 'startingPoint';
+        tiles[1].item = 'startingPoint';
+        tiles[2].item = 'startingPoint';
+        tiles[3].item = 'item-aleatoire';
+        tiles[4].item = 'item-aleatoire';
+        tiles[5].item = 'item-aleatoire';
+
+        service.setMultipleItemCounter(MAP_SIZE_LARGE, tiles);
+        expect(service.startingPointCounter).toBe(STARTING_COUNTER_SIX - 3);
+        expect(service.itemCounter).toBe(RANDOM_ITEM_COUNTER_SIX - 3);
+        expect(service.flagACounter).toBe(1);
+    });
+
+    it('should not set negative counters', () => {
+        const tiles = createTiles(MAP_SIZE_SMALL);
+        tiles[0].item = 'startingPoint';
+        tiles[1].item = 'startingPoint';
+        tiles[2].item = 'startingPoint';
+        tiles[3].item = 'item-aleatoire';
+        tiles[4].item = 'item-aleatoire';
+        tiles[5].item = 'item-aleatoire';
+
+        service.setMultipleItemCounter(MAP_SIZE_SMALL, tiles);
+        expect(service.startingPointCounter).toBe(0);
+        expect(service.itemCounter).toBe(0);
+        expect(service.flagACounter).toBe(1);
     });
 });

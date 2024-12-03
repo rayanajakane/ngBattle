@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ItemTypes } from '@common/tile-types';
 import { InventoryComponent } from './inventory.component';
 
 describe('InventoryComponent', () => {
@@ -18,5 +19,16 @@ describe('InventoryComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should return the correct image path for a valid item type', () => {
+        const itemType = 'sword';
+        const expectedPath = './assets/sword_transparent.png';
+        expect(component.findItemImage(itemType)).toBe(expectedPath);
+    });
+
+    it('should return undefined for an empty item type', () => {
+        const itemType = ItemTypes.EMPTY;
+        expect(component.findItemImage(itemType)).toBeUndefined();
     });
 });

@@ -10,7 +10,6 @@ import { MapGameService } from '@app/services/map-game.service';
     imports: [MatGridListModule, MatGridTile, TileBasicComponent],
     templateUrl: '../base-map/base-map.component.html', // reuse base-map template
     styleUrl: '../base-map/base-map.component.scss',
-    providers: [MapGameService],
 })
 export class GameMapComponent extends BaseMapComponent {
     constructor(protected mapService: MapGameService) {

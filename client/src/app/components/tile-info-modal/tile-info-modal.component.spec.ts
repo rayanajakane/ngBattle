@@ -79,4 +79,11 @@ describe('TileInfoModalComponent', () => {
         expect(component.chooseTileEffect(TileTypes.WATER)).toBe('Retire 2 point de mouvement !');
         expect(component.chooseTileEffect('Unknown')).toBe('Aucun objet');
     });
+
+    it('should return correct avatar name', () => {
+        expect(component.chooseAvatar('Avatar Name')).toBe('Name');
+        expect(component.chooseAvatar('Another Avatar')).toBe('Avatar');
+        expect(component.chooseAvatar(undefined)).toBe('');
+        expect(component.chooseAvatar('')).toBe('');
+    });
 });

@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { DELAY } from '@app/pages/game-page/constant';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerCoord } from '@common/player';
+import { ItemTypes } from '@common/tile-types';
 import { MOCK_PLAYER, MOCK_PLAYER_TWO, TEST_MOVE_BUDGET } from './constants';
 import { GameControllerService } from './game-controller.service';
 
@@ -404,5 +405,68 @@ describe('GameControllerService', () => {
             playerId: MOCK_PLAYER.id,
             currentBudget: TEST_MOVE_BUDGET,
         });
+    });
+
+    it('should request debug mode', () => {
+        spyOn(service['socketService'], 'emit');
+        service.setRoom('room1', MOCK_PLAYER.id);
+        service.initializePlayers(
+            [
+                { player: MOCK_PLAYER, position: 0 },
+                { player: MOCK_PLAYER_TWO, position: 1 },
+            ],
+            0,
+        );
+        service.requestDebugMode();
+        expect(service['socketService'].emit).toHaveBeenCalledWith('requestDebugMode', { roomId: 'room1', playerId: MOCK_PLAYER.id });
+    });
+
+    it('should turn off debug mode', () => {
+        spyOn(service['socketService'], 'emit');
+        service.setRoom('room1', MOCK_PLAYER.id);
+        service.initializePlayers(
+            [
+                { player: MOCK_PLAYER, position: 0 },
+                { player: MOCK_PLAYER_TWO, position: 1 },
+            ],
+            0,
+        );
+        service.turnOffDebugMode();
+        expect(service['socketService'].emit).toHaveBeenCalledWith('turnOffDebugMode', { roomId: 'room1', playerId: MOCK_PLAYER.id });
+    });
+
+    it('should request update inventory', () => {
+        spyOn(service['socketService'], 'emit');
+        const allItems = [ItemTypes.AA1, ItemTypes.FLAG_A, ItemTypes.AF2];
+        const droppedItem = ItemTypes.AF2;
+        service.setRoom('room1', MOCK_PLAYER.id);
+        service.initializePlayers(
+            [
+                { player: MOCK_PLAYER, position: 0 },
+                { player: MOCK_PLAYER_TWO, position: 1 },
+            ],
+            0,
+        );
+        service.requestUpdateInventory(allItems, droppedItem);
+        expect(service['socketService'].emit).toHaveBeenCalledWith('updateInventory', {
+            roomId: 'room1',
+            playerId: MOCK_PLAYER.id,
+            allItems,
+            droppedItem,
+        });
+    });
+
+    it('should request teleport', () => {
+        spyOn(service['socketService'], 'emit');
+        service.setRoom('room1', MOCK_PLAYER.id);
+        service.initializePlayers(
+            [
+                { player: MOCK_PLAYER, position: 0 },
+                { player: MOCK_PLAYER_TWO, position: 1 },
+            ],
+            0,
+        );
+        service.requestTeleport(2);
+        expect(service['socketService'].emit).toHaveBeenCalledWith('teleportPlayer', { roomId: 'room1', playerId: MOCK_PLAYER.id, index: 2 });
     });
 });

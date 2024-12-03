@@ -53,7 +53,6 @@ import { ItemTypes } from '@common/tile-types';
         PlayerPanelComponent,
         GamePanelComponent,
         LogsComponent,
-        ChooseItemModalComponent,
     ],
     providers: [GameControllerService, MapGameService, NotPlayingStateService, MovingStateService, ActionStateService, CombatStateService],
 })
