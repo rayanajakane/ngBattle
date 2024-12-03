@@ -329,4 +329,30 @@ describe('MapGameService', () => {
         expect(service.placePlayer).toHaveBeenCalledWith(1, player1);
         expect(service.removeUnusedStartingPoints).toHaveBeenCalled();
     });
+
+    it('should replace random items correctly', () => {
+        spyOn(service, 'placeItem');
+        const itemsPositions = [
+            { idx: 0, item: ItemTypes.STARTINGPOINT },
+            { idx: 1, item: ItemTypes.EMPTY },
+        ];
+        service.replaceRandomItems(itemsPositions);
+        itemsPositions.forEach((itemPlacement) => {
+            expect(service.placeItem).toHaveBeenCalledWith(itemPlacement.idx, itemPlacement.item);
+        });
+    });
+
+    it('should place item correctly', () => {
+        service.placeItem(0, ItemTypes.STARTINGPOINT);
+        expect(service.tiles[0].item).toBe(ItemTypes.STARTINGPOINT);
+
+        service.placeItem(1, ItemTypes.EMPTY);
+        expect(service.tiles[1].item).toBe(ItemTypes.EMPTY);
+    });
+
+    it('should remove item correctly', () => {
+        service.tiles[0].item = ItemTypes.STARTINGPOINT;
+        service.removeItem(0);
+        expect(service.tiles[0].item).toBe('');
+    });
 });
