@@ -106,6 +106,14 @@ describe('CombatService', () => {
         expect(result).toBe(false);
     });
 
+    it('should return false if player is not in combat', () => {
+        const roomId = 'room1';
+        const player = { player: { attributes: { escape: 1 } } } as any;
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(false);
+        const result = service['canPlayerEscape'](roomId, player);
+        expect(result).toBe(false);
+    });
+
     it('should return false if there are no fighters in the room', () => {
         const roomId = 'room1';
         const player = { player: { id: 'player1' } } as any;
@@ -199,15 +207,6 @@ describe('CombatService', () => {
         expect(result).toBe(false);
     });
 
-    it('should return false if player is not in combat', () => {
-        const roomId = 'room1';
-        const player = { player: { attributes: { escape: 1 } } } as any;
-
-        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(false);
-
-        const result = service['canPlayerEscape'](roomId, player);
-        expect(result).toBe(false);
-    });
     it('should call resetHealth, resetAttack, resetDefense, and resetSpeed if player is in combat', () => {
         const roomId = 'room1';
         const fighter = { player: { id: 'player1' } } as any;
@@ -409,56 +408,7 @@ describe('CombatService', () => {
         expect(activeGame.game.map[2].hasPlayer).toBe(true);
         expect(player.position).toBe(2);
     });
-    it('should return true if player can escape', () => {
-        const roomId = 'room1';
-        const player = { player: { attributes: { escape: 1 } } } as any;
 
-        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
-        jest.spyOn(Math, 'random').mockReturnValue(0.1); // Mock random to be less than ESCAPE_PROBABILITY
-
-        const result = service['canPlayerEscape'](roomId, player);
-        expect(result).toBe(true);
-    });
-
-    it('should return false if player cannot escape due to random number', () => {
-        const roomId = 'room1';
-        const player = { player: { attributes: { escape: 1 } } } as any;
-
-        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
-        jest.spyOn(Math, 'random').mockReturnValue(0.9); // Mock random to be greater than ESCAPE_PROBABILITY
-
-        const result = service['canPlayerEscape'](roomId, player);
-        expect(result).toBe(false);
-    });
-
-    it('should return false if player is not in combat', () => {
-        const roomId = 'room1';
-        const player = { player: { attributes: { escape: 1 } } } as any;
-
-        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(false);
-
-        const result = service['canPlayerEscape'](roomId, player);
-        expect(result).toBe(false);
-    });
-    it('should return an array of possible object positions', () => {
-        const roomId = 'room1';
-        const position = 20;
-        const mapSize = '10';
-        const map = Array(100)
-            .fill(null)
-            .map((_, idx) => ({ idx, tileType: TileTypes.BASIC, item: '', hasPlayer: false }));
-        const game = {
-            mapSize: mapSize,
-            map: map,
-        };
-        const activeGame = { game } as unknown as GameInstance;
-
-        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
-
-        const result = service['verifyPossibleObjectsPositions'](roomId, position);
-
-        expect(result).toEqual([1, -1, -10, 10]);
-    });
     it('should return an array of possible object positions', () => {
         const roomId = 'room1';
         const position = 20;
@@ -1348,18 +1298,7 @@ describe('CombatService', () => {
         expect(player.player.stats.escapeCount).toBe(1);
     });
 
-    it("should return false if it is not the player's turn", () => {
-        const roomId = 'room1';
-        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
-
-        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue({ player: { id: 'player2' } } as PlayerCoord);
-
-        const result = service.escape(roomId, player);
-
-        expect(result).toEqual([1, false]);
-    });
-
-    it("should return false if it is not the player's turn", () => {
+    it("should return false if player's turn is undefined", () => {
         const roomId = 'room1';
         const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
 
