@@ -71,6 +71,10 @@ export class ActiveGamesService {
                     const activeGameIndex = this.activeGames.findIndex((instance) => instance.roomId === roomId);
                     playerCoord = this.sortPlayersBySpeed(playerCoord);
 
+                    playerCoord.forEach((coord) => {
+                        coord.player.homePosition = coord.position;
+                    });
+
                     this.activeGames[activeGameIndex].playersCoord = playerCoord;
                     this.activeGames[activeGameIndex].turn = 0;
                     this.activeGames[activeGameIndex].turnTimer = new TimerService(server, roomId);
