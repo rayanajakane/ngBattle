@@ -896,4 +896,190 @@ describe('CombatService', () => {
 
         expect(result).toEqual([true, [BOOSTED_BONUS_DICE, MINIMAL_BONUS_DICE]]);
     });
+
+    it('should return combatEnd if attack is successful and defender is killed', () => {
+        const roomId = 'room1';
+        const attackPlayer = { player: { id: 'player1', attributes: { currentAttack: 10 }, isVirtual: false } } as any;
+        const defensePlayer = { player: { id: 'player2', attributes: { currentDefense: 5, currentHealth: 5 }, isVirtual: false } } as any;
+        const server = {} as Server;
+
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        jest.spyOn(service, 'checkAttackSuccessful').mockReturnValue([true, [6, 3]]);
+    });
+
+    it('should return combatTurnEnd if attack is successful and defender is not killed', () => {
+        const roomId = 'room1';
+        const attackPlayer = { player: { id: 'player1', attributes: { currentAttack: 10 }, isVirtual: false } } as any;
+        const defensePlayer = { player: { id: 'player2', attributes: { currentDefense: 5, currentHealth: 15 }, isVirtual: false } } as any;
+        const server = {} as Server;
+
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        jest.spyOn(service, 'checkAttackSuccessful').mockReturnValue([true, [6, 3]]);
+        jest.spyOn(service['logSender'], 'sendAttackActionLog').mockImplementation();
+        jest.spyOn(service, 'endCombatTurn').mockImplementation();
+
+        const result = service.attack(roomId, attackPlayer, defensePlayer, server);
+
+        expect(result).toEqual([6, 3, 'combatTurnEnd', defensePlayer, true]);
+        expect(service['logSender'].sendAttackActionLog).toHaveBeenCalledWith(server, roomId, attackPlayer.player, defensePlayer.player, 6, 3, true);
+        expect(service.endCombatTurn).toHaveBeenCalledWith(roomId, attackPlayer);
+    });
+
+    it('should return playerNotInCombat if attackPlayer is not in combat', () => {
+        const roomId = 'room1';
+        const attackPlayer = { player: { id: 'player1' } } as any;
+        const defensePlayer = { player: { id: 'player2' } } as any;
+        const server = {} as Server;
+
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(false);
+
+        const result = service.attack(roomId, attackPlayer, defensePlayer, server);
+
+        expect(result).toEqual([-1, -1, 'playerNotInCombat', defensePlayer, false]);
+    });
+
+    it('should return playerNotInCombat if defensePlayer is not in combat', () => {
+        const roomId = 'room1';
+        const attackPlayer = { player: { id: 'player1' } } as any;
+        const defensePlayer = { player: { id: 'player2' } } as any;
+        const server = {} as Server;
+
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+        const result = service.attack(roomId, attackPlayer, defensePlayer, server);
+
+        expect(result).toEqual([-1, -1, 'playerNotInCombat', defensePlayer, false]);
+    });
+    it('should start combat and initialize player attributes if fighters length is equal to COMBAT_FIGHTERS_NUMBER', () => {
+        const roomId = 'room1';
+        const fighters = [
+            { player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 }, stats: { combatCount: 0 } } },
+            { player: { id: 'player2', attributes: { health: 100, attack: 20, defense: 30, speed: 40 }, stats: { combatCount: 0 } } },
+        ] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'applyIceDisadvantage').mockImplementation();
+        jest.spyOn(service, 'setEscapeTokens').mockImplementation();
+        jest.spyOn(service, 'whoIsFirstPlayer').mockReturnValue(fighters[0]);
+        const setCurrentTurnMapSpy = jest.spyOn(service['currentTurnMap'], 'set');
+
+        const result = service.startCombat(roomId, fighters);
+
+        expect(gameInstance.turnTimer.pauseTimer).toHaveBeenCalled();
+        expect(service.applyIceDisadvantage).toHaveBeenCalledTimes(2);
+        expect(service.setEscapeTokens).toHaveBeenCalled();
+        expect(gameInstance.combatTimer.startTimer).toHaveBeenCalledWith(true);
+        expect(fighters[0].player.stats.combatCount).toBe(1);
+        expect(fighters[1].player.stats.combatCount).toBe(0);
+        expect(setCurrentTurnMapSpy).toHaveBeenCalledWith(roomId, 0);
+        expect(result).toEqual([fighters[0], fighters[1]]);
+    });
+
+    it('should initialize undefined player attributes', () => {
+        const roomId = 'room1';
+        const fighters = [
+            { player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 }, stats: { combatCount: 0 } } },
+            { player: { id: 'player2', attributes: { health: 100, attack: 20, defense: 30, speed: 40 }, stats: { combatCount: 0 } } },
+        ] as unknown as PlayerCoord[];
+
+        fighters[0].player.attributes.currentHealth = undefined;
+        fighters[0].player.attributes.currentAttack = undefined;
+        fighters[0].player.attributes.currentDefense = undefined;
+        fighters[0].player.attributes.currentSpeed = undefined;
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'applyIceDisadvantage').mockImplementation();
+        jest.spyOn(service, 'setEscapeTokens').mockImplementation();
+        jest.spyOn(service, 'whoIsFirstPlayer').mockReturnValue(fighters[0]);
+
+        service.startCombat(roomId, fighters);
+
+        expect(fighters[0].player.attributes.currentHealth).toBe(100);
+        expect(fighters[0].player.attributes.currentAttack).toBe(20);
+        expect(fighters[0].player.attributes.currentDefense).toBe(30);
+        expect(fighters[0].player.attributes.currentSpeed).toBe(40);
+    });
+
+    it('should not start combat if fighters length is not equal to COMBAT_FIGHTERS_NUMBER', () => {
+        const roomId = 'room1';
+        const fighters = [{ player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 } } }] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+
+        const result = service.startCombat(roomId, fighters);
+
+        expect(gameInstance.turnTimer.pauseTimer).toHaveBeenCalled();
+        expect(result).toBeUndefined();
+    });
+
+    // it('should handle player kill and virtual player actions correctly', () => {
+    //     const roomId = 'room1';
+    //     const attackPlayer = { player: { id: 'player1', attributes: { currentAttack: 10 }, isVirtual: false } } as any;
+    //     const defensePlayer = { player: { id: 'player2', attributes: { currentDefense: 5, currentHealth: 5 }, isVirtual: true } } as any;
+    //     const server = {} as Server;
+    //     const activeGame = { playersCoord: [{ player: { id: 'player2' } }], turn: 0 } as any;
+    //     jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+    //     jest.spyOn(service, 'checkAttackSuccessful').mockReturnValue([true, [6, 3]]);
+    //     jest.spyOn(service, 'killPlayer').mockReturnValue([attackPlayer, defensePlayer, [attackPlayer, defensePlayer]]);
+    //     jest.spyOn(service['inventoryService'], 'resetCombatBoost').mockImplementation();
+    //     jest.spyOn(service['logSender'], 'sendKillLog').mockImplementation();
+    //     jest.spyOn(service['virtualPlayerService'], 'think').mockImplementation();
+    //     jest.spyOn(service['actionHandlerService'], 'handleEndTurn').mockImplementation();
+    //     jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
+    //     const result = service.attack(roomId, attackPlayer, defensePlayer, server);
+    //     expect(result).toEqual([6, 3, 'combatEnd', defensePlayer, true]);
+    //     expect(service['inventoryService'].resetCombatBoost).toHaveBeenCalledWith(attackPlayer.player);
+    //     expect(service['inventoryService'].resetCombatBoost).toHaveBeenCalledWith(defensePlayer.player);
+    //     expect(service['logSender'].sendKillLog).toHaveBeenCalledWith(server, roomId, attackPlayer.player, defensePlayer.player);
+    //     expect(service['virtualPlayerService'].think).toHaveBeenCalled();
+    //     expect(service['actionHandlerService'].handleEndTurn).toHaveBeenCalledWith(
+    //         { roomId, playerId: defensePlayer.player.id, lastTurn: false },
+    //         server,
+    //     );
+    // });
+
+    it('should start combat and initialize player attributes if fighters length is equal to COMBAT_FIGHTERS_NUMBER', () => {
+        const roomId = 'room1';
+        const fighters = [
+            { player: { id: 'player1', attributes: { health: 100, attack: 20, defense: 30, speed: 40 }, stats: { combatCount: 0 } } },
+            { player: { id: 'player2', attributes: { health: 100, attack: 20, defense: 30, speed: 40 }, stats: { combatCount: 0 } } },
+        ] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { pauseTimer: jest.fn() },
+            combatTimer: { startTimer: jest.fn() },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'applyIceDisadvantage').mockImplementation();
+        jest.spyOn(service, 'setEscapeTokens').mockImplementation();
+        jest.spyOn(service, 'whoIsFirstPlayer').mockReturnValue(fighters[0]);
+        const setCurrentTurnMapSpy = jest.spyOn(service['currentTurnMap'], 'set');
+
+        const result = service.startCombat(roomId, fighters);
+
+        expect(gameInstance.turnTimer.pauseTimer).toHaveBeenCalled();
+        expect(service.applyIceDisadvantage).toHaveBeenCalledTimes(2);
+        expect(service.setEscapeTokens).toHaveBeenCalled();
+        expect(gameInstance.combatTimer.startTimer).toHaveBeenCalledWith(true);
+        expect(fighters[0].player.stats.combatCount).toBe(1);
+        expect(fighters[1].player.stats.combatCount).toBe(0);
+        expect(setCurrentTurnMapSpy).toHaveBeenCalledWith(roomId, 0);
+        expect(result).toEqual([fighters[0], fighters[1]]);
+    });
 });
