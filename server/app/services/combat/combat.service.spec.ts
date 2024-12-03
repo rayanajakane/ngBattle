@@ -16,7 +16,7 @@ import { CombatHandlerService } from '../combat-handler/combat-handler.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
-import { ICE_PENALTY } from './constants';
+import { BOOSTED_BONUS_DICE, ICE_PENALTY, MINIMAL_BONUS_DICE } from './constants';
 
 /* eslint-disable */
 describe('CombatService', () => {
@@ -36,6 +36,7 @@ describe('CombatService', () => {
                     provide: DebugModeService,
                     useValue: {
                         isDebugMode: jest.fn(),
+                        getDebugMode: jest.fn(),
                     },
                 },
                 ActionHandlerService,
@@ -820,5 +821,79 @@ describe('CombatService', () => {
         service.endCombatTurn(roomId, player);
 
         expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+    });
+
+    it('should return true if attack is successful', () => {
+        const roomId = 'room1';
+        const attacker = { player: { attributes: { currentAttack: 10, dice: 'attack' } } } as any;
+        const defender = { player: { attributes: { currentDefense: 5, dice: 'defense' } } } as any;
+
+        jest.spyOn(service['debugModeService'], 'getDebugMode').mockReturnValue(false);
+        jest.spyOn(service as any, 'throwDice')
+            .mockReturnValueOnce(6)
+            .mockReturnValueOnce(3);
+
+        const result = service.checkAttackSuccessful(attacker, defender, roomId);
+
+        expect(result).toEqual([true, [6, 3]]);
+    });
+
+    it('should return false if attack is not successful', () => {
+        const roomId = 'room1';
+        const attacker = { player: { attributes: { currentAttack: 5, dice: 'attack' } } } as any;
+        const defender = { player: { attributes: { currentDefense: 10, dice: 'defense' } } } as any;
+
+        jest.spyOn(service['debugModeService'], 'getDebugMode').mockReturnValue(false);
+        jest.spyOn(service as any, 'throwDice')
+            .mockReturnValueOnce(3)
+            .mockReturnValueOnce(6);
+
+        const result = service.checkAttackSuccessful(attacker, defender, roomId);
+
+        expect(result).toEqual([false, [3, 6]]);
+    });
+
+    it('should use boosted attack dice if attacker has attack dice', () => {
+        const roomId = 'room1';
+        const attacker = { player: { attributes: { currentAttack: 5, dice: 'attack' } } } as any;
+        const defender = { player: { attributes: { currentDefense: 5, dice: 'attack' } } } as any;
+
+        jest.spyOn(service['debugModeService'], 'getDebugMode').mockReturnValue(false);
+        const throwDiceSpy = jest
+            .spyOn(service as any, 'throwDice')
+            .mockReturnValueOnce(6)
+            .mockReturnValueOnce(3);
+
+        service.checkAttackSuccessful(attacker, defender, roomId);
+
+        expect(throwDiceSpy).toHaveBeenCalledWith(BOOSTED_BONUS_DICE, attacker);
+    });
+
+    it('should use boosted defense dice if defender has defense dice', () => {
+        const roomId = 'room1';
+        const attacker = { player: { attributes: { currentAttack: 5, dice: 'defense' } } } as any;
+        const defender = { player: { attributes: { currentDefense: 5, dice: 'defense' } } } as any;
+
+        jest.spyOn(service['debugModeService'], 'getDebugMode').mockReturnValue(false);
+        const throwDiceSpy = jest
+            .spyOn(service as any, 'throwDice')
+            .mockReturnValueOnce(3)
+            .mockReturnValueOnce(6);
+
+        service.checkAttackSuccessful(attacker, defender, roomId);
+
+        expect(throwDiceSpy).toHaveBeenCalledWith(BOOSTED_BONUS_DICE, defender);
+    });
+
+    it('should use debug mode values if debug mode is enabled', () => {
+        const roomId = 'room1';
+        const attacker = { player: { attributes: { currentAttack: 5, dice: 'attack' } } } as any;
+        const defender = { player: { attributes: { currentDefense: 5, dice: 'defense' } } } as any;
+
+        jest.spyOn(service['debugModeService'], 'getDebugMode').mockReturnValue(true);
+
+        const result = service.checkAttackSuccessful(attacker, defender, roomId);
+
+        expect(result).toEqual([true, [BOOSTED_BONUS_DICE, MINIMAL_BONUS_DICE]]);
     });
 });
