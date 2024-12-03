@@ -34,6 +34,11 @@ describe('ActionGateway', () => {
                     provide: ActionHandlerService,
                     useValue: {
                         handleGameSetup: jest.fn(),
+                        handleMove: jest.fn(),
+                        handleStartTurn: jest.fn(),
+                        handleEndTurn: jest.fn(),
+                        handleInteractDoor: jest.fn(),
+                        handleGetAvailableMovesOnBudget: jest.fn(),
                     },
                 },
                 {
@@ -58,5 +63,52 @@ describe('ActionGateway', () => {
         gateway.handleGameSetup(roomId);
 
         expect(actionHandlerService.handleGameSetup).toHaveBeenCalledWith(null, roomId);
+    });
+    it('should handle start turn', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId' };
+        const client = { id: 'clientId' } as any;
+
+        gateway.handleStartTurn(data, client);
+
+        expect(actionHandlerService.handleStartTurn).toHaveBeenCalledWith(data, null, client);
+    });
+    it('should handle move', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId', endPosition: 5 };
+        const client = { id: 'clientId' } as any;
+
+        gateway.handleMove(data, client);
+
+        expect(actionHandlerService.handleMove).toHaveBeenCalledWith(data, null, client);
+    });
+    it('should handle end turn', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId', lastTurn: true };
+
+        gateway.handleEndTurn(data);
+
+        expect(actionHandlerService.handleEndTurn).toHaveBeenCalledWith(data, null);
+    });
+    it('should handle interact door', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId', doorPosition: 1 };
+        const client = { id: 'clientId' } as any;
+
+        gateway.handleInteractDoor(client, data);
+
+        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalledWith(data, null, client);
+    });
+    it('should handle get available moves on budget', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId', currentBudget: 100 };
+        const client = { id: 'clientId' } as any;
+
+        gateway.handleGetAvailableMovesOnBudget(data, client);
+
+        expect(actionHandlerService.handleGetAvailableMovesOnBudget).toHaveBeenCalledWith(data, client);
+    });
+
+    it('should initialize the server', () => {
+        const mockServer = {} as Server;
+
+        gateway.afterInit(mockServer as any);
+
+        expect(gateway['server']).toBe(mockServer);
     });
 });

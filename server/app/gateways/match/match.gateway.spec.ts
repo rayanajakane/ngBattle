@@ -12,8 +12,9 @@ import { MatchGateway } from './match.gateway';
 /* eslint-disable */
 describe('MatchGateway', () => {
     let gateway: MatchGateway;
-    // let matchService: MatchService;
-    // let actionHandlerService: ActionHandlerService;
+    let matchService: MatchService;
+    let debugModeService: DebugModeService;
+    let actionHandlerService: ActionHandlerService;
     // let mockServer: Server;
     // let mockSocket: Socket;
 
@@ -33,6 +34,7 @@ describe('MatchGateway', () => {
             roomMessage: jest.fn(),
             loadAllMessages: jest.fn(),
             leaveAllRooms: jest.fn(),
+            rooms: {} as any,
         };
 
         const mockActionHandlerService = {
@@ -42,10 +44,12 @@ describe('MatchGateway', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchGateway,
-                ActionHandlerService,
+
+                { provide: ActionHandlerService, useValue: { handleQuitGame: jest.fn() } },
+
                 ActionService,
                 ActiveGamesService,
-                DebugModeService,
+                { provide: DebugModeService, useValue: { switchDebugMode: jest.fn(), handleDisconnect: jest.fn(), handleTeleportPlayer: jest.fn() } },
                 MovementService,
                 { provide: LogSenderService, useValue: jest.fn() },
                 GameService,
@@ -57,8 +61,9 @@ describe('MatchGateway', () => {
         }).compile();
 
         gateway = module.get<MatchGateway>(MatchGateway);
-        // matchService = module.get<MatchService>(MatchService);
-        // actionHandlerService = module.get<ActionHandlerService>(ActionHandlerService);
+        matchService = module.get<MatchService>(MatchService);
+        debugModeService = module.get<DebugModeService>(DebugModeService);
+        actionHandlerService = module.get<ActionHandlerService>(ActionHandlerService);
         // mockServer = { to: jest.fn() } as unknown as Server;
         // mockSocket = { id: 'mockSocketId', emit: jest.fn() } as unknown as Socket;
 
@@ -68,115 +73,159 @@ describe('MatchGateway', () => {
     it('should be defined', () => {
         expect(gateway).toBeDefined();
     });
+    it('should handle createRoom', () => {
+        const data = { gameId: 'gameId', playerName: 'playerName', avatar: 'avatar', attributes: {} as any };
+        const client = { id: 'clientId' } as any;
+        gateway.handleCreateRoom(data, client);
+        expect(matchService.createRoom).toHaveBeenCalledWith(gateway['server'], client, data.gameId, {
+            playerName: data.playerName,
+            avatar: data.avatar,
+            attributes: data.attributes,
+        });
+    });
+    it('should handle joinRoom', () => {
+        const data = {
+            roomId: 'roomId',
+            playerName: 'playerName',
+            avatar: 'avatar',
+            attributes: {} as any,
+            isVirtual: false,
+            virtualProfile: 'virtualProfile',
+        };
+        const client = { id: 'clientId' } as any;
+        gateway.handleJoinRoom(data, client);
+        expect(matchService.joinRoom).toHaveBeenCalledWith(
+            gateway['server'],
+            client,
+            data.roomId,
+            {
+                playerName: data.playerName,
+                avatar: data.avatar,
+                attributes: data.attributes,
+                virtualProfile: data.virtualProfile,
+            },
+            data.isVirtual,
+        );
+    });
+    it('should handle validRoom', () => {
+        const roomId = 'roomId';
+        const client = { id: 'clientId' } as any;
+        gateway.handleValidRoom(roomId, client);
+        expect(matchService.isCodeValid).toHaveBeenCalledWith(roomId, client);
+    });
+    it('should handle isRoomLocked', () => {
+        const roomId = 'roomId';
+        const client = { id: 'clientId' } as any;
+        gateway.handleIsRoomLocked(roomId, client);
+        expect(matchService.isRoomLocked).toHaveBeenCalledWith(roomId, client);
+    });
 
-    // describe('handleCreateRoom', () => {
-    //     it('should call createRoom with correct parameters', () => {
-    //         const mockData = {
-    //             gameId: 'gameId',
-    //             playerName: 'playerName',
-    //             avatar: 'avatar',
-    //             attributes: {
-    //                 health: 4, // maxHealth
-    //                 speed: '4', // maxSpeed
-    //                 attack: 4, // maxAttack
-    //                 defense: 4, // maxDefense
-    //                 dice: '4',
-    //             },
-    //         };
-    //         gateway.handleCreateRoom(mockData, mockSocket);
-    //         expect(matchService.createRoom).toHaveBeenCalledWith(mockServer, mockSocket, '123', {
-    //             playerName: 'testPlayer',
-    //             avatar: 'testAvatar',
-    //             attributes: { speed: 10, strength: 5 },
-    //         });
-    //     });
-    // });
+    it('should handle getPlayers', () => {
+        const roomId = 'roomId';
+        const client = { id: 'clientId' } as any;
+        gateway.handleGetPlayers(roomId, client);
+        expect(matchService.getAllPlayersInRoom).toHaveBeenCalledWith(roomId, client);
+    });
+    it('should handle leaveRoom', () => {
+        const roomId = 'roomId';
+        const client = { id: 'clientId' } as any;
+        gateway.handleLeaveRoom(roomId, client);
+        expect(matchService.leaveRoom).toHaveBeenCalledWith(gateway['server'], client, roomId);
+    });
+    it('should handle lockRoom', () => {
+        const roomId = 'roomId';
+        const client = { id: 'clientId' } as any;
+        gateway.handleLockRoom(roomId, client);
+        expect(matchService.lockRoom).toHaveBeenCalledWith(gateway['server'], client, roomId);
+    });
 
-    // describe('handleJoinRoom', () => {
-    //     it('should call joinRoom with correct parameters', () => {
-    //         const mockData = {
-    //             roomId: '123',
-    //             gameId: 'gameId',
-    //             playerName: 'playerName',
-    //             avatar: 'avatar',
-    //             attributes: {
-    //                 health: 4, // maxHealth
-    //                 speed: '4', // maxSpeed
-    //                 attack: 4, // maxAttack
-    //                 defense: 4, // maxDefense
-    //                 dice: '4',
-    //             },
-    //         };
-    //         gateway.handleJoinRoom(mockData, mockSocket);
-    //         expect(matchService.joinRoom).toHaveBeenCalledWith(mockServer, mockSocket, '123', {
-    //             playerName: 'testPlayer',
-    //             avatar: 'testAvatar',
-    //             attributes: { speed: 10, strength: 5 },
-    //         });
-    //     });
-    // });
+    it('should handle unlockRoom', () => {
+        const roomId = 'roomId';
+        const client = { id: 'clientId' } as any;
+        gateway.handleUnlockRoom(roomId, client);
+        expect(matchService.unlockRoom).toHaveBeenCalledWith(gateway['server'], client, roomId);
+    });
 
-    // describe('handleValidRoom', () => {
-    //     it('should call isCodeValid with correct parameters', () => {
-    //         const roomId = '123';
-    //         gateway.handleValidRoom(roomId, mockSocket);
-    //         expect(matchService.isCodeValid).toHaveBeenCalledWith(roomId, mockSocket);
-    //     });
-    // });
+    it('should handle kickPlayer', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId' };
+        const client = { id: 'clientId' } as any;
+        gateway.handleKickPlayer(data, client);
+        expect(matchService.kickPlayer).toHaveBeenCalledWith(gateway['server'], client, data.roomId, data.playerId);
+    });
+    it('should handle startGame', () => {
+        const data = { roomId: 'roomId' };
+        const client = { id: 'clientId' } as any;
+        gateway.startGame(data, client);
+        expect(matchService.startGame).toHaveBeenCalledWith(gateway['server'], client, data.roomId);
+    });
 
-    // describe('handleIsRoomLocked', () => {
-    //     it('should call isRoomLocked with correct parameters', () => {
-    //         const roomId = '123';
-    //         gateway.handleIsRoomLocked(roomId, mockSocket);
-    //         expect(matchService.isRoomLocked).toHaveBeenCalledWith(roomId, mockSocket);
-    //     });
-    // });
+    it('should handle getMaxPlayers', () => {
+        const data = { roomId: 'roomId' };
+        const client = { id: 'clientId' } as any;
+        gateway.getMaxPlayers(data, client);
+        expect(matchService.getMaxPlayers).toHaveBeenCalledWith(data.roomId, client);
+    });
 
-    // describe('handleGetPlayers', () => {
-    //     it('should call getAllPlayersInRoom with correct parameters', () => {
-    //         const roomId = '123';
-    //         gateway.handleGetPlayers(roomId, mockSocket);
-    //         expect(matchService.getAllPlayersInRoom).toHaveBeenCalledWith(roomId, mockSocket);
-    //     });
-    // });
+    it('should handle roomMessage', () => {
+        const data = { roomId: 'roomId', message: 'message', date: 'date' };
+        const client = { id: 'clientId' } as any;
+        gateway.roomMessage(data, client);
+        expect(matchService.roomMessage).toHaveBeenCalledWith(gateway['server'], client, data.roomId, data.message, data.date);
+    });
 
-    // describe('handleLeaveRoom', () => {
-    //     it('should call leaveRoom with correct parameters', () => {
-    //         const roomId = '123';
-    //         gateway.handleLeaveRoom(roomId, mockSocket);
-    //         expect(matchService.leaveRoom).toHaveBeenCalledWith(mockServer, mockSocket, roomId);
-    //     });
-    // });
+    it('should handle loadAllMessages', () => {
+        const data = { roomId: 'roomId' };
+        const client = { id: 'clientId' } as any;
+        gateway.loadAllMessages(data, client);
+        expect(matchService.loadAllMessages).toHaveBeenCalledWith(client, data.roomId);
+    });
+    it('should handle requestDebugMode', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId' };
+        const mockServer = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+        gateway['server'] = mockServer;
+        debugModeService.switchDebugMode = jest.fn();
+        debugModeService.getDebugMode = jest.fn().mockReturnValue(true);
+        const mockLogService = { sendDebugModeLog: jest.fn() };
+        gateway['logService'] = mockLogService as any;
 
-    // describe('handleDisconnect', () => {
-    //     it('should call handleQuitGame and leaveAllRooms', () => {
-    //         gateway.handleDisconnect(mockSocket);
-    //         expect(actionHandlerService.handleQuitGame).toHaveBeenCalledWith(mockServer, mockSocket);
-    //         expect(matchService.leaveAllRooms).toHaveBeenCalledWith(mockServer, mockSocket);
-    //     });
-    // });
+        gateway.handleDebugMode(data);
 
-    // describe('startGame', () => {
-    //     it('should call startGame with correct parameters', () => {
-    //         const mockData = { roomId: '123' };
-    //         gateway.startGame(mockData, mockSocket);
-    //         expect(matchService.startGame).toHaveBeenCalledWith(mockServer, mockSocket, '123');
-    //     });
-    // });
+        expect(debugModeService.switchDebugMode).toHaveBeenCalledWith(data.roomId);
+        expect(mockLogService.sendDebugModeLog).toHaveBeenCalledWith(mockServer, data.roomId, data.playerId, true);
+        expect(mockServer.to).toHaveBeenCalledWith(data.roomId);
+        expect(mockServer.emit).toHaveBeenCalledWith('responseDebugMode', { isDebugMode: true });
+    });
+    it('should handle teleportPlayer', () => {
+        const data = { roomId: 'roomId', playerId: 'playerId', index: 1 };
+        const mockServer = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+        gateway['server'] = mockServer;
+        debugModeService.handleTeleportPlayer = jest.fn();
 
-    // describe('roomMessage', () => {
-    //     it('should call roomMessage with correct parameters', () => {
-    //         const mockData = { roomId: '123', message: 'Hello', date: '2024-01-01' };
-    //         gateway.roomMessage(mockData, mockSocket);
-    //         expect(matchService.roomMessage).toHaveBeenCalledWith(mockServer, mockSocket, '123', 'Hello', '2024-01-01');
-    //     });
-    // });
+        gateway.handleTeleportPlayer(data);
 
-    // describe('loadAllMessages', () => {
-    //     it('should call loadAllMessages with correct parameters', () => {
-    //         const mockData = { roomId: '123' };
-    //         gateway.loadAllMessages(mockData, mockSocket);
-    //         expect(matchService.loadAllMessages).toHaveBeenCalledWith(mockSocket, '123');
-    //     });
-    // });
+        expect(debugModeService.handleTeleportPlayer).toHaveBeenCalledWith(data, mockServer);
+    });
+    it('should handle disconnect', () => {
+        const client = { id: 'clientId' } as any;
+        const mockServer = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+        gateway['server'] = mockServer;
+
+        const mockRoom = {
+            id: 'roomId',
+            players: [{ id: 'clientId', isAdmin: true }],
+        };
+        matchService.rooms = [mockRoom] as any;
+
+        gateway.handleDisconnect(client);
+
+        expect(debugModeService.handleDisconnect).toHaveBeenCalledWith(mockServer, client, true, 'roomId');
+        expect(actionHandlerService.handleQuitGame).toHaveBeenCalledWith(mockServer, client);
+        expect(matchService.leaveAllRooms).toHaveBeenCalledWith(mockServer, client);
+    });
+
+    it('should initialize the server afterInit', () => {
+        const mockServer = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+        gateway.afterInit(mockServer);
+        expect(gateway['server']).toBe(mockServer);
+    });
 });
