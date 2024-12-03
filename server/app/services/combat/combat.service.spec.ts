@@ -6,9 +6,11 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
+import { CombatAction } from '@common/combat-actions';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Server } from 'socket.io';
 import { ActionButtonService } from '../action-button/action-button.service';
 import { CombatHandlerService } from '../combat-handler/combat-handler.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -719,5 +721,31 @@ describe('CombatService', () => {
             { idx: 1, item: 'item1' },
             { idx: 2, item: 'item2' },
         ]);
+    });
+
+    it('should call attack method when combatAction is ATTACK', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1' } } as any;
+        const defender = { player: { id: 'player2' } } as any;
+        const server = {} as Server;
+
+        service['fightersMap'].set(roomId, [player, defender]);
+        const attackSpy = jest.spyOn(service, 'attack').mockImplementation();
+
+        service.startCombatAction(roomId, player, CombatAction.ATTACK, server);
+
+        expect(attackSpy).toHaveBeenCalledWith(roomId, player, defender, server);
+    });
+
+    it('should call escape method when combatAction is ESCAPE', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1' } } as any;
+        const server = {} as Server;
+
+        const escapeSpy = jest.spyOn(service, 'escape').mockImplementation();
+
+        service.startCombatAction(roomId, player, CombatAction.ESCAPE, server);
+
+        expect(escapeSpy).toHaveBeenCalledWith(roomId, player);
     });
 });
