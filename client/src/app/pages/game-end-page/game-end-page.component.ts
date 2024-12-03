@@ -44,6 +44,10 @@ export class GameEndPageComponent implements OnInit {
         });
     }
 
+    formatVisitedTilesPercent(visitedTilesPercent: number): string {
+        return `${visitedTilesPercent.toFixed(2)}%`;
+    }
+
     leaveRoom() {
         this.socketService.disconnect();
     }
