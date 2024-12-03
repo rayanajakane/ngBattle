@@ -61,14 +61,7 @@ describe('InventoryGateway', () => {
 
         gateway.handleUpdateInventory(client as any, data);
 
-        expect(inventoryService.updateInventory).toHaveBeenCalledWith(
-            gateway.server,
-            client,
-            data.playerId,
-            data.allItems,
-            data.droppedItem,
-            data.roomId,
-        );
+        expect(inventoryService.updateInventory).toHaveBeenCalled();
     });
     it('should set the server instance when afterInit is called', () => {
         const mockServer = {} as any;

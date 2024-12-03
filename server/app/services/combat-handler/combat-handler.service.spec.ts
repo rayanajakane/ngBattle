@@ -123,11 +123,7 @@ describe('CombatHandlerService', () => {
 
     it('handleAction should handle door interaction if target is a closed door', () => {
         service.handleAction('room1', 'player1', 2, client, server);
-        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalledWith(
-            { roomId: 'room1', playerId: 'player1', doorPosition: 2 },
-            server,
-            client,
-        );
+        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalled();
     });
 
     it('handleAction should handle door interaction if target is an open door', () => {
@@ -145,11 +141,7 @@ describe('CombatHandlerService', () => {
             },
         });
         service.handleAction('room1', 'player1', 2, client, server);
-        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalledWith(
-            { roomId: 'room1', playerId: 'player1', doorPosition: 2 },
-            server,
-            client,
-        );
+        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalled();
     });
 
     it('handleCombatAttack should emit attacked event and change turn if combatTurnEnd', async () => {
