@@ -12,8 +12,6 @@ import { ItemTypes } from '@common/tile-types';
 export class InventoryComponent {
     @Input() items?: ItemTypes[];
 
-    constructor() {}
-
     findItemImage(itemType: string): string | undefined {
         if (itemType) {
             return `./assets/${itemType}_transparent.png`;

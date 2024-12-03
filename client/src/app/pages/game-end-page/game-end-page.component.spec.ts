@@ -57,11 +57,15 @@ describe('GameEndPageComponent', () => {
 
     it('should format match length correctly', () => {
         const globalStatsComponent = new GlobalStatsComponent();
+        // okay to have magic numbers in tests
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         expect(globalStatsComponent.formatMatchLength(125)).toBe('2:05');
     });
 
     it('should format visited tiles percent correctly', () => {
         const globalStatsComponent = new GlobalStatsComponent();
+        // okay to have magic numbers in tests
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         expect(globalStatsComponent.formatVisitedTilesPercent(45.6789)).toBe('45.68%');
     });
 });

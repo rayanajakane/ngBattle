@@ -17,7 +17,7 @@ import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.co
 import { LogsComponent } from '@app/components/logs/logs.component';
 import { PlayerPanelComponent } from '@app/components/player-panel/player-panel.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
+import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS, SNACKBAR_PARAMETERS } from '@app/pages/game-page/constant';
 import { ActionStateService } from '@app/services/action-state.service';
 import { CombatStateService } from '@app/services/combat-state.service';
 import { GameControllerService } from '@app/services/game-controller.service';
@@ -196,9 +196,7 @@ export class GamePageComponent implements OnDestroy {
     }
 
     initiateGameSetup(game: GameStructure) {
-        console.log('game', game);
         this.mapService.setTiles(game.map as GameTile[]);
-        console.log('tiles:', this.mapService.tiles);
         this.mapSize = parseInt(game.mapSize, 10);
         this.gameCreated = true;
         if (this.isAdmin) this.gameController.requestGameSetup();
@@ -300,7 +298,6 @@ export class GamePageComponent implements OnDestroy {
             },
         );
         this.socketService.on('killedPlayer', (data: { killer: PlayerCoord; killed: PlayerCoord; killedOldPosition: number }) => {
-            //TODO: clear the inventory of the killed player
             if (data.killer.player.wins < MAX_NUMBER_OF_WINS) {
                 this.handleKilledPlayer(data.killer, data.killed, data.killedOldPosition);
             }
@@ -466,7 +463,6 @@ export class GamePageComponent implements OnDestroy {
         if (Object.keys(shortestPathByTile).length !== 0) {
             this.mapService.switchToMovingStateRoutine(shortestPathByTile);
         } else if (this.remainingActions !== -1 && this.remainingActions > 0) {
-            console.log('endMovement', 'requestCheckAction');
             this.mapService.resetMap();
             this.gameController.requestCheckAction();
         } else {
@@ -499,26 +495,21 @@ export class GamePageComponent implements OnDestroy {
     }
     redirectEndGame(globalStats: GlobalStats, players: Player[], endGameMessage: string) {
         let navData;
-        console.log('players', players);
-        console.log('players[0].stats', players[0].stats);
-        console.log('globalStats', globalStats);
         this.gameFinished = true;
         setTimeout(() => {
             navData = {
                 roomId: this.gameController.roomId,
                 characterName: this.gameController.player.name,
-                globalStats: globalStats,
-                players: players,
+                globalStats,
+                players,
             };
             const navDataString = JSON.stringify(navData);
             this.router.navigate(['/gameEnd'], { queryParams: { data: navDataString } });
-        }, 1000);
+        }, ENDGAME_DELAY);
         this.snackbar.open(endGameMessage, 'Fermer', SNACKBAR_PARAMETERS as MatSnackBarConfig);
     }
 
     ngOnDestroy() {
-        // this.gameController.isDebugModeActive = false;
-        // this.mapService.resetPlayerView();
         if (!this.gameFinished) this.socketService.disconnect();
     }
 }

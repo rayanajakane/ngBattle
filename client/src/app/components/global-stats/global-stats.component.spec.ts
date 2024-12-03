@@ -23,10 +23,13 @@ describe('GlobalStatsComponent', () => {
 
     it('should format match length correctly', () => {
         expect(component.formatMatchLength(0)).toBe('0:00');
+        // okay to use magic numbers in tests
+        /* eslint-disable @typescript-eslint/no-magic-numbers */
         expect(component.formatMatchLength(59)).toBe('0:59');
         expect(component.formatMatchLength(60)).toBe('1:00');
         expect(component.formatMatchLength(90)).toBe('1:30');
         expect(component.formatMatchLength(3600)).toBe('60:00');
+        /* eslint-enable @typescript-eslint/no-magic-numbers */
     });
 
     it('should accept globalStats as input', () => {

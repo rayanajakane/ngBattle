@@ -21,7 +21,7 @@ import { GlobalStats } from '@common/global-stats';
 import { Player } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { of } from 'rxjs';
-import { MAX_NUMBER_OF_WINS } from './constant';
+import { ENDGAME_DELAY, MAX_NUMBER_OF_WINS } from './constant';
 import { GamePageComponent } from './game-page.component';
 
 /* eslint-disable max-lines */
@@ -59,9 +59,6 @@ describe('GamePageComponent', () => {
             'feedAfkList',
             'requestDebugMode',
             'requestUpdateInventory',
-            {
-                player: { name: 'testPlayerId' } as any,
-            },
         ]);
         httpClientService = jasmine.createSpyObj('HttpClientService', ['getGame']);
         mapGameService = jasmine.createSpyObj('MapGameService', [
@@ -109,13 +106,6 @@ describe('GamePageComponent', () => {
             ],
         }).compileComponents();
 
-        // gameControllerService = TestBed.inject(GameControllerService) as jasmine.SpyObj<GameControllerService>;
-        // httpClientService = TestBed.inject(HttpClientService) as jasmine.SpyObj<HttpClientService>;
-        // mapGameService = TestBed.inject(MapGameService) as jasmine.SpyObj<MapGameService>;
-        // socketService = TestBed.inject(SocketService) as jasmine.SpyObj<SocketService>;
-        // router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-        // snackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-
         httpClientService.getGame.and.returnValue(Promise.resolve(MOCKGAME));
         gameControllerService.setRoom('room1', MOCK_PLAYER.id);
         gameControllerService.initializePlayers(
@@ -149,7 +139,6 @@ describe('GamePageComponent', () => {
 
     it('should initiate game setup correctly', () => {
         component.isAdmin = true;
-        console.log('MOCKGAME', MOCKGAME);
         component.initiateGameSetup(MOCKGAME);
         expect(mapGameService.setTiles).toHaveBeenCalledWith(MOCKGAME.map as GameTile[]);
         expect(component.mapSize).toBe(parseInt(MOCKGAME.mapSize, 10));
@@ -1001,30 +990,13 @@ describe('GamePageComponent', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    // it('should open snackbar with end game message and navigate to home after delay', fakeAsync(() => {
-    //     const mockEndGameMessage = 'Game Over';
-
-    //     component.redirectEndGame(mockEndGameMessage);
-    //     expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
-    //     tick(ENDGAME_DELAY);
-    //     expect(router.navigate).toHaveBeenCalledWith(['/home']);
-    // }));
-
-    // it('should not navigate to home immediately', () => {
-    //     const mockEndGameMessage = 'Game Over';
-
-    //     component.redirectEndGame(mockEndGameMessage);
-    //     expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
-    //     expect(router.navigate).not.toHaveBeenCalled();
-    // });
-
     it('should set gameFinished to true and navigate to gameEnd with correct data after delay', fakeAsync(() => {
         const mockGlobalStats = {} as GlobalStats;
         const mockPlayers = [MOCK_PLAYER_COORDS[0].player, MOCK_PLAYER_COORDS[1].player];
         const mockEndGameMessage = 'Game Over';
         (component as any).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
-        tick(1000);
+        tick(ENDGAME_DELAY);
 
         expect(component.gameFinished).toBeTrue();
     }));
@@ -1034,14 +1006,8 @@ describe('GamePageComponent', () => {
         const mockPlayers = [{ stats: {} }] as Player[];
         const mockEndGameMessage = 'Game Over';
 
-        spyOn(console, 'log');
-
         (component as any).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
-
-        expect(console.log).toHaveBeenCalledWith('players', mockPlayers);
-        expect(console.log).toHaveBeenCalledWith('players[0].stats', mockPlayers[0].stats);
-        expect(console.log).toHaveBeenCalledWith('globalStats', mockGlobalStats);
     });
 
     it('should handle game setup and replace random items', () => {
@@ -1100,7 +1066,7 @@ describe('GamePageComponent', () => {
         expect(socketService.disconnect).not.toHaveBeenCalled();
     });
 
-    it('should add listeners for game setup, turns, combat turns, timer, combat timer, movement, actions, combat actions, and end game events', () => {
+    it('should add listeners for game setup, turns, combat turns, timer, combat timer, movement, actions, combat actions, and endGame events', () => {
         spyOn(component, 'listenGameSetup');
         spyOn(component, 'listenTurns');
         spyOn(component, 'listenCombatTurns');
@@ -1150,6 +1116,8 @@ describe('GamePageComponent', () => {
         const mockData = { isDebugMode: true };
 
         component.listenDebugMode();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(22)[1](mockData);
 
         expect(snackbar.open).toHaveBeenCalledWith("Le mode débogage a été activé par l'administrateur", 'Fermer', jasmine.any(Object));
@@ -1159,6 +1127,8 @@ describe('GamePageComponent', () => {
         const mockData = { isDebugMode: false };
 
         component.listenDebugMode();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(22)[1](mockData);
 
         expect(snackbar.open).toHaveBeenCalledWith("Le mode débogage a été désactivé par l'administrateur", 'Fermer', jasmine.any(Object));
@@ -1168,6 +1138,8 @@ describe('GamePageComponent', () => {
         const mockData = { player: MOCK_PLAYER_COORD, dropItem: ItemTypes.AA1 };
 
         component.listenNewPlayerInventory();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(23)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('newPlayerInventory', jasmine.any(Function));
@@ -1178,6 +1150,8 @@ describe('GamePageComponent', () => {
         const mockData = { player: MOCK_PLAYER_COORD, dropItem: ItemTypes.AA1 };
 
         component.listenNewPlayerInventory();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(23)[1](mockData);
 
         expect(mapGameService.placeItem).toHaveBeenCalledWith(mockData.player.position, mockData.dropItem);
@@ -1187,6 +1161,8 @@ describe('GamePageComponent', () => {
         const mockData = { player: MOCK_PLAYER_COORD };
 
         component.listenNewPlayerInventory();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(23)[1](mockData);
 
         expect(mapGameService.removeItem).toHaveBeenCalledWith(mockData.player.position);
@@ -1199,6 +1175,8 @@ describe('GamePageComponent', () => {
         gameControllerService.isActivePlayer.and.returnValue(true);
 
         component.listenItemToReplace();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(24)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('itemToReplace', jasmine.any(Function));
@@ -1211,6 +1189,8 @@ describe('GamePageComponent', () => {
         gameControllerService.isActivePlayer.and.returnValue(false);
 
         component.listenItemToReplace();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(24)[1](mockData);
 
         expect(component.inquirePlayerForItemReplacement).not.toHaveBeenCalled();
@@ -1221,6 +1201,8 @@ describe('GamePageComponent', () => {
         spyOn(component, 'updatePlayerPosition');
 
         component.listenTeleportation();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(25)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('teleportResponse', jasmine.any(Function));
@@ -1233,6 +1215,8 @@ describe('GamePageComponent', () => {
         gameControllerService.isActivePlayer.and.returnValue(true);
 
         component.listenTeleportation();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(25)[1](mockData);
 
         expect(component.handleEndMove).toHaveBeenCalledWith(mockData.availableMoves, mockData.currentPlayerMoveBudget, false);
@@ -1244,6 +1228,8 @@ describe('GamePageComponent', () => {
         gameControllerService.isActivePlayer.and.returnValue(false);
 
         component.listenTeleportation();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(25)[1](mockData);
 
         expect(component.handleEndMove).not.toHaveBeenCalled();
@@ -1256,6 +1242,8 @@ describe('GamePageComponent', () => {
         ];
 
         component.listenDisperseItems();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(26)[1](mockItemsPositions);
 
         expect(socketService.on).toHaveBeenCalledWith('disperseItems', jasmine.any(Function));
@@ -1266,6 +1254,8 @@ describe('GamePageComponent', () => {
         const mockData = { player: MOCK_PLAYER_COORD, newItem: ItemTypes.AA1 };
 
         component.listenVPItemToReplace();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(27)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('vpItemToReplace', jasmine.any(Function));

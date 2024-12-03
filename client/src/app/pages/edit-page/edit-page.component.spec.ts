@@ -1,14 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EditPageComponent } from './edit-page.component';
-import { MapEditService } from '@app/services/map-edit.service';
-import { EditGameService } from '@app/services/edit-game.service';
 import { EditHeaderDialogComponent } from '@app/components/edit-header-dialog/edit-header-dialog.component';
+import { EditGameService } from '@app/services/edit-game.service';
+import { MapEditService } from '@app/services/map-edit.service';
+import { EditPageComponent } from './edit-page.component';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 describe('EditPageComponent', () => {
     let component: EditPageComponent;
     let fixture: ComponentFixture<EditPageComponent>;
-    
-
 
     const mapServiceSpy = {
         createGrid: jasmine.createSpy('createGrid'),
@@ -16,19 +14,18 @@ describe('EditPageComponent', () => {
 
     const editGameSpy = {
         getGameDetails: jasmine.createSpy('getGameDetails'),
-        setGameDetails : jasmine.createSpy('setGameDetails'),
-        initializeEditPage : jasmine.createSpy('initializeEditPage'),
+        setGameDetails: jasmine.createSpy('setGameDetails'),
+        initializeEditPage: jasmine.createSpy('initializeEditPage'),
     };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [EditPageComponent],
             providers: [
-                { provide : MapEditService, useValue: mapServiceSpy },
-                { provide : EditGameService, useValue: editGameSpy },
+                { provide: MapEditService, useValue: mapServiceSpy },
+                { provide: EditGameService, useValue: editGameSpy },
             ],
         }).compileComponents();
-
 
         fixture = TestBed.createComponent(EditPageComponent);
         component = fixture.componentInstance;

@@ -50,6 +50,8 @@ describe('PlayerStatsComponent', () => {
                     totalHealthTaken: 300,
                     uniqueItemsCollected: 15,
                     visitedTilesPercent: 75,
+                    // okay to have magic numbers in tests
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     visitedTiles: new Set([1, 2, 3]),
                 },
             },

@@ -28,14 +28,9 @@ export class GameEndPageComponent implements OnInit {
 
     ngOnInit() {
         this.route.queryParams.subscribe((queryParams) => {
-            console.log(queryParams);
             const navDataString = queryParams['data'];
             if (navDataString) {
                 const navData = JSON.parse(navDataString);
-                console.log('roomId:', navData.roomId);
-                console.log('characterName:', navData.characterName);
-                console.log('players:', navData.players);
-                console.log('globalStats:', navData.globalStats);
                 this.roomId = navData.roomId;
                 this.characterName = navData.characterName;
                 this.globalStats = navData.globalStats;
