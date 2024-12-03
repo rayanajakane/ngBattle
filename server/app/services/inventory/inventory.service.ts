@@ -159,8 +159,6 @@ export class InventoryService {
         });
         activeGame.turnTimer.resumeTimer();
         this.emitNewPlayerInventory(server, roomId, player, droppedItem);
-
-        console.log('inventory', player.player.inventory);
     }
 
     emitNewPlayerInventory(server: Server, roomId: string, player: PlayerCoord, dropItem?: ItemTypes) {

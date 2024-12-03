@@ -74,8 +74,6 @@ export class CombatService {
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
             firstPlayer.player.stats.combatCount++;
-            console.log('player 1 combatcnt:', firstPlayer.player.stats.combatCount);
-            console.log('player 2 combatcnt:', secondPlayer.player.stats.combatCount);
 
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
             this.currentTurnMap.set(roomId, firstPlayerIndex);
@@ -101,8 +99,6 @@ export class CombatService {
             this.logSender.sendEndGameLog(server, roomId, player.player.name);
             const globalStats = this.activeGamesService.getActiveGame(roomId).globalStatsService.getFinalStats();
             const allPlayers = this.activeGamesService.getActiveGame(roomId).playersCoord.map((playerCoord) => playerCoord.player);
-            console.log('allPlayers:', allPlayers[0].stats.visitedTiles);
-            console.log('globalStats:', globalStats);
             server.to(roomId).emit('endGame', { globalStats, players: allPlayers, endGameMessage: `${player.player.name} a gagné la partie` });
             // TODO: Delete game instance later
             // this.activeGamesService.removeGameInstance(roomId);
@@ -150,7 +146,6 @@ export class CombatService {
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
             player.player.stats.escapeCount++;
-            console.log('escape left:', player.player.stats.escapeCount);
             return [player.player.attributes.escape, true];
         }
     }
@@ -159,7 +154,6 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             player.player.wins++;
             player.player.stats.victoryCount++;
-            console.log('victory:', player.player.stats.victoryCount);
         }
     }
 
@@ -248,7 +242,6 @@ export class CombatService {
                 checkAttack[0],
             );
 
-            console.log('dices', checkAttack[1][0], checkAttack[1][1]);
             this.endCombatTurn(roomId, attackPlayer);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }
@@ -282,7 +275,6 @@ export class CombatService {
             });
             const fighters = this.endCombat(roomId, server, playerKiller);
             playerKilled.player.stats.defeatCount++;
-            console.log('defeat:', playerKilled.player.stats.defeatCount);
             return [playerKiller, playerKilled, fighters];
         }
         return [null, null, []];
