@@ -200,7 +200,9 @@ export class GamePageComponent implements OnDestroy {
     }
 
     initiateGameSetup(game: GameStructure) {
+        console.log('game', game);
         this.mapService.setTiles(game.map as GameTile[]);
+        console.log('tiles:', this.mapService.tiles);
         this.mapSize = parseInt(game.mapSize, 10);
         this.gameCreated = true;
         if (this.isAdmin) this.gameController.requestGameSetup();
