@@ -11,7 +11,7 @@ describe('GameEndPageComponent', () => {
 
     beforeEach(async () => {
         mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
-            params: of({ roomId: 'testRoom', characterName: 'testName' }),
+            queryParams: of({ roomId: 'testRoom', characterName: 'testName' }),
         });
 
         await TestBed.configureTestingModule({
