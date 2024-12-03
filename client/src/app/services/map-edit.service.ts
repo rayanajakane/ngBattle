@@ -57,23 +57,6 @@ export class MapEditService extends MapBaseService {
         return newTileType;
     }
 
-    private isWallOrDoor(tileType: string): boolean {
-        return tileType === TileTypes.WALL || tileType === TileTypes.DOORCLOSED || tileType === TileTypes.DOOROPEN;
-    }
-
-    private hasNoAvailableCounter(itemType: string): boolean {
-        return (
-            (itemType === ItemTypes.STARTINGPOINT && this.dragDropService.startingPointCounter === 0) ||
-            (this.isItemType(itemType) && this.dragDropService.itemCounter === 0) ||
-            (itemType === ItemTypes.FLAG_A && this.dragDropService.flagACounter === 0)
-        );
-    }
-
-    private isUniqueItemAlreadyPlaced(itemType: string): boolean {
-        const itemAlreadyExists = this.tiles.find((tile) => tile.item === itemType) !== undefined;
-        return this.isUniqueItemType(itemType) && itemAlreadyExists;
-    }
-
     canItemBePlaced(index: number, itemType: string): boolean {
         if (this.dragDropService.draggedTile === '') return false;
         if (this.isWallOrDoor(this.tiles[index].tileType)) return false;
@@ -81,38 +64,6 @@ export class MapEditService extends MapBaseService {
         if (this.isUniqueItemAlreadyPlaced(itemType)) return false;
 
         return true;
-    }
-
-    private setStartingPointCounterHandler(currentItemType: string) {
-        if (this.isItemType(currentItemType)) {
-            this.dragDropService.incrementNumberItem();
-        } else if (currentItemType === ItemTypes.FLAG_A) {
-            this.dragDropService.incrementFlagACounter();
-        }
-        if (currentItemType !== ItemTypes.STARTINGPOINT) {
-            this.dragDropService.reduceStartingPointCounter();
-        }
-    }
-
-    private setFlagACounterHandler(currentItemType: string) {
-        if (this.isItemType(currentItemType)) {
-            this.dragDropService.incrementNumberItem();
-        } else if (currentItemType === ItemTypes.STARTINGPOINT) {
-            this.dragDropService.incrementNumberStartingPoints();
-        }
-        if (currentItemType !== ItemTypes.FLAG_A) {
-            this.dragDropService.reduceFlagACounter();
-        }
-    }
-
-    private setFlagBCounterHandler(currentItemType: string) {
-        if (this.isItemType(currentItemType)) {
-            this.dragDropService.incrementNumberItem();
-        } else if (currentItemType === ItemTypes.STARTINGPOINT) {
-            this.dragDropService.incrementNumberStartingPoints();
-        } else if (currentItemType === ItemTypes.FLAG_A) {
-            this.dragDropService.incrementFlagACounter();
-        }
     }
 
     setItemCounterHandler(currentItemType: string) {
@@ -274,5 +225,54 @@ export class MapEditService extends MapBaseService {
 
     onDrop(index: number) {
         this.setItemType(index, this.dragDropService.draggedTile);
+    }
+
+    private setStartingPointCounterHandler(currentItemType: string) {
+        if (this.isItemType(currentItemType)) {
+            this.dragDropService.incrementNumberItem();
+        } else if (currentItemType === ItemTypes.FLAG_A) {
+            this.dragDropService.incrementFlagACounter();
+        }
+        if (currentItemType !== ItemTypes.STARTINGPOINT) {
+            this.dragDropService.reduceStartingPointCounter();
+        }
+    }
+
+    private setFlagACounterHandler(currentItemType: string) {
+        if (this.isItemType(currentItemType)) {
+            this.dragDropService.incrementNumberItem();
+        } else if (currentItemType === ItemTypes.STARTINGPOINT) {
+            this.dragDropService.incrementNumberStartingPoints();
+        }
+        if (currentItemType !== ItemTypes.FLAG_A) {
+            this.dragDropService.reduceFlagACounter();
+        }
+    }
+
+    private setFlagBCounterHandler(currentItemType: string) {
+        if (this.isItemType(currentItemType)) {
+            this.dragDropService.incrementNumberItem();
+        } else if (currentItemType === ItemTypes.STARTINGPOINT) {
+            this.dragDropService.incrementNumberStartingPoints();
+        } else if (currentItemType === ItemTypes.FLAG_A) {
+            this.dragDropService.incrementFlagACounter();
+        }
+    }
+
+    private isWallOrDoor(tileType: string): boolean {
+        return tileType === TileTypes.WALL || tileType === TileTypes.DOORCLOSED || tileType === TileTypes.DOOROPEN;
+    }
+
+    private hasNoAvailableCounter(itemType: string): boolean {
+        return (
+            (itemType === ItemTypes.STARTINGPOINT && this.dragDropService.startingPointCounter === 0) ||
+            (this.isItemType(itemType) && this.dragDropService.itemCounter === 0) ||
+            (itemType === ItemTypes.FLAG_A && this.dragDropService.flagACounter === 0)
+        );
+    }
+
+    private isUniqueItemAlreadyPlaced(itemType: string): boolean {
+        const itemAlreadyExists = this.tiles.find((tile) => tile.item === itemType) !== undefined;
+        return this.isUniqueItemType(itemType) && itemAlreadyExists;
     }
 }
