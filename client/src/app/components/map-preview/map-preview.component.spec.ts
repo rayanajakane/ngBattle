@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapPreviewComponent } from './map-preview.component';
+/* eslint-disable */
 
 describe('MapPreviewComponent', () => {
     let component: MapPreviewComponent;

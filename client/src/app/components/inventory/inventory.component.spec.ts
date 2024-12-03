@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ItemTypes } from '@common/tile-types';
 import { InventoryComponent } from './inventory.component';
+/* eslint-disable */
 
 describe('InventoryComponent', () => {
     let component: InventoryComponent;

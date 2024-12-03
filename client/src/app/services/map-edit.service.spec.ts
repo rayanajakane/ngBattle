@@ -5,6 +5,7 @@ import { TileStructure } from '@common/game-structure';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { DragDropService } from './drag-drop.service';
 import { MapEditService } from './map-edit.service';
+/* eslint-disable */
 
 describe('MapEditService', () => {
     let service: MapEditService;

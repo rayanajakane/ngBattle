@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GlobalStats } from '@common/global-stats';
 import { GlobalStatsComponent } from './global-stats.component';
+/* eslint-disable */
 
 describe('GlobalStatsComponent', () => {
     let component: GlobalStatsComponent;

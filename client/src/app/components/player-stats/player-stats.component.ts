@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Player } from '@common/player';
@@ -10,10 +10,10 @@ import { Player } from '@common/player';
     templateUrl: './player-stats.component.html',
     styleUrl: './player-stats.component.scss',
 })
-export class PlayerStatsComponent implements OnInit {
+export class PlayerStatsComponent implements OnInit, AfterViewInit {
     @Input() playerList: Player[] = [];
     @ViewChild(MatSort) sort: MatSort;
-    @ViewChild(MatTable) table: MatTable<any>;
+    @ViewChild(MatTable) table: MatTable<unknown>;
 
     adaptedPlayerList: {
         name: string;
@@ -133,7 +133,7 @@ export class PlayerStatsComponent implements OnInit {
     // ];
 
     constructor() {
-        //this.table.renderRows();
+        // this.table.renderRows();
     }
 
     ngOnInit(): void {

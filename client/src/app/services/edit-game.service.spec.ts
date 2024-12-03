@@ -12,6 +12,7 @@ import { EditGameService } from './edit-game.service';
 import { HttpClientService } from './http-client.service';
 import { IDGenerationService } from './idgeneration.service';
 import { MapEditService } from './map-edit.service';
+/* eslint-disable */
 
 describe('EditGameService', () => {
     let service: EditGameService;

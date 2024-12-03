@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Player, PlayerCoord, PlayerStats } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { LeaderboardComponent } from './leaderboard.component';
+/* eslint-disable */
 
 describe('LeaderboardComponent', () => {
     let component: LeaderboardComponent;

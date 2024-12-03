@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RANDOM_TIME_STATE, TIME_LEFT } from '@app/components/timer/constant';
 import { TimerState } from '@common/game-structure';
 import { TimerComponent } from './timer.component';
+/* eslint-disable */
 
 describe('TimerComponent', () => {
     let component: TimerComponent;

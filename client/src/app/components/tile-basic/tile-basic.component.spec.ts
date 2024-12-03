@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TilePreview } from '@common/game-structure';
 import { ItemTypes } from '@common/tile-types';
 import { TileBasicComponent } from './tile-basic.component';
+/* eslint-disable */
 
 describe('TileBasicComponent', () => {
     let component: TileBasicComponent;

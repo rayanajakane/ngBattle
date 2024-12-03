@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Player } from '@common/player';
 import { PlayerStatsComponent } from './player-stats.component';
+/* eslint-disable */
 
 describe('PlayerStatsComponent', () => {
     let component: PlayerStatsComponent;

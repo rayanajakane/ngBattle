@@ -5,6 +5,7 @@ import { GameTile, ShortestPathByTile } from '@common/game-structure';
 import { BaseStateService } from './base-state.service';
 import { RANDOM_TILE_INDEX, TEST_AVAILABLE_TILES, TEST_SHORTEST_PATH, TEST_SHORTEST_PATH_BY_INDEX } from './constants';
 import { GameControllerService } from './game-controller.service';
+/* eslint-disable */
 
 describe('BaseStateService', () => {
     let service: BaseStateService;

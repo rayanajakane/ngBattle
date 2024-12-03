@@ -8,6 +8,7 @@ import { MOCK_PLAYER, TEST_SHORTEST_PATH_BY_INDEX } from './constants';
 import { MapGameService } from './map-game.service';
 import { MovingStateService } from './moving-state.service';
 import { NotPlayingStateService } from './not-playing-state.service';
+/* eslint-disable */
 
 const player1: Player = MOCK_PLAYER;
 

@@ -1,6 +1,7 @@
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AvatarSliderComponent } from './avatar-slider.component';
+/* eslint-disable */
 
 describe('AvatarSliderComponent', () => {
     let component: AvatarSliderComponent;

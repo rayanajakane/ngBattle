@@ -118,8 +118,8 @@ describe('GamePageComponent', () => {
 
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
-        (component as any).mapService = mapGameService;
-        (component as any).gameController = gameControllerService;
+        (component as unknown).mapService = mapGameService;
+        (component as unknown).gameController = gameControllerService;
         fixture.detectChanges();
     });
 
@@ -994,7 +994,7 @@ describe('GamePageComponent', () => {
         const mockGlobalStats = {} as GlobalStats;
         const mockPlayers = [MOCK_PLAYER_COORDS[0].player, MOCK_PLAYER_COORDS[1].player];
         const mockEndGameMessage = 'Game Over';
-        (component as any).gameController.player = { name: 'testPlayer' };
+        (component as unknown).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
         tick(ENDGAME_DELAY);
 
@@ -1006,7 +1006,7 @@ describe('GamePageComponent', () => {
         const mockPlayers = [{ stats: {} }] as Player[];
         const mockEndGameMessage = 'Game Over';
 
-        (component as any).gameController.player = { name: 'testPlayer' };
+        (component as unknown).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
     });
 

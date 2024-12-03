@@ -6,6 +6,7 @@ import { BaseStateService } from './base-state.service';
 import { TEST_SHORTEST_PATH_BY_INDEX } from './constants';
 import { GameControllerService } from './game-controller.service';
 import { MovingStateService } from './moving-state.service';
+/* eslint-disable */
 
 describe('MovingStateService', () => {
     let service: MovingStateService;

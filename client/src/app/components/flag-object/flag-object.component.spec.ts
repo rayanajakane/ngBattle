@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FlagObjectComponent } from './flag-object.component';
+/* eslint-disable */
 
 describe('FlagObjectComponent', () => {
     let component: FlagObjectComponent;

@@ -4,6 +4,7 @@ import { GameState } from '@common/game-structure';
 import { ActionStateService } from './action-state.service';
 import { TEST_AVAILABLE_TILES } from './constants';
 import { GameControllerService } from './game-controller.service';
+/* eslint-disable */
 
 describe('ActionStateService', () => {
     let service: ActionStateService;

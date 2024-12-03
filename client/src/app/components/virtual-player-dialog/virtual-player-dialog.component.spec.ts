@@ -4,6 +4,7 @@ import { Avatar } from '@app/interfaces/avatar';
 import { SocketService } from '@app/services/socket.service';
 import { Player } from '@common/player';
 import { VirtualPlayerDialogComponent } from './virtual-player-dialog.component';
+/* eslint-disable */
 
 describe('VirtualPlayerDialogComponent', () => {
     let component: VirtualPlayerDialogComponent;

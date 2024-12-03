@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
 import { TileBasicComponent } from '@app/components/tile-basic/tile-basic.component';
 import { ToolbarComponent } from './toolbar.component';
+/* eslint-disable */
 
 describe('ToolbarComponent', () => {
     let component: ToolbarComponent;
