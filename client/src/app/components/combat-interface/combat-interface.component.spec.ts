@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CombatInterfaceComponent } from './combat-interface.component';
+/* eslint-disable */
 
 describe('CombatInterfaceComponent', () => {
     let component: CombatInterfaceComponent;

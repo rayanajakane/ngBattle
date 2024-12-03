@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { TileInfoModalComponent } from './tile-info-modal.component';
+/* eslint-disable */
 
 describe('TileInfoModalComponent', () => {
     let component: TileInfoModalComponent;

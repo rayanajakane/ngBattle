@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { GameState } from '@common/game-structure';
 import { GameControllerService } from './game-controller.service';
 import { NotPlayingStateService } from './not-playing-state.service';
+/* eslint-disable */
 
 describe('NotPlayingStateService', () => {
     let service: NotPlayingStateService;

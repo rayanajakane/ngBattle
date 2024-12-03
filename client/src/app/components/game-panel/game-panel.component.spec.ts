@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PlayerAttribute, PlayerCoord, PlayerStats } from '@common/player';
 import { GamePanelComponent } from './game-panel.component';
+/* eslint-disable */
+
 describe('GamePanelComponent', () => {
     let component: GamePanelComponent;
     let fixture: ComponentFixture<GamePanelComponent>;

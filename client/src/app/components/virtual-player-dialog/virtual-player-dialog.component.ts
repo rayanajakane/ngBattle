@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Avatar } from '@app/interfaces/avatar';
@@ -14,7 +14,7 @@ import { v4 as generateID } from 'uuid';
     templateUrl: './virtual-player-dialog.component.html',
     styleUrl: './virtual-player-dialog.component.scss',
 })
-export class VirtualPlayerDialogComponent {
+export class VirtualPlayerDialogComponent implements OnInit {
     dialog = inject(MatDialog);
     data = inject(MAT_DIALOG_DATA);
     playerList: Player[] = [];
@@ -75,11 +75,11 @@ export class VirtualPlayerDialogComponent {
             isAdmin: false,
             avatar: this.virtualAvatar.name,
             attributes: {
-                health: health,
-                speed: speed,
+                health,
+                speed,
                 attack: 4,
                 defense: 4,
-                dice: dice,
+                dice,
             },
             isActive: false,
             abandoned: false,

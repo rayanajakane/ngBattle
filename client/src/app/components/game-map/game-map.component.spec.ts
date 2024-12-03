@@ -7,6 +7,7 @@ import { MapGameService } from '@app/services/map-game.service';
 import { MovingStateService } from '@app/services/moving-state.service';
 import { NotPlayingStateService } from '@app/services/not-playing-state.service';
 import { GameMapComponent } from './game-map.component';
+/* eslint-disable */
 
 describe('GameMapComponent', () => {
     let component: GameMapComponent;

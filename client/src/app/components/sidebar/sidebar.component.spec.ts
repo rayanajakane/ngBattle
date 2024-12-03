@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DEFAULT_STARTING_COUNTER_TWO } from '@app/services/constants';
 import { DragDropService } from 'src/app/services/drag-drop.service';
 import { SidebarComponent } from './sidebar.component';
+/* eslint-disable */
 
 describe('SidebarComponent', () => {
     let component: SidebarComponent;

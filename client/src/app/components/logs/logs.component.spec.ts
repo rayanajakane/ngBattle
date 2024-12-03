@@ -4,6 +4,7 @@ import { LogMessage } from '@app/interfaces/message';
 import { SocketService } from '@app/services/socket.service';
 import { PlayerStats } from '@common/player';
 import { LogsComponent } from './logs.component';
+/* eslint-disable */
 
 describe('LogsComponent', () => {
     let component: LogsComponent;
