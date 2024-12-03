@@ -7,10 +7,10 @@ import { MatchService } from '@app/services/match.service';
 import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
-import { InventoryService } from '../inventory/inventory.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { MovementService } from '../movement/movement.service';
-import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { MovementService } from '@app/services/movement/movement.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 /* eslint-disable */
 describe('ActionHandlerService', () => {
     let service: ActionHandlerService;

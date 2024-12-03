@@ -10,8 +10,8 @@ import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { LogSenderService } from '../log-sender/log-sender.service';
-
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { SLIP_PERCENTAGE, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
 @Injectable()
 export class ActionHandlerService {
     constructor(
@@ -27,11 +27,7 @@ export class ActionHandlerService {
         @Inject(forwardRef(() => VirtualPlayerService)) private virtualPlayerService: VirtualPlayerService,
     ) {}
 
-    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
-    private readonly SLIP_PERCENTAGE = 0.1;
-    // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
-    //TODO: move to a utils file
-    private readonly TIME_BETWEEN_MOVES = 150;
+
 
     async handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
@@ -92,7 +88,7 @@ export class ActionHandlerService {
         let tileItem = '';
 
         // const slippingChance = this.inventoryService.getSlippingChance(player.player);
-        const slippingChance = this.SLIP_PERCENTAGE;
+        const slippingChance = SLIP_PERCENTAGE;
         const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
         // TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
@@ -108,7 +104,7 @@ export class ActionHandlerService {
                 iceSlip = true;
             }
             if (index !== 0 && !iceSlip && !isItemAddedToInventory && !ctfWinCondition) {
-                this.syncDelay(this.TIME_BETWEEN_MOVES);
+                this.syncDelay(TIME_BETWEEN_MOVES);
                 this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                 activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
                 player.player.stats.visitedTilesPercent = (player.player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;

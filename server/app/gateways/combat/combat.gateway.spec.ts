@@ -3,6 +3,7 @@ import { CombatAction } from '@common/combat-actions';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
 import { CombatGateway } from './combat.gateway';
+/* eslint-disable */
 
 describe('CombatGateway', () => {
     let gateway: CombatGateway;
