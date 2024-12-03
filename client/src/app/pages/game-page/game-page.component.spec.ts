@@ -118,8 +118,10 @@ describe('GamePageComponent', () => {
 
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
+        /* eslint-disable @typescript-eslint/no-explicit-any*/
         (component as any).mapService = mapGameService;
         (component as any).gameController = gameControllerService;
+        /* eslint-enable @typescript-eslint/no-explicit-any*/
         fixture.detectChanges();
     });
 
@@ -994,6 +996,8 @@ describe('GamePageComponent', () => {
         const mockGlobalStats = {} as GlobalStats;
         const mockPlayers = [MOCK_PLAYER_COORDS[0].player, MOCK_PLAYER_COORDS[1].player];
         const mockEndGameMessage = 'Game Over';
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (component as any).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
         tick(ENDGAME_DELAY);
@@ -1006,6 +1010,7 @@ describe('GamePageComponent', () => {
         const mockPlayers = [{ stats: {} }] as Player[];
         const mockEndGameMessage = 'Game Over';
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (component as any).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
     });
@@ -1106,6 +1111,8 @@ describe('GamePageComponent', () => {
         const mockData = { isDebugMode: true };
 
         component.listenDebugMode();
+        // it's the index of the expected listener
+        // eslint-disable-next-line
         socketService.on.calls.argsFor(22)[1](mockData);
 
         expect(socketService.on).toHaveBeenCalledWith('responseDebugMode', jasmine.any(Function));

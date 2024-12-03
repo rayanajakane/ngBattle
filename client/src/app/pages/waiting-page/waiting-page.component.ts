@@ -130,7 +130,6 @@ export class WaitingPageComponent implements OnInit {
     }
 
     lockRoom() {
-        console.log('clicked');
         this.socketService.on('isRoomLocked', (isRoomLocked: boolean) => {
             this.isRoomLocked = !isRoomLocked;
             if (isRoomLocked) {
