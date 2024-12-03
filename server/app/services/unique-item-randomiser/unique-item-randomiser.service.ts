@@ -4,6 +4,15 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UniqueItemRandomizerService {
+    randomizeUniqueItems(map: TileStructure[]): { idx: number; item: ItemTypes }[] {
+        const randomItems = this.getRandomItems(map);
+
+        randomItems.forEach((randomItem) => {
+            map[randomItem.idx].item = randomItem.item;
+        });
+
+        return randomItems;
+    }
     private getUsedUniqueItems(map: TileStructure[]): string[] {
         const uniqueItems = map.reduce((acc: string[], tile) => {
             if (
@@ -39,15 +48,5 @@ export class UniqueItemRandomizerService {
             const uniqueItem = availableUniqueItems.splice(uniqueItemIndex, 1);
             return { idx: randomItemIndex, item: uniqueItem[0] };
         });
-    }
-
-    randomizeUniqueItems(map: TileStructure[]): { idx: number; item: ItemTypes }[] {
-        const randomItems = this.getRandomItems(map);
-
-        randomItems.forEach((randomItem) => {
-            map[randomItem.idx].item = randomItem.item;
-        });
-
-        return randomItems;
     }
 }

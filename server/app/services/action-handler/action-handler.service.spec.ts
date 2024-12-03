@@ -7,10 +7,10 @@ import { MatchService } from '@app/services/match.service';
 import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
-import { InventoryService } from '../inventory/inventory.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { MovementService } from '../movement/movement.service';
-import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { MovementService } from '@app/services/movement/movement.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 /* eslint-disable */
 describe('ActionHandlerService', () => {
     let service: ActionHandlerService;
@@ -395,7 +395,7 @@ describe('ActionHandlerService', () => {
                 game: { map: [] },
             });
 
-            service.handleInteractDoor(data, mockServer as any, mockClient as any);
+            service.handleInteractDoor(data, mockServer as any);
 
             expect(actionServiceMock.interactWithDoor).not.toHaveBeenCalled();
             expect(mockServer.to().emit).not.toHaveBeenCalled();
@@ -427,7 +427,7 @@ describe('ActionHandlerService', () => {
             actionServiceMock.interactWithDoor.mockReturnValue(true);
             actionServiceMock.availablePlayerMoves.mockReturnValue([1, 2, 3]);
 
-            service.handleInteractDoor(data, mockServer as any, mockClient as any);
+            service.handleInteractDoor(data, mockServer as any);
 
             expect(actionServiceMock.interactWithDoor).toHaveBeenCalledWith(data.roomId, data.playerId, data.doorPosition);
             expect(mockServer.to().emit).toHaveBeenCalledWith('interactDoor', {
@@ -464,7 +464,7 @@ describe('ActionHandlerService', () => {
             actionServiceMock.interactWithDoor.mockReturnValue(false);
             actionServiceMock.availablePlayerMoves.mockReturnValue([]);
 
-            service.handleInteractDoor(data, mockServer as any, mockClient as any);
+            service.handleInteractDoor(data, mockServer as any);
 
             expect(mockServer.to().emit).toHaveBeenCalledWith('interactDoor', {
                 isToggable: false,

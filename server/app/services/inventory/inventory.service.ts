@@ -3,7 +3,8 @@ import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { LogSenderService } from '../log-sender/log-sender.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { MINUS_ONE, MINUS_TWO, ONE, THREE, TWO, ZERO, ZERO_POINT_ONE } from '@app/services/inventory/inventory-service.utils';
 @Injectable()
 export class InventoryService {
     constructor(
@@ -44,6 +45,7 @@ export class InventoryService {
                 break;
             case ItemTypes.FLAG_A:
                 this.handleFlagItem(server, roomId, player);
+                break;
             default:
                 break;
         }
@@ -69,7 +71,7 @@ export class InventoryService {
 
     handleAC1Item(player: Player, isReset: boolean) {
         if (player.attributes.currentHealth <= 2 && !player.attributes.isCombatBoostedDefense) {
-            player.attributes.currentAttack += isReset ? -2 : 2;
+            player.attributes.currentAttack += isReset ? MINUS_TWO : TWO;
             player.attributes.isCombatBoostedAttack = !isReset;
         } else if (isReset) {
             player.attributes.currentAttack -= 2;
@@ -78,8 +80,8 @@ export class InventoryService {
     }
 
     handleAC2Item(player: Player, isReset: boolean) {
-        if (player.attributes.currentHealth <= 3 && !player.attributes.isCombatBoostedDefense) {
-            player.attributes.currentDefense += 2 * (isReset ? -1 : 1);
+        if (player.attributes.currentHealth <= THREE && !player.attributes.isCombatBoostedDefense) {
+            player.attributes.currentDefense += TWO * (isReset ? MINUS_ONE : ONE);
             player.attributes.isCombatBoostedDefense = !isReset;
         } else if (isReset) {
             player.attributes.currentDefense -= 2;
@@ -92,7 +94,7 @@ export class InventoryService {
     }
 
     getSlippingChance(player: Player): number {
-        return player.inventory.includes(ItemTypes.AF1) ? 0 : 0.1;
+        return player.inventory.includes(ItemTypes.AF1) ? ZERO : ZERO_POINT_ONE;
     }
 
     hasAF2Item(player: Player): boolean {
@@ -141,7 +143,7 @@ export class InventoryService {
         server.to(roomId).emit('itemToReplace', { player, newItem });
     }
 
-    updateInventory(server: Server, client: Socket, playerId: string, allItems: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
+    updateInventory(server: Server, playerId: string, allItems: ItemTypes[], droppedItem: ItemTypes, roomId: string) {
         const activeGame = this.activeGameService.getActiveGame(roomId);
         const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
 

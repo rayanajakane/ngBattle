@@ -4,10 +4,10 @@ import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as sinon from 'sinon';
 import { Server } from 'socket.io';
-import { ActiveGamesService } from '../active-games/active-games.service';
-import { GameService } from '../game.service';
-import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
-import { LogSenderService } from './log-sender.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { GameService } from '@app/services/game.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 /* eslint-disable */
 describe('LogSenderService', () => {
     let service: LogSenderService;

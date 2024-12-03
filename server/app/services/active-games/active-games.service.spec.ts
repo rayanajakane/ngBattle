@@ -6,8 +6,8 @@ import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
-import { ActiveGamesService } from './active-games.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 /* eslint-disable */
 describe('ActiveGamesService', () => {
     let service: ActiveGamesService;

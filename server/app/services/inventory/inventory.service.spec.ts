@@ -2,12 +2,12 @@ import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
-import { ActiveGamesService } from '../active-games/active-games.service';
-import { GameService } from '../game.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
-import { InventoryService } from './inventory.service';
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { GameService } from '@app/services/game.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
 /* eslint-disable */
 describe('InventoryService', () => {
     let service: InventoryService;
@@ -62,7 +62,7 @@ describe('InventoryService', () => {
         jest.spyOn(service, 'handleItemEffect').mockImplementation();
         jest.spyOn(service, 'emitNewPlayerInventory').mockImplementation();
 
-        service.updateInventory(server, client, playerId, allItems, droppedItem, roomId);
+        service.updateInventory(server, playerId, allItems, droppedItem, roomId);
 
         expect(activeGamesService.getActiveGame).toHaveBeenCalledWith(roomId);
         expect(activeGame.game.map[0].item).toBe(droppedItem);
@@ -95,7 +95,7 @@ describe('InventoryService', () => {
         jest.spyOn(service, 'handleItemEffect').mockImplementation();
         jest.spyOn(service, 'emitNewPlayerInventory').mockImplementation();
 
-        service.updateInventory(server, client, playerId, allItems, droppedItem, roomId);
+        service.updateInventory(server,playerId, allItems, droppedItem, roomId);
 
         expect(activeGamesService.getActiveGame).toHaveBeenCalledWith(roomId);
         expect(activeGame.game.map[0].item).toBe(droppedItem);

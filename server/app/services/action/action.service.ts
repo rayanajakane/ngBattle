@@ -5,7 +5,7 @@ import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { LogSenderService } from '../log-sender/log-sender.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 @Injectable()
 export class ActionService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE

@@ -46,7 +46,7 @@ export class CombatHandlerService {
             this.activeGameService.getActiveGame(roomId).game.map[target].tileType === TileTypes.DOOROPEN
         ) {
             const newData = { roomId, playerId, doorPosition: target };
-            this.actionHandlerService.handleInteractDoor(newData, server, client);
+            this.actionHandlerService.handleInteractDoor(newData, server);
         }
     }
 

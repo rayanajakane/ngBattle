@@ -2,7 +2,7 @@ import { UniqueItemRandomizerService } from '@app/services/unique-item-randomise
 import { TileStructure } from '@common/game-structure';
 import { ItemTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
-import { LogSenderService } from '../log-sender/log-sender.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 /* eslint-disable */
 describe('UniqueItemRandomizerService', () => {
     let service: UniqueItemRandomizerService;

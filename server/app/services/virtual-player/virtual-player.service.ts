@@ -353,7 +353,7 @@ export class VirtualPlayerService {
         }
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const allItems = [...virtualPlayerCoord.player.inventory, collectedItem];
-        this.inventoryService.updateInventory(this.server, null, this.virtualPlayerId, allItems, droppedItem, this.roomId);
+        this.inventoryService.updateInventory(this.server, this.virtualPlayerId, allItems, droppedItem, this.roomId);
     }
 
     moveToDoor(tileBeforeDoor: number) {
@@ -386,6 +386,6 @@ export class VirtualPlayerService {
     }
 
     handleVirtualPlayerTurn(roomId: string, virtualPlayerId: string) {
-        this.actionHandler.handleEndTurn({ roomId: roomId, playerId: virtualPlayerId, lastTurn: false }, this.server);
+        this.actionHandler.handleEndTurn({ roomId, playerId: virtualPlayerId, lastTurn: false }, this.server);
     }
 }

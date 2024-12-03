@@ -1,6 +1,7 @@
 import { GlobalStats } from '@common/global-stats';
 import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
+import { ONE_HUNDRED, ONE_SECOND } from '@app/services/global-stats/global-stats.utils';
 
 @Injectable()
 export class GlobalStatsService {
@@ -16,17 +17,6 @@ export class GlobalStatsService {
 
     timerId: NodeJS.Timeout;
 
-    startTimerInterval(): void {
-        this.timerId = setInterval(() => {
-            this.globalStats.matchLength++;
-        }, 1000);
-    }
-
-    stopTimerInterval(): void {
-        clearInterval(this.timerId);
-        this.timerId = undefined;
-    }
-
     constructor(maxNbDoors: number, maxNbTiles: number) {
         this.globalStats = {
             matchLength: 0,
@@ -41,6 +31,17 @@ export class GlobalStatsService {
         this.usedDoors = new Set<number>();
     }
 
+    startTimerInterval(): void {
+        this.timerId = setInterval(() => {
+            this.globalStats.matchLength++;
+        }, ONE_SECOND);
+    }
+
+    stopTimerInterval(): void {
+        clearInterval(this.timerId);
+        this.timerId = undefined;
+    }
+
     incrementTurn(): void {
         this.globalStats.nbTurns++;
     }
@@ -51,7 +52,7 @@ export class GlobalStatsService {
 
     // TODO: call the function to get percent at the end of the game
     getVisitedPercent(): number {
-        return (this.visitedIndex.size / this.maxNbTiles) * 100;
+        return (this.visitedIndex.size / this.maxNbTiles) * ONE_HUNDRED;
     }
 
     addUsedDoor(doorIndex: number): void {
@@ -65,7 +66,7 @@ export class GlobalStatsService {
 
     // TODO: call the function to get percent at the end of the game
     getUsedDoorsPercent(): number {
-        return (this.usedDoors.size / this.maxNbDoors) * 100;
+        return (this.usedDoors.size / this.maxNbDoors) * ONE_HUNDRED;
     }
 
     // TODO: call the function to get the final stats at the end of the game
