@@ -9,7 +9,6 @@ describe('AvatarSliderComponent', () => {
     const mockElementRef = {
         nativeElement: {
             scrollLeft: 0,
-            scrollRight: 0,
         },
     } as ElementRef;
 
@@ -22,7 +21,6 @@ describe('AvatarSliderComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
 
-        mockElementRef.nativeElement.scrollRight = 0;
         mockElementRef.nativeElement.scrollLeft = 0;
 
         component.widgetsContent = mockElementRef;
@@ -39,13 +37,13 @@ describe('AvatarSliderComponent', () => {
     it('should scroll left', () => {
         component.scrollLeft();
         // eslint-disable-next-line
-        expect(component.widgetsContent.nativeElement.scrollLeft).toBe(-150);
+        expect(component.widgetsContent.nativeElement.scrollLeft).toBe(-500);
     });
 
     it('should scroll right', () => {
         component.scrollRight();
         // eslint-disable-next-line
-        expect(component.widgetsContent.nativeElement.scrollRight).toBe(150);
+        expect(component.widgetsContent.nativeElement.scrollLeft).toBe(500);
     });
 
     it('should select avatar', () => {
