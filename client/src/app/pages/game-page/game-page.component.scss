@@ -2,14 +2,32 @@
     display: flex;
     overflow: hidden;
     flex-wrap: wrap;
-    width: 100%;
+    background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
 }
 
-.game-map {
+.game {
     width: 45%;
     height: 45%;
     margin: 0 auto;
     margin-top: 1rem;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.game-map {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    // height: 60%;
 }
 
 .game-btns {
@@ -47,6 +65,7 @@
     margin-bottom: 3rem;
     margin-right: 8rem;
 }
+
 app-combat-timer {
     position: absolute;
     bottom: 0;

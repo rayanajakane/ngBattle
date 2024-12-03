@@ -1,6 +1,4 @@
-<div class="timerbtn">
-    <button mat-fab extended color="warn">
-        <mat-icon>hourglass_bottom</mat-icon>
-        {{ this.timerStateEnum }} {{ this.timeLeft === -1 ? '--' : this.timeLeft }} sec.
-    </button>
+<div class="timer">
+    <mat-icon>hourglass_bottom</mat-icon>
+    {{ this.timerStateEnum }} {{ this.timeLeft === -1 ? '--' : this.timeLeft }} sec.
 </div>
