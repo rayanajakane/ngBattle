@@ -17,14 +17,14 @@ export class AvatarSliderComponent {
 
     selectedAvatar: Avatar | null = null;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
-    private readonly SCROLL_VALUE: number = 150;
+    private readonly SCROLL_VALUE: number = 500;
 
     scrollLeft(): void {
         this.widgetsContent.nativeElement.scrollLeft -= this.SCROLL_VALUE;
     }
 
     scrollRight(): void {
-        this.widgetsContent.nativeElement.scrollRight += this.SCROLL_VALUE;
+        this.widgetsContent.nativeElement.scrollLeft += this.SCROLL_VALUE;
     }
 
     selectAvatar(avatar: Avatar): void {
