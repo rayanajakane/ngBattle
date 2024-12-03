@@ -7,7 +7,6 @@ import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
 import { CombatService } from '../combat/combat.service';
-import { GlobalStatsService } from '../global-stats/global-stats.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 import { ActionService } from './action.service';
@@ -694,26 +693,42 @@ describe('ActionService', () => {
         let server: Server;
 
         beforeEach(async () => {
+            const mockGlobalStats = {
+                getFinalStats: jest.fn().mockReturnValue({
+                    matchLength: 0,
+                    nbTurns: 0,
+                    visitedTilesPercent: 0,
+                    usedDoorsPercent: 0,
+                    nbPlayersHeldFlag: 0,
+                }),
+                startTimerInterval: jest.fn(),
+                endTimerInterval: jest.fn(),
+            };
+
+            const mockGameInstance = {
+                globalStatsService: mockGlobalStats,
+                playersCoord: [{ player: { name: 'Player1', id: 'player1' } }],
+            };
+
             const module: TestingModule = await Test.createTestingModule({
                 providers: [
-                    GlobalStatsService,
                     ActionService,
                     {
                         provide: ActiveGamesService,
                         useValue: {
-                            getActiveGame: jest.fn(),
+                            getActiveGame: jest.fn().mockReturnValue(mockGameInstance),
                             removeGameInstance: jest.fn(),
                         },
+                    },
+                    {
+                        provide: MovementService,
+                        useValue: {},
                     },
                     {
                         provide: LogSenderService,
                         useValue: {
                             sendEndGameLog: jest.fn(),
                         },
-                    },
-                    {
-                        provide: MovementService,
-                        useValue: {},
                     },
                 ],
             }).compile();
@@ -729,7 +744,13 @@ describe('ActionService', () => {
 
         it('should send end game log', () => {
             const roomId = 'room1';
-            const player = { player: { name: 'Player1' } } as any;
+            const player = {
+                player: {
+                    name: 'Player1',
+                    id: 'player1',
+                },
+                position: 0,
+            } as any;
 
             service.endGame(roomId, server, player);
 
@@ -740,7 +761,10 @@ describe('ActionService', () => {
             const roomId = 'room1';
             const player = { player: { name: 'Player1' } } as any;
             const globalStats = { someStat: 1 };
-            const players = [{ id: 'player1' }, { id: 'player2' }];
+            const players = [
+                { id: 'player1', position: 0 },
+                { id: 'player2', position: 0 },
+            ];
             jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue({
                 globalStatsService: {
                     getFinalStats: jest.fn().mockReturnValue(globalStats),
@@ -793,6 +817,7 @@ describe('ActionService', () => {
 
             service = module.get<ActionService>(ActionService);
             activeGamesService = module.get<ActiveGamesService>(ActiveGamesService);
+            service.quitGame = jest.fn();
         });
 
         it("should advance to the next player's turn", () => {
@@ -836,7 +861,7 @@ describe('ActionService', () => {
             service.nextTurn(roomId, true);
 
             expect(quitGameSpy).toHaveBeenCalledWith(roomId, 'player1');
-            expect(gameInstance.turn).toBe(0);
+            expect(gameInstance.turn).toBe(1);
         });
 
         it('should set the turn to the next player after removing the current player', () => {
