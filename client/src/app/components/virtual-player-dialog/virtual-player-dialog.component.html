@@ -10,9 +10,9 @@
         <label for="defensif">Défensif</label>
     </div>
 
+    @if(characterProfile){
     <button class="randomize-btn" (click)="randomizePlayer()">Générer joueur aléatoire</button>
-
-    @if(virtualPlayer){
+    } @if(virtualPlayer && characterProfile){
     <p>{{ virtualPlayer.name }}</p>
     <img class="avatar" [src]="virtualAvatar.img" />
     <button class="button-style" (click)="addVirtualPlayer()">Ajouter le joueur virtuel</button>
