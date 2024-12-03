@@ -9,6 +9,7 @@ import { LogSenderService } from './log-sender/log-sender.service';
 import { MatchService } from './match.service';
 import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
 import { VirtualPlayerService } from './virtual-player/virtual-player.service';
+
 /* eslint-disable */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -452,6 +453,40 @@ describe('MatchService', () => {
         await service.joinRoom(server, client, roomId, playerData, false);
 
         expect(room.isLocked).toBe(true);
+    });
+
+    it('should join room with virtual player and generate ID', async () => {
+        const roomId = '123';
+        const playerName = 'playerName';
+        const avatar = 'avatar';
+        const attributes = {
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
+            dice: '6',
+        };
+
+        const room = {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: false,
+            maxPlayers: 2,
+            messages: [],
+        };
+
+        service.rooms.set(roomId, room);
+
+        jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
+        jest.spyOn(service, 'updatePlayers').mockImplementation();
+        const generatedId = 'generated-id';
+        jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue(generatedId) }));
+
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        service.joinRoom(server, client, roomId, playerData, true);
+
+        expect(room.players[0].name).toEqual(playerName);
     });
 
     it('should update players', () => {
@@ -1025,8 +1060,20 @@ describe('MatchService', () => {
         expect(server.emit).toHaveBeenCalledWith('updatePlayers', room.players);
     });
 
-    //     it('leaveRoom should return is client is undefined', () => {
-    //         service.leaveRoom(server, undefined, '123');
-    //         expect(server.to).not.toHaveBeenCalled();
-    //     });
+    it('should not leave room if client is undefined', () => {
+        const roomId = '123';
+
+        service.rooms.set(roomId, {
+            id: roomId,
+            players: [
+                {
+                    id: '123',
+                },
+            ],
+        } as any);
+
+        service.leaveRoom(server, undefined as any, roomId);
+
+        expect(server.to).not.toHaveBeenCalled();
+    });
 });
