@@ -67,7 +67,6 @@ export class CombatService {
             const firstPlayer = this.whoIsFirstPlayer(roomId);
             const secondPlayer = fighters.find((f) => f.player.id !== firstPlayer.player.id);
             firstPlayer.player.stats.combatCount++;
-
             const firstPlayerIndex = fighters.findIndex((f) => f.player.id === firstPlayer.player.id);
             this.currentTurnMap.set(roomId, firstPlayerIndex);
             return [firstPlayer, secondPlayer];
@@ -221,7 +220,6 @@ export class CombatService {
                 checkAttack[1][1],
                 checkAttack[0],
             );
-
             this.endCombatTurn(roomId, attackPlayer);
             return [checkAttack[1][0], checkAttack[1][1], 'combatTurnEnd', defensePlayer, checkAttack[0]];
         }

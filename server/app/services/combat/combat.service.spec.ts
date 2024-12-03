@@ -1277,4 +1277,92 @@ describe('CombatService', () => {
         expect(service['logSender'].sendKillLog).toHaveBeenCalled();
         expect(service['virtualPlayerService'].think).toHaveBeenCalled();
     });
+
+    it("should return false if it's not the player's turn", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as PlayerCoord;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue({ player: { id: 'player2' } } as PlayerCoord);
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([1, false]);
+    });
+
+    it('should return false if player escape attribute is less than 1', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 0 } } } as PlayerCoord;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(player);
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([0, false]);
+    });
+
+    it("should return false if it is not the player's turn and escape attribute is less than 1", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 0 } } } as PlayerCoord;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue({ player: { id: 'player2' } } as PlayerCoord);
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([0, false]);
+    });
+
+    it("should return true if it is the player's turn and escape attribute is greater than or equal to 1", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 }, stats: { escapeCount: 0 } } } as PlayerCoord;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(player);
+        jest.spyOn(service as any, 'canPlayerEscape').mockReturnValue(true);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([0, true]);
+        expect(player.player.stats.escapeCount).toBe(1);
+    });
+
+    it("should return false if it is not the player's turn", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue({ player: { id: 'player2' } } as PlayerCoord);
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([1, false]);
+    });
+
+    it('should decrement escape tokens and return false if player is in combat and cannot escape', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(player);
+        jest.spyOn(service as any, 'canPlayerEscape').mockReturnValue(false);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        jest.spyOn(service, 'endCombatTurn').mockImplementation();
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([0, false]);
+        expect(service.endCombatTurn).toHaveBeenCalledWith(roomId, player);
+    });
+
+    it('should decrement escape tokens and return true if player is in combat and can escape', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 }, stats: { escapeCount: 0 } } } as any;
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(player);
+        jest.spyOn(service as any, 'canPlayerEscape').mockReturnValue(true);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        const result = service.escape(roomId, player);
+        expect(result).toEqual([0, true]);
+        expect(player.player.stats.escapeCount).toBe(1);
+    });
+
+    it("should return false if it is not the player's turn", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
+
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue({ player: { id: 'player2' } } as PlayerCoord);
+
+        const result = service.escape(roomId, player);
+
+        expect(result).toEqual([1, false]);
+    });
+
+    it("should return false if it is not the player's turn", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
+
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(undefined);
+
+        const result = service.escape(roomId, player);
+
+        expect(result).toEqual([1, false]);
+    });
 });
