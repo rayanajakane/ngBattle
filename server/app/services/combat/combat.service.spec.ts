@@ -1,22 +1,22 @@
 import { GameInstance } from '@app/data-structures/game-instance';
+import { ActionButtonService } from '@app/services/action-button/action-button.service';
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatHandlerService } from '@app/services/combat-handler/combat-handler.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { BOOSTED_BONUS_DICE, ICE_PENALTY, MINIMAL_BONUS_DICE, WINS_TO_WIN } from '@app/services/combat/constants';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MovementService } from '@app/services/movement/movement.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { CombatAction } from '@common/combat-actions';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { ActionButtonService } from '../action-button/action-button.service';
-import { CombatHandlerService } from '../combat-handler/combat-handler.service';
-import { InventoryService } from '../inventory/inventory.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
 
 /* eslint-disable */
 describe('CombatService', () => {

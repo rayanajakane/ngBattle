@@ -52,21 +52,13 @@ export class CombatService {
     startCombat(roomId: string, fighters: PlayerCoord[]): PlayerCoord[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         gameInstance.turnTimer.pauseTimer();
-
         if (fighters.length === COMBAT_FIGHTERS_NUMBER) {
             fighters.forEach((fighter) => {
-                if (fighter.player.attributes.currentHealth === undefined) {
-                    fighter.player.attributes.currentHealth = fighter.player.attributes.health;
-                }
-                if (fighter.player.attributes.currentAttack === undefined) {
-                    fighter.player.attributes.currentAttack = fighter.player.attributes.attack;
-                }
-                if (fighter.player.attributes.currentDefense === undefined) {
+                if (fighter.player.attributes.currentHealth === undefined) fighter.player.attributes.currentHealth = fighter.player.attributes.health;
+                if (fighter.player.attributes.currentAttack === undefined) fighter.player.attributes.currentAttack = fighter.player.attributes.attack;
+                if (fighter.player.attributes.currentDefense === undefined)
                     fighter.player.attributes.currentDefense = fighter.player.attributes.defense;
-                }
-                if (fighter.player.attributes.currentSpeed === undefined) {
-                    fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
-                }
+                if (fighter.player.attributes.currentSpeed === undefined) fighter.player.attributes.currentSpeed = fighter.player.attributes.speed;
                 this.applyIceDisadvantage(roomId, fighter);
             });
             this.fightersMap.set(roomId, fighters);
@@ -160,9 +152,7 @@ export class CombatService {
         if (combatAction === CombatAction.ATTACK) {
             const defender = this.fightersMap.get(roomId).find((fighter) => fighter.player.id !== player.player.id);
             this.attack(roomId, player, defender, server);
-        } else if (combatAction === CombatAction.ESCAPE) {
-            this.escape(roomId, player);
-        }
+        } else if (combatAction === CombatAction.ESCAPE) this.escape(roomId, player);
     }
 
     endCombatTurn(roomId: string, player: PlayerCoord): void {
@@ -215,9 +205,8 @@ export class CombatService {
                         this.virtualPlayerService.think();
                     } else if (playerKilled.player.isVirtual) {
                         const activeGame = this.activeGamesService.getActiveGame(roomId);
-                        if (activeGame.playersCoord[activeGame.turn].player.id === playerKilled.player.id) {
+                        if (activeGame.playersCoord[activeGame.turn].player.id === playerKilled.player.id)
                             this.actionHandlerService.handleEndTurn({ roomId, playerId: playerKilled.player.id, lastTurn: false }, server);
-                        }
                     }
                     return [checkAttack[1][0], checkAttack[1][1], 'combatEnd', defensePlayer, checkAttack[0]];
                 }
@@ -279,7 +268,6 @@ export class CombatService {
             const randomIndex = Math.floor(Math.random() * possiblePositions.length);
             const randomPosition = position + possiblePositions[randomIndex];
             game.map[randomPosition].item = item;
-
             possiblePositions.splice(randomIndex, 1);
             itemsPositions.push({ idx: randomPosition, item });
         });
@@ -308,11 +296,8 @@ export class CombatService {
     }
 
     private throwDice(diceSize: number, fighter: PlayerCoord): number {
-        if (this.inventoryService.hasAF2Item(fighter.player)) {
-            return Math.random() > THROW_DICE_RANDOM_CHANCE ? diceSize : THROW_DICE_MIN;
-        } else {
-            return Math.floor(Math.random() * diceSize) + THROW_DICE_MIN;
-        }
+        if (this.inventoryService.hasAF2Item(fighter.player)) return Math.random() > THROW_DICE_RANDOM_CHANCE ? diceSize : THROW_DICE_MIN;
+        else return Math.floor(Math.random() * diceSize) + THROW_DICE_MIN;
     }
 
     private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
@@ -365,10 +350,7 @@ export class CombatService {
     }
 
     private canPlayerEscape(roomId: string, player: PlayerCoord): boolean {
-        if (this.isPlayerInCombat(roomId, player)) {
-            const randomNumber = Math.random();
-            return randomNumber < ESCAPE_PROBABILITY;
-        }
+        if (this.isPlayerInCombat(roomId, player)) return Math.random() < ESCAPE_PROBABILITY;
         return false;
     }
 
