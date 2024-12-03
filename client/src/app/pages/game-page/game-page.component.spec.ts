@@ -2,6 +2,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ChooseItemModalComponent } from '@app/components/choose-item-modal/choose-item-modal.component';
 import {
     MOCK_PLAYER,
     MOCK_PLAYER_COORD,
@@ -19,6 +20,7 @@ import { GameState, GameTile, TimerState } from '@common/game-structure';
 import { GlobalStats } from '@common/global-stats';
 import { Player } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
+import { of } from 'rxjs';
 import { MAX_NUMBER_OF_WINS } from './constant';
 import { GamePageComponent } from './game-page.component';
 
@@ -56,6 +58,7 @@ describe('GamePageComponent', () => {
             'requestStartAction',
             'feedAfkList',
             'requestDebugMode',
+            'requestUpdateInventory',
             {
                 player: { name: 'testPlayerId' } as any,
             },
@@ -772,6 +775,19 @@ describe('GamePageComponent', () => {
         expect(component.currentMoveBudget).toBe(0);
     });
 
+    it('should not set currentMoveBudget to 0 if active player and combat initiator is killed player, but isDebugModeActive true', () => {
+        const mockKiller = MOCK_PLAYER_COORDS[0];
+        const mockKilled = MOCK_PLAYER_COORDS[1];
+        const mockKilledOldPosition = 5;
+        gameControllerService.isActivePlayer.and.returnValue(true);
+        component.combatInitiatorId = mockKilled.player.id;
+        gameControllerService.isDebugModeActive = true;
+
+        component.handleKilledPlayer(mockKiller, mockKilled, mockKilledOldPosition);
+
+        expect(component.currentMoveBudget).not.toBe(0);
+    });
+
     it('should request available moves on budget if active player and combat initiator is killer player', () => {
         const mockKiller = MOCK_PLAYER_COORDS[0];
         const mockKilled = MOCK_PLAYER_COORDS[1];
@@ -1083,27 +1099,6 @@ describe('GamePageComponent', () => {
         component.ngOnDestroy();
         expect(socketService.disconnect).not.toHaveBeenCalled();
     });
-    it('should add keydown event listener for admin', () => {
-        spyOn(window, 'addEventListener');
-        component.addListeners();
-        expect(window.addEventListener).toHaveBeenCalledWith('keydown', jasmine.any(Function));
-    });
-
-    it('should call handleKeyDPressed when D key is pressed by admin', () => {
-        spyOn(component, 'handleKeyDPressed');
-        component.isAdmin = true;
-        const event = new KeyboardEvent('keydown', { key: 'D' });
-        window.dispatchEvent(event);
-        expect(component.handleKeyDPressed).toHaveBeenCalled();
-    });
-
-    it('should not call handleKeyDPressed when D key is pressed by non-admin', () => {
-        spyOn(component, 'handleKeyDPressed');
-        component.isAdmin = false;
-        const event = new KeyboardEvent('keydown', { key: 'D' });
-        window.dispatchEvent(event);
-        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
-    });
 
     it('should add listeners for game setup, turns, combat turns, timer, combat timer, movement, actions, combat actions, and end game events', () => {
         spyOn(component, 'listenGameSetup');
@@ -1252,5 +1247,179 @@ describe('GamePageComponent', () => {
         socketService.on.calls.argsFor(25)[1](mockData);
 
         expect(component.handleEndMove).not.toHaveBeenCalled();
+    });
+
+    it('should listen for disperseItems and replace random items', () => {
+        const mockItemsPositions = [
+            { idx: 0, item: ItemTypes.AA1 },
+            { idx: 1, item: ItemTypes.FLAG_A },
+        ];
+
+        component.listenDisperseItems();
+        socketService.on.calls.argsFor(26)[1](mockItemsPositions);
+
+        expect(socketService.on).toHaveBeenCalledWith('disperseItems', jasmine.any(Function));
+        expect(mapGameService.replaceRandomItems).toHaveBeenCalledWith(mockItemsPositions);
+    });
+
+    it('should listen for vpItemToReplace and handle it', () => {
+        const mockData = { player: MOCK_PLAYER_COORD, newItem: ItemTypes.AA1 };
+
+        component.listenVPItemToReplace();
+        socketService.on.calls.argsFor(27)[1](mockData);
+
+        expect(socketService.on).toHaveBeenCalledWith('vpItemToReplace', jasmine.any(Function));
+        expect(mapGameService.removeItem).toHaveBeenCalledWith(mockData.player.position);
+        expect(mapGameService.placeItem).toHaveBeenCalledWith(mockData.player.position, mockData.newItem);
+    });
+
+    it('should open dialog with correct data when inquirePlayerForItemReplacement is called', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(true), close: null });
+        spyOn(component.dialog, 'open').and.returnValue(dialogRefSpyObj);
+
+        component.inquirePlayerForItemReplacement(mockItems);
+
+        expect(component.dialog.open).toHaveBeenCalledWith(ChooseItemModalComponent, {
+            data: { itemTypes: mockItems },
+        });
+    });
+
+    it('should call chooseItem with correct arguments when dialog is closed with a result', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockResult = ItemTypes.AA1;
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(mockResult), close: null });
+        spyOn(component.dialog, 'open').and.returnValue(dialogRefSpyObj);
+        spyOn(component, 'chooseItem');
+
+        component.inquirePlayerForItemReplacement(mockItems);
+
+        expect(component.chooseItem).toHaveBeenCalledWith(mockItems, mockResult);
+    });
+
+    it('should not call chooseItem when dialog is closed without a result', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(null), close: null });
+        spyOn(component.dialog, 'open').and.returnValue(dialogRefSpyObj);
+        spyOn(component, 'chooseItem');
+
+        component.inquirePlayerForItemReplacement(mockItems);
+
+        expect(component.chooseItem).not.toHaveBeenCalled();
+    });
+
+    it('should place item and request update inventory if player and inventory exist', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockRejectedItem = ItemTypes.AA1;
+        const mockPlayerCoord = { position: 1, player: { inventory: [ItemTypes.FLAG_A] } as Player };
+        gameControllerService.findPlayerCoordById.and.returnValue(mockPlayerCoord);
+
+        component.chooseItem(mockItems, mockRejectedItem);
+
+        expect(mapGameService.placeItem).toHaveBeenCalledWith(mockPlayerCoord.position, mockRejectedItem);
+        expect(gameControllerService.requestUpdateInventory).toHaveBeenCalledWith(mockItems, mockRejectedItem);
+    });
+
+    it('should not place item or request update inventory if player does not exist', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockRejectedItem = ItemTypes.AA1;
+        gameControllerService.findPlayerCoordById.and.returnValue(undefined);
+
+        component.chooseItem(mockItems, mockRejectedItem);
+
+        expect(mapGameService.placeItem).not.toHaveBeenCalled();
+        expect(gameControllerService.requestUpdateInventory).not.toHaveBeenCalled();
+    });
+
+    it('should not place item or request update inventory if player inventory does not exist', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockRejectedItem = ItemTypes.AA1;
+        const mockPlayerCoord = { position: 1, player: {} as Player };
+        gameControllerService.findPlayerCoordById.and.returnValue(mockPlayerCoord);
+
+        component.chooseItem(mockItems, mockRejectedItem);
+
+        expect(mapGameService.placeItem).not.toHaveBeenCalled();
+        expect(gameControllerService.requestUpdateInventory).not.toHaveBeenCalled();
+    });
+
+    it('should call handleKeyDPressed when "d" key is pressed and isAdmin is true', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).toHaveBeenCalled();
+    });
+
+    it('should call handleKeyDPressed when "d" key is pressed and isAdmin is true', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'D' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).toHaveBeenCalled();
+    });
+
+    it('should call handleKeyDPressed when "d" key is pressed and isAdmin is true', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { code: 'KeyD' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed and isAdmin is false', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = false;
+
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with ctrl key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', ctrlKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with shift key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', shiftKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with alt key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', altKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with meta key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', metaKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
     });
 });
