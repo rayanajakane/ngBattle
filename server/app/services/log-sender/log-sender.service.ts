@@ -64,7 +64,9 @@ export class LogSenderService {
         // TODO: verify if right structure to emit to front end
         this.emitLogToRoom(server, roomId, message);
     }
-
+    // Le paramètre isAttackSuccessful est un boolean necessaire , il est donc important de le passer dans cette fonction qui
+    // fait en sorte d'avoir un argument en plus.
+    // eslint-disable-next-line max-params
     sendAttackActionLog(
         server: Server,
         roomId: string,

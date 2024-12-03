@@ -22,7 +22,6 @@ export class TileBasicComponent implements OnChanges {
     imageUrl: string = '';
     avatarUrl: string = '';
 
-
     constructor() {
         this.setTileImage();
     }
