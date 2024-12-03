@@ -1156,103 +1156,92 @@ describe('ActionHandlerService', () => {
             mockRandom.mockRestore();
         });
     });
-    // describe('handleGameSetup', () => {
-    //     let mockServer: { to: jest.Mock };
-    //     let matchServiceMock;
-    //     let activeGamesServiceMock;
 
-    //     beforeEach(() => {
-    //         mockServer = {
-    //             to: jest.fn().mockReturnThis(),
-    //         };
-    //         mockServer.to().emit = jest.fn();
+    describe('handleGameSetup', () => {
+        let mockServer: { to: jest.Mock };
+        let matchServiceMock;
+        let activeGamesServiceMock;
+        let mockActiveGame;
 
-    //         matchServiceMock = {
-    //             rooms: new Map(),
-    //         };
+        beforeEach(() => {
+            mockServer = {
+                to: jest.fn().mockReturnThis(),
+            };
+            mockServer.to().emit = jest.fn();
 
-    //         activeGamesServiceMock = {
-    //             gameSetup: jest.fn().mockImplementation(() => Promise.resolve()),
-    //             getActiveGame: jest.fn(),
-    //         };
+            mockActiveGame = {
+                playersCoord: [
+                    { player: { id: 'player-1', isVirtual: false }, position: 0 },
+                    { player: { id: 'player-2', isVirtual: false }, position: 1 },
+                ],
+            };
 
-    //         service['match'] = matchServiceMock;
-    //         service['activeGamesService'] = activeGamesServiceMock;
-    //     });
+            matchServiceMock = {
+                rooms: new Map(),
+            };
 
-    //     it('should call gameSetup with correct parameters', () => {
-    //         const roomId = 'room-1';
-    //         const gameId = 'game-1';
-    //         const players = [
-    //             { id: 'player-1', isVirtual: false },
-    //             { id: 'player-2', isVirtual: false },
-    //         ];
+            activeGamesServiceMock = {
+                gameSetup: jest.fn().mockImplementation(() => Promise.resolve()),
+                getActiveGame: jest.fn().mockReturnValue(mockActiveGame),
+            };
 
-    //         matchServiceMock.rooms.set(roomId, { gameId, players });
+            service['match'] = matchServiceMock;
+            service['activeGamesService'] = activeGamesServiceMock;
+        });
 
-    //         jest.spyOn(service, 'handleStartTurn').mockImplementation(() => {});
+        it('should call gameSetup with correct parameters', async () => {
+            const roomId = 'room-1';
+            const gameId = 'game-1';
+            const players = [
+                { id: 'player-1', isVirtual: false },
+                { id: 'player-2', isVirtual: false },
+            ];
 
-    //         service.handleGameSetup(mockServer as any, roomId);
+            matchServiceMock.rooms.set(roomId, { gameId, players });
 
-    //         expect(activeGamesServiceMock.gameSetup).toHaveBeenCalledWith(mockServer, roomId, gameId, players);
-    //     });
+            await service.handleGameSetup(mockServer as any, roomId);
 
-    // it('should handle virtual player first turn', () => {
-    //     const roomId = 'room-1';
-    //     const gameId = 'game-1';
-    //     const players = [
-    //         { id: 'virtual-1', isVirtual: true },
-    //         { id: 'player-2', isVirtual: false },
-    //     ];
+            expect(activeGamesServiceMock.gameSetup).toHaveBeenCalledWith(mockServer, roomId, gameId, players);
+        });
 
-    //     const mockActiveGame = {
-    //         playersCoord: [{ player: players[0] }, { player: players[1] }],
-    //     };
+        it('should trigger virtual player first turn when first player is virtual', async () => {
+            const roomId = 'room-1';
+            const gameId = 'game-1';
+            const mockVirtualGame = {
+                playersCoord: [
+                    { player: { id: 'virtual-1', isVirtual: true }, position: 0 },
+                    { player: { id: 'player-2', isVirtual: false }, position: 1 },
+                ],
+            };
 
-    //     matchServiceMock.rooms.set(roomId, { gameId, players });
-    //     activeGamesServiceMock.getActiveGame.mockReturnValue(mockActiveGame);
+            matchServiceMock.rooms.set(roomId, { gameId, players: [] });
+            activeGamesServiceMock.getActiveGame.mockReturnValue(mockVirtualGame);
 
-    //     jest.spyOn(service, 'handleStartTurn').mockImplementation(() => {});
+            jest.spyOn(service, 'handleStartTurn').mockImplementation(() => {});
 
-    //     service.handleGameSetup(mockServer as any, roomId);
+            await service.handleGameSetup(mockServer as any, roomId);
 
-    //     expect(service.handleStartTurn).toHaveBeenCalledWith({ roomId, playerId: 'virtual-1' }, mockServer, null);
-    // });
+            expect(service.handleStartTurn).toHaveBeenCalledWith({ roomId, playerId: 'virtual-1' }, mockServer, null);
+        });
 
-    // it('should not trigger virtual player turn if first player is human', () => {
-    //     const roomId = 'room-1';
-    //     const gameId = 'game-1';
-    //     const players = [
-    //         { id: 'player-1', isVirtual: false },
-    //         { id: 'player-2', isVirtual: false },
-    //     ];
+        it('should not trigger virtual player turn when first player is human', async () => {
+            const roomId = 'room-1';
+            const gameId = 'game-1';
+            const mockHumanGame = {
+                playersCoord: [
+                    { player: { id: 'player-1', isVirtual: false }, position: 0 },
+                    { player: { id: 'player-2', isVirtual: false }, position: 1 },
+                ],
+            };
 
-    //     const mockActiveGame = {
-    //         playersCoord: [{ player: players[0] }, { player: players[1] }],
-    //     };
+            matchServiceMock.rooms.set(roomId, { gameId, players: [] });
+            activeGamesServiceMock.getActiveGame.mockReturnValue(mockHumanGame);
 
-    //     matchServiceMock.rooms.set(roomId, { gameId, players });
-    //     activeGamesServiceMock.getActiveGame.mockReturnValue(mockActiveGame);
+            jest.spyOn(service, 'handleStartTurn').mockImplementation(() => {});
 
-    //     jest.spyOn(service, 'handleStartTurn').mockImplementation(() => {});
+            await service.handleGameSetup(mockServer as any, roomId);
 
-    //     service.handleGameSetup(mockServer as any, roomId);
-
-    //     expect(service.handleStartTurn).not.toHaveBeenCalled();
-    // });
-
-    // it('should handle empty players array', () => {
-    //     const roomId = 'room-1';
-    //     const gameId = 'game-1';
-    //     const players = [];
-
-    //     matchServiceMock.rooms.set(roomId, { gameId, players });
-
-    //     jest.spyOn(service, 'handleStartTurn').mockImplementation(() => {});
-
-    //     service.handleGameSetup(mockServer as any, roomId);
-
-    //     expect(activeGamesServiceMock.gameSetup).toHaveBeenCalledWith(mockServer, roomId, gameId, players);
-    // });
-    // });
+            expect(service.handleStartTurn).not.toHaveBeenCalled();
+        });
+    });
 });

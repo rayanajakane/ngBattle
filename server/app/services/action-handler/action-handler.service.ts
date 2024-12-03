@@ -33,17 +33,16 @@ export class ActionHandlerService {
     //TODO: move to a utils file
     private readonly TIME_BETWEEN_MOVES = 150;
 
-    handleGameSetup(server: Server, roomId: string) {
+    async handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-        this.activeGamesService.gameSetup(server, roomId, gameId, players).then(() => {
-            const activeGame = this.activeGamesService.getActiveGame(roomId);
-            const playerCoord = activeGame.playersCoord;
-            if (playerCoord[0].player.isVirtual) {
-                // if the first player is a virtual player
-                this.handleStartTurn({ roomId, playerId: playerCoord[0].player.id }, server, null);
-            }
-        });
+        await this.activeGamesService.gameSetup(server, roomId, gameId, players);
+        const activeGame = this.activeGamesService.getActiveGame(roomId);
+        const playerCoord = activeGame.playersCoord;
+        if (playerCoord[0].player.isVirtual) {
+            // if the first player is a virtual player
+            this.handleStartTurn({ roomId, playerId: playerCoord[0].player.id }, server, null);
+        }
     }
 
     handleStartTurn(data: { roomId: string; playerId: string }, server: Server, client: Socket) {

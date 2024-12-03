@@ -19,8 +19,8 @@ export class ActionGateway implements OnGatewayInit {
     ) {}
 
     @SubscribeMessage('gameSetup')
-    handleGameSetup(@MessageBody() roomId: string) {
-        this.actionHandler.handleGameSetup(this.server, roomId);
+    async handleGameSetup(@MessageBody() roomId: string) {
+        await this.actionHandler.handleGameSetup(this.server, roomId);
     }
 
     @SubscribeMessage('startTurn')
