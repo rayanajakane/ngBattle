@@ -20,5 +20,11 @@ export const SECOND_INVENTORY_SLOT = 1;
 export const SUCCESSFUL_ATTACK_DAMAGE = 1;
 
 export const WINS_TO_WIN = 3;
+
 export const LEFT_TILE = -1;
 export const RIGHT_TILE = 1;
+
+export const COUNTER_INITIATOR = 0;
+
+export const THROW_DICE_MIN = 1;
+export const THROW_DICE_RANDOM_CHANCE = 0.5;
