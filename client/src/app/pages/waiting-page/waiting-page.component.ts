@@ -79,8 +79,7 @@ export class WaitingPageComponent implements OnInit {
 
     gameStartedListener() {
         this.socketService.once('gameStarted', (data: { gameId: string; players: Player[] }) => {
-            // players might not be necessary
-            // TODO: change the url path
+
             this.router.navigate([
                 '/game',
                 {

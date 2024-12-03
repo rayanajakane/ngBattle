@@ -27,8 +27,7 @@ export class TileInfoModalComponent {
         return avatar ? avatar.split(' ')[1] : '';
     }
 
-    // TODO : add the cost and effect of each tile ( object & tile effect)
-    // TODO : add the correct path for the avatar
+
     chooseTileType(tileType: string) {
         switch (tileType) {
             case TileTypes.WALL:
