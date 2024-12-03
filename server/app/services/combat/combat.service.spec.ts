@@ -1331,7 +1331,7 @@ describe('CombatService', () => {
         const result = service.escape(roomId, player);
         expect(result).toEqual([0, false]);
         expect(service.endCombatTurn).toHaveBeenCalledWith(roomId, player);
-    }); 
+    });
 
     it('should decrement escape tokens and return true if player is in combat and can escape', () => {
         const roomId = 'room1';
@@ -1349,6 +1349,17 @@ describe('CombatService', () => {
         const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
 
         jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue({ player: { id: 'player2' } } as PlayerCoord);
+
+        const result = service.escape(roomId, player);
+
+        expect(result).toEqual([1, false]);
+    });
+
+    it("should return false if it is not the player's turn", () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1', attributes: { escape: 1 } } } as any;
+
+        jest.spyOn(service, 'getCurrentTurnPlayer').mockReturnValue(undefined);
 
         const result = service.escape(roomId, player);
 
