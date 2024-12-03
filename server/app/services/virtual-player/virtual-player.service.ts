@@ -1,16 +1,16 @@
+import { ActionButtonService } from '@app/services/action-button/action-button.service';
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
-import { GameStructure } from '@common/game-structure';
+import { CombatHandlerService } from '@app/services/combat-handler/combat-handler.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { MovementService } from '@app/services/movement/movement.service';
+import { GameStructure, TileStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { ActionButtonService } from '../action-button/action-button.service';
-import { CombatHandlerService } from '../combat-handler/combat-handler.service';
-import { InventoryService } from '../inventory/inventory.service';
-import { MovementService } from '../movement/movement.service';
-import { AGGRESSIVE_PRIORITY_ITEMS, DEFENSIVE_PRIORITY_ITEMS } from './constants';
+import { AGGRESSIVE_PRIORITY_ITEMS, DEFENSIVE_PRIORITY_ITEMS, RANDOM_MOVE_CHANCE } from './constants';
 
 @Injectable()
 export class VirtualPlayerService {
@@ -20,13 +20,16 @@ export class VirtualPlayerService {
     shouldEndTurn: boolean;
     itemPriorities: string[];
 
+    /* max-params disabled because the virtual player service needs to be able to access all of these services
+    as it needs to be able to interact with the game */
+    // eslint-disable-next-line max-params
     constructor(
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandler: ActionHandlerService,
         @Inject(forwardRef(() => CombatHandlerService)) private readonly combatHandlerService: CombatHandlerService,
+        @Inject(forwardRef(() => ActionButtonService)) private readonly actionButtonService: ActionButtonService,
         private readonly inventoryService: InventoryService,
         private readonly actionService: ActionService,
         private readonly activeGamesService: ActiveGamesService,
-        @Inject(forwardRef(() => ActionButtonService)) private readonly actionButtonService: ActionButtonService,
         private readonly movementService: MovementService,
     ) {}
 
@@ -59,12 +62,12 @@ export class VirtualPlayerService {
     defensiveThink(position: number) {
         if (!this.activeGamesService.getActiveGame(this.roomId)) return;
 
-        if (Math.random() < 0.1) {
+        if (Math.random() < RANDOM_MOVE_CHANCE) {
             this.randomMove();
             return;
         }
         if (!this.moveToItems()) {
-            const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+            let nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
             if (nearbyPlayers.length > 0) {
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
                 if (this.canDoAction(this.virtualPlayerId)) {
@@ -76,7 +79,7 @@ export class VirtualPlayerService {
                 const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
                 const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
                 const newVirtualPlayerPosition = virtualPlayerCoord.position;
-                const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
+                nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
                 if (this.canDoAction(this.virtualPlayerId)) {
                     this.startAttack(randomPlayerCoord);
@@ -91,12 +94,12 @@ export class VirtualPlayerService {
     aggressiveThink(position: number) {
         if (!this.activeGamesService.getActiveGame(this.roomId)) return;
 
-        if (Math.random() < 0.1) {
+        if (Math.random() < RANDOM_MOVE_CHANCE) {
             this.randomMove();
             return;
         }
         // check if there are players nearby without having to move
-        const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
+        let nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
         if (nearbyPlayers.length > 0 && this.canDoAction(this.virtualPlayerId)) {
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             this.startAttack(randomPlayerCoord);
@@ -107,7 +110,7 @@ export class VirtualPlayerService {
             const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
             const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
             const newVirtualPlayerPosition = virtualPlayerCoord.position;
-            const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
+            nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
             if (nearbyPlayers.length === 0) return;
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             if (this.canDoAction(this.virtualPlayerId)) {
@@ -130,7 +133,9 @@ export class VirtualPlayerService {
         }
     }
 
-    waitRandomTime() {
+    async waitRandomTime() {
+        // used magic numbers to generate a random time between 1 and 3 seconds
+        /* eslint-disable-next-line @typescript-eslint/no-magic-numbers */
         const waitTime = Math.floor(Math.random() * 2000) + 1000;
         return new Promise((resolve) => setTimeout(resolve, waitTime));
     }
@@ -157,8 +162,7 @@ export class VirtualPlayerService {
         }
         const availablePlayerMoves = this.actionService.availablePlayerMoves(this.virtualPlayerId, this.roomId);
         const accessibleTiles = Object.keys(availablePlayerMoves).map(Number);
-        let endPosition: number;
-        endPosition = accessibleTiles[Math.floor(Math.random() * accessibleTiles.length)];
+        const endPosition = accessibleTiles[Math.floor(Math.random() * accessibleTiles.length)];
         this.actionHandler.handleMove({ roomId: this.roomId, playerId: this.virtualPlayerId, endPosition }, this.server, null);
     }
 
@@ -243,10 +247,10 @@ export class VirtualPlayerService {
         return true;
     }
 
-    findPathsToPlayers(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+    findPathsToPlayers(gameStructure: GameStructure, startPosition: number, budget: number) {
         if (!this.activeGamesService.getActiveGame(this.roomId)) return;
 
-        let pathsToPlayers = [];
+        const pathsToPlayers = [];
         const adjacentTiles = this.getAdjacentTiles(startPosition);
 
         gameStructure.map.forEach((tile) => {
@@ -263,11 +267,11 @@ export class VirtualPlayerService {
         return pathsToPlayers;
     }
 
-    findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+    findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number) {
         if (!this.activeGamesService.getActiveGame(this.roomId)) return;
-        let pathsToItems = [];
+        const pathsToItems = [];
         gameStructure.map.forEach((tile) => {
-            if (tile.item != '' && tile.item != 'startingPoint') {
+            if (tile.item !== '' && tile.item !== 'startingPoint') {
                 const item = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
                 pathsToItems.push([item.path, tile.item]);
             }
@@ -300,7 +304,7 @@ export class VirtualPlayerService {
 
     // this is necessary since the shortest path function does not take into account closed doors
     openAllDoors(game: GameStructure): GameStructure {
-        let gameStructureOpenedDoors = JSON.parse(JSON.stringify(game)) as GameStructure;
+        const gameStructureOpenedDoors = JSON.parse(JSON.stringify(game)) as GameStructure;
         gameStructureOpenedDoors.map.forEach((tile) => {
             if (tile.tileType === 'doorClosed') {
                 tile.tileType = 'doorOpen';
@@ -319,7 +323,7 @@ export class VirtualPlayerService {
         return lowestPriorityItem;
     }
 
-    moveThroughDoors(startPosition: number, path: number[], map: any[]): void {
+    moveThroughDoors(startPosition: number, path: number[], map: TileStructure[]): void {
         if (!this.activeGamesService.getActiveGame(this.roomId)) return;
         const doorIndexes = map.filter((tile) => tile.tileType === 'doorClosed').map((tile) => tile.idx);
         const doorsToOpen = [];
