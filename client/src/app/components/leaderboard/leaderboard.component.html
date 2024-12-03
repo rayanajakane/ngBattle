@@ -10,8 +10,7 @@
         >
             @if (hasFlag(element)) {
             <mat-icon aria-hidden="false" aria-label="Flag icon" fontIcon="flag"></mat-icon>
-            }
-            {{ element.isAdmin ? 'Organisateur' : 'Joueur' }}
+            } @if(element.isVirtual) { Virtuel }@else if(element.isAdmin){ Admin }@else { Joueur }
         </td>
     </ng-container>
 

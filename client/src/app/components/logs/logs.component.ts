@@ -22,7 +22,7 @@ export class LogsComponent implements OnInit {
     @Input() roomId: string;
     @Input() player: Player;
 
-    btnText: string = 'Show Player Logs';
+    btnText: string = 'Journalisation des messages';
     logs: LogMessage[] = [];
     playerLogs: LogMessage[] = []; // Logs that concern the player only
     currentLogs = this.logs;

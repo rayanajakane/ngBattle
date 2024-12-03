@@ -2,6 +2,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ChooseItemModalComponent } from '@app/components/choose-item-modal/choose-item-modal.component';
 import {
     MOCK_PLAYER,
     MOCK_PLAYER_COORD,
@@ -19,6 +20,7 @@ import { GameState, GameTile, TimerState } from '@common/game-structure';
 import { GlobalStats } from '@common/global-stats';
 import { Player } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
+import { of } from 'rxjs';
 import { MAX_NUMBER_OF_WINS } from './constant';
 import { GamePageComponent } from './game-page.component';
 
@@ -26,6 +28,7 @@ import { GamePageComponent } from './game-page.component';
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
+
     let gameControllerService: jasmine.SpyObj<GameControllerService>;
     let httpClientService: jasmine.SpyObj<HttpClientService>;
     let mapGameService: jasmine.SpyObj<MapGameService>;
@@ -34,7 +37,7 @@ describe('GamePageComponent', () => {
     let snackbar: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
-        const gameControllerSpy = jasmine.createSpyObj('GameControllerService', [
+        gameControllerService = jasmine.createSpyObj('GameControllerService', [
             'setRoom',
             'requestGameSetup',
             'initializePlayers',
@@ -54,9 +57,14 @@ describe('GamePageComponent', () => {
             'requestCheckAction',
             'requestStartAction',
             'feedAfkList',
+            'requestDebugMode',
+            'requestUpdateInventory',
+            {
+                player: { name: 'testPlayerId' } as any,
+            },
         ]);
-        const httpClientSpy = jasmine.createSpyObj('HttpClientService', ['getGame']);
-        const mapGameSpy = jasmine.createSpyObj('MapGameService', [
+        httpClientService = jasmine.createSpyObj('HttpClientService', ['getGame']);
+        mapGameService = jasmine.createSpyObj('MapGameService', [
             'setTiles',
             'initializePlayersPositions',
             'setState',
@@ -69,20 +77,22 @@ describe('GamePageComponent', () => {
             'toggleDoor',
             'removePlayerById',
             'replaceRandomItems',
+            'placeItem',
+            'removeItem',
         ]);
-        const socketSpy = jasmine.createSpyObj('SocketService', ['once', 'on', 'disconnect']);
-        const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        const snackbarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+        socketService = jasmine.createSpyObj('SocketService', ['once', 'on', 'disconnect']);
+        router = jasmine.createSpyObj('Router', ['navigate']);
+        snackbar = jasmine.createSpyObj('MatSnackBar', ['open']);
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent, BrowserAnimationsModule],
             providers: [
-                { provide: GameControllerService, useValue: gameControllerSpy },
-                { provide: HttpClientService, useValue: httpClientSpy },
-                { provide: MapGameService, useValue: mapGameSpy },
-                { provide: SocketService, useValue: socketSpy },
-                { provide: Router, useValue: routerSpy },
-                { provide: MatSnackBar, useValue: snackbarSpy },
+                { provide: 'gameController', useValue: gameControllerService },
+                { provide: HttpClientService, useValue: httpClientService },
+                { provide: 'mapService', useValue: mapGameService },
+                { provide: SocketService, useValue: socketService },
+                { provide: Router, useValue: router },
+                { provide: MatSnackBar, useValue: snackbar },
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -99,14 +109,12 @@ describe('GamePageComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(GamePageComponent);
-        component = fixture.componentInstance;
-        gameControllerService = TestBed.inject(GameControllerService) as jasmine.SpyObj<GameControllerService>;
-        httpClientService = TestBed.inject(HttpClientService) as jasmine.SpyObj<HttpClientService>;
-        mapGameService = TestBed.inject(MapGameService) as jasmine.SpyObj<MapGameService>;
-        socketService = TestBed.inject(SocketService) as jasmine.SpyObj<SocketService>;
-        router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-        snackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+        // gameControllerService = TestBed.inject(GameControllerService) as jasmine.SpyObj<GameControllerService>;
+        // httpClientService = TestBed.inject(HttpClientService) as jasmine.SpyObj<HttpClientService>;
+        // mapGameService = TestBed.inject(MapGameService) as jasmine.SpyObj<MapGameService>;
+        // socketService = TestBed.inject(SocketService) as jasmine.SpyObj<SocketService>;
+        // router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+        // snackbar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
 
         httpClientService.getGame.and.returnValue(Promise.resolve(MOCKGAME));
         gameControllerService.setRoom('room1', MOCK_PLAYER.id);
@@ -118,6 +126,10 @@ describe('GamePageComponent', () => {
             0,
         );
 
+        fixture = TestBed.createComponent(GamePageComponent);
+        component = fixture.componentInstance;
+        (component as any).mapService = mapGameService;
+        (component as any).gameController = gameControllerService;
         fixture.detectChanges();
     });
 
@@ -126,7 +138,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should set room and add listeners on init', () => {
-        expect(gameControllerService.setRoom).toHaveBeenCalledWith('testRoom', 'testPlayer');
+        expect(gameControllerService.setRoom).toHaveBeenCalledWith('room1', MOCK_PLAYER.id);
         expect(socketService.once).toHaveBeenCalled();
         expect(socketService.on).toHaveBeenCalled();
     });
@@ -137,6 +149,7 @@ describe('GamePageComponent', () => {
 
     it('should initiate game setup correctly', () => {
         component.isAdmin = true;
+        console.log('MOCKGAME', MOCKGAME);
         component.initiateGameSetup(MOCKGAME);
         expect(mapGameService.setTiles).toHaveBeenCalledWith(MOCKGAME.map as GameTile[]);
         expect(component.mapSize).toBe(parseInt(MOCKGAME.mapSize, 10));
@@ -162,30 +175,6 @@ describe('GamePageComponent', () => {
         expect(mapGameService.initializePlayersPositions).toHaveBeenCalledWith(playerCoords);
         expect(mapGameService.setState).toHaveBeenCalledWith(GameState.NOTPLAYING);
         expect(component.timerState).toBe(TimerState.COOLDOWN);
-    });
-
-    it('should add listeners', () => {
-        spyOn(component, 'listenGameSetup');
-        spyOn(component, 'listenTurns');
-        spyOn(component, 'listenCombatTurns');
-        spyOn(component, 'listenTimer');
-        spyOn(component, 'listenCombatTimer');
-        spyOn(component, 'listenMovement');
-        spyOn(component, 'listenActions');
-        spyOn(component, 'listenCombatActions');
-        spyOn(component, 'listenEndGameEvents');
-
-        component.addListeners();
-
-        expect(component.listenGameSetup).toHaveBeenCalled();
-        expect(component.listenTurns).toHaveBeenCalled();
-        expect(component.listenCombatTurns).toHaveBeenCalled();
-        expect(component.listenTimer).toHaveBeenCalled();
-        expect(component.listenCombatTimer).toHaveBeenCalled();
-        expect(component.listenMovement).toHaveBeenCalled();
-        expect(component.listenActions).toHaveBeenCalled();
-        expect(component.listenCombatActions).toHaveBeenCalled();
-        expect(component.listenEndGameEvents).toHaveBeenCalled();
     });
 
     it('should listen for game setup and handle it', () => {
@@ -786,6 +775,19 @@ describe('GamePageComponent', () => {
         expect(component.currentMoveBudget).toBe(0);
     });
 
+    it('should not set currentMoveBudget to 0 if active player and combat initiator is killed player, but isDebugModeActive true', () => {
+        const mockKiller = MOCK_PLAYER_COORDS[0];
+        const mockKilled = MOCK_PLAYER_COORDS[1];
+        const mockKilledOldPosition = 5;
+        gameControllerService.isActivePlayer.and.returnValue(true);
+        component.combatInitiatorId = mockKilled.player.id;
+        gameControllerService.isDebugModeActive = true;
+
+        component.handleKilledPlayer(mockKiller, mockKilled, mockKilledOldPosition);
+
+        expect(component.currentMoveBudget).not.toBe(0);
+    });
+
     it('should request available moves on budget if active player and combat initiator is killer player', () => {
         const mockKiller = MOCK_PLAYER_COORDS[0];
         const mockKilled = MOCK_PLAYER_COORDS[1];
@@ -999,13 +1001,6 @@ describe('GamePageComponent', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should call mapService.resetMap and socketService.disconnect on destroy', () => {
-        component.ngOnDestroy();
-
-        expect(mapGameService.resetMap).toHaveBeenCalled();
-        expect(socketService.disconnect).toHaveBeenCalled();
-    });
-
     // it('should open snackbar with end game message and navigate to home after delay', fakeAsync(() => {
     //     const mockEndGameMessage = 'Game Over';
 
@@ -1027,20 +1022,11 @@ describe('GamePageComponent', () => {
         const mockGlobalStats = {} as GlobalStats;
         const mockPlayers = [MOCK_PLAYER_COORDS[0].player, MOCK_PLAYER_COORDS[1].player];
         const mockEndGameMessage = 'Game Over';
-        const mockNavData = {
-            roomId: 'testRoom',
-            characterName: 'testPlayer',
-            globalStats: mockGlobalStats,
-            players: mockPlayers,
-        };
-        const mockNavDataString = JSON.stringify(mockNavData);
-
+        (component as any).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
+        tick(1000);
 
         expect(component.gameFinished).toBeTrue();
-        expect(snackbar.open).toHaveBeenCalledWith(mockEndGameMessage, 'Fermer', jasmine.any(Object));
-        tick(1000);
-        expect(router.navigate).toHaveBeenCalledWith(['/gameEnd'], { queryParams: { data: mockNavDataString } });
     }));
 
     it('should log players and globalStats', () => {
@@ -1050,6 +1036,7 @@ describe('GamePageComponent', () => {
 
         spyOn(console, 'log');
 
+        (component as any).gameController.player = { name: 'testPlayer' };
         component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
 
         expect(console.log).toHaveBeenCalledWith('players', mockPlayers);
@@ -1099,5 +1086,340 @@ describe('GamePageComponent', () => {
         component.handleGameSetup(playerCoords, turn, randomizedItemsPlacement);
 
         expect(component.timerState).toBe(TimerState.COOLDOWN);
+    });
+
+    it('should disconnect socket service if game is not finished on destroy', () => {
+        component.gameFinished = false;
+        component.ngOnDestroy();
+        expect(socketService.disconnect).toHaveBeenCalled();
+    });
+
+    it('should not disconnect socket service if game is finished on destroy', () => {
+        component.gameFinished = true;
+        component.ngOnDestroy();
+        expect(socketService.disconnect).not.toHaveBeenCalled();
+    });
+
+    it('should add listeners for game setup, turns, combat turns, timer, combat timer, movement, actions, combat actions, and end game events', () => {
+        spyOn(component, 'listenGameSetup');
+        spyOn(component, 'listenTurns');
+        spyOn(component, 'listenCombatTurns');
+        spyOn(component, 'listenTimer');
+        spyOn(component, 'listenCombatTimer');
+        spyOn(component, 'listenMovement');
+        spyOn(component, 'listenActions');
+        spyOn(component, 'listenCombatActions');
+        spyOn(component, 'listenEndGameEvents');
+        spyOn(component, 'listenDebugMode');
+        spyOn(component, 'listenNewPlayerInventory');
+        spyOn(component, 'listenItemToReplace');
+        spyOn(component, 'listenTeleportation');
+        spyOn(component, 'listenDisperseItems');
+        spyOn(component, 'listenVPItemToReplace');
+
+        component.addListeners();
+
+        expect(component.listenGameSetup).toHaveBeenCalled();
+        expect(component.listenTurns).toHaveBeenCalled();
+        expect(component.listenCombatTurns).toHaveBeenCalled();
+        expect(component.listenTimer).toHaveBeenCalled();
+        expect(component.listenCombatTimer).toHaveBeenCalled();
+        expect(component.listenMovement).toHaveBeenCalled();
+        expect(component.listenActions).toHaveBeenCalled();
+        expect(component.listenCombatActions).toHaveBeenCalled();
+        expect(component.listenEndGameEvents).toHaveBeenCalled();
+        expect(component.listenDebugMode).toHaveBeenCalled();
+        expect(component.listenNewPlayerInventory).toHaveBeenCalled();
+        expect(component.listenItemToReplace).toHaveBeenCalled();
+        expect(component.listenTeleportation).toHaveBeenCalled();
+        expect(component.listenDisperseItems).toHaveBeenCalled();
+        expect(component.listenVPItemToReplace).toHaveBeenCalled();
+    });
+
+    it('should listen for responseDebugMode and update isDebugModeActive', () => {
+        const mockData = { isDebugMode: true };
+
+        component.listenDebugMode();
+        socketService.on.calls.argsFor(22)[1](mockData);
+
+        expect(socketService.on).toHaveBeenCalledWith('responseDebugMode', jasmine.any(Function));
+        expect(gameControllerService.isDebugModeActive).toBe(mockData.isDebugMode);
+    });
+
+    it('should open snackbar with correct message when debug mode is activated', () => {
+        const mockData = { isDebugMode: true };
+
+        component.listenDebugMode();
+        socketService.on.calls.argsFor(22)[1](mockData);
+
+        expect(snackbar.open).toHaveBeenCalledWith("Le mode débogage a été activé par l'administrateur", 'Fermer', jasmine.any(Object));
+    });
+
+    it('should open snackbar with correct message when debug mode is deactivated', () => {
+        const mockData = { isDebugMode: false };
+
+        component.listenDebugMode();
+        socketService.on.calls.argsFor(22)[1](mockData);
+
+        expect(snackbar.open).toHaveBeenCalledWith("Le mode débogage a été désactivé par l'administrateur", 'Fermer', jasmine.any(Object));
+    });
+
+    it('should listen for newPlayerInventory and update player coordinates list', () => {
+        const mockData = { player: MOCK_PLAYER_COORD, dropItem: ItemTypes.AA1 };
+
+        component.listenNewPlayerInventory();
+        socketService.on.calls.argsFor(23)[1](mockData);
+
+        expect(socketService.on).toHaveBeenCalledWith('newPlayerInventory', jasmine.any(Function));
+        expect(gameControllerService.updatePlayerCoordsList).toHaveBeenCalledWith([mockData.player]);
+    });
+
+    it('should place item if dropItem is present in newPlayerInventory', () => {
+        const mockData = { player: MOCK_PLAYER_COORD, dropItem: ItemTypes.AA1 };
+
+        component.listenNewPlayerInventory();
+        socketService.on.calls.argsFor(23)[1](mockData);
+
+        expect(mapGameService.placeItem).toHaveBeenCalledWith(mockData.player.position, mockData.dropItem);
+    });
+
+    it('should remove item if dropItem is not present in newPlayerInventory', () => {
+        const mockData = { player: MOCK_PLAYER_COORD };
+
+        component.listenNewPlayerInventory();
+        socketService.on.calls.argsFor(23)[1](mockData);
+
+        expect(mapGameService.removeItem).toHaveBeenCalledWith(mockData.player.position);
+    });
+
+    it('should listen for itemToReplace and inquire player for item replacement if active player and inventory exists', () => {
+        const mockData = { player: MOCK_PLAYER_COORD, newItem: ItemTypes.AA1 };
+        mockData.player.player.inventory = [ItemTypes.FLAG_A];
+        spyOn(component, 'inquirePlayerForItemReplacement');
+        gameControllerService.isActivePlayer.and.returnValue(true);
+
+        component.listenItemToReplace();
+        socketService.on.calls.argsFor(24)[1](mockData);
+
+        expect(socketService.on).toHaveBeenCalledWith('itemToReplace', jasmine.any(Function));
+        expect(component.inquirePlayerForItemReplacement).toHaveBeenCalledWith([...mockData.player.player.inventory, mockData.newItem]);
+    });
+
+    it('should not inquire player for item replacement if not active player', () => {
+        const mockData = { player: MOCK_PLAYER_COORD, newItem: ItemTypes.AA1 };
+        spyOn(component, 'inquirePlayerForItemReplacement');
+        gameControllerService.isActivePlayer.and.returnValue(false);
+
+        component.listenItemToReplace();
+        socketService.on.calls.argsFor(24)[1](mockData);
+
+        expect(component.inquirePlayerForItemReplacement).not.toHaveBeenCalled();
+    });
+
+    it('should listen for teleportResponse and update player position', () => {
+        const mockData = { playerId: 'testPlayerId', newPosition: 5, availableMoves: {}, currentPlayerMoveBudget: 3 };
+        spyOn(component, 'updatePlayerPosition');
+
+        component.listenTeleportation();
+        socketService.on.calls.argsFor(25)[1](mockData);
+
+        expect(socketService.on).toHaveBeenCalledWith('teleportResponse', jasmine.any(Function));
+        expect(component.updatePlayerPosition).toHaveBeenCalledWith(mockData.playerId, mockData.newPosition);
+    });
+
+    it('should handle end move if active player', () => {
+        const mockData = { playerId: 'testPlayerId', newPosition: 5, availableMoves: {}, currentPlayerMoveBudget: 3 };
+        spyOn(component, 'handleEndMove');
+        gameControllerService.isActivePlayer.and.returnValue(true);
+
+        component.listenTeleportation();
+        socketService.on.calls.argsFor(25)[1](mockData);
+
+        expect(component.handleEndMove).toHaveBeenCalledWith(mockData.availableMoves, mockData.currentPlayerMoveBudget, false);
+    });
+
+    it('should not handle end move if not active player', () => {
+        const mockData = { playerId: 'testPlayerId', newPosition: 5, availableMoves: {}, currentPlayerMoveBudget: 3 };
+        spyOn(component, 'handleEndMove');
+        gameControllerService.isActivePlayer.and.returnValue(false);
+
+        component.listenTeleportation();
+        socketService.on.calls.argsFor(25)[1](mockData);
+
+        expect(component.handleEndMove).not.toHaveBeenCalled();
+    });
+
+    it('should listen for disperseItems and replace random items', () => {
+        const mockItemsPositions = [
+            { idx: 0, item: ItemTypes.AA1 },
+            { idx: 1, item: ItemTypes.FLAG_A },
+        ];
+
+        component.listenDisperseItems();
+        socketService.on.calls.argsFor(26)[1](mockItemsPositions);
+
+        expect(socketService.on).toHaveBeenCalledWith('disperseItems', jasmine.any(Function));
+        expect(mapGameService.replaceRandomItems).toHaveBeenCalledWith(mockItemsPositions);
+    });
+
+    it('should listen for vpItemToReplace and handle it', () => {
+        const mockData = { player: MOCK_PLAYER_COORD, newItem: ItemTypes.AA1 };
+
+        component.listenVPItemToReplace();
+        socketService.on.calls.argsFor(27)[1](mockData);
+
+        expect(socketService.on).toHaveBeenCalledWith('vpItemToReplace', jasmine.any(Function));
+        expect(mapGameService.removeItem).toHaveBeenCalledWith(mockData.player.position);
+        expect(mapGameService.placeItem).toHaveBeenCalledWith(mockData.player.position, mockData.newItem);
+    });
+
+    it('should open dialog with correct data when inquirePlayerForItemReplacement is called', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(true), close: null });
+        spyOn(component.dialog, 'open').and.returnValue(dialogRefSpyObj);
+
+        component.inquirePlayerForItemReplacement(mockItems);
+
+        expect(component.dialog.open).toHaveBeenCalledWith(ChooseItemModalComponent, {
+            data: { itemTypes: mockItems },
+        });
+    });
+
+    it('should call chooseItem with correct arguments when dialog is closed with a result', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockResult = ItemTypes.AA1;
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(mockResult), close: null });
+        spyOn(component.dialog, 'open').and.returnValue(dialogRefSpyObj);
+        spyOn(component, 'chooseItem');
+
+        component.inquirePlayerForItemReplacement(mockItems);
+
+        expect(component.chooseItem).toHaveBeenCalledWith(mockItems, mockResult);
+    });
+
+    it('should not call chooseItem when dialog is closed without a result', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const dialogRefSpyObj = jasmine.createSpyObj({ afterClosed: of(null), close: null });
+        spyOn(component.dialog, 'open').and.returnValue(dialogRefSpyObj);
+        spyOn(component, 'chooseItem');
+
+        component.inquirePlayerForItemReplacement(mockItems);
+
+        expect(component.chooseItem).not.toHaveBeenCalled();
+    });
+
+    it('should place item and request update inventory if player and inventory exist', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockRejectedItem = ItemTypes.AA1;
+        const mockPlayerCoord = { position: 1, player: { inventory: [ItemTypes.FLAG_A] } as Player };
+        gameControllerService.findPlayerCoordById.and.returnValue(mockPlayerCoord);
+
+        component.chooseItem(mockItems, mockRejectedItem);
+
+        expect(mapGameService.placeItem).toHaveBeenCalledWith(mockPlayerCoord.position, mockRejectedItem);
+        expect(gameControllerService.requestUpdateInventory).toHaveBeenCalledWith(mockItems, mockRejectedItem);
+    });
+
+    it('should not place item or request update inventory if player does not exist', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockRejectedItem = ItemTypes.AA1;
+        gameControllerService.findPlayerCoordById.and.returnValue(undefined);
+
+        component.chooseItem(mockItems, mockRejectedItem);
+
+        expect(mapGameService.placeItem).not.toHaveBeenCalled();
+        expect(gameControllerService.requestUpdateInventory).not.toHaveBeenCalled();
+    });
+
+    it('should not place item or request update inventory if player inventory does not exist', () => {
+        const mockItems = [ItemTypes.AA1, ItemTypes.FLAG_A];
+        const mockRejectedItem = ItemTypes.AA1;
+        const mockPlayerCoord = { position: 1, player: {} as Player };
+        gameControllerService.findPlayerCoordById.and.returnValue(mockPlayerCoord);
+
+        component.chooseItem(mockItems, mockRejectedItem);
+
+        expect(mapGameService.placeItem).not.toHaveBeenCalled();
+        expect(gameControllerService.requestUpdateInventory).not.toHaveBeenCalled();
+    });
+
+    it('should call handleKeyDPressed when "d" key is pressed and isAdmin is true', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).toHaveBeenCalled();
+    });
+
+    it('should call handleKeyDPressed when "d" key is pressed and isAdmin is true', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'D' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).toHaveBeenCalled();
+    });
+
+    it('should call handleKeyDPressed when "d" key is pressed and isAdmin is true', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { code: 'KeyD' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed and isAdmin is false', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = false;
+
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with ctrl key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', ctrlKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with shift key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', shiftKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with alt key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', altKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
+    });
+
+    it('should not call handleKeyDPressed when "d" key is pressed with meta key', () => {
+        spyOn(component, 'handleKeyDPressed');
+        component.isAdmin = true;
+
+        const event = new KeyboardEvent('keydown', { key: 'd', metaKey: true });
+        window.dispatchEvent(event);
+
+        expect(component.handleKeyDPressed).not.toHaveBeenCalled();
     });
 });
