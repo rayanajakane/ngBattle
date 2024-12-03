@@ -101,6 +101,32 @@ describe('InventoryService', () => {
             item = ItemTypes.AA1;
         });
 
+        it('should emit item to replace and pause the game timer when inventory is full', () => {
+            const server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as any;
+            const client = {} as Socket;
+            const roomId = 'roomId';
+            const player: PlayerCoord = {
+                player: {
+                    inventory: [],
+                    attributes: {},
+                    stats: {},
+                },
+                position: 0,
+            } as PlayerCoord;
+            const item = ItemTypes.AA1;
+            const activeGame = {
+                turnTimer: {
+                    pauseTimer: jest.fn(),
+                },
+            };
+
+            const activeGameCalled = jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame as any);
+            service.emitItemToReplace(server, player, item, roomId);
+            expect(activeGameCalled).toHaveBeenCalled();
+            expect(activeGame.turnTimer.pauseTimer).toHaveBeenCalled();
+            expect(server.to).toHaveBeenCalledWith(roomId);
+        });
+
         it('should add item to inventory and emit when inventory is not full', () => {
             jest.spyOn(service, 'isInventoryFull').mockReturnValue(false);
             jest.spyOn(service, 'handleItemEffect').mockImplementation();
@@ -514,25 +540,6 @@ describe('InventoryService', () => {
                 expect(player.stats.uniqueItemsCollected).toBe(2);
             });
         });
-
-        // describe('emitItemToReplace', () => {
-        //     it('should emit itemToReplace event and pause the timer', () => {
-        //         const server: Server = { to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Server;
-        //         const player: PlayerCoord = { player: { id: 'playerId' } } as PlayerCoord;
-        //         const newItem = ItemTypes.AA1;
-        //         const roomId = 'roomId';
-        //         const activeGame = { turnTimer: { pauseTimer: jest.fn() }, playersCoord: [], game: {} };
-
-        //         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame as any);
-
-        //         service.emitItemToReplace(server, player, newItem, roomId);
-
-        //         expect(activeGamesService.getActiveGame).toHaveBeenCalledWith(roomId);
-        //         expect(activeGame.turnTimer.pauseTimer).toHaveBeenCalled();
-        //         expect(server.to).toHaveBeenCalledWith(roomId);
-        //         expect(server.emit).toHaveBeenCalledWith('itemToReplace', { player, newItem });
-        //     });
-        // });
 
         // it('should update inventory, handle item effects, and emit new inventory', () => {
         //     let server: Server;
