@@ -5,7 +5,6 @@ import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { DebugModeService } from '../debug-mode/debug-mode.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 @Injectable()
 export class ActionService {
@@ -13,8 +12,7 @@ export class ActionService {
     private readonly CHANCES: number = 0.5;
     constructor(
         private readonly movement: MovementService,
-        private readonly activeGamesService: ActiveGamesService,
-        private readonly debug: DebugModeService,
+        readonly activeGamesService: ActiveGamesService,
         private readonly logSenderService: LogSenderService,
     ) {}
 
