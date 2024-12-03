@@ -45,6 +45,7 @@ describe('CombatService', () => {
                     useValue: {
                         handleCombatAction: jest.fn(),
                         handleLogicAction: jest.fn(),
+                        handleEndTurn: jest.fn(),
                     },
                 },
                 ActiveGamesService,
@@ -1202,5 +1203,31 @@ describe('CombatService', () => {
         const result = service.killPlayer(roomId, playerKilled, server);
 
         expect(result).toEqual([null, null, []]);
+    });
+
+    it('should handle virtual player actions when player killed is virtual', () => {
+        const roomId = 'room1';
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as any;
+        const attackPlayer = { player: { id: 'player1', attributes: { currentAttack: 10 } } } as any;
+        const defensePlayer = { player: { id: 'player2', attributes: { currentHealth: 0 }, isVirtual: true } } as any;
+
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        jest.spyOn(service, 'checkAttackSuccessful').mockReturnValue([true, [6, 3]]);
+        jest.spyOn(service, 'killPlayer').mockReturnValue([attackPlayer, defensePlayer, []]);
+        jest.spyOn(service['inventoryService'], 'resetCombatBoost');
+        jest.spyOn(service['logSender'], 'sendKillLog');
+        const getActiveGameSpy = jest.spyOn(service['activeGamesService'], 'getActiveGame').mockReturnValue({
+            playersCoord: [{ player: { id: 'player2' } }],
+            turn: 0,
+        } as any);
+        const handleEndTurnSpy = jest.spyOn(service['actionHandlerService'], 'handleEndTurn');
+
+        service.attack(roomId, attackPlayer, defensePlayer, server);
+
+        expect(getActiveGameSpy).toHaveBeenCalledWith(roomId);
+        expect(handleEndTurnSpy).toHaveBeenCalledWith({ roomId, playerId: defensePlayer.player.id, lastTurn: false }, server);
     });
 });
