@@ -6,7 +6,7 @@ import { ActiveGamesService } from '../active-games/active-games.service';
 
 @Injectable()
 export class LogSenderService {
-    constructor(private readonly activeGames: ActiveGamesService) {}
+    constructor(readonly activeGames: ActiveGamesService) {}
 
     sendStartTurnLog(server: Server, roomId: string, player: Player): void {
         const message = `Début de tour de ${player.name}`;

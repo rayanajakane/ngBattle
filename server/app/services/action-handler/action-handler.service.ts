@@ -15,16 +15,16 @@ import { LogSenderService } from '../log-sender/log-sender.service';
 @Injectable()
 export class ActionHandlerService {
     constructor(
-        private readonly movementService: MovementService,
-        private readonly action: ActionService,
-        private readonly match: MatchService,
-        private readonly activeGamesService: ActiveGamesService,
-        private readonly inventoryService: InventoryService,
-        private readonly debugModeService: DebugModeService,
-        @Inject(forwardRef(() => LogSenderService)) private readonly logSenderService: LogSenderService,
+        private movementService: MovementService,
+        private action: ActionService,
+        private match: MatchService,
+        private activeGamesService: ActiveGamesService,
+        private inventoryService: InventoryService,
+        private debugModeService: DebugModeService,
+        @Inject(forwardRef(() => LogSenderService)) private logSenderService: LogSenderService,
         // private readonly logSenderService: LogSenderService,
-        @Inject(forwardRef(() => CombatService)) private readonly combatService: CombatService,
-        @Inject(forwardRef(() => VirtualPlayerService)) private readonly virtualPlayerService: VirtualPlayerService,
+        @Inject(forwardRef(() => CombatService)) private combatService: CombatService,
+        @Inject(forwardRef(() => VirtualPlayerService)) private virtualPlayerService: VirtualPlayerService,
     ) {}
 
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -33,17 +33,16 @@ export class ActionHandlerService {
     //TODO: move to a utils file
     private readonly TIME_BETWEEN_MOVES = 150;
 
-    handleGameSetup(server: Server, roomId: string) {
+    async handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
         const players = this.match.rooms.get(roomId).players;
-        this.activeGamesService.gameSetup(server, roomId, gameId, players).then(() => {
-            const activeGame = this.activeGamesService.getActiveGame(roomId);
-            const playerCoord = activeGame.playersCoord;
-            if (playerCoord[0].player.isVirtual) {
-                // if the first player is a virtual player
-                this.handleStartTurn({ roomId, playerId: playerCoord[0].player.id }, server, null);
-            }
-        });
+        await this.activeGamesService.gameSetup(server, roomId, gameId, players);
+        const activeGame = this.activeGamesService.getActiveGame(roomId);
+        const playerCoord = activeGame.playersCoord;
+        if (playerCoord[0].player.isVirtual) {
+            // if the first player is a virtual player
+            this.handleStartTurn({ roomId, playerId: playerCoord[0].player.id }, server, null);
+        }
     }
 
     handleStartTurn(data: { roomId: string; playerId: string }, server: Server, client: Socket) {
@@ -51,10 +50,8 @@ export class ActionHandlerService {
         const player = activeGame.playersCoord[activeGame.turn].player;
 
         activeGame.globalStatsService.incrementTurn();
-        console.log('Total Time: ', activeGame.globalStatsService.globalStats.matchLength);
 
         activeGame.globalStatsService.incrementTurn();
-        console.log('Total Time: ', activeGame.globalStatsService.globalStats.matchLength);
 
         activeGame.currentPlayerMoveBudget = player.attributes.speed;
         activeGame.currentPlayerActionPoint = 1;
@@ -79,74 +76,70 @@ export class ActionHandlerService {
     handleMove(data: { roomId: string; playerId: string; endPosition: number }, server: Server, client: Socket) {
         const playerId = data.playerId;
         const roomId = data.roomId;
+
+        if (!this.action.isCurrentPlayersTurn(roomId, playerId)) return;
+
         const activeGame = this.activeGamesService.getActiveGame(roomId);
         const player = activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
         const startPosition = player.position;
 
-        if (this.action.isCurrentPlayersTurn(roomId, playerId)) {
-            const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
-            const gameMap = activeGame.game.map;
-            let iceSlip = false;
-            let isItemAddedToInventory = false;
+        const playerPositions = this.action.movePlayer(roomId, startPosition, data.endPosition);
+        const gameMap = activeGame.game.map;
+        let iceSlip = false;
+        let isItemAddedToInventory = false;
 
-            let pastPosition = startPosition;
-            let tileItem = '';
+        let pastPosition = startPosition;
+        let tileItem = '';
 
-            // const slippingChance = this.inventoryService.getSlippingChance(player.player);
-            const slippingChance = this.SLIP_PERCENTAGE;
-            const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
+        // const slippingChance = this.inventoryService.getSlippingChance(player.player);
+        const slippingChance = this.SLIP_PERCENTAGE;
+        const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
-            // TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
-            if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance && !isDebugMode) {
+        // TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
+        // if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance && !isDebugMode) {
+        //     activeGame.currentPlayerMoveBudget = 0;
+        //     iceSlip = true;
+        // }
+
+        let ctfWinCondition = false;
+        playerPositions.forEach((playerPosition, index) => {
+            if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
                 activeGame.currentPlayerMoveBudget = 0;
                 iceSlip = true;
             }
+            if (index !== 0 && !iceSlip && !isItemAddedToInventory && !ctfWinCondition) {
+                this.syncDelay(this.TIME_BETWEEN_MOVES);
+                this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
+                activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
+                player.player.stats.visitedTilesPercent = (player.player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;
 
-            let ctfWinCondition = false;
-            playerPositions.forEach((playerPosition, index) => {
-                if (index !== 0 && !iceSlip && !isItemAddedToInventory && !ctfWinCondition) {
-                    this.syncDelay(this.TIME_BETWEEN_MOVES);
-                    this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
-                    activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
-                    player.player.stats.visitedTilesPercent =
-                        (player.player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;
-                    console.log('Visited Tiles: ', player.player.stats.visitedTilesPercent);
-                    console.log('Visited Tiles: ', player.player.stats.visitedTiles);
+                activeGame.game.map[playerPosition].hasPlayer = true;
+                activeGame.game.map[pastPosition].hasPlayer = false;
+                activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
+                pastPosition = playerPosition;
 
-                    activeGame.game.map[playerPosition].hasPlayer = true;
-                    activeGame.game.map[pastPosition].hasPlayer = false;
-                    activeGame.playersCoord.find((playerCoord) => playerCoord.player.id === playerId).position = playerPosition;
-                    pastPosition = playerPosition;
+                ctfWinCondition = this.isOnHomePosition(player.player, playerPosition);
 
-                    ctfWinCondition = this.isOnHomePosition(player.player, playerPosition);
+                tileItem = gameMap[playerPosition].item;
 
-                    tileItem = gameMap[playerPosition].item;
+                if (tileItem === ItemTypes.FLAG_A) this.activeGamesService.getActiveGame(roomId).globalStatsService.addPlayerHeldFlag(player.player);
 
-                    if (tileItem === ItemTypes.FLAG_A)
-                        this.activeGamesService.getActiveGame(roomId).globalStatsService.addPlayerHeldFlag(player.player);
-
-                    if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
-                        this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
-                        gameMap[playerPosition].item = ItemTypes.EMPTY;
-                        isItemAddedToInventory = true;
-                    }
-
-                    if (!isDebugMode && gameMap[playerPosition].tileType === TileTypes.ICE && Math.random() < slippingChance) {
-                        activeGame.currentPlayerMoveBudget = 0;
-                        iceSlip = true;
-                    }
+                if (tileItem !== ItemTypes.EMPTY && tileItem !== ItemTypes.STARTINGPOINT) {
+                    this.inventoryService.addToInventoryAndEmit(server, client, roomId, player, tileItem as ItemTypes);
+                    gameMap[playerPosition].item = ItemTypes.EMPTY;
+                    isItemAddedToInventory = true;
                 }
-            });
-
-            if (!player.player.isVirtual && !ctfWinCondition) {
-                client.emit('endMove', {
-                    availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
-                    currentMoveBudget: activeGame.currentPlayerMoveBudget,
-                    hasSlipped: iceSlip,
-                });
             }
-            if (ctfWinCondition) this.action.endGame(roomId, server, player);
+        });
+
+        if (!player.player.isVirtual && !ctfWinCondition) {
+            client.emit('endMove', {
+                availableMoves: this.action.availablePlayerMoves(data.playerId, roomId),
+                currentMoveBudget: activeGame.currentPlayerMoveBudget,
+                hasSlipped: iceSlip,
+            });
         }
+        if (ctfWinCondition) this.action.endGame(roomId, server, player);
     }
 
     isOnHomePosition(player: Player, position: number): boolean {
@@ -164,7 +157,6 @@ export class ActionHandlerService {
             this.action.nextTurn(roomId, data.lastTurn);
 
             if (activeGame.playersCoord.length > 0) {
-                console.log('next turn pid:', activeGame.playersCoord[activeGame.turn].player.id);
                 server.to(roomId).emit('endTurn', activeGame.playersCoord[activeGame.turn].player.id);
             }
 
@@ -246,14 +238,14 @@ export class ActionHandlerService {
         client.emit('availableMovesOnBudget', this.action.availablePlayerMovesOnBudget(data.playerId, data.roomId, data.currentBudget));
     }
 
-    private updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
+    updatePlayerPosition(server: Server, roomId: string, playerId: string, newPlayerPosition: number) {
         server.to(roomId).emit('playerPositionUpdate', {
             playerId,
             newPlayerPosition,
         });
     }
 
-    private syncDelay(ms: number) {
+    syncDelay(ms: number) {
         const end = Date.now() + ms;
         while (Date.now() < end) continue;
     }
