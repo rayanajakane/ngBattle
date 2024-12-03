@@ -11,7 +11,9 @@
                     />
                 </div>
                 <label for="life-attribute">{{ life }} pts</label>
-                <p><input type="radio" name="lifeSpeed" id="life-attribute" (click)="addBonus('life')" checked /> +2 pts</p>
+                <label (click)="addBonus('life')">
+                    <input type="radio" name="lifeSpeed" id="life-attribute" (click)="addBonus('life')" checked /> +2 pts
+                </label>
             </div>
             <div class="attribute">
                 <div class="image-container">
@@ -23,7 +25,9 @@
                     />
                 </div>
                 <label for="speed-attribute">{{ speed }} pts</label>
-                <p><input type="radio" name="lifeSpeed" id="speed-attribute" (click)="addBonus('speed')" /> +2 pts</p>
+                <label (click)="addBonus('speed')"
+                    ><input type="radio" name="lifeSpeed" id="speed-attribute" (click)="addBonus('speed')" /> +2 pts</label
+                >
             </div>
         </div>
         <div>

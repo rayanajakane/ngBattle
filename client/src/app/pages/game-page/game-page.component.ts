@@ -134,7 +134,6 @@ export class GamePageComponent implements OnDestroy {
         this.socketService.on(
             'teleportResponse',
             (data: { playerId: string; newPosition: number; availableMoves: ShortestPathByTile; currentPlayerMoveBudget: number }) => {
-                console.log('teleportResponse', data);
                 this.updatePlayerPosition(data.playerId, data.newPosition);
                 if (this.gameController.isActivePlayer()) this.handleEndMove(data.availableMoves, data.currentPlayerMoveBudget, false);
             },
@@ -156,9 +155,7 @@ export class GamePageComponent implements OnDestroy {
         this.socketService.on('itemToReplace', (data: { player: PlayerCoord; newItem: ItemTypes }) => {
             if (this.gameController.isActivePlayer()) {
                 const inventory = data.player.player.inventory;
-                if (inventory) {
-                    this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
-                }
+                this.inquirePlayerForItemReplacement([...inventory, data.newItem]);
             }
         });
     }

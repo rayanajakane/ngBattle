@@ -13,9 +13,9 @@
         <p>Mode: {{ game.gameType }}</p>
         <p>Derniere Modif: {{ game.lastModified }}</p>
         @if (game.isVisible){
-        <p>Publique</p>
+        <img src="./assets/view.png" alt="Visible" class="visible-icon" />
         } @else {
-        <p>Privée</p>
+        <img src="./assets/hide.png" alt="Invisible" class="visible-icon" />
         }
     </mat-card-content>
 
