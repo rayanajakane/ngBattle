@@ -27,7 +27,6 @@ export class TileInfoModalComponent {
         return avatar ? avatar.split(' ')[1] : '';
     }
 
-
     chooseTileType(tileType: string) {
         switch (tileType) {
             case TileTypes.WALL:
