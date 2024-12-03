@@ -3,6 +3,7 @@ import { ActionHandlerService } from '@app/services/action-handler/action-handle
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { BOOSTED_BONUS_DICE, ICE_PENALTY, MINIMAL_BONUS_DICE, WINS_TO_WIN } from '@app/services/combat/constants';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
 import { MovementService } from '@app/services/movement/movement.service';
@@ -16,7 +17,6 @@ import { CombatHandlerService } from '../combat-handler/combat-handler.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { LogSenderService } from '../log-sender/log-sender.service';
 import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
-import { BOOSTED_BONUS_DICE, ICE_PENALTY, MINIMAL_BONUS_DICE } from './constants';
 
 /* eslint-disable */
 describe('CombatService', () => {
@@ -1027,32 +1027,6 @@ describe('CombatService', () => {
         expect(result).toBeUndefined();
     });
 
-    // it('should handle player kill and virtual player actions correctly', () => {
-    //     const roomId = 'room1';
-    //     const attackPlayer = { player: { id: 'player1', attributes: { currentAttack: 10 }, isVirtual: false } } as any;
-    //     const defensePlayer = { player: { id: 'player2', attributes: { currentDefense: 5, currentHealth: 5 }, isVirtual: true } } as any;
-    //     const server = {} as Server;
-    //     const activeGame = { playersCoord: [{ player: { id: 'player2' } }], turn: 0 } as any;
-    //     jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
-    //     jest.spyOn(service, 'checkAttackSuccessful').mockReturnValue([true, [6, 3]]);
-    //     jest.spyOn(service, 'killPlayer').mockReturnValue([attackPlayer, defensePlayer, [attackPlayer, defensePlayer]]);
-    //     jest.spyOn(service['inventoryService'], 'resetCombatBoost').mockImplementation();
-    //     jest.spyOn(service['logSender'], 'sendKillLog').mockImplementation();
-    //     jest.spyOn(service['virtualPlayerService'], 'think').mockImplementation();
-    //     jest.spyOn(service['actionHandlerService'], 'handleEndTurn').mockImplementation();
-    //     jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(activeGame);
-    //     const result = service.attack(roomId, attackPlayer, defensePlayer, server);
-    //     expect(result).toEqual([6, 3, 'combatEnd', defensePlayer, true]);
-    //     expect(service['inventoryService'].resetCombatBoost).toHaveBeenCalledWith(attackPlayer.player);
-    //     expect(service['inventoryService'].resetCombatBoost).toHaveBeenCalledWith(defensePlayer.player);
-    //     expect(service['logSender'].sendKillLog).toHaveBeenCalledWith(server, roomId, attackPlayer.player, defensePlayer.player);
-    //     expect(service['virtualPlayerService'].think).toHaveBeenCalled();
-    //     expect(service['actionHandlerService'].handleEndTurn).toHaveBeenCalledWith(
-    //         { roomId, playerId: defensePlayer.player.id, lastTurn: false },
-    //         server,
-    //     );
-    // });
-
     it('should start combat and initialize player attributes if fighters length is equal to COMBAT_FIGHTERS_NUMBER', () => {
         const roomId = 'room1';
         const fighters = [
@@ -1081,5 +1055,101 @@ describe('CombatService', () => {
         expect(fighters[1].player.stats.combatCount).toBe(0);
         expect(setCurrentTurnMapSpy).toHaveBeenCalledWith(roomId, 0);
         expect(result).toEqual([fighters[0], fighters[1]]);
+    });
+
+    it('should end combat and reset timers and maps', () => {
+        const roomId = 'room1';
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as unknown as Server;
+        const fighters = [{ player: { attributes: { health: 50 } } }, { player: { attributes: { health: 75 } } }] as unknown as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { resumeTimer: jest.fn() },
+            combatTimer: { resetTimer: jest.fn() },
+        } as any;
+
+        service['fightersMap'].set(roomId, fighters);
+        service['currentTurnMap'].set(roomId, 0);
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service as any, 'resetHealth').mockImplementation();
+
+        const result = service.endCombat(roomId, server);
+
+        expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+        expect(service['resetHealth']).toHaveBeenCalledTimes(2);
+        expect(service['fightersMap'].has(roomId)).toBeFalsy();
+        expect(service['currentTurnMap'].has(roomId)).toBeFalsy();
+        expect(gameInstance.turnTimer.resumeTimer).toHaveBeenCalled();
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('endCombat', fighters);
+        expect(result).toEqual(fighters);
+    });
+
+    it('should handle end game when player has enough wins', () => {
+        const roomId = 'room1';
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as unknown as Server;
+        const player = {
+            player: {
+                name: 'winner',
+                wins: WINS_TO_WIN,
+            },
+        } as unknown as PlayerCoord;
+        const fighters = [] as PlayerCoord[];
+
+        const globalStats = { someStats: 'stats' };
+        const allPlayers = [{ stats: { visitedTiles: [] } }];
+        const gameInstance = {
+            combatTimer: { resetTimer: jest.fn() },
+            globalStatsService: { getFinalStats: jest.fn().mockReturnValue(globalStats) },
+            playersCoord: [{ player: allPlayers[0] }],
+        } as any;
+
+        service['fightersMap'].set(roomId, fighters);
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service['logSender'], 'sendEndGameLog').mockImplementation();
+
+        const result = service.endCombat(roomId, server, player);
+
+        expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+        expect(service['logSender'].sendEndGameLog).toHaveBeenCalledWith(server, roomId, player.player.name);
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('endGame', {
+            globalStats,
+            players: allPlayers,
+            endGameMessage: `${player.player.name} a gagné la partie`,
+        });
+        expect(result).toBeUndefined();
+    });
+
+    it('should handle empty fighters array', () => {
+        const roomId = 'room1';
+        const server = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+        } as unknown as Server;
+        const fighters = [] as PlayerCoord[];
+
+        const gameInstance = {
+            turnTimer: { resumeTimer: jest.fn() },
+            combatTimer: { resetTimer: jest.fn() },
+        } as any;
+
+        service['fightersMap'].set(roomId, fighters);
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service as any, 'resetHealth').mockImplementation();
+
+        const result = service.endCombat(roomId, server);
+
+        expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+        expect(service['resetHealth']).not.toHaveBeenCalled();
+        expect(service['fightersMap'].has(roomId)).toBeFalsy();
+        expect(service['currentTurnMap'].has(roomId)).toBeFalsy();
+        expect(result).toEqual(fighters);
     });
 });
