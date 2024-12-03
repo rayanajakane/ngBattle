@@ -88,6 +88,7 @@ app-combat-timer {
     left: 0;
     margin-left: 1rem;
     margin-bottom: 25rem;
+    outline: 2px solid red; /* Highlight the element for focus */
 }
 .player-card {
     width: 25%;

@@ -1,7 +1,7 @@
 <div class="main-container">
     <section class="game">
         <section class="game-info">
-            @if (playersInitialized) {
+            @if (playersInitialized) { @if (!gameController.isInCombat()) {
             <app-game-panel
                 class="game-card"
                 [playerCoords]="gameController.getPlayerCoords()"
@@ -40,7 +40,7 @@
                 [nActions]="remainingActions"
             >
             </app-player-panel>
-            } @if (gameController.isInCombat()) {
+            } } @if (gameController.isInCombat()) {
             <app-combat-interface
                 class="combat-card"
                 (selectCombatActionEvent)="catchSelectCombatAction($event)"
