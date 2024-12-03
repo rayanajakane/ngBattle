@@ -150,7 +150,6 @@ export class CombatService {
         } else if (this.isPlayerInCombat(roomId, player) && canPlayerEscape) {
             player.player.attributes.escape--;
             player.player.stats.escapeCount++;
-            console.log('escape left:', player.player.stats.escapeCount);
             return [player.player.attributes.escape, true];
         }
     }
@@ -159,7 +158,6 @@ export class CombatService {
         if (this.isPlayerInCombat(roomId, player)) {
             player.player.wins++;
             player.player.stats.victoryCount++;
-            console.log('victory:', player.player.stats.victoryCount);
         }
     }
 
