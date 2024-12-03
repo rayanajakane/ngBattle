@@ -32,6 +32,7 @@ describe('CombatService', () => {
                     provide: VirtualPlayerService,
                     useValue: {
                         think: jest.fn(),
+                        handleVirtualPlayerTurn: jest.fn(),
                     },
                 },
                 CombatHandlerService,
@@ -1229,12 +1230,15 @@ describe('CombatService', () => {
             playersCoord: [{ player: { id: 'player2' } }],
             turn: 0,
         } as any);
-        const handleEndTurnSpy = jest.spyOn(service['actionHandlerService'], 'handleEndTurn');
+        const handleEndTurnSpy = jest.spyOn(service['virtualPlayerService'], 'handleVirtualPlayerTurn');
 
         service.attack(roomId, attackPlayer, defensePlayer, server);
 
         expect(getActiveGameSpy).toHaveBeenCalledWith(roomId);
-        expect(handleEndTurnSpy).toHaveBeenCalledWith({ roomId, playerId: defensePlayer.player.id, lastTurn: false }, server);
+        expect(handleEndTurnSpy).toHaveBeenCalledWith(roomId, defensePlayer.player.id);
+        expect(service['inventoryService'].resetCombatBoost).toHaveBeenCalledWith(attackPlayer.player);
+        expect(service['inventoryService'].resetCombatBoost).toHaveBeenCalledWith(defensePlayer.player);
+        expect(service['logSender'].sendKillLog).toHaveBeenCalledWith(server, roomId, attackPlayer.player, defensePlayer.player);
     });
 
     it('should handle virtual player killing a non-virtual player', () => {
@@ -1263,7 +1267,7 @@ describe('CombatService', () => {
         jest.spyOn(service['logSender'], 'sendKillLog').mockImplementation();
         jest.spyOn(service['activeGamesService'], 'getActiveGame').mockReturnValue(activeGame);
         jest.spyOn(service['virtualPlayerService'], 'think').mockImplementation();
-        jest.spyOn(service['actionHandlerService'], 'handleEndTurn').mockImplementation();
+        jest.spyOn(service['virtualPlayerService'], 'handleVirtualPlayerTurn');
 
         service['virtualPlayerService'].roomId = roomId;
         service['virtualPlayerService'].virtualPlayerId = attackPlayer.player.id;

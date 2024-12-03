@@ -555,6 +555,7 @@ describe('MapEditService', () => {
             { idx: 1, tileType: 'ice', item: '', hasPlayer: false },
         ];
         dragDropServiceSpy.draggedTile = 'test-item';
+        dragDropServiceSpy.itemCounter = 1;
         expect(service.canItemBePlaced(1, ItemTypes.AA1)).toBeFalse();
     });
 
