@@ -126,7 +126,7 @@ describe('AdminPageComponent', () => {
         expect(routerSpy).toHaveBeenCalledWith(['/edit'], { queryParams: { gameId: '1' } });
     });
 
-    it('should open import dialog when openImportDialog is called', () => {
+    it('should open import dialog when openImportDialog is called and listen to gameSaved event', () => {
         const dialogSpy = spyOn(TestBed.inject(MatDialog), 'open').and.callThrough();
         const loadGamesSpy = spyOn(component, 'loadGames');
 

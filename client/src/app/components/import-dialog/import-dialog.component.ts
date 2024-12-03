@@ -74,15 +74,16 @@ export class ImportDialogComponent {
 
     readData() {
         if (this.input.files && this.input.files.length > 0) {
-            let importedData: Partial<GameStructure> = {};
-
             this.reader.onload = () => {
-                importedData = JSON.parse(this.reader.result as string);
-                this.loadImportedGame(importedData);
+                this.processFile(this.reader.result);
             };
-
             this.reader.readAsText(this.input.files[0]);
         }
+    }
+
+    processFile(file: string | ArrayBuffer | null) {
+        const importedData = JSON.parse(file as string);
+        this.loadImportedGame(importedData);
     }
 
     async onSubmit() {
