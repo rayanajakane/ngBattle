@@ -132,14 +132,12 @@ export class PlayerStatsComponent implements OnInit, AfterViewInit {
     //     },
     // ];
 
-    constructor() {
-        // this.table.renderRows();
-    }
+    // constructor() {
+    // this.table.renderRows();
+    // }
 
     ngOnInit(): void {
-        console.log('Players:', this.playerList);
         this.adaptedPlayerList = this.playerList.map((player) => {
-            console.log('Player:', player.stats);
             const playerCopy = JSON.parse(JSON.stringify(player));
             return {
                 name: playerCopy.name,
@@ -153,7 +151,6 @@ export class PlayerStatsComponent implements OnInit, AfterViewInit {
                 visitedTilesPercent: playerCopy.stats.visitedTilesPercent,
             };
         });
-        console.log('Adapted Players:', this.adaptedPlayerList);
         this.dataSource = new MatTableDataSource(this.adaptedPlayerList);
     }
 

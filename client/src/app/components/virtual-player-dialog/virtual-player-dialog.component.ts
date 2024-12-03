@@ -6,6 +6,7 @@ import { DEFAULT_AVATAR_LIST } from '@app/services/constants';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerStats } from '@common/player';
 import { v4 as generateID } from 'uuid';
+import { FOUR, HEIGHT, MINUS_ONE, MINUS_TWO, SIX, TWO, ZERO_POINT_FIVE } from '@app/components/virtual-player-dialog/virtual-player-dialog.utils';
 
 @Component({
     selector: 'app-virtual-player-dialog',
@@ -43,9 +44,9 @@ export class VirtualPlayerDialogComponent implements OnInit {
             return {
                 name: player.avatar,
                 img:
-                    player.avatar.length > 8
-                        ? `./assets/characters/${player.avatar.slice(-2)}.png`
-                        : `./assets/characters/${player.avatar.slice(-1)}.png`,
+                    player.avatar.length > HEIGHT
+                        ? `./assets/characters/${player.avatar.slice(MINUS_TWO)}.png`
+                        : `./assets/characters/${player.avatar.slice(MINUS_ONE)}.png`,
             };
         });
         this.availableAvatars = this.availableAvatars.filter(
@@ -64,10 +65,10 @@ export class VirtualPlayerDialogComponent implements OnInit {
 
     createPlayer() {
         this.virtualAvatar = this.availableAvatars[Math.floor(Math.random() * this.availableAvatars.length)];
-        const randomIndex = Math.floor(Math.random() * 2);
-        const health = randomIndex === 0 ? 6 : 4;
-        const speed = randomIndex === 0 ? 4 : 6;
-        const dice = Math.random() < 0.5 ? 'attack' : 'defense';
+        const randomIndex = Math.floor(Math.random() * TWO);
+        const health = randomIndex === 0 ? SIX : FOUR;
+        const speed = randomIndex === 0 ? FOUR : SIX;
+        const dice = Math.random() < ZERO_POINT_FIVE ? 'attack' : 'defense';
 
         this.virtualPlayer = {
             id: generateID(),
@@ -93,7 +94,7 @@ export class VirtualPlayerDialogComponent implements OnInit {
     }
 
     addVirtualPlayer() {
-        this.socketService.on('roomJoined', async (data: { roomId: string; playerId: string; playerName: string }) => {
+        this.socketService.on('roomJoined', async () => {
             this.dialog.closeAll();
         });
 
