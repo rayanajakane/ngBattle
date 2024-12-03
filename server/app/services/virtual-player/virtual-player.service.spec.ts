@@ -1,16 +1,18 @@
+import { ActionButtonService } from '@app/services/action-button/action-button.service';
 import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatHandlerService } from '@app/services/combat-handler/combat-handler.service';
 import { CombatService } from '@app/services/combat/combat.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { MovementService } from '@app/services/movement/movement.service';
 import { ItemTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { ActionButtonService } from '../action-button/action-button.service';
-import { CombatHandlerService } from '../combat-handler/combat-handler.service';
-import { InventoryService } from '../inventory/inventory.service';
-import { MovementService } from '../movement/movement.service';
 import { AGGRESSIVE_PRIORITY_ITEMS, DEFENSIVE_PRIORITY_ITEMS } from './constants';
 import { VirtualPlayerService } from './virtual-player.service';
+
+/* eslint-disable */
 
 describe('VirtualPlayerService', () => {
     let service: VirtualPlayerService;
@@ -590,7 +592,7 @@ describe('VirtualPlayerService', () => {
         jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance as any);
         jest.spyOn(service, 'canDoAction').mockReturnValue(false);
         jest.spyOn(service, 'interactWithDoor').mockImplementation();
-        service.moveThroughDoors(1, [1, 2, 3], gameInstance.game.map);
+        service.moveThroughDoors(1, [1, 2, 3], gameInstance.game.map as any);
         expect(service.interactWithDoor).not.toHaveBeenCalled();
     });
 
@@ -887,7 +889,7 @@ describe('VirtualPlayerService', () => {
         jest.spyOn(service, 'canDoAction').mockReturnValue(true);
         jest.spyOn(service, 'interactWithDoor').mockImplementation();
 
-        service.moveThroughDoors(0, path, map);
+        service.moveThroughDoors(0, path, map as any);
 
         expect(service.moveToDoor).toHaveBeenCalledWith(0);
         expect(service.interactWithDoor).toHaveBeenCalledWith(1);
