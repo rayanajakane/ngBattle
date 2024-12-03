@@ -748,4 +748,77 @@ describe('CombatService', () => {
 
         expect(escapeSpy).toHaveBeenCalledWith(roomId, player);
     });
+
+    it('should end combat turn and update turn index', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1' } } as any;
+        const gameInstance = {
+            combatTimer: {
+                resetTimer: jest.fn(),
+            },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        service['currentTurnMap'].set(roomId, 0);
+
+        service.endCombatTurn(roomId, player);
+
+        expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+        expect(service['currentTurnMap'].get(roomId)).toBe(1);
+    });
+
+    it('should wrap around turn index when it reaches COMBAT_FIGHTERS_NUMBER', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1' } } as any;
+        const gameInstance = {
+            combatTimer: {
+                resetTimer: jest.fn(),
+            },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(true);
+        service['currentTurnMap'].set(roomId, 1);
+
+        service.endCombatTurn(roomId, player);
+
+        expect(service['currentTurnMap'].get(roomId)).toBe(0);
+    });
+
+    it('should not update turn index if player is not in combat', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1' } } as any;
+        const gameInstance = {
+            combatTimer: {
+                resetTimer: jest.fn(),
+            },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(false);
+        service['currentTurnMap'].set(roomId, 0);
+
+        service.endCombatTurn(roomId, player);
+
+        expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+        expect(service['currentTurnMap'].get(roomId)).toBe(0);
+    });
+
+    it('should reset combat timer even if player is not in combat', () => {
+        const roomId = 'room1';
+        const player = { player: { id: 'player1' } } as any;
+        const gameInstance = {
+            combatTimer: {
+                resetTimer: jest.fn(),
+            },
+        } as any;
+
+        jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
+        jest.spyOn(service, 'isPlayerInCombat').mockReturnValue(false);
+
+        service.endCombatTurn(roomId, player);
+
+        expect(gameInstance.combatTimer.resetTimer).toHaveBeenCalled();
+    });
 });
