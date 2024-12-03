@@ -10,7 +10,7 @@ import { ActionButtonService } from '../action-button/action-button.service';
 import { CombatHandlerService } from '../combat-handler/combat-handler.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { MovementService } from '../movement/movement.service';
-import { AGGRESIVE_PRIORITY_ITEMS, DEFENSIVE_PRIORITY_ITEMS } from './constants';
+import { AGGRESSIVE_PRIORITY_ITEMS, DEFENSIVE_PRIORITY_ITEMS } from './constants';
 
 @Injectable()
 export class VirtualPlayerService {
@@ -18,14 +18,15 @@ export class VirtualPlayerService {
     roomId: string;
     server: Server;
     shouldEndTurn: boolean;
+    itemPriorities: string[];
 
     constructor(
         @Inject(forwardRef(() => ActionHandlerService)) private readonly actionHandler: ActionHandlerService,
         @Inject(forwardRef(() => CombatHandlerService)) private readonly combatHandlerService: CombatHandlerService,
         private readonly inventoryService: InventoryService,
         private readonly actionService: ActionService,
-        private readonly activeGames: ActiveGamesService,
-        private readonly actionButtonService: ActionButtonService,
+        private readonly activeGamesService: ActiveGamesService,
+        @Inject(forwardRef(() => ActionButtonService)) private readonly actionButtonService: ActionButtonService,
         private readonly movementService: MovementService,
     ) {}
 
@@ -34,7 +35,7 @@ export class VirtualPlayerService {
     }
 
     async think() {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
@@ -50,22 +51,21 @@ export class VirtualPlayerService {
             this.aggressiveThink(virtualPlayerPosition);
         }
 
-        if (this.activeGames.getActiveGame(this.roomId) && this.shouldEndTurn) {
+        if (this.activeGamesService.getActiveGame(this.roomId) && this.shouldEndTurn) {
             this.actionHandler.handleEndTurn({ roomId: this.roomId, playerId: this.virtualPlayerId, lastTurn: false }, this.server);
         }
     }
 
     defensiveThink(position: number) {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
+        if (!this.activeGamesService.getActiveGame(this.roomId)) return;
 
         if (Math.random() < 0.1) {
-            this.move();
+            this.randomMove();
             return;
         }
         if (!this.moveToItems()) {
             const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
             if (nearbyPlayers.length > 0) {
-                console.log('Found players nearby before movging:', nearbyPlayers);
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
                 if (this.canDoAction(this.virtualPlayerId)) {
                     this.startAttack(randomPlayerCoord);
@@ -73,45 +73,41 @@ export class VirtualPlayerService {
                 return;
             }
             if (this.moveToPlayers()) {
-                const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+                const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
                 const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
                 const newVirtualPlayerPosition = virtualPlayerCoord.position;
                 const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
-                console.log('Nearby players:', nearbyPlayers);
                 const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
                 if (this.canDoAction(this.virtualPlayerId)) {
                     this.startAttack(randomPlayerCoord);
                 }
             } else {
-                this.move();
+                this.randomMove();
                 return;
             }
         }
     }
 
     aggressiveThink(position: number) {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
+        if (!this.activeGamesService.getActiveGame(this.roomId)) return;
 
         if (Math.random() < 0.1) {
-            this.move();
+            this.randomMove();
             return;
         }
         // check if there are players nearby without having to move
         const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, position);
         if (nearbyPlayers.length > 0 && this.canDoAction(this.virtualPlayerId)) {
-            console.log('Found players nearby before movging:', nearbyPlayers);
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             this.startAttack(randomPlayerCoord);
             return;
         } else if (!this.moveToPlayers()) {
-            if (!this.moveToItems()) this.move();
+            if (!this.moveToItems()) this.randomMove();
         } else {
-            console.log('Moved to players');
-            const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+            const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
             const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
             const newVirtualPlayerPosition = virtualPlayerCoord.position;
             const nearbyPlayers = this.actionButtonService.getPlayersAround(this.roomId, newVirtualPlayerPosition);
-            console.log('Nearby players:', nearbyPlayers);
             if (nearbyPlayers.length === 0) return;
             const randomPlayerCoord = nearbyPlayers[Math.floor(Math.random() * nearbyPlayers.length)];
             if (this.canDoAction(this.virtualPlayerId)) {
@@ -122,7 +118,7 @@ export class VirtualPlayerService {
 
     // decides if VP attacks or escapes
     async fight(attacked: boolean) {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
@@ -140,48 +136,46 @@ export class VirtualPlayerService {
     }
 
     isDefensive() {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
         const virtualPlayerCoord = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId);
         const profile = virtualPlayerCoord.player.virtualProfile;
+        this.itemPriorities = profile === 'defensive' ? DEFENSIVE_PRIORITY_ITEMS : AGGRESSIVE_PRIORITY_ITEMS;
         return profile === 'defensive';
     }
 
-    move() {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+    randomMove() {
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) return;
         const position = gameInstance.playersCoord.find((playerCoord) => playerCoord.player.id === this.virtualPlayerId).position;
         const adjacentTiles = this.getAdjacentTiles(position);
-        const doorTile = adjacentTiles.find((tile) => gameInstance.game.map[tile].tileType === 'doorClosed');
-        if (doorTile !== undefined) {
-            this.interactWithDoor(doorTile);
+        const doorPosition = adjacentTiles.find((tileIdx) => gameInstance.game.map[tileIdx].tileType === 'doorClosed');
+        if (doorPosition !== undefined) {
+            this.interactWithDoor(doorPosition);
         }
-        // verify if there are available moves left, end turn not via `handleEndTurn`
         const availablePlayerMoves = this.actionService.availablePlayerMoves(this.virtualPlayerId, this.roomId);
         const accessibleTiles = Object.keys(availablePlayerMoves).map(Number);
-        console.log('Accessible tiles:', accessibleTiles);
         let endPosition: number;
         endPosition = accessibleTiles[Math.floor(Math.random() * accessibleTiles.length)];
-        console.log('Moving to:', endPosition);
         this.actionHandler.handleMove({ roomId: this.roomId, playerId: this.virtualPlayerId, endPosition }, this.server, null);
     }
 
     startAttack(targetPlayerCoord: PlayerCoord) {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
+        if (!this.activeGamesService.getActiveGame(this.roomId)) return;
         this.shouldEndTurn = false;
         if (this.canDoAction(this.virtualPlayerId)) {
             this.combatHandlerService.handleAction(this.roomId, this.virtualPlayerId, targetPlayerCoord.position, null, this.server);
             this.combatHandlerService.handleCombatAttack(this.roomId, this.virtualPlayerId, this.server);
             this.useActionNumber(this.virtualPlayerId);
         } else {
-            this.move();
+            this.randomMove();
         }
     }
 
     moveToItems() {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
@@ -195,13 +189,11 @@ export class VirtualPlayerService {
             return false;
         }
 
-        const itemPriorities = this.isDefensive() ? DEFENSIVE_PRIORITY_ITEMS : AGGRESIVE_PRIORITY_ITEMS;
-
         validPaths.sort((a, b) => {
             const itemA = a[1];
             const itemB = b[1];
-            const priorityA = itemPriorities.indexOf(itemA);
-            const priorityB = itemPriorities.indexOf(itemB);
+            const priorityA = this.itemPriorities.indexOf(itemA);
+            const priorityB = this.itemPriorities.indexOf(itemB);
             return priorityA - priorityB;
         });
 
@@ -213,8 +205,8 @@ export class VirtualPlayerService {
         let willReplaceItem = false;
         const inventory = virtualPlayerCoord.player.inventory;
         if (this.inventoryService.isInventoryFull(inventory)) {
-            lowestPriorityItem = this.findLowestPriorityItem(inventory, itemPriorities);
-            if (itemPriorities.indexOf(chosenItemName) < itemPriorities.indexOf(lowestPriorityItem)) {
+            lowestPriorityItem = this.findLowestPriorityItem(inventory, this.itemPriorities);
+            if (this.itemPriorities.indexOf(chosenItemName) < this.itemPriorities.indexOf(lowestPriorityItem)) {
                 willReplaceItem = true;
             } else {
                 return false;
@@ -230,7 +222,7 @@ export class VirtualPlayerService {
     }
 
     moveToPlayers() {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
@@ -241,7 +233,6 @@ export class VirtualPlayerService {
 
         const validPaths = pathsToPlayers.filter((path) => path.length !== 0);
         if (validPaths.length === 0) {
-            console.log('No valid paths to players found');
             return false;
         }
 
@@ -253,7 +244,7 @@ export class VirtualPlayerService {
     }
 
     findPathsToPlayers(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
+        if (!this.activeGamesService.getActiveGame(this.roomId)) return;
 
         let pathsToPlayers = [];
         const adjacentTiles = this.getAdjacentTiles(startPosition);
@@ -269,12 +260,23 @@ export class VirtualPlayerService {
                 pathsToPlayers.push(player.path);
             }
         });
-        console.log('Paths to players:', pathsToPlayers);
         return pathsToPlayers;
     }
 
+    findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
+        if (!this.activeGamesService.getActiveGame(this.roomId)) return;
+        let pathsToItems = [];
+        gameStructure.map.forEach((tile) => {
+            if (tile.item != '' && tile.item != 'startingPoint') {
+                const item = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
+                pathsToItems.push([item.path, tile.item]);
+            }
+        });
+        return pathsToItems;
+    }
+
     getAdjacentTiles(position: number) {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
@@ -288,24 +290,12 @@ export class VirtualPlayerService {
 
         const adjacentTiles = [];
 
-        isRightValid ? adjacentTiles.push(position + 1) : null;
-        isLeftValid ? adjacentTiles.push(position - 1) : null;
-        isUpValid ? adjacentTiles.push(position - mapSize) : null;
-        isDownValid ? adjacentTiles.push(position + mapSize) : null;
+        if (isRightValid) adjacentTiles.push(position + 1);
+        if (isLeftValid) adjacentTiles.push(position - 1);
+        if (isUpValid) adjacentTiles.push(position - mapSize);
+        if (isDownValid) adjacentTiles.push(position + mapSize);
 
         return adjacentTiles;
-    }
-
-    findPathsToItems(gameStructure: GameStructure, startPosition: number, budget: number): any[] {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
-        let pathsToItems = [];
-        gameStructure.map.forEach((tile) => {
-            if (tile.item != '' && tile.item != 'startingPoint') {
-                const item = this.movementService.shortestPath(budget, gameStructure, startPosition, tile.idx);
-                pathsToItems.push([item.path, tile.item]);
-            }
-        });
-        return pathsToItems;
     }
 
     // this is necessary since the shortest path function does not take into account closed doors
@@ -330,7 +320,7 @@ export class VirtualPlayerService {
     }
 
     moveThroughDoors(startPosition: number, path: number[], map: any[]): void {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
+        if (!this.activeGamesService.getActiveGame(this.roomId)) return;
         const doorIndexes = map.filter((tile) => tile.tileType === 'doorClosed').map((tile) => tile.idx);
         const doorsToOpen = [];
 
@@ -353,8 +343,7 @@ export class VirtualPlayerService {
     }
 
     replaceItem(droppedItem, collectedItem: ItemTypes) {
-        if (!this.activeGames.getActiveGame(this.roomId)) return;
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
@@ -373,7 +362,7 @@ export class VirtualPlayerService {
     }
 
     canDoAction(playerId: string): boolean {
-        const virtualPlayer = this.activeGames.activeGames
+        const virtualPlayer = this.activeGamesService.activeGames
             .find((instance) => instance.roomId === this.roomId)
             .playersCoord.find((playerCoord) => playerCoord.player.id === playerId);
         if (virtualPlayer.player.actionNumber > 0) {
@@ -384,7 +373,7 @@ export class VirtualPlayerService {
     }
 
     useActionNumber(playerId: string): void {
-        const gameInstance = this.activeGames.activeGames.find((instance) => instance.roomId === this.roomId);
+        const gameInstance = this.activeGamesService.activeGames.find((instance) => instance.roomId === this.roomId);
         if (!gameInstance) {
             return;
         }
