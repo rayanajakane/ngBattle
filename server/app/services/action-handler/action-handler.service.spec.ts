@@ -395,7 +395,7 @@ describe('ActionHandlerService', () => {
                 game: { map: [] },
             });
 
-            service.handleInteractDoor(data, mockServer as any, mockClient as any);
+            service.handleInteractDoor(data, mockServer as any);
 
             expect(actionServiceMock.interactWithDoor).not.toHaveBeenCalled();
             expect(mockServer.to().emit).not.toHaveBeenCalled();
@@ -427,7 +427,7 @@ describe('ActionHandlerService', () => {
             actionServiceMock.interactWithDoor.mockReturnValue(true);
             actionServiceMock.availablePlayerMoves.mockReturnValue([1, 2, 3]);
 
-            service.handleInteractDoor(data, mockServer as any, mockClient as any);
+            service.handleInteractDoor(data, mockServer as any);
 
             expect(actionServiceMock.interactWithDoor).toHaveBeenCalledWith(data.roomId, data.playerId, data.doorPosition);
             expect(mockServer.to().emit).toHaveBeenCalledWith('interactDoor', {
@@ -464,7 +464,7 @@ describe('ActionHandlerService', () => {
             actionServiceMock.interactWithDoor.mockReturnValue(false);
             actionServiceMock.availablePlayerMoves.mockReturnValue([]);
 
-            service.handleInteractDoor(data, mockServer as any, mockClient as any);
+            service.handleInteractDoor(data, mockServer as any);
 
             expect(mockServer.to().emit).toHaveBeenCalledWith('interactDoor', {
                 isToggable: false,

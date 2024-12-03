@@ -2,13 +2,13 @@ import { CombatAction } from '@common/combat-actions';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
-import { ActionButtonService } from '../action-button/action-button.service';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
-import { ActiveGamesService } from '../active-games/active-games.service';
-import { CombatService } from '../combat/combat.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
-import { CombatHandlerService } from './combat-handler.service';
+import { ActionButtonService } from '@app/services/action-button/action-button.service';
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatService } from '@app/services/combat/combat.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
+import { CombatHandlerService } from '@app/services/combat-handler/combat-handler.service';
 /* eslint-disable */
 describe('CombatHandlerService', () => {
     let service: CombatHandlerService;

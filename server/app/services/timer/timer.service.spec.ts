@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { VirtualPlayerService } from '../virtual-player/virtual-player.service';
-import { COOLDOWN_TIME, INITIAL_TIME, INTERVAL_DURATION } from './constants';
-import { TimerService } from './timer.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
+import { COOLDOWN_TIME, INITIAL_TIME, INTERVAL_DURATION } from '@app/services/timer/constants';
+import { TimerService } from '@app/services/timer/timer.service';
 /* eslint-disable */
 describe('TimerService', () => {
     let service: TimerService;

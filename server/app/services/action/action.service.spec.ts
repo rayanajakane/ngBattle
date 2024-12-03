@@ -6,10 +6,10 @@ import { UniqueItemRandomizerService } from '@app/services/unique-item-randomise
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { CombatService } from '../combat/combat.service';
-import { InventoryService } from '../inventory/inventory.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { ActionService } from './action.service';
+import { CombatService } from '@app/services/combat/combat.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { ActionService } from '@app/services/action/action.service';
 /* eslint-disable */
 
 describe('ActionService', () => {

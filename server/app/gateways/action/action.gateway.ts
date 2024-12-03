@@ -40,7 +40,7 @@ export class ActionGateway implements OnGatewayInit {
 
     @SubscribeMessage('interactDoor')
     handleInteractDoor(@ConnectedSocket() client: Socket, @MessageBody() data: { roomId: string; playerId: string; doorPosition: number }) {
-        this.actionHandler.handleInteractDoor(data, this.server, client);
+        this.actionHandler.handleInteractDoor(data, this.server);
     }
 
     @SubscribeMessage('getAvailableMovesOnBudget')

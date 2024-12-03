@@ -13,7 +13,7 @@ export class InventoryGateway implements OnGatewayInit {
         @ConnectedSocket() client: Socket,
         @MessageBody() data: { roomId: string; playerId: string; allItems: ItemTypes[]; droppedItem: ItemTypes },
     ) {
-        this.inventoryService.updateInventory(this.server, client, data.playerId, data.allItems, data.droppedItem, data.roomId);
+        this.inventoryService.updateInventory(this.server, data.playerId, data.allItems, data.droppedItem, data.roomId);
     }
 
     afterInit(server: Server) {

@@ -1,9 +1,9 @@
 import { INTERVAL_DURATION, TIME, TIME_NO_ESCAPE } from '@app/services/combat-timer/constants';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { ActionHandlerService } from '../action-handler/action-handler.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { CombatTimerService } from './combat-timer.service';
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { CombatTimerService } from '@app/services/combat-timer/combat-timer.service';
 /* eslint-disable */
 describe('CombatTimerService', () => {
     let service: CombatTimerService;

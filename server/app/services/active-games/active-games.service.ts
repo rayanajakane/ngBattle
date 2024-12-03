@@ -8,16 +8,16 @@ import { Player, PlayerCoord } from '@common/player';
 import { ItemTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { GlobalStatsService } from '../global-stats/global-stats.service';
-import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
+import { GlobalStatsService } from '@app/services/global-stats/global-stats.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 
 @Injectable()
 export class ActiveGamesService {
+    activeGames: GameInstance[] = [];
     constructor(
         private readonly gameService: GameService,
         readonly uniqueItemRandomizer: UniqueItemRandomizerService,
     ) {}
-    activeGames: GameInstance[] = [];
 
     findStartingPositions(game: GameStructure): number[] {
         return game.map.map((tile, index) => (tile.item === 'startingPoint' ? index : -1)).filter((index) => index !== -1);

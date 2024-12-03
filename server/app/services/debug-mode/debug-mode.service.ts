@@ -1,16 +1,16 @@
 import { TileTypes } from '@common/tile-types';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { ActionService } from '../action/action.service';
-import { ActiveGamesService } from '../active-games/active-games.service';
+import { ActionService } from '@app/services/action/action.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 
 @Injectable()
 export class DebugModeService {
+    private isDebugModeHashMap: Map<string, boolean> = new Map<string, boolean>();
     constructor(
         @Inject(ActiveGamesService) private activeGamesService: ActiveGamesService,
         @Inject(forwardRef(() => ActionService)) private readonly action: ActionService,
     ) {}
-    private isDebugModeHashMap: Map<string, boolean> = new Map<string, boolean>();
 
     debugModeOn(roomId: string): void {
         this.isDebugModeHashMap.set(roomId, true);

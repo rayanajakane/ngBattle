@@ -1,13 +1,13 @@
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'dgram';
-import { ActionService } from '../action/action.service';
-import { ActiveGamesService } from '../active-games/active-games.service';
-import { GameService } from '../game.service';
-import { LogSenderService } from '../log-sender/log-sender.service';
-import { MovementService } from '../movement/movement.service';
-import { UniqueItemRandomizerService } from '../unique-item-randomiser/unique-item-randomiser.service';
-import { DebugModeService } from './debug-mode.service';
+import { ActionService } from '@app/services/action/action.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { GameService } from '@app/services/game.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { MovementService } from '@app/services/movement/movement.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 /* eslint-disable */
 describe('DebugModeService', () => {
     let service: DebugModeService;

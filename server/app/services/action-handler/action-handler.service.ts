@@ -11,7 +11,7 @@ import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { LogSenderService } from '@app/services/log-sender/log-sender.service';
-import { SLIP_PERCENTAGE, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
+import { HUNDRED_PERCENT, SLIP_PERCENTAGE, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
 @Injectable()
 export class ActionHandlerService {
     constructor(
@@ -26,8 +26,6 @@ export class ActionHandlerService {
         @Inject(forwardRef(() => CombatService)) private combatService: CombatService,
         @Inject(forwardRef(() => VirtualPlayerService)) private virtualPlayerService: VirtualPlayerService,
     ) {}
-
-
 
     async handleGameSetup(server: Server, roomId: string) {
         const gameId = this.match.rooms.get(roomId).gameId;
@@ -107,7 +105,8 @@ export class ActionHandlerService {
                 this.syncDelay(TIME_BETWEEN_MOVES);
                 this.updatePlayerPosition(server, data.roomId, data.playerId, playerPosition);
                 activeGame.currentPlayerMoveBudget -= this.movementService.tileValue(gameMap[playerPosition].tileType);
-                player.player.stats.visitedTilesPercent = (player.player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * 100;
+                player.player.stats.visitedTilesPercent =
+                    (player.player.stats.visitedTiles.add(playerPosition).size / activeGame.maxNbTiles) * HUNDRED_PERCENT;
 
                 activeGame.game.map[playerPosition].hasPlayer = true;
                 activeGame.game.map[pastPosition].hasPlayer = false;
@@ -162,7 +161,7 @@ export class ActionHandlerService {
         }
     }
 
-    handleInteractDoor(data: { roomId: string; playerId: string; doorPosition: number }, server: Server, client: Socket) {
+    handleInteractDoor(data: { roomId: string; playerId: string; doorPosition: number }, server: Server) {
         const roomId = data.roomId;
         const doorPosition = data.doorPosition;
         const activeGame = this.activeGamesService.getActiveGame(roomId);
