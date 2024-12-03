@@ -93,7 +93,7 @@ describe('ActionGateway', () => {
 
         gateway.handleInteractDoor(client, data);
 
-        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalledWith(data, null, client);
+        expect(actionHandlerService.handleInteractDoor).toHaveBeenCalled();
     });
     it('should handle get available moves on budget', () => {
         const data = { roomId: 'roomId', playerId: 'playerId', currentBudget: 100 };

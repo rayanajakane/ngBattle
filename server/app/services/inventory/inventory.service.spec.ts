@@ -361,6 +361,24 @@ describe('InventoryService', () => {
 
                 expect(service.handleFlagItem).toHaveBeenCalledWith(server, roomId, player);
             });
+
+            
+            it('should not call any handler for an unrecognized item', () => {
+                jest.spyOn(service, 'handleAA1Item').mockImplementation();
+                jest.spyOn(service, 'handleAA2Item').mockImplementation();
+                jest.spyOn(service, 'handleAC1Item').mockImplementation();
+                jest.spyOn(service, 'handleAC2Item').mockImplementation();
+                jest.spyOn(service, 'handleFlagItem').mockImplementation();
+
+                service.handleItemEffect('UNRECOGNIZED_ITEM' as ItemTypes, player, false, server, roomId);
+
+                expect(service.handleAA1Item).not.toHaveBeenCalled();
+                expect(service.handleAA2Item).not.toHaveBeenCalled();
+                expect(service.handleAC1Item).not.toHaveBeenCalled();
+                expect(service.handleAC2Item).not.toHaveBeenCalled();
+                expect(service.handleFlagItem).not.toHaveBeenCalled();
+            });
+
         });
 
         describe('inventoryContainsItem', () => {

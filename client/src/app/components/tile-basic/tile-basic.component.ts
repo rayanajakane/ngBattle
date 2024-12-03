@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { AVATARS_LIST } from '@app/components/avatar-slider/constant';
-import { DragDropService } from '@app/services/drag-drop.service';
 import { TilePreview } from '@common/game-structure';
 import { TileTypes } from '@common/tile-types';
 
@@ -22,9 +21,6 @@ export class TileBasicComponent implements OnChanges {
     transparentImage: string = '';
     imageUrl: string = '';
     avatarUrl: string = '';
-
-    dragDropService = inject(DragDropService);
-    isDropped: boolean = false;
 
     constructor() {
         this.setTileImage();

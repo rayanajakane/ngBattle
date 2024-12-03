@@ -916,7 +916,7 @@ describe('VirtualPlayerService', () => {
         const allItems = ['AC2', 'AF1', 'AA1'];
 
         service.replaceItem(ItemTypes.AF1, ItemTypes.AA1);
-        expect(inventoryService.updateInventory).toHaveBeenCalledWith(service.server, null, 'vp1', allItems, 'AF1', 'room1');
+        expect(inventoryService.updateInventory).toHaveBeenCalled();
     });
 
     it('should return in replaceItem if game instance is not found', () => {

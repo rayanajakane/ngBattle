@@ -11,6 +11,8 @@ import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class CombatHandlerService {
+    // Il est nécessaire d'avoir un seul parametre supplementaire pour ce constructor du a l'utilité de cet combat handler service
+    // eslint-disable-next-line max-params
     constructor(
         private readonly activeGameService: ActiveGamesService,
         @Inject(forwardRef(() => ActionButtonService)) private readonly actionButtonService: ActionButtonService,

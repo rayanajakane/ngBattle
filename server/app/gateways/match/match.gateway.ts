@@ -21,6 +21,8 @@ import { Server, Socket } from 'socket.io';
 export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
+    // Il est nécessaire d'avoir un seul paramètre supplémentaire pour ce constructor du a l'utilité de ce match gateway
+    // eslint-disable-next-line max-params
     constructor(
         @Inject() private readonly matchService: MatchService,
         private readonly actionHandlerService: ActionHandlerService,

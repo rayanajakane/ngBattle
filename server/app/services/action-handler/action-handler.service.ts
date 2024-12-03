@@ -11,9 +11,11 @@ import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { LogSenderService } from '@app/services/log-sender/log-sender.service';
-import { HUNDRED_PERCENT, SLIP_PERCENTAGE, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
+import { HUNDRED_PERCENT, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
 @Injectable()
 export class ActionHandlerService {
+    // Il est nécessaire d'avoir ces 3 parametres supplémentaires pour ce constructor du a l'utilité de cet action handler service
+    // eslint-disable-next-line max-params
     constructor(
         private movementService: MovementService,
         private action: ActionService,
@@ -85,15 +87,8 @@ export class ActionHandlerService {
         let pastPosition = startPosition;
         let tileItem = '';
 
-        // const slippingChance = this.inventoryService.getSlippingChance(player.player);
-        const slippingChance = SLIP_PERCENTAGE;
+        const slippingChance = this.inventoryService.getSlippingChance(player.player);
         const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
-
-        // TODO: check necessity of this (look for equivalent condition in iterations of the foreach)
-        // if (gameMap[playerPositions[0]].tileType === TileTypes.ICE && Math.random() < slippingChance && !isDebugMode) {
-        //     activeGame.currentPlayerMoveBudget = 0;
-        //     iceSlip = true;
-        // }
 
         let ctfWinCondition = false;
         playerPositions.forEach((playerPosition, index) => {

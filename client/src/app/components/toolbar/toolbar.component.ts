@@ -17,8 +17,6 @@ export class ToolbarComponent {
     @Input() selectedTileTypeToolbar: string;
     @Input() selectedModeToolbar: CurrentMode;
     validCurrentMode: CurrentMode = CurrentMode.TileTool; // Used to compare the valid mode in the template
-    items: object = [];
-    selectedItem: object = {};
     selectTileType(tileType: string) {
         this.selectTileTypeEvent.emit(tileType);
     }
