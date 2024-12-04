@@ -15,8 +15,6 @@ describe('MatchGateway', () => {
     let matchService: MatchService;
     let debugModeService: DebugModeService;
     let actionHandlerService: ActionHandlerService;
-    // let mockServer: Server;
-    // let mockSocket: Socket;
 
     beforeEach(async () => {
         const mockMatchService = {
@@ -64,10 +62,6 @@ describe('MatchGateway', () => {
         matchService = module.get<MatchService>(MatchService);
         debugModeService = module.get<DebugModeService>(DebugModeService);
         actionHandlerService = module.get<ActionHandlerService>(ActionHandlerService);
-        // mockServer = { to: jest.fn() } as unknown as Server;
-        // mockSocket = { id: 'mockSocketId', emit: jest.fn() } as unknown as Socket;
-
-        // gateway.afterInit(mockServer);
     });
 
     it('should be defined', () => {
