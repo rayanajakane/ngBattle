@@ -62,7 +62,7 @@ export class JoinPageComponent {
         this.attributes = attributesFromChild;
     }
 
-    async onSubmitCode(event: Event) {
+    onSubmitCode(event: Event) {
         if (this.socketService.isSocketAlive()) this.socketService.disconnect();
         this.socketService.connect();
         event.preventDefault();

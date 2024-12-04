@@ -1,12 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+    HEIGHT,
+    LARGE_ATTRIBUTE,
+    MEDIUM_ATTRIBUTE,
+    ONE_DIGIT,
+    SMALL_ATTRIBUTE,
+    TWO_DIGITS,
+    ZERO_POINT_FIVE,
+} from '@app/components/virtual-player-dialog/virtual-player-dialog.utils';
 import { Avatar } from '@app/interfaces/avatar';
 import { DEFAULT_AVATAR_LIST } from '@app/services/constants';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerStats } from '@common/player';
 import { v4 as generateID } from 'uuid';
-import { FOUR, HEIGHT, MINUS_ONE, MINUS_TWO, SIX, TWO, ZERO_POINT_FIVE } from '@app/components/virtual-player-dialog/virtual-player-dialog.utils';
 
 @Component({
     selector: 'app-virtual-player-dialog',
@@ -45,8 +53,8 @@ export class VirtualPlayerDialogComponent implements OnInit {
                 name: player.avatar,
                 img:
                     player.avatar.length > HEIGHT
-                        ? `./assets/characters/${player.avatar.slice(MINUS_TWO)}.png`
-                        : `./assets/characters/${player.avatar.slice(MINUS_ONE)}.png`,
+                        ? `./assets/characters/${player.avatar.slice(TWO_DIGITS)}.png`
+                        : `./assets/characters/${player.avatar.slice(ONE_DIGIT)}.png`,
             };
         });
         this.availableAvatars = this.availableAvatars.filter(
@@ -65,9 +73,9 @@ export class VirtualPlayerDialogComponent implements OnInit {
 
     createPlayer() {
         this.virtualAvatar = this.availableAvatars[Math.floor(Math.random() * this.availableAvatars.length)];
-        const randomIndex = Math.floor(Math.random() * TWO);
-        const health = randomIndex === 0 ? SIX : FOUR;
-        const speed = randomIndex === 0 ? FOUR : SIX;
+        const randomIndex = Math.floor(Math.random() * SMALL_ATTRIBUTE);
+        const health = randomIndex === 0 ? LARGE_ATTRIBUTE : MEDIUM_ATTRIBUTE;
+        const speed = randomIndex === 0 ? MEDIUM_ATTRIBUTE : LARGE_ATTRIBUTE;
         const dice = Math.random() < ZERO_POINT_FIVE ? 'attack' : 'defense';
 
         this.virtualPlayer = {
