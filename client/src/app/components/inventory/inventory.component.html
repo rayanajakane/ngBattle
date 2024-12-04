@@ -5,5 +5,7 @@
         <img src="{{ findItemImage(item) }}" alt="{{ $index + 1 }}" />
         }
     </mat-grid-tile>
-    }
+    @if (items?.length === 1) {
+    <mat-grid-tile> </mat-grid-tile>
+    } }
 </mat-grid-list>
