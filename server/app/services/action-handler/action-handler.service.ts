@@ -14,7 +14,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
 export class ActionHandlerService {
-    // Il est nécessaire d'avoir ces 3 parametres supplémentaires pour ce constructor du a l'utilité de cet action handler service
+    // ! It is necessary to have these 3 additional parameters for this constructor, due to the usefulness of this action handler service
     // eslint-disable-next-line max-params
     constructor(
         private movementService: MovementService,
@@ -24,7 +24,6 @@ export class ActionHandlerService {
         private inventoryService: InventoryService,
         private debugModeService: DebugModeService,
         @Inject(forwardRef(() => LogSenderService)) private logSenderService: LogSenderService,
-        // private readonly logSenderService: LogSenderService,
         @Inject(forwardRef(() => CombatService)) private combatService: CombatService,
         @Inject(forwardRef(() => VirtualPlayerService)) private virtualPlayerService: VirtualPlayerService,
     ) {}
@@ -36,7 +35,6 @@ export class ActionHandlerService {
         const activeGame = this.activeGamesService.getActiveGame(roomId);
         const playerCoord = activeGame.playersCoord;
         if (playerCoord[0].player.isVirtual) {
-            // if the first player is a virtual player
             this.handleStartTurn({ roomId, playerId: playerCoord[0].player.id }, server, null);
         }
     }
@@ -88,7 +86,6 @@ export class ActionHandlerService {
         let tileItem = '';
 
         const slippingChance = this.inventoryService.getSlippingChance(player.player);
-        // const slippingChance = SLIP_PERCENTAGE;
 
         const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
@@ -221,7 +218,6 @@ export class ActionHandlerService {
 
             server.to(roomId).emit('lastManStanding');
 
-            // remove game from server
             this.activeGamesService.removeGameInstance(roomId);
         }
     }
