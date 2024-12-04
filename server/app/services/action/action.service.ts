@@ -1,11 +1,11 @@
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { GameStructure } from '@common/game-structure';
 import { PlayerCoord } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 @Injectable()
 export class ActionService {
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -49,11 +49,7 @@ export class ActionService {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
         const game: GameStructure = gameInstance.game;
         const moveBudget = gameInstance.currentPlayerMoveBudget;
-
         const shortestPath = this.movement.shortestPath(moveBudget, game, startPosition, endPosition);
-
-        // gameInstance.currentPlayerMoveBudget -= shortestPath.moveCost;
-
         return shortestPath.path;
     }
 

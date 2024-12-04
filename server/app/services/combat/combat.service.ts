@@ -298,6 +298,7 @@ export class CombatService {
         else return Math.floor(Math.random() * diceSize) + THROW_DICE_MIN;
     }
 
+    // ! this verification logic is complex by nature, and cutting it down would make it less readable
     // eslint-disable-next-line complexity
     private verifyPossibleObjectsPositions(roomId: string, position: number): number[] {
         const gameInstance = this.activeGamesService.getActiveGame(roomId);
