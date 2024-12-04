@@ -122,4 +122,9 @@ button {
             box-shadow: 0 0 10px $hover-color;
         }
     }
+    .centered-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
