@@ -67,20 +67,20 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-// Button Styles
-button {
-    margin: 10px;
-    padding: 10px;
-    width: 20vw;
-    font-size: 20px;
-    background-color: $secondary-color;
-    border: 3px solid $border-color;
-    border-radius: $border-radius;
-    cursor: pointer;
-    transition:
-        transform $transition-duration,
-        box-shadow $transition-duration,
-        background-color $transition-duration;
+    // Button Styles
+    button {
+        margin: 10px;
+        padding: 10px;
+        width: 20vw;
+        font-size: 20px;
+        background-color: $secondary-color;
+        border: 3px solid $border-color;
+        border-radius: $border-radius;
+        cursor: pointer;
+        transition:
+            transform $transition-duration,
+            box-shadow $transition-duration,
+            background-color $transition-duration;
 
         &:hover:not(:active) {
             transform: scale(1.1) rotate(10deg);
