@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlayerCoord } from '@app/pages/game-page/game-page.component';
-import { PlayerAttribute } from '@common/player';
+
+import { PlayerAttribute, PlayerCoord, PlayerStats } from '@common/player';
 import { GamePanelComponent } from './game-panel.component';
+/* eslint-disable */
+
 describe('GamePanelComponent', () => {
     let component: GamePanelComponent;
     let fixture: ComponentFixture<GamePanelComponent>;
@@ -20,6 +22,9 @@ describe('GamePanelComponent', () => {
             isActive: true,
             abandoned: false,
             wins: 0,
+            stats: {} as PlayerStats,
+            isVirtual: false,
+            inventory: [],
         };
         fixture.detectChanges();
         component.mapSize = 10;

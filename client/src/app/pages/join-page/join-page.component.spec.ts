@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { Avatar } from '@app/interfaces/avatar';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerAttribute } from '@common/player';
 import { JoinPageComponent } from './join-page.component';
@@ -64,7 +65,13 @@ describe('JoinPageComponent', () => {
     });
 
     it('should receive attributes from child', () => {
-        const attributesFromChild: PlayerAttribute = { health: '4', speed: '4', attack: '4', defense: '4', dice: 'attack' };
+        const attributesFromChild: PlayerAttribute = {
+            health: 10,
+            speed: 8,
+            attack: 7,
+            defense: 5,
+            dice: '6',
+        };
         component.receiveAttributes(attributesFromChild);
 
         expect(component.attributes).toEqual(attributesFromChild);
@@ -111,6 +118,32 @@ describe('JoinPageComponent', () => {
 
         expect(mockSocketService.connect).toHaveBeenCalled();
         expect(component.isRoomCodeValid).toBeFalse();
+    });
+
+    it('should return an available name in getAvailableName when avatar length <= 8', () => {
+        const avatars = [
+            { name: 'Avatar 1', img: './assets/characters/1.png' },
+            { name: 'Avatar 2', img: './assets/characters/2.png' },
+            { name: 'Avatar 3', img: './assets/characters/5.png' },
+        ] as Avatar[];
+        component.availableAvatars = avatars;
+
+        component.playerList = [{ avatar: 'Avatar 2' }, { avatar: 'Avatar 3' }] as Player[];
+        component.setAvailableAvatars();
+        expect(component.availableAvatars).toEqual([{ name: 'Avatar 1', img: './assets/characters/1.png' }] as Avatar[]);
+    });
+
+    it('should return an available name in getAvailableName when avatar length > 8', () => {
+        const avatars = [
+            { name: 'Avatar 1', img: './assets/characters/1.png' },
+            { name: 'Avatar 2', img: './assets/characters/2.png' },
+            { name: 'Avatar 12', img: './assets/characters/12.png' },
+        ] as Avatar[];
+        component.availableAvatars = avatars;
+
+        component.playerList = [{ avatar: 'Avatar 2' }, { avatar: 'Avatar 12' }] as Player[];
+        component.setAvailableAvatars();
+        expect(component.availableAvatars).toEqual([{ name: 'Avatar 1', img: './assets/characters/1.png' }] as Avatar[]);
     });
 
     it('should update available avatars on receiving availableAvatars event', () => {

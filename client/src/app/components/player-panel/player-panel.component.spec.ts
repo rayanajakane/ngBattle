@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlayerPanelComponent } from './player-panel.component';
+/* eslint-disable */
 
 describe('PlayerPanelComponent', () => {
     let component: PlayerPanelComponent;

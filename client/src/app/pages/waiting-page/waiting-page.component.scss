@@ -1,12 +1,4 @@
-@import url('../../global-files/global.css');
-$font-family: 'MedievalSharp';
-$primary-color: rgb(255, 255, 255);
-$secondary-color: rgb(140, 94, 184);
-$hover-color: #e5c50e;
-$active-color: darkgoldenrod;
-$border-color: black;
-$border-radius: 50px;
-$transition-duration: 0.3s;
+@import '../../global-files/global.scss';
 
 .main-container {
     background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
@@ -47,16 +39,6 @@ app-chat {
     align-items: center;
 }
 
-button:hover:not(:active) {
-    transform: translateY(-3px);
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
-}
-
-button:active {
-    transform: scale(0.95);
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
 // Button Styles
 button {
     margin: 10px;
@@ -72,37 +54,36 @@ button {
         box-shadow $transition-duration,
         background-color $transition-duration;
 
-    &:hover:not(:active) {
-        transform: scale(1.1) rotate(10deg);
-        background-color: $hover-color;
-        box-shadow:
-            0 0 10px $hover-color,
-            0 0 20px $hover-color,
-            0 0 30px $hover-color,
-            0 0 40px $hover-color,
-            0 0 50px $hover-color,
-            0 0 60px $hover-color;
-        animation:
-            wiggle 0.5s ease-in-out infinite,
-            colorChange 1s infinite,
-            pulse 1s infinite,
-            shadowPulse 1s infinite;
+    &:not(:disabled) {
+        &:hover:not(:active) {
+            transform: scale(1.1) rotate(10deg);
+            background-color: $hover-color;
+            box-shadow:
+                0 0 10px $hover-color,
+                0 0 20px $hover-color,
+                0 0 30px $hover-color,
+                0 0 40px $hover-color,
+                0 0 50px $hover-color,
+                0 0 60px $hover-color;
+            animation:
+                wiggle 0.5s ease-in-out infinite,
+                colorChange 1s infinite,
+                pulse 1s infinite,
+                shadowPulse 1s infinite;
+        }
+
+        &:active {
+            transform: scale(0.9);
+            background-color: $active-color;
+            box-shadow: none;
+            animation: none;
+        }
     }
 
-    &:focus {
-        outline: none;
-        box-shadow:
-            0 0 10px $hover-color,
-            0 0 20px $hover-color,
-            0 0 30px $hover-color,
-            0 0 40px $hover-color,
-            0 0 50px $hover-color,
-            0 0 60px $hover-color;
-    }
-
-    &:active {
-        transform: scale(0.9);
-        background-color: $active-color;
+    &:disabled {
+        background-color: grey;
+        cursor: not-allowed;
+        transform: none;
         box-shadow: none;
         animation: none;
     }
@@ -144,12 +125,6 @@ button {
     }
 }
 
-button:disabled {
-    background-color: grey;
-    cursor: not-allowed;
-    animation: none;
-}
-
 // Animations
 @keyframes wiggle {
     0%,
@@ -158,32 +133,6 @@ button:disabled {
     }
     50% {
         transform: rotate(3deg);
-    }
-}
-
-img {
-    animation: scaleLogo 0.5s infinite alternate;
-
-    &:active {
-        animation: crazySpin 0.5s linear infinite;
-    }
-
-    @keyframes crazySpin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-}
-
-@keyframes scaleLogo {
-    0% {
-        transform: scale(1.5);
-    }
-    100% {
-        transform: scale(1.7);
     }
 }
 

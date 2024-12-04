@@ -1,18 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { GameTile, TilePreview, TileStructure } from '@common/game-structure';
-import { Player, PlayerAttribute } from '@common/player';
+import { Player } from '@common/player';
+import { MOCK_PLAYER } from './constants';
 import { MapBaseService } from './map-base.service';
-
-const player1: Player = {
-    id: '1',
-    name: 'player1',
-    isAdmin: false,
-    avatar: '1',
-    attributes: {} as PlayerAttribute,
-    isActive: false,
-    abandoned: true,
-    wins: 0,
-};
+/* eslint-disable */
 
 describe('MapBaseService', () => {
     let service: MapBaseService;
@@ -25,6 +16,7 @@ describe('MapBaseService', () => {
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
+
     it('should identify GameTile correctly', () => {
         const gameTile: GameTile = {
             idx: 0,
@@ -32,7 +24,7 @@ describe('MapBaseService', () => {
             item: '',
             hasPlayer: false,
             isAccessible: TilePreview.NONE,
-            player: player1,
+            player: MOCK_PLAYER,
         };
         const tileJson: TileStructure = {
             idx: 0,
@@ -44,6 +36,7 @@ describe('MapBaseService', () => {
         expect(service.isGameTile(gameTile)).toBeTrue();
         expect(service.isGameTile(tileJson)).toBeFalse();
     });
+
     it('should identify PlayerTile correctly', () => {
         const playerTile: GameTile & { player: { avatar: string } } = {
             idx: 0,
@@ -63,5 +56,32 @@ describe('MapBaseService', () => {
 
         expect(service.isPlayerTile(playerTile)).toBeTrue();
         expect(service.isPlayerTile(nonPlayerTile)).toBeFalse();
+    });
+
+    it('should do nothing on onRightClick', () => {
+        expect(() => service.onRightClick(0)).not.toThrow();
+    });
+
+    it('should do nothing on onMouseDown', () => {
+        const event = new MouseEvent('mousedown');
+        expect(() => service.onMouseDown(0, event)).not.toThrow();
+    });
+
+    it('should do nothing on onMouseUp', () => {
+        const event = new MouseEvent('mouseup');
+        expect(() => service.onMouseUp(0, event)).not.toThrow();
+    });
+
+    it('should do nothing on onDrop', () => {
+        expect(() => service.onDrop(0)).not.toThrow();
+    });
+
+    it('should do nothing on onMouseEnter', () => {
+        const event = new MouseEvent('mouseenter');
+        expect(() => service.onMouseEnter(0, event)).not.toThrow();
+    });
+
+    it('should do nothing on onExit', () => {
+        expect(() => service.onExit()).not.toThrow();
     });
 });

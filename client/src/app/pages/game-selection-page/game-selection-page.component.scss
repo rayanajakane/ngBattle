@@ -1,12 +1,4 @@
-@import url('../../global-files/global.css');
-$font-family: 'MedievalSharp';
-$primary-color: rgb(255, 255, 255);
-$secondary-color: rgb(140, 94, 184);
-$hover-color: #e5c50e;
-$active-color: darkgoldenrod;
-$border-color: black;
-$border-radius: 50px;
-$transition-duration: 0.3s;
+@import '../../global-files/global.scss';
 
 .game-selection-container {
     display: flex;
@@ -15,6 +7,13 @@ $transition-duration: 0.3s;
     position: relative;
     width: 100%;
     margin-top: 50px;
+}
+
+app-game-selection {
+    transition: transform 0.2s ease-in-out;
+    &:hover {
+        transform: scale(1.01);
+    }
 }
 
 .custom-slider-arrow {
@@ -71,89 +70,83 @@ h1 {
     justify-content: center;
 }
 
-// Button Styles
-button {
-    margin: 10px;
-    padding: 10px;
-    width: 20vw;
-    font-size: 20px;
-    background-color: $secondary-color;
-    border: 3px solid $border-color;
-    border-radius: $border-radius;
-    cursor: pointer;
-    transition:
-        transform $transition-duration,
-        box-shadow $transition-duration,
-        background-color $transition-duration;
+.centered-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // Button Styles
+    button {
+        margin: 10px;
+        padding: 10px;
+        width: 20vw;
+        font-size: 20px;
+        background-color: $secondary-color;
+        border: 3px solid $border-color;
+        border-radius: $border-radius;
+        cursor: pointer;
+        transition:
+            transform $transition-duration,
+            box-shadow $transition-duration,
+            background-color $transition-duration;
 
-    &:hover:not(:active) {
-        transform: scale(1.1) rotate(10deg);
-        background-color: $hover-color;
-        box-shadow:
-            0 0 10px $hover-color,
-            0 0 20px $hover-color,
-            0 0 30px $hover-color,
-            0 0 40px $hover-color,
-            0 0 50px $hover-color,
-            0 0 60px $hover-color;
-        animation:
-            wiggle 0.5s ease-in-out infinite,
-            colorChange 1s infinite,
-            pulse 1s infinite,
-            shadowPulse 1s infinite;
-    }
-
-    &:focus {
-        outline: none;
-        box-shadow:
-            0 0 10px $hover-color,
-            0 0 20px $hover-color,
-            0 0 30px $hover-color,
-            0 0 40px $hover-color,
-            0 0 50px $hover-color,
-            0 0 60px $hover-color;
-    }
-
-    &:active {
-        transform: scale(0.9);
-        background-color: $active-color;
-        box-shadow: none;
-        animation: none;
-    }
-
-    @keyframes colorChange {
-        0% {
+        &:hover:not(:active) {
+            transform: scale(1.1) rotate(10deg);
             background-color: $hover-color;
+            box-shadow:
+                0 0 10px $hover-color,
+                0 0 20px $hover-color,
+                0 0 30px $hover-color,
+                0 0 40px $hover-color,
+                0 0 50px $hover-color,
+                0 0 60px $hover-color;
+            animation:
+                wiggle 0.5s ease-in-out infinite,
+                colorChange 1s infinite,
+                pulse 1s infinite,
+                shadowPulse 1s infinite;
         }
-        50% {
+
+        &:active {
+            transform: scale(0.9);
             background-color: $active-color;
+            box-shadow: none;
+            animation: none;
         }
-        100% {
-            background-color: $hover-color;
-        }
-    }
 
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
+        @keyframes colorChange {
+            0% {
+                background-color: $hover-color;
+            }
+            50% {
+                background-color: $active-color;
+            }
+            100% {
+                background-color: $hover-color;
+            }
         }
-        50% {
-            transform: scale(1.2);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
 
-    @keyframes shadowPulse {
-        0% {
-            box-shadow: 0 0 10px $hover-color;
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
-        50% {
-            box-shadow: 0 0 30px $hover-color;
-        }
-        100% {
-            box-shadow: 0 0 10px $hover-color;
+
+        @keyframes shadowPulse {
+            0% {
+                box-shadow: 0 0 10px $hover-color;
+            }
+            50% {
+                box-shadow: 0 0 30px $hover-color;
+            }
+            100% {
+                box-shadow: 0 0 10px $hover-color;
+            }
         }
     }
 }

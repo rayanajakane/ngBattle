@@ -39,7 +39,6 @@ import { MapEditService } from '@app/services/map-edit.service';
 export class EditPageComponent implements OnInit {
     mapEditService = inject(MapEditService);
     editGameService = inject(EditGameService);
-
     constructor(public dialog: MatDialog) {}
 
     ngOnInit() {

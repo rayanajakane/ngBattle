@@ -29,3 +29,26 @@ export interface GameStructure {
     creationDate: string;
     lastModified: string;
 }
+
+export interface ShortestPathByTile {
+    [key: number]: number[];
+}
+
+export enum GameState {
+    NOTPLAYING,
+    MOVING,
+    ACTION,
+    COMBAT,
+}
+
+export enum TimerState {
+    NONE,
+    REGULAR,
+    COOLDOWN,
+    COMBAT,
+}
+
+export enum GameMode {
+    ClASSIC = 'classic',
+    CTF = 'ctf',
+}

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { KickedDialogComponent } from './kicked-dialog.component';
 const dialogData = { someData: 'test data' };
+/* eslint-disable */
 
 describe('KickedDialogComponent', () => {
     let component: KickedDialogComponent;

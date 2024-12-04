@@ -22,9 +22,9 @@ export class LogsComponent implements OnInit {
     @Input() roomId: string;
     @Input() player: Player;
 
-    btnText: string = 'Show Player Logs';
-    logs: LogMessage[] = []; // contains all logs
-    playerLogs: LogMessage[] = [];
+    btnText: string = 'Journalisation des messages';
+    logs: LogMessage[] = [];
+    playerLogs: LogMessage[] = []; // Logs that concern the player only
     currentLogs = this.logs;
 
     constructor(
@@ -38,8 +38,9 @@ export class LogsComponent implements OnInit {
 
     receiveLog() {
         this.socketService.on('newLog', (log: LogMessage) => {
-            this.logs.push(log);
-            if (log.receiver === this.player.id) {
+            if (!log.exclusive) this.logs.push(log);
+            if (log.receiver === this.player.id || log.sender === this.player.id) {
+                if (log.exclusive) this.logs.push(log);
                 this.playerLogs.push(log);
             }
             this.cdr.detectChanges();

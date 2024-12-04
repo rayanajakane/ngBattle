@@ -1,4 +1,4 @@
-@import url('../../global-files/global.css');
+@import '../../global-files/global.scss';
 $font-family: 'MedievalSharp';
 $primary-color: rgb(255, 255, 255);
 $secondary-color: rgb(140, 94, 184);
@@ -82,17 +82,6 @@ button {
             shadowPulse 1s infinite;
     }
 
-    &:focus {
-        outline: none;
-        box-shadow:
-            0 0 10px $hover-color,
-            0 0 20px $hover-color,
-            0 0 30px $hover-color,
-            0 0 40px $hover-color,
-            0 0 50px $hover-color,
-            0 0 60px $hover-color;
-    }
-
     &:active {
         transform: scale(0.9);
         background-color: $active-color;
@@ -134,5 +123,10 @@ button {
         100% {
             box-shadow: 0 0 10px $hover-color;
         }
+    }
+    .centered-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }

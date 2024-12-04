@@ -1,64 +1,110 @@
 import { Injectable } from '@angular/core';
-import { ItemTypes, TileTypes } from '@app/data-structure/toolType';
-import { ShortestPathByTile } from '@app/pages/game-page/game-page.component';
-import { GameTile, TilePreview } from '@common/game-structure';
-import { Player } from '@common/player';
-import { Subject } from 'rxjs';
+import { GameState, GameTile, ShortestPathByTile, TilePreview } from '@common/game-structure';
+import { Player, PlayerCoord } from '@common/player';
+import { ItemTypes, TileTypes } from '@common/tile-types';
+import { ActionStateService } from './action-state.service';
+import { BaseStateService } from './base-state.service';
+import { CombatStateService } from './combat-state.service';
 import { MapBaseService } from './map-base.service';
+import { MovingStateService } from './moving-state.service';
+import { NotPlayingStateService } from './not-playing-state.service';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class MapGameService extends MapBaseService {
     tiles: GameTile[];
     availableTiles: number[] = [];
     shortestPathByTile: { [key: number]: number[] } = {};
-    isMoving: boolean = false;
-    actionDoor: boolean = false;
 
-    private eventSubject = new Subject<number>();
+    currentStateNumber: GameState;
+    private currentState: BaseStateService;
 
-    /* eslint-disable */ // Methods to be implemented in the next sprint
-    event$ = this.eventSubject.asObservable();
-    onMouseUp(index: number, event: MouseEvent): void {
-        event.preventDefault();
-    }
-    onRightClick(index: number): void {}
-    onExit(): void {}
-    onDrop(index: number): void {}
-    /* eslint-enable */
+    // private movingStateSubscription: Subscription;
 
-    emitEvent(value: number) {
-        this.eventSubject.next(value);
+    constructor(
+        private notPlaying: NotPlayingStateService,
+        private moving: MovingStateService,
+        private action: ActionStateService,
+        private combat: CombatStateService,
+    ) {
+        super();
+        this.setState(GameState.NOTPLAYING);
     }
 
-    setAvailableTiles(availableTiles: number[]): void {
-        this.availableTiles = availableTiles;
+    setState(state: GameState): void {
+        this.currentStateNumber = state;
+        switch (state) {
+            case GameState.MOVING:
+                this.currentState = this.moving;
+                break;
+            case GameState.ACTION:
+                this.currentState = this.action;
+                break;
+            case GameState.COMBAT:
+                this.currentState = this.combat;
+                break;
+            default:
+                this.currentState = this.notPlaying;
+        }
     }
 
-    setShortestPathByTile(shortestPathByTile: ShortestPathByTile): void {
-        this.shortestPathByTile = shortestPathByTile;
+    replaceRandomItems(
+        itemsPositions: {
+            idx: number;
+            item: ItemTypes;
+        }[],
+    ) {
+        itemsPositions.forEach((itemPlacement) => {
+            this.placeItem(itemPlacement.idx, itemPlacement.item);
+        });
+    }
+
+    setTiles(tiles: GameTile[]): void {
+        this.tiles = tiles;
+    }
+
+    onRightClick(index: number): void {
+        this.currentState.onRightClick(this.tiles[index]);
     }
 
     onMouseDown(index: number, event: MouseEvent): void {
-        if (event.button === 0 && !this.isMoving && !this.actionDoor) {
-            if (this.availableTiles.includes(index)) {
-                this.isMoving = true;
-                this.emitEvent(index);
-            } else if (this.checkIfTileIsDoor(index)) {
-                this.actionDoor = true;
-                this.emitEvent(index);
+        event.preventDefault();
+        if (event.button === 0) {
+            const nextState = this.currentState.onMouseDown(index);
+            if (nextState !== this.currentStateNumber) {
+                if (nextState === GameState.NOTPLAYING) {
+                    this.switchToNotPlayingStateRoutine();
+                } else if (nextState === GameState.MOVING) {
+                    this.switchToMovingStateRoutine();
+                }
             }
         }
     }
 
     onMouseEnter(index: number, event: MouseEvent): void {
         event.preventDefault();
-        this.renderShortestPath(index);
+        this.renderAvailableTiles();
+        this.renderPathToTarget(index);
     }
 
-    checkIfTileIsDoor(index: number): boolean {
-        return this.tiles[index].tileType === TileTypes.DOORCLOSED || this.tiles[index].tileType === TileTypes.DOOROPEN;
+    switchToNotPlayingStateRoutine(): void {
+        this.removeAllPreview();
+        this.setState(GameState.NOTPLAYING);
+    }
+
+    switchToMovingStateRoutine(shortestPathByTile?: ShortestPathByTile): void {
+        this.removeAllPreview();
+        this.setState(GameState.MOVING);
+        if (!shortestPathByTile) {
+            // if no parameter is given, reuse old shortestPathByTile
+            shortestPathByTile = this.currentState.getShortestPathByTile();
+        }
+        this.initializePrevisualization(shortestPathByTile);
+    }
+
+    switchToActionStateRoutine(availableTiles: number[]): void {
+        this.removeAllPreview();
+        this.setState(GameState.ACTION);
+        this.initializePrevisualization(availableTiles);
     }
 
     renderPreview(indexes: number[], previewType: TilePreview): void {
@@ -67,26 +113,59 @@ export class MapGameService extends MapBaseService {
         });
     }
 
+    renderAvailableTiles(): void {
+        const tiles = this.currentState.getAvailableTiles();
+        if (tiles.length > 0) {
+            this.renderPreview(tiles, TilePreview.PREVIEW);
+        }
+    }
+
+    renderPathToTarget(index: number): void {
+        const shortestPath = this.currentState.getShortestPathByIndex(index);
+        if (shortestPath) {
+            this.renderPreview(shortestPath, TilePreview.SHORTESTPATH);
+        } else if (this.currentState.availablesTilesIncludes(index)) {
+            this.tiles[index].isAccessible = TilePreview.SHORTESTPATH;
+        }
+    }
+
     removeAllPreview(): void {
         this.tiles.forEach((tile) => {
             tile.isAccessible = TilePreview.NONE;
         });
     }
-    resetShortestPath(): void {
-        this.shortestPathByTile = {};
-    }
 
-    renderShortestPath(index: number): void {
+    initializePrevisualization(accessibleTiles: ShortestPathByTile | number[]) {
+        this.currentState.initializePrevisualization(accessibleTiles);
         this.renderAvailableTiles();
-        if (this.shortestPathByTile[index]) {
-            this.renderPreview(this.shortestPathByTile[index], TilePreview.SHORTESTPATH);
-        }
     }
 
-    renderAvailableTiles(): void {
-        if (this.availableTiles.length > 0) {
-            this.renderPreview(this.availableTiles, TilePreview.PREVIEW);
-        }
+    resetMovementPrevisualization() {
+        this.currentState.resetMovementPrevisualization();
+    }
+
+    resetAllMovementPrevisualization() {
+        this.notPlaying.resetMovementPrevisualization();
+        this.moving.resetMovementPrevisualization();
+        this.action.resetMovementPrevisualization();
+        this.combat.resetMovementPrevisualization();
+    }
+
+    resetMap() {
+        this.resetAllMovementPrevisualization();
+        this.removeAllPreview();
+    }
+
+    resetPlayerView(): void {
+        this.resetMap();
+        this.setState(GameState.NOTPLAYING);
+    }
+
+    initializePlayersPositions(playerCoords: PlayerCoord[]) {
+        playerCoords.forEach((playerCoord) => {
+            this.placePlayer(playerCoord.position, playerCoord.player);
+        });
+        this.removeUnusedStartingPoints();
     }
 
     placePlayer(index: number, player: Player): void {
@@ -99,8 +178,11 @@ export class MapGameService extends MapBaseService {
         this.tiles[index].hasPlayer = false;
     }
 
-    findPlayerIndex(player: Player): number {
-        return this.tiles.findIndex((tile) => tile.player?.id === player.id);
+    removePlayerById(playerId: string): void {
+        const index = this.tiles.findIndex((tile) => tile.player?.id === playerId);
+        if (index !== -1) {
+            this.removePlayer(index);
+        }
     }
 
     changePlayerPosition(oldIndex: number, newIndex: number, player: Player): void {
@@ -111,7 +193,7 @@ export class MapGameService extends MapBaseService {
     removeUnusedStartingPoints(): void {
         this.tiles.forEach((tile) => {
             if (tile.item === ItemTypes.STARTINGPOINT && !tile.hasPlayer) {
-                tile.item = '';
+                tile.item = ItemTypes.EMPTY;
             }
         });
     }
@@ -122,5 +204,13 @@ export class MapGameService extends MapBaseService {
         } else if (this.tiles[index].tileType === TileTypes.DOOROPEN) {
             this.tiles[index].tileType = TileTypes.DOORCLOSED;
         }
+    }
+
+    placeItem(index: number, item: string): void {
+        this.tiles[index].item = item;
+    }
+
+    removeItem(index: number): void {
+        this.tiles[index].item = '';
     }
 }

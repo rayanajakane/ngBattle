@@ -6,6 +6,7 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { KickedDialogComponent } from '@app/components/kicked-dialog/kicked-dialog.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
 import { PlayerListComponent } from '@app/components/player-list/player-list.component';
+import { VirtualPlayerDialogComponent } from '@app/components/virtual-player-dialog/virtual-player-dialog.component';
 import { SocketService } from '@app/services/socket.service';
 import { Player } from '@common/player';
 
@@ -48,14 +49,20 @@ export class WaitingPageComponent implements OnInit {
             const lockButton = document.getElementById('lock-btn');
             if (lockButton) {
                 lockButton.innerHTML = 'Déverrouiller';
-                if (this.players.length === this.maxPlayers) lockButton.setAttribute('disabled', 'true');
+            }
+            const virtualPlayerButton = document.getElementById('virtual-btn');
+            if (virtualPlayerButton) {
+                virtualPlayerButton.setAttribute('disabled', 'true');
             }
         });
         this.socketService.on('roomUnlocked', () => {
             const lockButton = document.getElementById('lock-btn');
             if (lockButton) {
                 lockButton.innerHTML = 'Verrouiller';
-                lockButton.removeAttribute('disabled');
+            }
+            const virtualPlayerButton = document.getElementById('virtual-btn');
+            if (virtualPlayerButton) {
+                virtualPlayerButton.removeAttribute('disabled');
             }
         });
         this.getPlayers();
@@ -65,7 +72,6 @@ export class WaitingPageComponent implements OnInit {
             this.roomId = params.roomId;
             this.playerId = params.playerId;
             this.characterName = params.characterName;
-            this.selectedAvatar = params.selectedAvatar;
             this.isAdmin = params.isAdmin === 'true';
             this.socketService.emit('getMaxPlayers', { roomId: this.roomId });
         });
@@ -73,8 +79,6 @@ export class WaitingPageComponent implements OnInit {
 
     gameStartedListener() {
         this.socketService.once('gameStarted', (data: { gameId: string; players: Player[] }) => {
-            // players might not be necessary
-            // TODO: change the url path
             this.router.navigate([
                 '/game',
                 {
@@ -97,6 +101,17 @@ export class WaitingPageComponent implements OnInit {
     updatePlayers() {
         this.socketService.on('updatePlayers', (players: Player[]) => {
             this.players = players;
+            if (players.length === this.maxPlayers) {
+                const lockButton = document.getElementById('lock-btn');
+                if (lockButton) {
+                    lockButton.setAttribute('disabled', 'true');
+                }
+            } else {
+                const lockButton = document.getElementById('lock-btn');
+                if (lockButton) {
+                    lockButton.removeAttribute('disabled');
+                }
+            }
         });
     }
 
@@ -137,5 +152,9 @@ export class WaitingPageComponent implements OnInit {
             });
         });
         this.socketService.emit('startGame', { roomId: this.roomId });
+    }
+
+    addVirtualPlayer() {
+        this.dialog.open(VirtualPlayerDialogComponent, { data: { roomId: this.roomId } });
     }
 }

@@ -1,4 +1,4 @@
-@import url('../../global-files/global.css');
+@import url('../../global-files/global.scss');
 
 .main-container {
     background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
@@ -22,21 +22,12 @@
 .avatar {
     height: 100px;
     width: auto;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
 .avatar:hover {
-    transform: scale(1.08);
-    animation: wiggle 0.2s ease-in-out infinite;
-
-    @keyframes wiggle {
-        0%,
-        100% {
-            transform: rotate(-10deg);
-        }
-        50% {
-            transform: rotate(10deg);
-        }
-    }
+    transform: scale(1.1);
 }
 
 .selected {

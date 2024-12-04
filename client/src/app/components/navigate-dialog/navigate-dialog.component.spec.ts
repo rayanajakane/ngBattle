@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { NavigateDialogComponent } from './navigate-dialog.component';
+/* eslint-disable */
 
 describe('NavigateDialogComponent', () => {
     let component: NavigateDialogComponent;

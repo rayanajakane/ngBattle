@@ -1,9 +1,14 @@
-import { Coord } from '@app/services/action/action.service';
 import { GameStructure } from '@common/game-structure';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MovementService } from './movement.service';
 
 /* eslint-disable */
+
+interface Coord {
+    x: number;
+    y: number;
+    distance: number;
+}
 
 describe('MovementService', () => {
     let service: MovementService;
