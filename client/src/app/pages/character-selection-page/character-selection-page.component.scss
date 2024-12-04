@@ -1,12 +1,4 @@
-@import url('../../global-files/global.css');
-$font-family: 'MedievalSharp';
-$primary-color: rgb(255, 255, 255);
-$secondary-color: rgb(140, 94, 184);
-$hover-color: #e5c50e;
-$active-color: darkgoldenrod;
-$border-color: black;
-$border-radius: 50px;
-$transition-duration: 0.3s;
+@import '../../global-files/global.scss';
 
 .main-container {
     background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');

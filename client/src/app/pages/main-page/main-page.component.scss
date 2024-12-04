@@ -9,7 +9,7 @@ $border-radius: 50px;
 $transition-duration: 0.3s;
 
 // Global Import
-@import url('../../global-files/global.css');
+@import '../../global-files/global.scss';
 
 // Background
 #background-full {
@@ -76,6 +76,17 @@ button {
             colorChange 1s infinite,
             pulse 1s infinite,
             shadowPulse 1s infinite;
+    }
+
+    &:focus {
+        outline: none;
+        box-shadow:
+            0 0 10px $hover-color,
+            0 0 20px $hover-color,
+            0 0 30px $hover-color,
+            0 0 40px $hover-color,
+            0 0 50px $hover-color,
+            0 0 60px $hover-color;
     }
 
     &:active {

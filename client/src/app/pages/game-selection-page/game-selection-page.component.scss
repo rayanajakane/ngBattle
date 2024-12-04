@@ -1,12 +1,4 @@
-@import url('../../global-files/global.css');
-$font-family: 'MedievalSharp';
-$primary-color: rgb(255, 255, 255);
-$secondary-color: rgb(140, 94, 184);
-$hover-color: #e5c50e;
-$active-color: darkgoldenrod;
-$border-color: black;
-$border-radius: 50px;
-$transition-duration: 0.3s;
+@import '../../global-files/global.scss';
 
 .game-selection-container {
     display: flex;
@@ -75,20 +67,20 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    // Button Styles
-    button {
-        margin: 10px;
-        padding: 10px;
-        width: 20vw;
-        font-size: 20px;
-        background-color: $secondary-color;
-        border: 3px solid $border-color;
-        border-radius: $border-radius;
-        cursor: pointer;
-        transition:
-            transform $transition-duration,
-            box-shadow $transition-duration,
-            background-color $transition-duration;
+// Button Styles
+button {
+    margin: 10px;
+    padding: 10px;
+    width: 20vw;
+    font-size: 20px;
+    background-color: $secondary-color;
+    border: 3px solid $border-color;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition:
+        transform $transition-duration,
+        box-shadow $transition-duration,
+        background-color $transition-duration;
 
         &:hover:not(:active) {
             transform: scale(1.1) rotate(10deg);
