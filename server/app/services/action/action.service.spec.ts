@@ -1,21 +1,19 @@
+import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { GameService } from '@app/services/game.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { CombatService } from '@app/services/combat/combat.service';
-import { InventoryService } from '@app/services/inventory/inventory.service';
-import { LogSenderService } from '@app/services/log-sender/log-sender.service';
-import { ActionService } from '@app/services/action/action.service';
 /* eslint-disable */
 
 describe('ActionService', () => {
     let service: ActionService;
-    let gameService: GameService;
-    let movementService: MovementService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -54,8 +52,6 @@ describe('ActionService', () => {
         }).compile();
 
         service = module.get<ActionService>(ActionService);
-        gameService = module.get<GameService>(GameService);
-        movementService = module.get<MovementService>(MovementService);
     });
 
     it('should be defined', () => {
@@ -882,25 +878,4 @@ describe('ActionService', () => {
             expect(gameInstance.playersCoord[0].player.id).toBe('player2');
         });
     });
-    // it('should handle player not found', () => {
-    //     const roomId = 'room1';
-    //     const playerId = 'player3';
-    //     const gameInstance = {
-    //         game: {
-    //             map: [{ hasPlayer: true }, { hasPlayer: true }],
-    //         },
-    //         playersCoord: [
-    //             { player: { id: 'player1' }, position: 0 },
-    //             { player: { id: 'player2' }, position: 1 },
-    //         ],
-    //     } as any;
-
-    //     jest.spyOn(activeGamesService, 'getActiveGame').mockReturnValue(gameInstance);
-
-    //     service.quitGame(roomId, playerId);
-
-    //     expect(gameInstance.playersCoord.length).toBe(2);
-    //     expect(gameInstance.game.map[0].hasPlayer).toBe(true);
-    //     expect(gameInstance.game.map[1].hasPlayer).toBe(true);
-    // });
 });
