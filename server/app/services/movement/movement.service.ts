@@ -3,28 +3,22 @@ import { TileTypesValues } from '@app/data-structures/tile-types-values.enum';
 import { GameStructure, TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
 
-// TODO: test functions in this service
 @Injectable()
 export class MovementService {
-    // placeholder for now
     private invalidTileTypes: string[] = ['wall', 'doorClosed'];
 
     isValidPosition(moveBudget: number, game: GameStructure, coord: Coord): boolean {
         const mapSize: number = parseInt(game.mapSize, 10);
         const mapTile: TileStructure = game.map[coord.y * mapSize + coord.x];
 
-        // Check if coordinates are within bounds
         if (coord.x < 0 || coord.x >= mapSize || coord.y < 0 || coord.y >= mapSize) {
             return false;
         }
 
-        // Check if the tile type is invalid or if the tile has a player
         if (this.invalidTileTypes.includes(mapTile.tileType) || mapTile.hasPlayer) {
             return false;
         }
 
-        // Check if the player's move speed is sufficient
-        // Add !isDebugOn &&
         if (moveBudget < coord.distance) {
             return false;
         }
@@ -49,13 +43,7 @@ export class MovementService {
         return coord.y * mapSize + coord.x;
     }
 
-    shortestPath(
-        moveBudget: number,
-        game: GameStructure,
-        startPosition: number,
-        endPosition: number,
-        // isDebugMode: boolean,
-    ): { moveCost: number; path: number[] } {
+    shortestPath(moveBudget: number, game: GameStructure, startPosition: number, endPosition: number): { moveCost: number; path: number[] } {
         const mapSize = parseInt(game.mapSize, 10);
         const startCoord = this.convertToCoord(startPosition, mapSize);
         const endCoord = this.convertToCoord(endPosition, mapSize);
@@ -87,7 +75,6 @@ export class MovementService {
 
                 if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) continue;
 
-                // TODO: replace the tileValue function with enums of tile types holding the values
                 const totalDistance = current.distance + this.tileValue(map[y * mapSize + x].tileType);
 
                 if (!visited[x][y] && this.isValidPosition(moveBudget, game, { x, y, distance: totalDistance } as Coord)) {

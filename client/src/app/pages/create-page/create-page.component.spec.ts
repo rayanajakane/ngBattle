@@ -26,11 +26,10 @@ describe('CreatePageComponent', () => {
     });
 
     it('submitChoice should change the location', () => {
-        // TODO: Check if this is a acceptable test
         const location: Location = TestBed.inject(Location);
 
         spyOn(router, 'navigate').and.callFake(async (path: string[]) => {
-            location.go(path[0]); // TODO: Check if this is correct
+            location.go(path[0]);
             return Promise.resolve(true);
         });
 

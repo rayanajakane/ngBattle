@@ -30,7 +30,6 @@ export class EditGameService {
         private snackbar: MatSnackBar,
     ) {}
 
-    // TODO: Correct bug: starting points not refreshed after reinitializing game
     initializeEditPage() {
         this.setGame(this.getQueryParam('gameId')).then(() => {
             this.configureGame();
@@ -69,7 +68,7 @@ export class EditGameService {
             this.game.map = this.createGrid(parseInt(this.game.mapSize, 10));
         }
         this.mapSize = parseInt(this.game.mapSize, 10);
-        this.mapEditService.setTiles(this.game.map); // TODO: Find better way to update service tiles
+        this.mapEditService.setTiles(this.game.map);
         this.gameCreated = true;
     }
 

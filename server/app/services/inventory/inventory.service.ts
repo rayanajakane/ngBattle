@@ -52,7 +52,6 @@ export class InventoryService {
     }
 
     inventoryContainsItem(inventory: ItemTypes[], item: ItemTypes) {
-        // TODO: important for ice slip
         return inventory.includes(item);
     }
 
@@ -101,21 +100,17 @@ export class InventoryService {
         return player.inventory.includes(ItemTypes.AF2);
     }
 
-    // TODO: call this function when player finishes a combat
     deactivateCombatBoostAttack(player: Player) {
         player.attributes.currentAttack -= 2;
         player.attributes.isCombatBoostedAttack = false;
     }
 
-    // TODO: call this function when player finishes a combat
     deactivateCombatBoostDefense(player: Player) {
         player.attributes.currentSpeed -= 2;
         player.attributes.isCombatBoostedDefense = false;
     }
 
     addToInventoryAndEmit(server: Server, client: Socket, roomId: string, player: PlayerCoord, item: ItemTypes) {
-        // if (item === ItemTypes.STARTINGPOINT) return;
-
         const inventory = player.player.inventory;
 
         if (this.isInventoryFull(inventory)) {

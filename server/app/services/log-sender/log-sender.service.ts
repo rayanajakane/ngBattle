@@ -1,8 +1,8 @@
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { Player } from '@common/player';
 import { TileTypes } from '@common/tile-types';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 
 @Injectable()
 export class LogSenderService {
@@ -61,7 +61,6 @@ export class LogSenderService {
 
     sendFlagHasBeenPickedUp(server: Server, roomId: string, playerName: string): void {
         const message = `Le Drapeau à été ramassé par ${playerName}`;
-        // TODO: verify if right structure to emit to front end
         this.emitLogToRoom(server, roomId, message);
     }
     // Le paramètre isAttackSuccessful est un boolean necessaire , il est donc important de le passer dans cette fonction qui
