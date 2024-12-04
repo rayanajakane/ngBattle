@@ -25,15 +25,29 @@ h3 {
     text-align: center;
 }
 
-mat-radio-group {
+.radio-group {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
-    margin-bottom: 2rem;
+    margin: 2rem;
+}
+
+.radio-container {
+    margin: 3rem;
 }
 
 mat-radio-button {
-    color: white;
+    margin: 0.5rem 0;
+    .mat-radio-outer-circle {
+        border-color: white;
+    }
+    .mat-radio-inner-circle {
+        background-color: white;
+    }
+    .mat-radio-ripple {
+        color: white;
+    }
 }
 
 button {

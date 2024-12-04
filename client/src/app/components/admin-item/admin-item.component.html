@@ -24,6 +24,7 @@
                 <mat-icon class="visible-icon">delete</mat-icon>
                 Supprimer
             </button>
+            <button mat-raised-button (click)="exportGame()">Exporter</button>
             <button mat-raised-button (click)="invertVisibility()">
                 @if (game.isVisible){
                 <img src="./assets/view.png" alt="Visible" class="visible-icon" />

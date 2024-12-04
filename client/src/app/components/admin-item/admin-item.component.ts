@@ -35,6 +35,19 @@ export class AdminItemComponent implements OnInit {
         this.mapSize = parseInt(this.game.mapSize, 10);
     }
 
+    exportGame() {
+        // no-unused-vars is disabled because we need to remove the isVisible property from the game object
+        // eslint-disable-next-line no-unused-vars
+        const { isVisible: _, ...gameWithoutVisibility } = this.game;
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(gameWithoutVisibility));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute('href', dataStr);
+        downloadAnchorNode.setAttribute('download', `${this.game.gameName}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
     invertVisibility() {
         this.http.changeVisibility(this.game.id).subscribe(() => {
             this.game.isVisible = !this.game.isVisible;
