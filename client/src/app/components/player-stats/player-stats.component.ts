@@ -70,23 +70,6 @@ export class PlayerStatsComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        // console.log('Players:', this.playerList);
-        // this.adaptedPlayerList = this.playerList.map((player) => {
-        //     console.log('Player:', player.stats);
-        //     return {
-        //         name: player.name,
-        //         combatCount: player.stats.combatCount,
-        //         escapeCount: player.stats.escapeCount,
-        //         victoryCount: player.stats.victoryCount,
-        //         defeatCount: player.stats.defeatCount,
-        //         totalHealthLost: player.stats.totalHealthLost,
-        //         totalHealthTaken: player.stats.totalHealthTaken,
-        //         uniqueItemsCollected: player.stats.uniqueItemsCollected,
-        //         visitedTilesPercent: player.stats.visitedTilesPercent,
-        //     };
-        // });
-        // console.log('Adapted Players:', this.adaptedPlayerList);
-        // this.dataSource = new MatTableDataSource(this.adaptedPlayerList);
         this.dataSource.sort = this.sort;
     }
 }

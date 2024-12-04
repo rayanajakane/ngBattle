@@ -1,4 +1,5 @@
 import { Room } from '@app/model/room';
+import { SLICE_INDEX } from '@app/services/match.service.utils';
 import { Player, PlayerAttribute } from '@common/player';
 import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
@@ -6,8 +7,6 @@ import { Server, Socket } from 'socket.io';
 import { v4 as generateID } from 'uuid';
 import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
-
-const SLICE_INDEX = -2;
 
 @Injectable()
 export class MatchService {

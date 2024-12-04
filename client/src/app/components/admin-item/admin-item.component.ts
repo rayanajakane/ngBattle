@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@ang
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -10,10 +11,11 @@ import { ConfirmDeletionDialogComponent } from '@app/components/confirm-deletion
 import { MapPreviewComponent } from '@app/components/map-preview/map-preview.component';
 import { HttpClientService } from '@app/services/http-client.service';
 import { GameStructure } from '@common/game-structure';
+
 @Component({
     selector: 'app-admin-item',
     standalone: true,
-    imports: [MapPreviewComponent, MatCardModule, MatButtonModule, MatTooltipModule, RouterLink],
+    imports: [MapPreviewComponent, MatCardModule, MatButtonModule, MatTooltipModule, RouterLink, MatIconModule],
     templateUrl: './admin-item.component.html',
     styleUrl: './admin-item.component.scss',
 })
