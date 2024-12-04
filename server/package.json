@@ -10,7 +10,7 @@
         "start": "rimraf out && nest start --watch",
         "lint": "eslint -c .eslintrc.json \"./app/**/*.ts\" --format stylish",
         "lint:fix": "eslint -c .eslintrc.json \"./app/**/*.ts\" --format stylish --fix",
-        "test": "jest",
+        "test": "jest --runInBand --detectOpenHandles --forceExit",
         "coverage": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "check": "npm run lint && npm run test"
