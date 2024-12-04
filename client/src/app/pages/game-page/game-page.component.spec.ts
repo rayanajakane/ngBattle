@@ -1005,16 +1005,6 @@ describe('GamePageComponent', () => {
         expect(component.gameFinished).toBeTrue();
     }));
 
-    it('should log players and globalStats', () => {
-        const mockGlobalStats = {} as GlobalStats;
-        const mockPlayers = [{ stats: {} }] as Player[];
-        const mockEndGameMessage = 'Game Over';
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (component as any).gameController.player = { name: 'testPlayer' };
-        component.redirectEndGame(mockGlobalStats, mockPlayers, mockEndGameMessage);
-    });
-
     it('should handle game setup and replace random items', () => {
         const playerCoords = MOCK_PLAYER_COORDS;
         const turn = 1;
