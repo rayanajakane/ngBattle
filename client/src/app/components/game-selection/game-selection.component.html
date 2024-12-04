@@ -1,6 +1,18 @@
-<div class="game-info" [routerLink]="['/characterSelection', game.id]">
-    <p class="game-name medievalsharp-regular">name : {{ game.gameName }}</p>
-    <p class="game-description medievalsharp-regular">Description: {{ game.gameDescription }}</p>
-    <app-map-preview class="game-map" [tiles]="game.map" [mapSize]="getMapSize()"></app-map-preview>
-    <p class="medievalsharp-regular">Genre: {{ game.gameType }}</p>
-</div>
+<mat-card class="medievalsharp-regular" [routerLink]="['/characterSelection', game.id]">
+    <div [class.visibility]="!game.isVisible">
+        <mat-card-header>
+            <p id="title">{{ game.gameName }}</p>
+        </mat-card-header>
+
+        <div matTooltip="{{ this.game.gameDescription }}" matTooltipPosition="below">
+            <mat-card-content id="img-container" style="pointer-events: none">
+                <app-map-preview [mapSize]="getMapSize()" [tiles]="game.map"></app-map-preview>
+            </mat-card-content>
+        </div>
+        <mat-card-content id="main-container">
+            <p>Taille: {{ game.mapSize }}</p>
+            <p>Mode: {{ game.gameType }}</p>
+            <p>Dernière Modification: {{ game.lastModified }}</p>
+        </mat-card-content>
+    </div>
+</mat-card>
