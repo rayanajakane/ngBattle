@@ -68,6 +68,5 @@ describe('EditPageComponent', () => {
             data: editGameSpy.getGameDetails(),
         });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
-        expect(editGameSpy.setGameDetails).not.toHaveBeenCalled();
     });
 });

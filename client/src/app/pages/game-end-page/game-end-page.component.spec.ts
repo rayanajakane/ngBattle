@@ -47,7 +47,8 @@ describe('GameEndPageComponent', () => {
         expect(component.roomId).toBe('testRoom');
         expect(component.characterName).toBe('testName');
         expect(component.playerList).toEqual([]);
-        expect(component.globalStats).toEqual({ visitedTilesPercent: 0 } as unknown);
+        /* eslint-disable @typescript-eslint/no-explicit-any*/
+        expect(component.globalStats).toEqual({ visitedTilesPercent: 0 } as any);
     });
 
     it('should call socketService.disconnect on leaveRoom', () => {
