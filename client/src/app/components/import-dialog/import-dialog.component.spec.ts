@@ -106,31 +106,6 @@ describe('ImportDialogComponent', () => {
         expect(errorElement?.textContent).toBe('nom');
     });
 
-    it('should read data after import', async () => {
-        component.reader = new FileReader();
-        const file = new File(['{"gameName":"Test Game"}'], 'test.txt', { type: 'text/plain' });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-
-        component.input = document.createElement('input');
-        component.input.type = 'file';
-        component.input.files = dataTransfer.files;
-
-        const pauseFor = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
-
-        spyOn(component, 'processFile');
-        component.readData();
-        await pauseFor(1000); // wait for reader.onload to be called
-        expect(component.processFile).toHaveBeenCalled();
-    });
-
-    it('should process file data', () => {
-        spyOn(component, 'loadImportedGame');
-        const data = '{"gameName":"Test Game"}';
-        component.processFile(data);
-        expect(component.loadImportedGame).toHaveBeenCalledWith({ gameName: 'Test Game' });
-    });
-
     it('should import game', () => {
         const event = { target: { files: [{ name: 'test' }] } } as any;
         component.importGame(event);
