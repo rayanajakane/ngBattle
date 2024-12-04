@@ -3,6 +3,7 @@ import {
     DEFAULT_MAP_SIZE_MEDIUM,
     DEFAULT_MAP_SIZE_SMALL,
     DEFAULT_STARTING_COUNTER_FOUR,
+    DEFAULT_STARTING_COUNTER_ONE,
     DEFAULT_STARTING_COUNTER_SIX,
     DEFAULT_STARTING_COUNTER_TWO,
 } from '@app/services/constants';
@@ -12,8 +13,10 @@ import { TileStructure } from '@common/game-structure';
     providedIn: 'root',
 })
 export class DragDropService {
-    startingPointNumberCounter: number = DEFAULT_STARTING_COUNTER_TWO;
-    randomItemCounter: number = DEFAULT_STARTING_COUNTER_TWO;
+    startingPointCounter: number = DEFAULT_STARTING_COUNTER_TWO;
+    itemCounter: number = DEFAULT_STARTING_COUNTER_TWO;
+    flagACounter: number = DEFAULT_STARTING_COUNTER_ONE;
+
     draggedTile: string = '';
     transparentImage: string = '';
 
@@ -39,8 +42,9 @@ export class DragDropService {
             startingCounter = DEFAULT_STARTING_COUNTER_SIX;
         }
 
-        this.startingPointNumberCounter = startingCounter - placedStartingPoints < 0 ? 0 : startingCounter - placedStartingPoints;
-        this.randomItemCounter = startingCounter - placedRandomItems < 0 ? 0 : startingCounter - placedRandomItems;
+        this.flagACounter = 1;
+        this.startingPointCounter = startingCounter - placedStartingPoints < 0 ? 0 : startingCounter - placedStartingPoints;
+        this.itemCounter = startingCounter - placedRandomItems < 0 ? 0 : startingCounter - placedRandomItems;
     }
 
     countStartingPoints(map: TileStructure[]) {
@@ -55,16 +59,22 @@ export class DragDropService {
         }, 0);
     }
 
-    reduceNumberStartingPoints() {
-        if (this.startingPointNumberCounter > 0) this.startingPointNumberCounter--;
+    reduceStartingPointCounter() {
+        if (this.startingPointCounter > 0) this.startingPointCounter--;
     }
-    reduceNumberRandomItem() {
-        if (this.randomItemCounter > 0) this.randomItemCounter--;
+    reduceItemCounter() {
+        if (this.itemCounter > 0) this.itemCounter--;
+    }
+    reduceFlagACounter() {
+        if (this.flagACounter > 0) this.flagACounter--;
     }
     incrementNumberStartingPoints() {
-        this.startingPointNumberCounter++;
+        this.startingPointCounter++;
     }
-    incrementNumberRandomItem() {
-        this.randomItemCounter++;
+    incrementNumberItem() {
+        this.itemCounter++;
+    }
+    incrementFlagACounter() {
+        if (this.flagACounter === 0) this.flagACounter++;
     }
 }

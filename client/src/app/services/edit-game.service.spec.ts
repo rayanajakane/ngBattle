@@ -4,14 +4,15 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 import { DEFAULT_GAME_TYPE, DEFAULT_MAP_SIZE } from '@app/components/constants';
-import { TileTypes } from '@app/data-structure/toolType';
 import { DEFAULT_MAP_SIZE_MEDIUM, DEFAULT_MAP_SIZE_SMALL, DEFAULT_STARTING_COUNTER_TWO } from '@app/services/constants';
 import { GameStructure } from '@common/game-structure';
+import { TileTypes } from '@common/tile-types';
 import { DragDropService } from './drag-drop.service';
 import { EditGameService } from './edit-game.service';
 import { HttpClientService } from './http-client.service';
 import { IDGenerationService } from './idgeneration.service';
 import { MapEditService } from './map-edit.service';
+/* eslint-disable */
 
 describe('EditGameService', () => {
     let service: EditGameService;

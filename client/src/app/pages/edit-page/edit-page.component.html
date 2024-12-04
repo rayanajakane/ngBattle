@@ -9,15 +9,15 @@
                 </button>
             </div>
         </h1>
-        <app-sidebar class="edit-page-sidebar" (selectItemTypeEvent)="mapEditService.changeSelectedItem($event)"></app-sidebar>
-        <app-toolbar
-            class="edit-page-toolbar"
-            (selectTileTypeEvent)="mapEditService.changeSelectedTile($event)"
+        <app-sidebar [gameType]="editGameService.game.gameType" class="edit-page-sidebar"
+            (selectItemTypeEvent)="mapEditService.changeSelectedItem($event)"></app-sidebar>
+        <app-toolbar class="edit-page-toolbar" (selectTileTypeEvent)="mapEditService.changeSelectedTile($event)"
             [selectedTileTypeToolbar]="mapEditService.selectedTileType"
-            [selectedModeToolbar]="mapEditService.selectedMode"
-        ></app-toolbar>
-        <button mat-raised-button color="primary" class="edit-page-save-game-btn" (click)="editGameService.saveGame()">Sauvegarder le Jeu !</button>
-        <button mat-raised-button color="primary" class="edit-page-reset-game-btn" (click)="editGameService.resetGame()">
+            [selectedModeToolbar]="mapEditService.selectedMode"></app-toolbar>
+        <button mat-raised-button color="primary" class="edit-page-save-game-btn"
+            (click)="editGameService.saveGame()">Sauvegarder le Jeu !</button>
+        <button mat-raised-button color="primary" class="edit-page-reset-game-btn"
+            (click)="editGameService.resetGame()">
             Rénitialiser le Jeu !
         </button>
     </div>

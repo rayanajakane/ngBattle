@@ -1,3 +1,4 @@
+import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -7,10 +8,10 @@ export class Tile extends Document {
     idx: number;
 
     @Prop({ required: false })
-    tileType: string;
+    tileType: TileTypes;
 
     @Prop({ required: false })
-    item: string;
+    item: ItemTypes;
 
     @Prop({ required: true })
     hasPlayer: boolean;

@@ -1,9 +1,16 @@
+import { PlayerAttribute } from '@common/player';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
+import { ActionHandlerService } from './action-handler/action-handler.service';
+import { ActiveGamesService } from './active-games/active-games.service';
 import { GameService } from './game.service';
+import { LogSenderService } from './log-sender/log-sender.service';
 import { MatchService } from './match.service';
+import { UniqueItemRandomizerService } from './unique-item-randomiser/unique-item-randomiser.service';
+import { VirtualPlayerService } from './virtual-player/virtual-player.service';
 
+/* eslint-disable */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-empty-function */
@@ -13,7 +20,6 @@ import { MatchService } from './match.service';
 describe('MatchService', () => {
     let service: MatchService;
     let gameService: GameService;
-
     let client: Socket;
     let server: Server;
 
@@ -23,6 +29,30 @@ describe('MatchService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 MatchService,
+                {
+                    provide: LogSenderService,
+                    useValue: {},
+                },
+                {
+                    provide: VirtualPlayerService,
+                    useValue: {},
+                },
+                {
+                    provide: 'GameModel',
+                    useValue: {},
+                },
+                {
+                    provide: ActiveGamesService,
+                    useValue: {},
+                },
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
+                {
+                    provide: UniqueItemRandomizerService,
+                    useValue: {},
+                },
                 {
                     provide: GameService,
                     useValue: {
@@ -64,33 +94,39 @@ describe('MatchService', () => {
 
     it('should create a room', async () => {
         const gameId = 'gameId';
-        const playerName = 'playerName';
-        const avatar = 'avatar';
-        const attributes = {
-            health: '100',
-            speed: '100',
-            attack: '100',
-            defense: '100',
-            dice: '6',
-        };
-
         const game = {
             mapSize: '10',
         } as any;
-
         const maxPlayers = 2;
-
         const roomId = '123';
-
         const player = {
             id: client.id,
-            name: playerName,
+            name: 'playerName',
             isAdmin: true,
-            avatar,
-            attributes,
+            avatar: 'avatar',
+            attributes: {
+                health: 100,
+                speed: 100,
+                attack: 100,
+                defense: 100,
+                dice: '6',
+            } as PlayerAttribute,
             abandoned: true,
             isActive: true,
             wins: 0,
+            inventory: [],
+            stats: {
+                combatCount: 0,
+                defeatCount: 0,
+                escapeCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                victoryCount: 0,
+                visitedTiles: new Set(),
+                visitedTilesPercent: 0,
+            } as any,
+            isVirtual: false,
         };
 
         const room = {
@@ -98,7 +134,7 @@ describe('MatchService', () => {
             id: roomId,
             players: [player],
             isLocked: false,
-            maxPlayers,
+            maxPlayers: 2,
             messages: [],
         };
 
@@ -106,7 +142,7 @@ describe('MatchService', () => {
         jest.spyOn(service, 'getGame').mockResolvedValue(game);
         jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-        const playerData = { playerName, avatar, attributes };
+        const playerData = { playerName: player.name, avatar: 'avatar', attributes: player.attributes, virtualProfile: '' };
         await service.createRoom(server, client, gameId, playerData);
 
         expect(service.rooms.get(roomId)).toEqual(room);
@@ -219,15 +255,18 @@ describe('MatchService', () => {
                     isAdmin: true,
                     avatar: 'avatar',
                     attributes: {
-                        health: '100',
-                        speed: '100',
-                        attack: '100',
-                        defense: '100',
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
                         dice: '6',
                     },
                     isActive: false,
                     abandoned: false,
                     wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: false,
                 },
             ],
             isLocked: true,
@@ -244,15 +283,18 @@ describe('MatchService', () => {
                 isAdmin: true,
                 avatar: 'avatar',
                 attributes: {
-                    health: '100',
-                    speed: '100',
-                    attack: '100',
-                    defense: '100',
+                    health: 100,
+                    speed: 100,
+                    attack: 100,
+                    defense: 100,
                     dice: '6',
                 },
                 abandoned: false,
                 isActive: false,
                 wins: 0,
+                inventory: [],
+                stats: {} as any,
+                isVirtual: false,
             },
         ]);
     });
@@ -262,15 +304,15 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
-            speed: '100',
-            attack: '100',
-            defense: '100',
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
-        const playerData = { playerName, avatar, attributes };
-        await service.joinRoom(server, client, roomId, playerData);
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
         expect(client.emit).toHaveBeenCalledWith('error', 'Room not found');
     });
@@ -280,10 +322,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
-            speed: '100',
-            attack: '100',
-            defense: '100',
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -298,8 +340,8 @@ describe('MatchService', () => {
 
         service.rooms.set(roomId, room);
 
-        const playerData = { playerName, avatar, attributes };
-        await service.joinRoom(server, client, roomId, playerData);
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
         expect(client.emit).toHaveBeenCalledWith('error', 'Room is locked');
     });
@@ -309,10 +351,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
-            speed: '100',
-            attack: '100',
-            defense: '100',
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -330,8 +372,8 @@ describe('MatchService', () => {
         jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
         jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-        const playerData = { playerName, avatar, attributes };
-        await service.joinRoom(server, client, roomId, playerData);
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
         expect(room.players).toEqual([
             {
@@ -340,9 +382,23 @@ describe('MatchService', () => {
                 isAdmin: false,
                 avatar,
                 attributes,
-                abandoned: false,
-                isActive: false,
+                abandoned: true,
+                isActive: true,
+                inventory: [],
+                stats: {
+                    combatCount: 0,
+                    defeatCount: 0,
+                    escapeCount: 0,
+                    totalHealthLost: 0,
+                    totalHealthTaken: 0,
+                    uniqueItemsCollected: 0,
+                    victoryCount: 0,
+                    visitedTiles: new Set(),
+                    visitedTilesPercent: 0,
+                } as any,
+                virtualProfile: '',
                 wins: 0,
+                isVirtual: false,
             },
         ]);
     });
@@ -352,10 +408,10 @@ describe('MatchService', () => {
         const playerName = 'playerName';
         const avatar = 'avatar';
         const attributes = {
-            health: '100',
-            speed: '100',
-            attack: '100',
-            defense: '100',
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
             dice: '6',
         };
 
@@ -369,15 +425,18 @@ describe('MatchService', () => {
                     isAdmin: true,
                     avatar: 'avatar',
                     attributes: {
-                        health: '100',
-                        speed: '100',
-                        attack: '100',
-                        defense: '100',
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
                         dice: '6',
                     },
                     isActive: true,
                     abandoned: true,
                     wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: false,
                 },
             ],
             isLocked: false,
@@ -390,10 +449,44 @@ describe('MatchService', () => {
         jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
         jest.spyOn(service, 'updatePlayers').mockImplementation();
 
-        const playerData = { playerName, avatar, attributes };
-        await service.joinRoom(server, client, roomId, playerData);
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        await service.joinRoom(server, client, roomId, playerData, false);
 
         expect(room.isLocked).toBe(true);
+    });
+
+    it('should join room with virtual player and generate ID', async () => {
+        const roomId = '123';
+        const playerName = 'playerName';
+        const avatar = 'avatar';
+        const attributes = {
+            health: 100,
+            speed: 100,
+            attack: 100,
+            defense: 100,
+            dice: '6',
+        };
+
+        const room = {
+            gameId: 'gameId',
+            id: roomId,
+            players: [],
+            isLocked: false,
+            maxPlayers: 2,
+            messages: [],
+        };
+
+        service.rooms.set(roomId, room);
+
+        jest.spyOn(service, 'checkAndSetPlayerName').mockReturnValue(playerName);
+        jest.spyOn(service, 'updatePlayers').mockImplementation();
+        const generatedId = 'generated-id';
+        jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue(generatedId) }));
+
+        const playerData = { playerName, avatar, attributes, virtualProfile: '' };
+        service.joinRoom(server, client, roomId, playerData, true);
+
+        expect(room.players[0].name).toEqual(playerName);
     });
 
     it('should update players', () => {
@@ -406,10 +499,10 @@ describe('MatchService', () => {
                     isAdmin: true,
                     avatar: 'avatar',
                     attributes: {
-                        health: '100',
+                        health: 100,
                         speed: '100',
-                        attack: '100',
-                        defense: '100',
+                        attack: 100,
+                        defense: 100,
                     },
                 },
             ],
@@ -887,5 +980,100 @@ describe('MatchService', () => {
         service.getMaxPlayers(roomId, client);
 
         expect(client.emit).toHaveBeenCalledWith('maxPlayers', 2);
+    });
+
+    it('should remove virtual player without emitting', () => {
+        const roomId = '123';
+        const playerId = '456';
+
+        const room = {
+            id: roomId,
+            players: [
+                {
+                    id: '123',
+                    name: 'playerName',
+                    isAdmin: true,
+                    avatar: 'avatar',
+                    attributes: {
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
+                        dice: '6',
+                    },
+                    abandoned: false,
+                    isActive: false,
+                    wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: false,
+                },
+                {
+                    id: '456',
+                    name: 'playerName',
+                    isAdmin: false,
+                    avatar: 'avatar',
+                    attributes: {
+                        health: 100,
+                        speed: 100,
+                        attack: 100,
+                        defense: 100,
+                        dice: '6',
+                    },
+                    abandoned: false,
+                    isActive: false,
+                    wins: 0,
+                    inventory: [],
+                    stats: {} as any,
+                    isVirtual: true,
+                },
+            ],
+        } as any;
+
+        service.rooms.set(roomId, room);
+
+        service.kickPlayer(server, client, roomId, playerId);
+
+        expect(room.players).toEqual([
+            {
+                id: '123',
+                name: 'playerName',
+                isAdmin: true,
+                avatar: 'avatar',
+                attributes: {
+                    health: 100,
+                    speed: 100,
+                    attack: 100,
+                    defense: 100,
+                    dice: '6',
+                },
+                abandoned: false,
+                isActive: false,
+                wins: 0,
+                inventory: [],
+                stats: {} as any,
+                isVirtual: false,
+            },
+        ]);
+
+        expect(server.to).toHaveBeenCalledWith(roomId);
+        expect(server.emit).toHaveBeenCalledWith('updatePlayers', room.players);
+    });
+
+    it('should not leave room if client is undefined', () => {
+        const roomId = '123';
+
+        service.rooms.set(roomId, {
+            id: roomId,
+            players: [
+                {
+                    id: '123',
+                },
+            ],
+        } as any);
+
+        service.leaveRoom(server, undefined as any, roomId);
+
+        expect(server.to).not.toHaveBeenCalled();
     });
 });

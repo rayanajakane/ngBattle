@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DEFAULT_CHAR_COUNT } from '@app/components/edit-header-dialog/constant';
 import { DialogData, EditHeaderDialogComponent } from './edit-header-dialog.component';
+/* eslint-disable */
 
 describe('EditHeaderDialogComponent', () => {
     let component: EditHeaderDialogComponent;

@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, inject } from '@angular/core';
-import { TileTypes } from '@app/data-structure/toolType';
-import { DragDropService } from '@app/services/drag-drop.service';
+import { Component, Input, OnChanges } from '@angular/core';
+import { AVATARS_LIST } from '@app/components/avatar-slider/constant';
 import { TilePreview } from '@common/game-structure';
+import { TileTypes } from '@common/tile-types';
 
 @Component({
     selector: 'app-tile-basic',
@@ -21,9 +21,6 @@ export class TileBasicComponent implements OnChanges {
     transparentImage: string = '';
     imageUrl: string = '';
     avatarUrl: string = '';
-
-    dragDropService = inject(DragDropService);
-    isDropped: boolean = false;
 
     constructor() {
         this.setTileImage();
@@ -52,8 +49,9 @@ export class TileBasicComponent implements OnChanges {
     }
 
     setAvatarImage() {
-        if (this.avatar) {
-            this.avatarUrl = `./../../../assets/characters/${this.avatar}.png`;
+        const avatarNumber = this.chooseAvatar(this.avatar);
+        if (avatarNumber && parseInt(avatarNumber, 10) > 0 && parseInt(avatarNumber, 10) < AVATARS_LIST.length + 1) {
+            this.avatarUrl = `./assets/characters/${avatarNumber}.png`;
         } else {
             this.avatarUrl = '';
         }
@@ -68,5 +66,9 @@ export class TileBasicComponent implements OnChanges {
             default:
                 return '';
         }
+    }
+
+    chooseAvatar(avatar: string | undefined) {
+        return avatar ? avatar.split(' ')[1] : '';
     }
 }

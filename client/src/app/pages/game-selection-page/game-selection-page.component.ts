@@ -30,7 +30,7 @@ export class GameSelectionPageComponent {
         this.widgetsContent.nativeElement.scrollLeft -= this.SCROLL_VALUE;
     }
 
-    scrollRight() {
-        this.widgetsContent.nativeElement.scrollRight += this.SCROLL_VALUE;
+    scrollRight(): void {
+        this.widgetsContent.nativeElement.scrollLeft += this.SCROLL_VALUE;
     }
 }

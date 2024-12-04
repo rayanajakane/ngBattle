@@ -17,6 +17,7 @@ export interface GameTile extends TileStructure {
     isAccessible: TilePreview;
     player: Player | undefined;
 }
+
 export interface GameStructure {
     id: string;
     gameName: string;
@@ -27,4 +28,27 @@ export interface GameStructure {
     isVisible: boolean;
     creationDate: string;
     lastModified: string;
+}
+
+export interface ShortestPathByTile {
+    [key: number]: number[];
+}
+
+export enum GameState {
+    NOTPLAYING,
+    MOVING,
+    ACTION,
+    COMBAT,
+}
+
+export enum TimerState {
+    NONE,
+    REGULAR,
+    COOLDOWN,
+    COMBAT,
+}
+
+export enum GameMode {
+    ClASSIC = 'classic',
+    CTF = 'ctf',
 }

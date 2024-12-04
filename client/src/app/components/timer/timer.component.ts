@@ -1,8 +1,8 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { COUNTDOWN_DELAY, TIME_LEFT } from '@app/components/timer/constant';
-import { interval, Subscription } from 'rxjs';
+import { TimerState } from '@common/game-structure';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-timer',
@@ -11,39 +11,33 @@ import { interval, Subscription } from 'rxjs';
     templateUrl: './timer.component.html',
     styleUrls: ['./timer.component.scss'],
 })
-export class TimerComponent implements OnDestroy {
-    timeLeft: number = TIME_LEFT; // Set the initial time in seconds
+export class TimerComponent implements OnChanges {
+    @Input() timeLeft: number; // Set the initial time in seconds
+    @Input() timerState: TimerState;
+
     timerSubscription: Subscription | null = null;
     isRunning: boolean = false;
     isActive: boolean = false;
+    timerStateEnum: string;
 
-    startTimer() {
-        if (this.isRunning) {
-            this.stopTimer(); // Stop the existing timer if it's running
-        }
-        this.isActive = true;
-        this.isRunning = true;
-
-        this.timerSubscription = interval(COUNTDOWN_DELAY).subscribe(() => {
-            if (this.timeLeft > 0) {
-                this.timeLeft--;
-            } else {
-                this.stopTimer(); // Stop the timer when it reaches zero
-            }
-        });
+    ngOnChanges() {
+        this.changeTimerStateEnum(this.timerState);
     }
 
-    // this can be called at the end of the turn.
-    stopTimer() {
-        if (this.timerSubscription) {
-            this.timerSubscription.unsubscribe();
-            this.timerSubscription = null;
+    changeTimerStateEnum(timerState: TimerState) {
+        switch (timerState) {
+            case TimerState.REGULAR:
+                this.timerStateEnum = 'Jeu';
+                break;
+            case TimerState.COOLDOWN:
+                this.timerStateEnum = 'Repos';
+                break;
+            case TimerState.COMBAT:
+                this.timerStateEnum = 'Combat';
+                break;
+            default:
+                this.timerStateEnum = '';
+                break;
         }
-        this.isRunning = false;
-        this.isActive = false;
-    }
-
-    ngOnDestroy() {
-        this.stopTimer();
     }
 }

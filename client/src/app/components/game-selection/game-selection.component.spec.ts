@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { GameSelectionComponent } from './game-selection.component';
+/* eslint-disable */
 
 describe('GameSelectionComponent', () => {
     let component: GameSelectionComponent;

@@ -1,3 +1,8 @@
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActionService } from '@app/services/action/action.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
 import { PlayerAttribute } from '@common/player';
 import { Inject } from '@nestjs/common';
@@ -16,7 +21,16 @@ import { Server, Socket } from 'socket.io';
 export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
-    constructor(@Inject() private readonly matchService: MatchService) {}
+    // ! Only one additional parameter is required for this constructor, due to the usefulness of the gateway match.
+    // eslint-disable-next-line max-params
+    constructor(
+        @Inject() private readonly matchService: MatchService,
+        private readonly actionHandlerService: ActionHandlerService,
+        private readonly action: ActionService,
+        private debugModeService: DebugModeService,
+        private activeGamesService: ActiveGamesService,
+        private logService: LogSenderService,
+    ) {}
 
     @SubscribeMessage('createRoom')
     handleCreateRoom(
@@ -29,11 +43,12 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
 
     @SubscribeMessage('joinRoom')
     handleJoinRoom(
-        @MessageBody() data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute },
+        @MessageBody()
+        data: { roomId: string; playerName: string; avatar: string; attributes: PlayerAttribute; isVirtual: boolean; virtualProfile: string },
         @ConnectedSocket() client: Socket,
     ) {
-        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes };
-        this.matchService.joinRoom(this.server, client, data.roomId, playerData);
+        const playerData = { playerName: data.playerName, avatar: data.avatar, attributes: data.attributes, virtualProfile: data.virtualProfile };
+        this.matchService.joinRoom(this.server, client, data.roomId, playerData, data.isVirtual);
     }
 
     @SubscribeMessage('validRoom')
@@ -91,11 +106,33 @@ export class MatchGateway implements OnGatewayDisconnect, OnGatewayInit {
         this.matchService.loadAllMessages(client, data.roomId);
     }
 
-    afterInit(server: Server) {
-        this.server = server;
+    @SubscribeMessage('requestDebugMode')
+    handleDebugMode(@MessageBody() data: { roomId: string; playerId: string }) {
+        this.debugModeService.switchDebugMode(data.roomId);
+        this.logService.sendDebugModeLog(this.server, data.roomId, data.playerId, this.debugModeService.getDebugMode(data.roomId));
+        this.server.to(data.roomId).emit('responseDebugMode', { isDebugMode: this.debugModeService.getDebugMode(data.roomId) });
+    }
+
+    @SubscribeMessage('teleportPlayer')
+    handleTeleportPlayer(@MessageBody() data: { roomId: string; playerId: string; index: number }) {
+        this.debugModeService.handleTeleportPlayer(data, this.server);
     }
 
     handleDisconnect(client: Socket) {
+        let roomId = '';
+        let isAdmin = false;
+        this.matchService.rooms.forEach((room) => {
+            const foundPlayer = room.players.find((player) => player.id === client.id);
+            if (foundPlayer) {
+                roomId = room.id;
+                isAdmin = foundPlayer.isAdmin;
+            }
+        });
+        this.debugModeService.handleDisconnect(this.server, client, isAdmin, roomId);
+        this.actionHandlerService.handleQuitGame(this.server, client);
         this.matchService.leaveAllRooms(this.server, client);
+    }
+    afterInit(server: Server) {
+        this.server = server;
     }
 }
