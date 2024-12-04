@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AttributeSelectionComponent } from './attribute-selection.component';
+/* eslint-disable */
 
 describe('AttributeSelectionComponent', () => {
     let component: AttributeSelectionComponent;

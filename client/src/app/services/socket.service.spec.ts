@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Socket } from 'socket.io-client';
 import { SocketService } from './socket.service';
+/* eslint-disable */
 
 describe('SocketService', () => {
     let service: SocketService;
@@ -55,5 +56,12 @@ describe('SocketService', () => {
         service.socket = socketStub;
         service.once(event, action);
         expect(socketStub.once).toHaveBeenCalledWith(event, action);
+    });
+
+    it('should return the socket id', () => {
+        const socketId = '12345';
+        socketStub.id = socketId;
+        service.socket = socketStub;
+        expect(service.id()).toBe(socketId);
     });
 });

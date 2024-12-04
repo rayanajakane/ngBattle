@@ -1,8 +1,8 @@
+import { Coord } from '@app/data-structures/player';
+import { TileTypesValues } from '@app/data-structures/tile-types-values.enum';
 import { GameStructure, TileStructure } from '@common/game-structure';
 import { Injectable } from '@nestjs/common';
-// TODO: take a look at the Coord interface and see if it can be moved to a separate file
-import { Coord } from '@app/services/action/action.service';
-// TODO: replace then tile types with enums
+
 // TODO: test functions in this service
 @Injectable()
 export class MovementService {
@@ -24,27 +24,20 @@ export class MovementService {
         }
 
         // Check if the player's move speed is sufficient
+        // Add !isDebugOn &&
         if (moveBudget < coord.distance) {
             return false;
         }
-
         return true;
     }
 
-    // TODO: replace this function with enums in the datastructure of the tile
     tileValue(type: string): number {
-        switch (type) {
-            case 'ice':
-                return 0;
-            case 'floor':
-                return 1;
-            case 'doorOpen':
-                return 1;
-            case 'water':
-                return 2;
-            default:
-                return 1;
-        }
+        const tileTypeMap = {
+            ice: TileTypesValues.ICE,
+            water: TileTypesValues.WATER,
+        };
+
+        return tileTypeMap[type] ?? 1; // Default to FLOOR if type not found
     }
     convertToCoord(position: number, mapSize: number): Coord {
         const x = position % mapSize;
@@ -56,7 +49,13 @@ export class MovementService {
         return coord.y * mapSize + coord.x;
     }
 
-    shortestPath(moveBudget: number, game: GameStructure, startPosition: number, endPosition: number): { moveCost: number; path: number[] } {
+    shortestPath(
+        moveBudget: number,
+        game: GameStructure,
+        startPosition: number,
+        endPosition: number,
+        // isDebugMode: boolean,
+    ): { moveCost: number; path: number[] } {
         const mapSize = parseInt(game.mapSize, 10);
         const startCoord = this.convertToCoord(startPosition, mapSize);
         const endCoord = this.convertToCoord(endPosition, mapSize);

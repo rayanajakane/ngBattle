@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RandomObjectComponent } from './random-object.component';
+/* eslint-disable */
 
 describe('RandomObjectComponent', () => {
     let component: RandomObjectComponent;

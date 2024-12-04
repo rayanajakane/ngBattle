@@ -9,6 +9,7 @@ export enum TileTypes {
 }
 
 export enum ItemTypes {
+    EMPTY = '',
     AA1 = 'AA1',
     AA2 = 'AA2',
     AC1 = 'AC1',
@@ -17,6 +18,6 @@ export enum ItemTypes {
     AF2 = 'AF2',
     RANDOMITEM = 'item-aleatoire',
     STARTINGPOINT = 'startingPoint',
-    FLAGA = 'drapeauA',
-    FLAGB = 'drapeauB',
+    FLAG_A = 'drapeau-A',
+    FLAG_B = 'drapeau-B',
 }

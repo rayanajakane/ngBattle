@@ -3,6 +3,7 @@ import { Player, PlayerAttribute } from '@common/player';
 import { PlayerMessage } from '@common/player-message';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { v4 as generateID } from 'uuid';
 import { GameService } from './game.service';
 import { LARGE_STARTING_POINTS, MEDIUM_STARTING_POINTS, SMALL_STARTING_POINTS } from './validation-constants';
 
@@ -41,6 +42,19 @@ export class MatchService {
             isActive: true,
             abandoned: true,
             wins: 0,
+            inventory: [],
+            stats: {
+                combatCount: 0,
+                escapeCount: 0,
+                victoryCount: 0,
+                defeatCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                visitedTilesPercent: 0,
+                visitedTiles: new Set<number>(),
+            },
+            isVirtual: false,
         };
         room.players.push(player);
 
@@ -71,7 +85,13 @@ export class MatchService {
         if (room) client.emit('getPlayers', room.players);
     }
 
-    joinRoom(server: Server, client: Socket, roomId: string, playerData: { playerName: string; avatar: string; attributes: PlayerAttribute }) {
+    joinRoom(
+        server: Server,
+        client: Socket,
+        roomId: string,
+        playerData: { playerName: string; avatar: string; attributes: PlayerAttribute; virtualProfile: string },
+        isVirtual: boolean,
+    ) {
         const room = this.rooms.get(roomId);
 
         if (!room) {
@@ -87,14 +107,28 @@ export class MatchService {
         const checkedPlayerName = this.checkAndSetPlayerName(room, playerData.playerName);
 
         const player: Player = {
-            id: client.id,
+            id: isVirtual ? generateID() : client.id,
             name: checkedPlayerName,
             isAdmin: false,
             avatar: playerData.avatar,
             attributes: playerData.attributes,
-            isActive: false,
-            abandoned: false,
+            isActive: true,
+            abandoned: true,
             wins: 0,
+            inventory: [],
+            stats: {
+                combatCount: 0,
+                escapeCount: 0,
+                victoryCount: 0,
+                defeatCount: 0,
+                totalHealthLost: 0,
+                totalHealthTaken: 0,
+                uniqueItemsCollected: 0,
+                visitedTilesPercent: 0,
+                visitedTiles: new Set<number>(),
+            },
+            isVirtual,
+            virtualProfile: playerData.virtualProfile,
         };
         room.players.push(player);
 
@@ -103,7 +137,7 @@ export class MatchService {
             server.to(roomId).emit('roomLocked');
         }
 
-        client.join(roomId);
+        if (!isVirtual) client.join(roomId);
         client.emit('roomJoined', { roomId, playerId: client.id, playerName: checkedPlayerName });
         this.updatePlayers(server, room);
     }
@@ -141,6 +175,8 @@ export class MatchService {
     leaveRoom(server: Server, client: Socket, roomId: string) {
         const room = this.rooms.get(roomId);
         if (!room) return;
+
+        if (!client) return;
 
         if (client.id === room.players[0].id) {
             room.players.forEach((p) => {
@@ -193,9 +229,12 @@ export class MatchService {
         const player = room.players.find((p) => p.id === client.id);
         if (player && player.isAdmin) {
             const playerToKick = room.players.find((p) => p.id === playerId);
-            if (playerToKick) {
+            if (playerToKick && !playerToKick.isVirtual) {
                 server.sockets.sockets.get(playerToKick.id).emit('kicked');
                 this.leaveRoom(server, server.sockets.sockets.get(playerId), roomId);
+            } else if (playerToKick.isVirtual) {
+                room.players = room.players.filter((p) => p.id !== playerId);
+                server.to(roomId).emit('updatePlayers', room.players);
             }
         }
     }

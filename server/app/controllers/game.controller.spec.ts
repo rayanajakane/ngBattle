@@ -1,5 +1,6 @@
 import { GameValidationService } from '@app/services/game-validation.service';
 import { GameService } from '@app/services/game.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { GameStructure } from '@common/game-structure';
 import { HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -54,6 +55,10 @@ describe('GameController', () => {
                         get: jest.fn(),
                         getAll: jest.fn(),
                     },
+                },
+                {
+                    provide: LogSenderService,
+                    useValue: {},
                 },
             ],
         }).compile();

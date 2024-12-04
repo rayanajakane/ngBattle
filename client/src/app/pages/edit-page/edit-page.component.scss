@@ -1,7 +1,7 @@
 * {
     user-select: none;
-    -webkit-user-select: none; 
-    -moz-user-select: none; 
+    -webkit-user-select: none;
+    -moz-user-select: none;
     -ms-user-select: none;
 }
 /* main container */
@@ -10,10 +10,17 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    color: white;
+    background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
 }
 /* dragged elements style */
 .cdk-drag-preview {
-    width: 4px; 
+    width: 4px;
     height: 10px;
     border: 2px solid #1976d2;
     background-color: rgba(255, 255, 255, 0.8);

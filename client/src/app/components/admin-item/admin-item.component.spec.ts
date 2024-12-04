@@ -9,6 +9,7 @@ import { HttpClientService } from '@app/services/http-client.service';
 import { GameStructure } from '@common/game-structure';
 import { of } from 'rxjs';
 import { AdminItemComponent } from './admin-item.component';
+/* eslint-disable */
 
 describe('AdminItemComponent', () => {
     let component: AdminItemComponent;

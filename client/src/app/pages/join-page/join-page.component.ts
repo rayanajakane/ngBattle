@@ -6,6 +6,8 @@ import { Router, RouterLink } from '@angular/router';
 import { AttributeSelectionComponent } from '@app/components/attribute-selection/attribute-selection.component';
 import { AvatarSliderComponent } from '@app/components/avatar-slider/avatar-slider.component';
 import { NavigateDialogComponent } from '@app/components/navigate-dialog/navigate-dialog.component';
+import { Avatar } from '@app/interfaces/avatar';
+import { DEFAULT_AVATAR_LIST } from '@app/services/constants';
 import { PlayerService } from '@app/services/player.service';
 import { SocketService } from '@app/services/socket.service';
 import { Player, PlayerAttribute } from '@common/player';
@@ -26,21 +28,8 @@ export class JoinPageComponent {
     characterName = '';
     roomId: string;
     isRoomCodeValid: boolean = false;
-    availableAvatars: { name: string; img: string }[] = [
-        { name: 'Avatar 1', img: './assets/characters/1.png' },
-        { name: 'Avatar 2', img: './assets/characters/2.png' },
-        { name: 'Avatar 3', img: './assets/characters/3.png' },
-        { name: 'Avatar 4', img: './assets/characters/4.png' },
-        { name: 'Avatar 5', img: './assets/characters/5.png' },
-        { name: 'Avatar 6', img: './assets/characters/6.png' },
-        { name: 'Avatar 7', img: './assets/characters/7.png' },
-        { name: 'Avatar 8', img: './assets/characters/8.png' },
-        { name: 'Avatar 9', img: './assets/characters/9.png' },
-        { name: 'Avatar 10', img: './assets/characters/10.png' },
-        { name: 'Avatar 11', img: './assets/characters/11.png' },
-        { name: 'Avatar 12', img: './assets/characters/12.png' },
-    ];
-    private nonAvailableAvatars: { name: string; img: string }[] = [];
+    availableAvatars: Avatar[] = DEFAULT_AVATAR_LIST;
+    private nonAvailableAvatars: Avatar[] = [];
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
     private readonly MIN_NAME_LENGTH: number = 3;
     // eslint-disable-next-line -- constants must be in SCREAMING_SNAKE_CASE
@@ -65,7 +54,7 @@ export class JoinPageComponent {
         );
     }
 
-    receiveSelectedAvatar(selectedAvatarFromChild: { name: string; img: string }) {
+    receiveSelectedAvatar(selectedAvatarFromChild: Avatar) {
         this.selectedAvatar = selectedAvatarFromChild.name;
     }
 
@@ -118,7 +107,7 @@ export class JoinPageComponent {
         this.nonAvailableAvatars = this.playerList.map((player: Player) => {
             return {
                 name: player.avatar,
-                img: `./assets/characters/${player.avatar.slice(-1)}.png`,
+                img: player.avatar.split(' ')[1],
             };
         });
         this.availableAvatars = this.availableAvatars.filter(

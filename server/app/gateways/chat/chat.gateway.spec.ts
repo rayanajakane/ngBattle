@@ -1,11 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { ActionHandlerService } from '@app/services/action-handler/action-handler.service';
+import { ActiveGamesService } from '@app/services/active-games/active-games.service';
+import { GameService } from '@app/services/game.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
+import { UniqueItemRandomizerService } from '@app/services/unique-item-randomiser/unique-item-randomiser.service';
 import { Logger } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, match, stub } from 'sinon';
-import { Socket, Server, BroadcastOperator } from 'socket.io';
-import { ChatEvents } from './chat.gateway.events';
+import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
-
+import { ChatEvents } from './chat.gateway.events';
+/* eslint-disable */
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
     let logger: SinonStubbedInstance<Logger>;
@@ -20,7 +25,32 @@ describe('ChatGateway', () => {
             providers: [
                 ChatGateway,
                 {
+                    provide: LogSenderService,
+                    useValue: {},
+                },
+                {
+                    provide: ActiveGamesService,
+                    useValue: {},
+                },
+
+                {
+                    provide: UniqueItemRandomizerService,
+                    useValue: {},
+                },
+                {
+                    provide: ActionHandlerService,
+                    useValue: {},
+                },
+                {
+                    provide: GameService,
+                    useValue: {},
+                },
+                {
                     provide: Logger,
+                    useValue: logger,
+                },
+                {
+                    provide: 'GameModel',
                     useValue: logger,
                 },
             ],

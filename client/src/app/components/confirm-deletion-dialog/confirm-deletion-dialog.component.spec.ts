@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDeletionDialogComponent } from './confirm-deletion-dialog.component';
+/* eslint-disable */
 
 describe('ConfirmDeletionDialogComponent', () => {
     let component: ConfirmDeletionDialogComponent;

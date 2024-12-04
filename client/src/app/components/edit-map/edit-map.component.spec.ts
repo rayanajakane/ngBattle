@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EditMapComponent } from './edit-map.component';
+/* eslint-disable */
 
 describe('EditMapComponent', () => {
     let component: EditMapComponent;
