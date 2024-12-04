@@ -12,7 +12,6 @@ import { EditPageComponent } from '@app/pages/edit-page/edit-page.component';
 import { GameEndPageComponent } from '@app/pages/game-end-page/game-end-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { GameSelectionPageComponent } from '@app/pages/game-selection-page/game-selection-page.component';
-import { ImportPageComponent } from '@app/pages/import-page/import-page.component';
 import { JoinPageComponent } from '@app/pages/join-page/join-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
@@ -33,7 +32,6 @@ const routes: Routes = [
     { path: 'home', component: MainPageComponent },
     { path: 'admin', component: AdminPageComponent },
     { path: 'create', component: CreatePageComponent },
-    { path: 'import', component: ImportPageComponent },
     { path: 'edit', component: EditPageComponent },
     { path: 'waitingRoom', component: WaitingPageComponent },
     { path: 'joinRoom', component: JoinPageComponent },

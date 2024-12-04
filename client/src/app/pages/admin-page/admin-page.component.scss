@@ -18,11 +18,10 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-attachment: scroll;
+    height: auto;
+    width: auto;
     min-height: 100vh;
-    width: 100%;
-    position: relative;
-    overflow-x: hidden;
 }
 
 #games-list {
