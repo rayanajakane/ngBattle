@@ -1,4 +1,10 @@
-@import '../../global-files/global.scss';
+$primary-color: rgb(255, 255, 255);
+$secondary-color: rgb(140, 94, 184);
+$hover-color: #e5c50e;
+$active-color: darkgoldenrod;
+$border-color: black;
+$border-radius: 20px;
+$transition-duration: 0.3s;
 
 .main-container {
     background-image: url('../../../assets/game-selection-page/dungeon-background-selection-game-page.jpg');
@@ -22,7 +28,7 @@
 h1,
 p,
 button {
-    font-family: $font-family;
+    font-family: 'MedievalSharp';
 }
 
 .medievalsharp-regular {
@@ -189,7 +195,6 @@ button:active {
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-// Button Styles
 button {
     margin: 10px;
     padding: 10px;
