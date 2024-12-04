@@ -9,6 +9,13 @@
     margin-top: 50px;
 }
 
+app-game-selection {
+    transition: transform 0.2s ease-in-out;
+    &:hover {
+        transform: scale(1.01);
+    }
+}
+
 .custom-slider-arrow {
     cursor: pointer;
     width: 4%;
