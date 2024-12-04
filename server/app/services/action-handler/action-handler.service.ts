@@ -1,4 +1,4 @@
-import { HUNDRED_PERCENT, SLIP_PERCENTAGE, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
+import { HUNDRED_PERCENT, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
@@ -87,7 +87,8 @@ export class ActionHandlerService {
         let pastPosition = startPosition;
         let tileItem = '';
 
-        const slippingChance = SLIP_PERCENTAGE;
+        const slippingChance = this.inventoryService.getSlippingChance(player.player);
+        // const slippingChance = SLIP_PERCENTAGE;
 
         const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 

@@ -850,6 +850,7 @@ describe('ActionHandlerService', () => {
 
             inventoryServiceMock = {
                 addToInventoryAndEmit: jest.fn(),
+                getSlippingChance: jest.fn(),
             };
 
             service['action'] = actionServiceMock;
@@ -894,13 +895,14 @@ describe('ActionHandlerService', () => {
                             id: 'player-1',
                             isVirtual: false,
                             stats: { visitedTiles: new Set(), visitedTilesPercent: 0 },
+                            inventory: [],
                         },
                         position: 0,
                     },
                 ],
                 maxNbTiles: 10,
             };
-
+            inventoryServiceMock.getSlippingChance.mockReturnValue(0);
             activeGamesServiceMock.getActiveGame.mockReturnValue(mockActiveGame);
             actionServiceMock.isCurrentPlayersTurn.mockReturnValue(true);
             actionServiceMock.movePlayer.mockReturnValue([0, 1]);
@@ -944,13 +946,14 @@ describe('ActionHandlerService', () => {
                             id: 'player-1',
                             isVirtual: false,
                             stats: { visitedTiles: new Set(), visitedTilesPercent: 0 },
+                            inventory: [],
                         },
                         position: 0,
                     },
                 ],
                 maxNbTiles: 10,
             };
-
+            inventoryServiceMock.getSlippingChance.mockReturnValue(0.1);
             activeGamesServiceMock.getActiveGame.mockReturnValue(mockActiveGame);
             actionServiceMock.isCurrentPlayersTurn.mockReturnValue(true);
             actionServiceMock.movePlayer.mockReturnValue([0, 1]);
@@ -1078,6 +1081,7 @@ describe('ActionHandlerService', () => {
                             id: 'player-1',
                             isVirtual: false,
                             stats: { visitedTiles: new Set(), visitedTilesPercent: 0 },
+                            inventory: [],
                         },
                         position: 0,
                     },
@@ -1085,6 +1089,7 @@ describe('ActionHandlerService', () => {
                 maxNbTiles: 10,
             };
 
+            inventoryServiceMock.getSlippingChance.mockReturnValue(0.1);
             activeGamesServiceMock.getActiveGame.mockReturnValue(mockActiveGame);
             actionServiceMock.isCurrentPlayersTurn.mockReturnValue(true);
             actionServiceMock.movePlayer.mockReturnValue([0, 1]); // First position is on ice
