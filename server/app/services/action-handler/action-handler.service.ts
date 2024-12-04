@@ -1,8 +1,10 @@
+import { HUNDRED_PERCENT, SLIP_PERCENTAGE, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
 import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
 import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
 import { MovementService } from '@app/services/movement/movement.service';
 import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
@@ -10,8 +12,6 @@ import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { LogSenderService } from '@app/services/log-sender/log-sender.service';
-import { HUNDRED_PERCENT, TIME_BETWEEN_MOVES } from '@app/services/action-handler/action-handler.util';
 @Injectable()
 export class ActionHandlerService {
     // Il est nécessaire d'avoir ces 3 parametres supplémentaires pour ce constructor du a l'utilité de cet action handler service
@@ -87,7 +87,8 @@ export class ActionHandlerService {
         let pastPosition = startPosition;
         let tileItem = '';
 
-        const slippingChance = this.inventoryService.getSlippingChance(player.player);
+        const slippingChance = SLIP_PERCENTAGE;
+
         const isDebugMode = this.debugModeService.getDebugMode(data.roomId);
 
         let ctfWinCondition = false;

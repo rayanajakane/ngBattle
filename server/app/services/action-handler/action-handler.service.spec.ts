@@ -3,14 +3,14 @@ import { ActionService } from '@app/services/action/action.service';
 import { ActiveGamesService } from '@app/services/active-games/active-games.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { DebugModeService } from '@app/services/debug-mode/debug-mode.service';
+import { InventoryService } from '@app/services/inventory/inventory.service';
+import { LogSenderService } from '@app/services/log-sender/log-sender.service';
 import { MatchService } from '@app/services/match.service';
+import { MovementService } from '@app/services/movement/movement.service';
+import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 import { Player } from '@common/player';
 import { ItemTypes, TileTypes } from '@common/tile-types';
 import { Test, TestingModule } from '@nestjs/testing';
-import { InventoryService } from '@app/services/inventory/inventory.service';
-import { LogSenderService } from '@app/services/log-sender/log-sender.service';
-import { MovementService } from '@app/services/movement/movement.service';
-import { VirtualPlayerService } from '@app/services/virtual-player/virtual-player.service';
 /* eslint-disable */
 describe('ActionHandlerService', () => {
     let service: ActionHandlerService;
@@ -90,7 +90,10 @@ describe('ActionHandlerService', () => {
                 },
                 {
                     provide: InventoryService,
-                    useValue: {},
+                    useValue: {
+                        getSlippingChance: jest.fn(),
+                        hasAF1Item: jest.fn(),
+                    },
                 },
                 {
                     provide: DebugModeService,

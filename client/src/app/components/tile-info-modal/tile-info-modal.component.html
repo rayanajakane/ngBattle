@@ -1,8 +1,7 @@
-<h1 mat-dialog-title>Information sur la tuile</h1>
-
-<div mat-dialog-content>
+<div mat-dialog-content class="modal-container">
+    <h1 mat-dialog-title>Information sur la tuile</h1>
     @if (data.tile) {
-    <div>
+    <div class="tile-info">
         <p><strong>Type de tuile:</strong> {{ this.tileType ? this.tileType : 'Aucune' }}</p>
         <p><strong>Caractéristique de la tuile:</strong></p>
         <p>Position de la tuile: {{ data.tile.idx }}</p>

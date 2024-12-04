@@ -6,6 +6,7 @@ import { ItemTypes, TileTypes } from '@common/tile-types';
 @Component({
     selector: 'app-tile-info-modal',
     templateUrl: './tile-info-modal.component.html',
+    styleUrl: './tile-info-modal.component.scss',
 })
 export class TileInfoModalComponent {
     tileType: string;
