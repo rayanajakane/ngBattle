@@ -34,6 +34,8 @@ export class AdminItemComponent implements OnInit {
     }
 
     exportGame() {
+        // no-unused-vars is disabled because we need to remove the isVisible property from the game object
+        // eslint-disable-next-line no-unused-vars
         const { isVisible: _, ...gameWithoutVisibility } = this.game;
         const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(gameWithoutVisibility));
         const downloadAnchorNode = document.createElement('a');

@@ -208,7 +208,7 @@ describe('WaitingPageComponent', () => {
             '/game',
             {
                 playerId: 'testPlayer',
-                gameId: gameId,
+                gameId,
                 roomId: 'testRoom',
                 isAdmin: true,
             },

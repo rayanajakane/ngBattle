@@ -4,6 +4,8 @@ import { IDGenerationService } from '@app/services/idgeneration.service';
 import { GameStructure } from '@common/game-structure';
 import { ImportDialogComponent } from './import-dialog.component';
 
+/* eslint-disable */
+
 describe('ImportDialogComponent', () => {
     let component: ImportDialogComponent;
     let fixture: ComponentFixture<ImportDialogComponent>;

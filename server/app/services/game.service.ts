@@ -13,6 +13,8 @@ export class GameService {
     }
 
     async update(game: GameStructure): Promise<Game> {
+        // no-unused-vars is disabled because creationDate is not used in the updateData object
+        // eslint-disable-next-line no-unused-vars
         const { creationDate, ...updateData } = game;
         return await this.gameModel.findOneAndUpdate({ id: game.id }, updateData).exec();
     }

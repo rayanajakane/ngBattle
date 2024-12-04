@@ -26,8 +26,6 @@ export class ImportDialogComponent {
     game: GameStructure;
     reader: FileReader;
 
-    constructor() {}
-
     loadImportedGame(importedData: Partial<GameStructure>) {
         const game: GameStructure = {
             id: this.idGenerationService.generateID(),
@@ -53,7 +51,7 @@ export class ImportDialogComponent {
             error: (error: HttpErrorResponse) => {
                 const errorp = document.getElementById('errors') as HTMLParagraphElement;
                 errorp.textContent = error.error.errors.join('\n');
-                if (error.error.errors.some((error: string) => error.includes('nom'))) {
+                if (error.error.errors.some((e: string) => e.includes('nom'))) {
                     this.isNameError = true;
                     this.game = game;
                 }
